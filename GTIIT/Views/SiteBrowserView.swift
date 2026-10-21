@@ -151,7 +151,7 @@ private struct BrowserChrome: View {
 
     private var appearanceRow: some View {
         HStack(spacing: 12) {
-            Image(systemName: "moon.fill")
+            Image(systemName: "moon")
                 .frame(width: 24)
                 .foregroundStyle(.primary)
             Text("暗色适配")
