@@ -15,26 +15,27 @@ private struct BrowserChrome: View {
     @EnvironmentObject private var app: AppModel
     @ObservedObject var model: BrowserModel
 
-    @State private var showClearDataDialog = false
+    @State private var showMenu = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
-            ProgressBarView(progress: model.progress, isActive: model.isLoading)
-            content
-        }
-        .background(Color(uiColor: .systemBackground))
-        .confirmationDialog(
-            "清除「\(model.site.displayName)」的网页数据？",
-            isPresented: $showClearDataDialog,
-            titleVisibility: .visible
-        ) {
-            Button("清除并重新登录", role: .destructive) {
-                Task { await model.clearSiteData() }
+        ZStack(alignment: .topTrailing) {
+            VStack(spacing: 0) {
+                header
+                ProgressBarView(progress: model.progress, isActive: model.isLoading)
+                content
             }
-            Button("取消", role: .cancel) {}
-        } message: {
-            Text("会删除该站点的 Cookie、缓存与本地存储，其他站点不受影响。")
+            .background(Color(uiColor: .systemBackground))
+
+            if showMenu {
+                menuOverlay
+                    .transition(.opacity)
+                    .zIndex(2)
+            }
+        }
+        .task {
+            #if DEBUG
+                if ProcessInfo.processInfo.environment["GTIIT_OPEN_MENU"] == "1" { showMenu = true }
+            #endif
         }
     }
 
@@ -55,7 +56,18 @@ private struct BrowserChrome: View {
             .buttonStyle(.plain)
             .accessibilityLabel("\(model.displayTitle)，回到\(model.site.defaultLandingTitle)")
             .accessibilityHint("轻点回到网站主页")
-            menu
+            Button {
+                withAnimation(.spring(response: 0.26, dampingFraction: 0.9)) {
+                    showMenu.toggle()
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .font(.system(size: 17))
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(showMenu ? "关闭菜单" : "更多操作")
         }
         .padding(.horizontal, 4)
         .frame(minHeight: Theme.headerHeight)
@@ -66,87 +78,127 @@ private struct BrowserChrome: View {
         }
     }
 
-    private var menu: some View {
-        Menu {
-            Button {
-                model.goBack()
-            } label: {
-                Label("后退", systemImage: "chevron.backward")
-            }.disabled(!model.canGoBack)
-            Button {
-                model.goForward()
-            } label: {
-                Label("前进", systemImage: "chevron.forward")
-            }.disabled(!model.canGoForward)
+    // MARK: - 二级菜单
 
-            Button {
-                model.loadHome()
-            } label: {
-                Label("回到\(model.site.defaultLandingTitle)", systemImage: "house")
+    private var menuOverlay: some View {
+        ZStack(alignment: .topTrailing) {
+            Color.black.opacity(0.18)
+                .ignoresSafeArea()
+                .onTapGesture { closeMenu() }
+                .accessibilityHidden(true)
+
+            menuPanel
+                .padding(.top, 58)
+                .padding(.trailing, 8)
+                .transition(.scale(scale: 0.94, anchor: .topTrailing).combined(with: .opacity))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var menuPanel: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                navigationButton("chevron.backward", label: "后退", enabled: model.canGoBack) { model.goBack() }
+                navigationButton("chevron.forward", label: "前进", enabled: model.canGoForward) { model.goForward() }
+                navigationButton(
+                    model.site == .moodle ? "book.closed" : "house",
+                    label: "回到\(model.site.defaultLandingTitle)") { model.loadHome() }
+                navigationButton("arrow.clockwise", label: "刷新") { model.reload() }
             }
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
 
-            Button {
-                model.reload()
-            } label: {
-                Label("刷新", systemImage: "arrow.clockwise")
-            }
+            Divider().padding(.horizontal, 10)
 
-            Toggle("本站网页暗色适配", isOn: Binding(
-                get: { !settings.originalColorSites.contains(model.site) },
-                set: { enabled in
-                    if enabled { settings.originalColorSites.remove(model.site) }
-                    else { settings.originalColorSites.insert(model.site) }
-                }))
-                .disabled(!settings.webDarkMode)
+            appearanceRow
 
-            Button { app.showDownloads = true } label: {
-                Label("下载", systemImage: "arrow.down.circle")
-            }
-
-            Button {
+            Divider().padding(.leading, 44)
+            menuRow("下载", systemImage: "arrow.down.circle") { app.showDownloads = true }
+            Divider().padding(.leading, 44)
+            menuRow("强制刷新（忽略缓存）", systemImage: "arrow.trianglehead.2.clockwise.rotate.90") {
                 model.reloadFromOrigin()
-            } label: {
-                Label("强制刷新（忽略缓存）", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
             }
+            Divider().padding(.leading, 44)
+            menuRow("站点说明", systemImage: "info.circle") { app.siteInfo = model.site }
+        }
+        .frame(width: 300)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.08))
+        )
+        .shadow(color: .black.opacity(0.12), radius: 12, y: 6)
+    }
 
-            if model.canOpenInExternalBrowser, let url = model.currentURL {
-                ShareLink(item: url, subject: Text(model.displayTitle)) {
-                    Label("分享当前页面", systemImage: "square.and.arrow.up")
-                }
-            }
-
-            Button {
-                model.openInSystemBrowser()
-            } label: {
-                Label("在默认浏览器中打开", systemImage: "arrow.up.forward.app")
-            }.disabled(!model.canOpenInExternalBrowser)
-
-            Button {
-                model.openInAppSafari()
-            } label: {
-                Label("在 App 内 Safari 打开", systemImage: "safari")
-            }.disabled(!model.canOpenInExternalBrowser)
-
-            Button {
-                app.siteInfo = model.site
-            } label: {
-                Label("站点说明", systemImage: "info.circle")
-            }
-
-            Divider()
-
-            Button(role: .destructive) {
-                showClearDataDialog = true
-            } label: {
-                Label("清除本站网页数据", systemImage: "trash")
-            }
+    private func navigationButton(
+        _ systemImage: String, label: String, enabled: Bool = true, action: @escaping () -> Void
+    ) -> some View {
+        Button {
+            closeMenu()
+            action()
         } label: {
-            Image(systemName: "ellipsis.circle")
-                .font(.system(size: 17))
-                .frame(width: 44, height: 44)
+            Image(systemName: systemImage)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(.primary)
+                .frame(maxWidth: .infinity, minHeight: 44)
                 .contentShape(Rectangle())
         }
-        .accessibilityLabel("更多操作")
+        .buttonStyle(.plain)
+        .disabled(!enabled)
+        .opacity(enabled ? 1 : 0.3)
+        .accessibilityLabel(label)
+    }
+
+    private var appearanceRow: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "moon.fill")
+                .frame(width: 24)
+                .foregroundStyle(.primary)
+            Text("暗色适配")
+                .font(.body)
+            Spacer(minLength: 0)
+            Toggle("", isOn: appearanceBinding)
+                .labelsHidden()
+                .disabled(!settings.webDarkMode)
+        }
+        .padding(.horizontal, 14)
+        .frame(height: 44)
+        .opacity(settings.webDarkMode ? 1 : 0.5)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("暗色适配")
+    }
+
+    private var appearanceBinding: Binding<Bool> {
+        Binding(
+            get: { !settings.originalColorSites.contains(model.site) },
+            set: { enabled in
+                if enabled { settings.originalColorSites.remove(model.site) }
+                else { settings.originalColorSites.insert(model.site) }
+            })
+    }
+
+    private func menuRow(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+        Button {
+            closeMenu()
+            action()
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: systemImage)
+                    .frame(width: 24)
+                    .foregroundStyle(.primary)
+                Text(title)
+                    .font(.body)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 14)
+            .frame(height: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func closeMenu() {
+        withAnimation(.easeOut(duration: 0.16)) { showMenu = false }
     }
 
     // MARK: - 网页内容

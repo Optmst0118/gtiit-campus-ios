@@ -6,6 +6,20 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Web shell scrolling: pinch and double-tap zoom are disabled in all four site tabs;
+  pages now only scroll vertically.
+- The site "more" menu is rebuilt as a compact panel: back, forward, home and refresh
+  are icon-only and evenly distributed at the top; share, Safari and clear-site-data
+  entries were removed; the per-site appearance toggle is renamed "暗色适配" with a
+  moon icon.
+- Downloads management now matches the rest of Settings: the download location is a
+  separate rounded card, files live in one grouped card with hairline separators, and
+  list rows support trailing swipe-to-delete.
+- Dark mode on the student portal: Tailwind header/background gradients are overridden
+  to black instead of staying white.
+
 ## [1.5.0-beta.1] - 2026-10-22
 
 First public snapshot.

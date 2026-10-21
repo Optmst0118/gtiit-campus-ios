@@ -3,6 +3,13 @@
     let enabled = GTIIT_INITIAL_ENABLED;
     const dark = matchMedia('(prefers-color-scheme: dark)');
     const sameHost = (host) => GTIIT_ALLOWED_HOSTS.includes(host);
+    // 门户使用 Tailwind 渐变：深色模式下把白底渐变改成黑色，避免顶部仍是亮色。
+    const portalDarkCSS = location.hostname === 'students.gtiit.edu.cn' ? [
+        'html[data-darkreader-scheme="dark"] .app-bg{background:linear-gradient(75deg,#000 0%,#0b0f14 60%) !important}',
+        'html[data-darkreader-scheme="dark"] .from-gray-50{--tw-gradient-from:#000 !important}',
+        'html[data-darkreader-scheme="dark"] .from-white{--tw-gradient-from:#000 !important}',
+        'html[data-darkreader-scheme="dark"] .bg-gradient-to-b,html[data-darkreader-scheme="dark"] .bg-gradient-to-t{--tw-gradient-to:rgba(0,0,0,0) !important}'
+    ].join('') : '';
     const fixes = {
         disableProxyInjection: true,
         disableStyleSheetsProxy: true,
@@ -11,7 +18,7 @@
         ignoreInlineStyle: ['img', 'video', 'canvas', '[data-gtiit-original-colors]',
             '.reserved', '.unreservable', '.available', '.fc-event', '.fc-bg-event',
             '[class*="qrcode"]', '[class*="captcha"]'],
-        invert: [], css: 'img[src*="logo" i], img[alt*="logo" i], .logo img, .navbar-brand img { background-color: #ffffff !important; }' 
+        invert: [], css: 'img[src*="logo" i], img[alt*="logo" i], .logo img, .navbar-brand img { background-color: #ffffff !important; }' + portalDarkCSS
     };
     const theme = {
         mode: 1, brightness: 100, contrast: 100, sepia: 0,

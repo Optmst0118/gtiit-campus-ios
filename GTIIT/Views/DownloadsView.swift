@@ -11,38 +11,61 @@ struct DownloadsView: View {
     @AppStorage("downloads.ascending") private var ascending = false
     @State private var pendingDelete: UUID?
     @State private var chooseFolder = false
-    private var sortedItems: [DownloadItem] { (DownloadSort(rawValue: sortRaw) ?? .time).ordered(center.items, ascending: ascending) }
+    private var sortedItems: [DownloadItem] {
+        (DownloadSort(rawValue: sortRaw) ?? .time).ordered(center.items, ascending: ascending)
+    }
 
     var body: some View {
-        VStack(spacing: 0) {
-            Button { chooseFolder = true } label: {
-                HStack(spacing: 10) {
-                    Image(systemName: "folder").foregroundStyle(Theme.accent)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("下载位置").font(.subheadline)
-                        Text(center.defaultLocationTitle).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+        List {
+            Section {
+                Button { chooseFolder = true } label: { locationRow }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("选择之后新下载文件的默认文件夹")
+            }
+
+            Section {
+                if center.items.isEmpty {
+                    ContentUnavailableView {
+                        Label("暂无下载", systemImage: "arrow.down.circle")
+                    } description: {
+                        Text("保存的文件会显示在这里。")
                     }
-                    Spacer(); Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
-                }.padding(.horizontal, 20).padding(.vertical, 10).contentShape(Rectangle())
-            }.buttonStyle(.plain).accessibilityHint("选择之后新下载文件的默认文件夹")
-            Divider()
-            if center.items.isEmpty {
-                ContentUnavailableView("暂无下载", systemImage: "arrow.down.circle", description: Text("保存的文件会显示在这里。"))
-            } else if grid {
-                ScrollView {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 105, maximum: 160), spacing: 20)], spacing: 24) {
-                        ForEach(sortedItems) { item in
-                            fileButton(item, grid: true)
-                        }
-                    }.padding(20)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                } else if grid {
+                    LazyVGrid(
+                        columns: [GridItem(.adaptive(minimum: 105, maximum: 160), spacing: 20)],
+                        spacing: 24
+                    ) {
+                        ForEach(sortedItems) { item in fileCell(item) }
+                    }
+                    .padding(.vertical, 14)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                } else {
+                    ForEach(sortedItems) { item in
+                        fileRow(item)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button(role: .destructive) {
+                                    pendingDelete = item.id
+                                } label: {
+                                    Label("删除", systemImage: "trash")
+                                }
+                            }
+                    }
                 }
-            } else {
-                List(sortedItems) { item in fileButton(item, grid: false) }
-                    .listStyle(.plain)
+            } header: {
+                Text(center.items.isEmpty ? "文件" : "文件 · \(center.items.count)")
+            } footer: {
+                if !center.items.isEmpty {
+                    Text(grid ? "点按文件可预览或继续操作。" : "左滑文件可以删除；删除只影响本机文件与这条记录。")
+                }
             }
         }
-        .background(Color(uiColor: .systemBackground))
-        .navigationTitle("下载管理").navigationBarTitleDisplayMode(.inline)
+        .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+        .background(Theme.pageBackground)
+        .navigationTitle("下载管理")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button { grid.toggle() } label: {
@@ -72,7 +95,11 @@ struct DownloadsView: View {
                 catch { center.reportError("无法使用此文件夹，请重新选择。\(error.localizedDescription)") }
             }
         }
-        .confirmationDialog("删除此下载文件？", isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } }), titleVisibility: .visible) {
+        .confirmationDialog(
+            "删除此下载文件？",
+            isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } }),
+            titleVisibility: .visible
+        ) {
             Button("删除文件", role: .destructive) {
                 if let id = pendingDelete { Task { await center.removeFile(id) } }
                 pendingDelete = nil
@@ -83,55 +110,127 @@ struct DownloadsView: View {
             Button("好") { center.locationError = nil }
         } message: { Text(center.locationError ?? "") }
     }
-    private func fileButton(_ item: DownloadItem, grid: Bool) -> some View {
-        Button {
-            if item.state == .completed { center.open(item) }
-            else if center.canRetry(item.id) { center.retry(item.id) }
-            else if item.state != .downloading { app.openSite(item.site) }
-        } label: {
-            Group {
-                if grid {
-                    VStack(spacing: 10) {
-                        DownloadThumbnail(url: item.state == .completed ? center.fileURL(for: item) : nil)
-                            .frame(width: 72, height: 88)
-                            .background(Color(uiColor: .secondarySystemBackground), in: RoundedRectangle(cornerRadius: 4))
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
-                            .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color(uiColor: .separator).opacity(0.4), lineWidth: 0.5))
-                        Text(item.filename).font(.caption).lineLimit(2).multilineTextAlignment(.center)
-                        if item.state == .downloading { ProgressView(value: item.progress).frame(width: 72) }
-                        else if item.state != .completed { Image(systemName: "exclamationmark.circle").foregroundStyle(.secondary) }
-                    }.frame(maxWidth: .infinity, alignment: .top)
-                } else {
-                    HStack(spacing: 12) {
-                        Image(systemName: item.state == .completed ? "doc" : "arrow.down.doc")
-                            .foregroundStyle(Theme.accent).frame(width: 24)
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text(item.filename).font(.body).lineLimit(1)
-                            if item.state == .downloading { ProgressView(value: item.progress) }
-                        }
-                        Spacer(minLength: 0)
-                        if item.state == .failed || item.state == .cancelled {
-                            Image(systemName: "exclamationmark.circle").foregroundStyle(.secondary)
-                        }
-                    }.frame(minHeight: 36).contentShape(Rectangle())
+
+    private var locationRow: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "folder")
+                .foregroundStyle(Theme.accent)
+                .frame(width: 24)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("下载位置")
+                    .foregroundStyle(.primary)
+                Text(center.defaultLocationTitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.tertiary)
+        }
+        .padding(.vertical, 3)
+        .contentShape(Rectangle())
+    }
+
+    private func fileRow(_ item: DownloadItem) -> some View {
+        Button { activate(item) } label: {
+            HStack(spacing: 12) {
+                Image(systemName: rowSymbol(item))
+                    .foregroundStyle(Theme.accent)
+                    .frame(width: 24)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(item.filename)
+                        .font(.body)
+                        .lineLimit(1)
+                        .foregroundStyle(.primary)
+                    Text(detail(item))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
-            }.foregroundStyle(.primary)
+                Spacer(minLength: 0)
+                if item.state == .downloading {
+                    ProgressView(value: item.progress)
+                        .frame(width: 44)
+                } else if item.state == .failed || item.state == .cancelled {
+                    Image(systemName: "exclamationmark.circle")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.vertical, 3)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(item.filename)
-        .accessibilityValue(item.state == .completed ? ByteCountFormatter.string(fromByteCount: item.bytes, countStyle: .file) : item.state == .downloading ? "下载中" : "未完成")
-        .contextMenu {
-            if item.state == .completed {
-                Button("预览", systemImage: "doc.text.magnifyingglass") { center.open(item) }
-                if let url = center.fileURL(for: item) { ShareLink(item: url) { Label("分享", systemImage: "square.and.arrow.up") } }
-            } else if item.state == .downloading {
-                Button("取消下载", systemImage: "xmark.circle") { center.cancel(item.id) }
-            } else if center.canRetry(item.id) {
-                Button("继续下载", systemImage: "arrow.clockwise") { center.retry(item.id) }
-            } else {
-                Button("打开来源站点", systemImage: "safari") { app.openSite(item.site) }
+        .accessibilityValue(detail(item))
+        .contextMenu { contextMenu(for: item) }
+    }
+
+    private func fileCell(_ item: DownloadItem) -> some View {
+        Button { activate(item) } label: {
+            VStack(spacing: 10) {
+                DownloadThumbnail(url: item.state == .completed ? center.fileURL(for: item) : nil)
+                    .frame(width: 72, height: 88)
+                    .background(Color(uiColor: .secondarySystemBackground), in: RoundedRectangle(cornerRadius: 4))
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color(uiColor: .separator).opacity(0.4), lineWidth: 0.5))
+                Text(item.filename).font(.caption).lineLimit(2).multilineTextAlignment(.center)
+                if item.state == .downloading { ProgressView(value: item.progress).frame(width: 72) }
+                else if item.state != .completed { Image(systemName: "exclamationmark.circle").foregroundStyle(.secondary) }
             }
-            Button("删除", systemImage: "trash", role: .destructive) { pendingDelete = item.id }
+            .frame(maxWidth: .infinity, alignment: .top)
+            .foregroundStyle(.primary)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(item.filename)
+        .accessibilityValue(detail(item))
+        .contextMenu { contextMenu(for: item) }
+    }
+
+    @ViewBuilder
+    private func contextMenu(for item: DownloadItem) -> some View {
+        if item.state == .completed {
+            Button("预览", systemImage: "doc.text.magnifyingglass") { center.open(item) }
+            if let url = center.fileURL(for: item) {
+                ShareLink(item: url) { Label("分享", systemImage: "square.and.arrow.up") }
+            }
+        } else if item.state == .downloading {
+            Button("取消下载", systemImage: "xmark.circle") { center.cancel(item.id) }
+        } else if center.canRetry(item.id) {
+            Button("继续下载", systemImage: "arrow.clockwise") { center.retry(item.id) }
+        } else {
+            Button("打开来源站点", systemImage: "safari") { app.openSite(item.site) }
+        }
+        Button("删除", systemImage: "trash", role: .destructive) { pendingDelete = item.id }
+    }
+
+    private func activate(_ item: DownloadItem) {
+        if item.state == .completed { center.open(item) }
+        else if center.canRetry(item.id) { center.retry(item.id) }
+        else if item.state != .downloading { app.openSite(item.site) }
+    }
+
+    private func rowSymbol(_ item: DownloadItem) -> String {
+        switch item.state {
+        case .downloading: return "arrow.down.doc"
+        case .failed, .cancelled: return "exclamationmark.triangle"
+        case .completed: return "doc.text"
+        }
+    }
+
+    private func detail(_ item: DownloadItem) -> String {
+        switch item.state {
+        case .completed:
+            let size = ByteCountFormatter.string(fromByteCount: item.bytes, countStyle: .file)
+            let date = item.createdAt.formatted(date: .abbreviated, time: .shortened)
+            return "\(item.site.shortName) · \(size) · \(date)"
+        case .downloading:
+            return "下载中 \(Int((item.progress * 100).rounded()))%"
+        case .failed:
+            return "下载失败"
+        case .cancelled:
+            return "已取消"
         }
     }
 }

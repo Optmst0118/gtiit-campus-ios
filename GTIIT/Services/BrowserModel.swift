@@ -54,6 +54,8 @@ final class BrowserModel: NSObject, ObservableObject {
         configuration.allowsInlineMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = .audio
         configuration.preferences.isFraudulentWebsiteWarningEnabled = true
+        configuration.userContentController.addUserScript(
+            WKUserScript(source: Self.viewportLockScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
         return WKWebView(frame: .zero, configuration: configuration)
     }
     func applyWebAppearance() {
@@ -72,6 +74,7 @@ final class BrowserModel: NSObject, ObservableObject {
         webView.allowsLinkPreview = true
         webView.scrollView.contentInsetAdjustmentBehavior = .automatic
         webView.scrollView.alwaysBounceVertical = true
+        Self.restrictScrolling(webView)
         #if DEBUG
             webView.isInspectable = true
         #endif
@@ -80,6 +83,45 @@ final class BrowserModel: NSObject, ObservableObject {
         webView.scrollView.refreshControl = refresh
         observeWebView()
     }
+    // MARK: - 缩放与滚动限制
+
+    /// 只允许上下滚动：禁用双指捏合、双击缩放与缩放回弹，并锁定横向拖动。
+    static func restrictScrolling(_ webView: WKWebView) {
+        let scrollView = webView.scrollView
+        scrollView.isDirectionalLockEnabled = true
+        scrollView.bouncesZoom = false
+        scrollView.minimumZoomScale = 1
+        scrollView.maximumZoomScale = 1
+        if scrollView.zoomScale != 1 { scrollView.zoomScale = 1 }
+        scrollView.pinchGestureRecognizer?.isEnabled = false
+        disableZoomGestures(in: scrollView)
+        disableZoomGestures(in: webView)
+    }
+
+    private static func disableZoomGestures(in view: UIView) {
+        for recognizer in view.gestureRecognizers ?? [] {
+            if let tap = recognizer as? UITapGestureRecognizer, tap.numberOfTapsRequired >= 2 {
+                tap.isEnabled = false
+            }
+            if recognizer is UIPinchGestureRecognizer { recognizer.isEnabled = false }
+        }
+        for subview in view.subviews { disableZoomGestures(in: subview) }
+    }
+
+    /// 覆盖网页 viewport，避免页面自行声明可缩放。
+    static let viewportLockScript = """
+    (() => {
+        const content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
+        let meta = document.querySelector('meta[name="viewport"]');
+        if (!meta) {
+            meta = document.createElement('meta');
+            meta.name = 'viewport';
+            document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', content);
+    })();
+    """
+
     /// 停止活动文档和弹窗；清空后替换内核，移除 BackForwardList 与页面内存。
     func prepareForDataClear() async -> Bool {
         isResetting = true
@@ -297,6 +339,7 @@ extension BrowserModel: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        Self.restrictScrolling(webView)
         guard webView === self.webView else { return }
         isLoading = false
         hasLoadedOnce = true
@@ -444,7 +487,10 @@ extension BrowserModel: WKUIDelegate {
             router?.browserToast("请先关闭已打开的网页窗口")
             return nil
         }
+        configuration.userContentController.addUserScript(
+            WKUserScript(source: Self.viewportLockScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
         let popup = WKWebView(frame: .zero, configuration: configuration)
+        Self.restrictScrolling(popup)
         WebAppearance.install(on: configuration, enabled: router?.browserWebDarkModeEnabled(for: site) ?? true)
         popup.navigationDelegate = self
         popup.uiDelegate = self
