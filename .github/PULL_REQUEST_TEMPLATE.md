@@ -34,7 +34,7 @@ Example:
 - [ ] No captcha/MFA/authorization bypass, scraping, or automated submission of school forms was added.
 - [ ] Web injection is limited to the appearance script on official campus hosts, runs in the isolated content world, and does not read page globals or form values.
 - [ ] Vendored third-party code (Dark Reader) and its license/notice files were kept up to date.
-- [ ] No hardcoded credentials, tokens, personal signing team IDs, bundle identifiers, absolute home paths, or device UDIDs were committed.
+- [ ] No hardcoded credentials, tokens, personal signing team IDs, absolute home paths, or device UDIDs were committed.
 - [ ] Changes to `Info.plist`, App Transport Security, or permissions are explained above.
 
 ## Checklist

@@ -9,7 +9,7 @@ body:
       value: |
         Thanks for helping improve GTIIT Campus Assistant.
 
-        This is an **unofficial, student-built** iOS client for GTIIT websites and is not affiliated with the university. Please read the README and its "Known limitations" section first, and search existing issues/discussions before filing.
+        This is an **unofficial, student-built** iOS client for GTIIT websites and is not affiliated with the university. Please read the README, including its 已知限制 / Known limitations section, and search existing issues/discussions before filing.
 
         **Never paste** passwords, one-time codes, session cookies, student IDs, or full URLs that contain tokens. Redact screenshots and logs before uploading.
 

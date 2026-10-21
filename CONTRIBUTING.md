@@ -124,8 +124,8 @@ rejected:
 - No scraping or crawling of school systems, no automated submission of forms, and
   no bypassing of captchas, MFA, certificates, or authorization. No fake or
   fabricated data presented as real school data.
-- No hardcoded credentials, tokens, API keys, personal signing team IDs, bundle
-  identifiers, device UDIDs, or absolute home-directory paths.
+- No hardcoded credentials, tokens, API keys, personal signing team IDs, device
+  UDIDs, or absolute home-directory paths.
 - Local storage stays limited to app preferences, WebKit data containers, and
   user-requested downloads. Do not weaken App Transport Security or privacy
   declarations to make a feature work.

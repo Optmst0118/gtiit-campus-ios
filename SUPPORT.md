@@ -11,7 +11,7 @@ limitations rather than bugs.
 
 Please check, in this order:
 
-1. The [README](README.md), especially **Known limitations**.
+1. The [README](README.md), especially its **已知限制 / Known limitations** section.
 2. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the web shells, per-site
    storage, downloads, and app lock work.
 3. The latest release notes under [docs/](docs/).

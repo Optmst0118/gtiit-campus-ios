@@ -98,7 +98,7 @@
 | 成绩单 | 无独立路由证据；入口在 Grades / Applications 页面内的按钮 | E1 §2A；架构方案 §1.1 | GT 与 Technion 两类；下载未执行（未验证） |
 | 消息 / 个人资料 | 由页面内组件与接口字面量体现（notifications、profile） | E2 portal-static-inventory.json | 无独立深链证据；不承诺 App 内消息聚合 |
 
-门户后端线索（仅作研究证据，**不是**开发者可用授权）：前端为 MSAL SPA，后端为 校内教务接口地址（已隐去），带 Bearer 认证（架构方案 §1.1，E2）。独立 App 直接调用需要学校应用注册与 Scope，当前未具备。
+门户后端线索（仅作研究证据，**不是**开发者可用授权）：前端为 MSAL SPA，后端为校内教务接口（具体地址已隐去），带 Bearer 认证（架构方案 §1.1，E2）。独立 App 直接调用需要学校应用注册与 Scope，当前未具备。
 
 ### A.3 Moodle（moodle.gtiit.edu.cn/moodle）
 
@@ -179,8 +179,8 @@ resource 78 的公开元数据（E2，booked-resource-inventory.json）：资源
 
 | 站点 | 登录方式 | SSO / 域名 | 账号前提 | 证据 | 首版 App 处理 |
 |---|---|---|---|---|---|
-| 学生门户 | 学校 Microsoft Entra 账号登录（MSAL SPA） | login.microsoftonline.com，Tenant `(tenant id redacted)` | 广以系统账号，格式 `username@gtiit.edu.cn`；密码重置入口：门户登录页提示 https://sites.gtiit.edu.cn/pwm，Moodle 报告另记 pwm.gtiit.edu.cn（两处来源，是否同一服务未验证） | E1 rendered-public-pages.json、portal-mobile.png；E2 架构方案 §1.1 | WKWebView 内官方网页登录；不代填、不接管密码 |
-| Moodle | ① Login via Office 365（SAML2 插件）② 邮箱 + 密码手动登录 | /moodle/auth/saml2/login.php?wants&idp=(idp id redacted)；身份提供方名称 Login via Office 365 | GTIIT 邮箱与密码；找回入口指向 pwm | E2 moodle-public-config-evidence.json；E1 moodle-mobile.png | WKWebView 内官方网页登录；不生成移动令牌、不做 ASWebAuthenticationSession 回调 |
+| 学生门户 | 学校 Microsoft Entra 账号登录（MSAL SPA） | login.microsoftonline.com，Tenant ID（已隐去） | 广以系统账号，格式 `username@gtiit.edu.cn`；密码重置入口：门户登录页提示 https://sites.gtiit.edu.cn/pwm，Moodle 报告另记 pwm.gtiit.edu.cn（两处来源，是否同一服务未验证） | E1 rendered-public-pages.json、portal-mobile.png；E2 架构方案 §1.1 | WKWebView 内官方网页登录；不代填、不接管密码 |
+| Moodle | ① Login via Office 365（SAML2 插件）② 邮箱 + 密码手动登录 | /moodle/auth/saml2/login.php?wants&idp=（IDP 标识已隐去）；身份提供方名称 Login via Office 365 | GTIIT 邮箱与密码；找回入口指向 pwm | E2 moodle-public-config-evidence.json；E1 moodle-mobile.png | WKWebView 内官方网页登录；不生成移动令牌、不做 ASWebAuthenticationSession 回调 |
 | 房间预约 | Booked 本站账号：Username or Email + Password，可勾选 Remember Me | 无 SSO 证据；页面为独立 Booked 登录 | 本站账号（与 Microsoft 账号关系未验证） | E1 portal-booked-inventory.json；§2B | WKWebView 内官方网页登录 |
 | 体育中心 | MIKEX 独立会员：邮箱认证（`-830 → MemberLogin`，`email_login_type=4 → UNI_EMAIL_AUTH_ALLOW_PASSWORD`） | gtiit.mike-x.com；与学校 SSO 关系未验证 | 需会员账号；没有账号需在 VK31S 注册，可能需资格/资料审核（未验证） | E2 sports-findings.md；sports-functional-inventory.json | WKWebView 内官方网页登录或打开注册页 |
 
