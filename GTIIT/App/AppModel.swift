@@ -111,28 +111,50 @@ final class AppModel: ObservableObject {
         isClearingData = true
         defer { isClearingData = false }
         downloads.invalidateSession(for: site)
-        await browsers[site]?.prepareForDataClear()
-        await WebDataStoreRegistry.shared.clearData(for: site)
+        if let browser = browsers[site], !(await browser.prepareForDataClear()) {
+            browser.finishDataClear(dataCleared: false)
+            toast("网页尚未退出，数据清理未完成，请重试")
+            return
+        }
+        browsers[site]?.releaseDataStoreView()
+        await WebDataStoreRegistry.shared.resetStore(for: site)
         settings.clearLocation(for: site)
         browsers[site]?.finishDataClear()
         await refreshStorageStates()
-        toast("已清除「\(site.displayName)」的登录与网页数据")
+        if WebDataStoreRegistry.shared.pendingCleanupCount == 0 {
+            toast("已清除「\(site.displayName)」的登录与网页数据")
+        } else {
+            toast("登录数据已清除，旧缓存待释放后清理；可在存储空间中重试")
+        }
     }
     func clearAllData() async {
         guard !isClearingData else { return }
         isClearingData = true
         defer { isClearingData = false }
+        var prepared: [BrowserModel] = []
         for site in SiteID.allCases {
             downloads.invalidateSession(for: site)
-            await browsers[site]?.prepareForDataClear()
+            if let browser = browsers[site] {
+                prepared.append(browser)
+                guard await browser.prepareForDataClear() else {
+                    for browser in prepared { browser.finishDataClear(dataCleared: false) }
+                    toast("网页尚未退出，数据清理未完成，请重试")
+                    return
+                }
+            }
         }
+        for browser in prepared { browser.releaseDataStoreView() }
         for site in SiteID.allCases {
-            await WebDataStoreRegistry.shared.clearData(for: site)
+            await WebDataStoreRegistry.shared.resetStore(for: site)
             browsers[site]?.finishDataClear()
         }
         settings.clearLocations()
         await refreshStorageStates()
-        toast("已清除全部站点的登录与网页数据")
+        if WebDataStoreRegistry.shared.pendingCleanupCount == 0 {
+            toast("已清除全部站点的登录与网页数据")
+        } else {
+            toast("登录数据已清除，旧缓存待释放后清理；可在存储空间中重试")
+        }
     }
     func clearCaches() async {
         guard !isClearingData else { return }
@@ -200,7 +222,8 @@ extension AppModel: BrowserRouter {
     }
 
     func browserPresent(viewController: UIViewController) -> Bool {
-        guard !lock.isLocked, lock.isActive, !isClearingData, let top = TopViewController.current(), !top.isBeingDismissed,
+        guard !lock.isLocked, lock.isActive, !isClearingData, let top = TopViewController.current(),
+            !top.isBeingDismissed,
             !top.isBeingPresented
         else { return false }
         top.present(viewController, animated: true)

@@ -42,6 +42,10 @@ final class TestAction: WKNavigationAction {
     func browserDownload(_ download: WKDownload, webView: WKWebView, site: SiteID) {}
     func browserClearData(for site: SiteID) async {}
 }
+private final class RetiredViewReference {
+    weak var value: WKWebView?
+    init(_ value: WKWebView) { self.value = value }
+}
 @MainActor final class MockAuthenticator: LocalAuthenticating {
     var isAvailable = true
     var label = "测试认证"
@@ -94,6 +98,30 @@ final class TestAction: WKNavigationAction {
         do {
             let value = try await webView.evaluateJavaScript(source)
             return String(describing: value)
+        } catch { return "ERROR \(error)" }
+    }
+    func metrics() async -> [String: Int]? {
+        var request = URLRequest(
+            url: base.appendingPathComponent("metrics").appending(queryItems: [
+                URLQueryItem(name: "nonce", value: UUID().uuidString)
+            ]))
+        request.cachePolicy = .reloadIgnoringLocalCacheData
+        guard let (data, _) = try? await URLSession.shared.data(for: request) else { return nil }
+        return (try? JSONSerialization.jsonObject(with: data)) as? [String: Int]
+    }
+    func cachedFetch(_ webView: WKWebView, url: URL) async -> String {
+        do {
+            return try await withCheckedThrowingContinuation { continuation in
+                webView.callAsyncJavaScript(
+                    "return await fetch(url, {cache:'force-cache'}).then(r => r.text())",
+                    arguments: ["url": url.absoluteString], in: nil, in: .page
+                ) { result in
+                    switch result {
+                    case .success(let value): continuation.resume(returning: String(describing: value))
+                    case .failure(let error): continuation.resume(throwing: error)
+                    }
+                }
+            }
         } catch { return "ERROR \(error)" }
     }
     func run() async {
@@ -177,6 +205,8 @@ final class TestAction: WKNavigationAction {
             "filename_safe_utf8",
             DownloadCoordinator.sanitize(String(repeating: "学", count: 300) + "/../x").utf8.count <= 220)
 
+        _ = await model.prepareForDataClear()
+        model.releaseDataStoreView()
         let app = AppModel(settings: settings)
         keep.append(app)
         check("startup_preferences_applied", app.selectedTab == .me && app.bookingSegment == .sports)
@@ -242,23 +272,58 @@ final class TestAction: WKNavigationAction {
                     app.downloads.items.first { $0.id == slow.id }?.site == .portal)
             }
         }
+        let privatePath = "private-cache/" + UUID().uuidString
+        let privateURL = base.appendingPathComponent(privatePath)
         _ = await load(browser, "a")
-        let previousView = browser.webView
+        _ = await cachedFetch(browser.webView, url: privateURL)
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        let firstCached = await cachedFetch(browser.webView, url: privateURL)
+        let primedBefore = await metrics()
+        let secondCached = await cachedFetch(browser.webView, url: privateURL)
+        let primed = await metrics()
+        let primedHits = primed?["private_cache_hits"] ?? -1
+        check(
+            "private_response_is_actually_cached",
+            primedHits > 0 && primed?["private_cache_hits"] == primedBefore?["private_cache_hits"]
+                && firstCached == secondCached, "hits=\(primedHits)")
+        _ = await load(browser, "a")
+        let previousView = RetiredViewReference(browser.webView)
         await app.clearData(for: .portal)
         let after = await WebDataStoreRegistry.shared.summary(for: .portal)
         check(
             "clear_replaces_webview_and_history",
-            browser.webView !== previousView && !browser.webView.canGoBack
+            browser.webView !== previousView.value && !browser.webView.canGoBack
                 && browser.webView.backForwardList.backList.isEmpty && browser.needsReloadAfterClear)
         check(
-            "clear_cookie_and_storage", after.cookies == 0 && !after.hasData,
-            "cookies=\(after.cookies), records=\(after.records)")
+            "clear_cookie_and_storage",
+            after.cookies == 0 && Set(after.types).isSubset(of: WebDataStoreRegistry.cacheTypes),
+            "cookies=\(after.cookies), records=\(after.records), types=\(after.types), oldURL=\(previousView.value?.url?.absoluteString ?? "nil")"
+        )
         try? await Task.sleep(nanoseconds: 500_000_000)
         let afterTimer = await WebDataStoreRegistry.shared.summary(for: .portal)
         check(
             "old_document_cannot_repopulate_storage",
-            !afterTimer.hasData && previousView.url?.absoluteString == "about:blank")
+            afterTimer.cookies == 0 && Set(afterTimer.types).isSubset(of: WebDataStoreRegistry.cacheTypes)
+                && (previousView.value == nil || previousView.value?.url?.absoluteString == "about:blank"),
+            "types=\(afterTimer.types), oldURL=\(previousView.value?.url?.absoluteString ?? "nil")")
         check("clear_does_not_autoload", browser.webView.url == nil && !browser.isLoading)
+        browser.load(base.appendingPathComponent("inspect"))
+        _ = await wait { browser.webView.title == "Storage inspector" && !browser.isLoading }
+        let afterCached = await cachedFetch(browser.webView, url: privateURL)
+        let refetched = await metrics()
+        check(
+            "clear_removes_actual_cached_response",
+            refetched?["private_cache_hits"] == primedHits + 1 && afterCached != firstCached,
+            "hits=\(String(describing: refetched?["private_cache_hits"])), before=\(firstCached), after=\(afterCached)"
+        )
+        let actualStorage = await js(
+            browser.webView,
+            "JSON.stringify({review:localStorage.getItem('review'),timer:localStorage.getItem('timer'),cookies:document.cookie})"
+        )
+        check(
+            "cleared_origin_storage_is_empty",
+            actualStorage.contains("\"review\":null") && actualStorage.contains("\"timer\":null")
+                && actualStorage.contains("\"cookies\":\"\""), actualStorage)
         check(
             "clear_keeps_completed_downloads",
             completed.allSatisfy { item in
@@ -266,32 +331,89 @@ final class TestAction: WKNavigationAction {
             })
         app.downloads.clear()
         check("download_cleanup", app.downloads.items.isEmpty && app.downloads.totalBytes == 0)
-        let retentionRoot = FileManager.default.temporaryDirectory.appendingPathComponent("retention-fixture-" + UUID().uuidString)
+        check("retired_store_deleted", WebDataStoreRegistry.shared.pendingCleanupCount == 0)
+
+        for site in SiteID.allCases {
+            let cookie = HTTPCookie(properties: [
+                .domain: site.host, .path: "/", .name: "scope_fixture", .value: site.rawValue,
+                .secure: "TRUE",
+            ])!
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                WebDataStoreRegistry.shared.store(for: site).httpCookieStore.setCookie(cookie) {
+                    continuation.resume()
+                }
+            }
+        }
+        var independent = true
+        for site in SiteID.allCases {
+            let cookies: [HTTPCookie] = await withCheckedContinuation { continuation in
+                WebDataStoreRegistry.shared.store(for: site).httpCookieStore.getAllCookies {
+                    continuation.resume(returning: $0)
+                }
+            }
+            independent = independent && cookies.count == 1 && cookies.first?.value == site.rawValue
+        }
+        check("four_site_data_stores_are_independent", independent)
+        await app.clearData(for: .portal)
+        var otherSitesPreserved = true
+        for site in SiteID.allCases {
+            let count = await WebDataStoreRegistry.shared.summary(for: site).cookies
+            otherSitesPreserved = otherSitesPreserved && count == (site == .portal ? 0 : 1)
+        }
+        check("single_clear_preserves_other_sites", otherSitesPreserved)
+        await app.clearAllData()
+        var allCleared = true
+        for site in SiteID.allCases {
+            let count = await WebDataStoreRegistry.shared.summary(for: site).cookies
+            allCleared = allCleared && count == 0
+        }
+        check("all_sites_clear_accounts", allCleared && WebDataStoreRegistry.shared.pendingCleanupCount == 0)
+        let retentionRoot = FileManager.default.temporaryDirectory.appendingPathComponent(
+            "retention-fixture-" + UUID().uuidString)
         try! FileManager.default.createDirectory(at: retentionRoot, withIntermediateDirectories: true)
         let retentionItems = [0.0, 172800.0, 691200.0].map { age in
-            DownloadItem(id: UUID(), site: .portal, filename: "fixture.pdf", createdAt: Date().addingTimeInterval(-age), state: .completed)
+            DownloadItem(
+                id: UUID(), site: .portal, filename: "fixture.pdf",
+                createdAt: Date().addingTimeInterval(-age), state: .completed)
         }
         for item in retentionItems {
             let folder = retentionRoot.appendingPathComponent(item.id.uuidString)
             try! FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             try! Data("synthetic".utf8).write(to: folder.appendingPathComponent(item.filename))
         }
-        try! JSONEncoder().encode(retentionItems).write(to: retentionRoot.appendingPathComponent("index.json"))
-        let weekly = DownloadCoordinator(directory: retentionRoot); weekly.start(retention: .week)
+        try! JSONEncoder().encode(retentionItems).write(
+            to: retentionRoot.appendingPathComponent("index.json"))
+        let weekly = DownloadCoordinator(directory: retentionRoot)
+        weekly.start(retention: .week)
         check("download_retention_week", weekly.items.count == 2)
-        let daily = DownloadCoordinator(directory: retentionRoot); daily.start(retention: .day)
+        let daily = DownloadCoordinator(directory: retentionRoot)
+        daily.start(retention: .day)
         check("download_retention_day", daily.items.count == 1)
-        let nextLaunch = DownloadCoordinator(directory: retentionRoot); nextLaunch.start(retention: .session)
-        check("download_retention_session", nextLaunch.items.isEmpty && retentionItems.allSatisfy { nextLaunch.fileURL(for: $0) == nil })
+        let nextLaunch = DownloadCoordinator(directory: retentionRoot)
+        nextLaunch.start(retention: .session)
+        check(
+            "download_retention_session",
+            nextLaunch.items.isEmpty && retentionItems.allSatisfy { nextLaunch.fileURL(for: $0) == nil })
         try? FileManager.default.removeItem(at: retentionRoot)
-        let endpoints = Dictionary(uniqueKeysWithValues: SiteID.allCases.map { ($0, base.appendingPathComponent("diagnostic")) })
+        let endpoints = Dictionary(
+            uniqueKeysWithValues: SiteID.allCases.map { ($0, base.appendingPathComponent("diagnostic")) })
         let diagnostic = NetworkDiagnostics(endpoints: endpoints)
         diagnostic.run()
-        check("diagnostic_four_head_responses", await wait { !diagnostic.isRunning && diagnostic.results.count == 4 && diagnostic.results.allSatisfy { $0.message.contains("HTTP 302") } })
-        let metrics = try? await URLSession.shared.data(from: base.appendingPathComponent("metrics"))
-        let counters = metrics.flatMap { try? JSONSerialization.jsonObject(with: $0.0) as? [String: Int] }
-        check("diagnostic_no_cookie_no_auth_no_redirect", counters?["heads"] == 4 && counters?["cookie_headers"] == 0 && counters?["redirect_followed"] == 0)
-        check("diagnostic_report_redacted", !diagnostic.report.contains("127.0.0.1") && !diagnostic.report.contains("synthetic") && !diagnostic.report.contains("http://"))
+        check(
+            "diagnostic_four_head_responses",
+            await wait {
+                !diagnostic.isRunning && diagnostic.results.count == 4
+                    && diagnostic.results.allSatisfy { $0.message.contains("HTTP 302") }
+            })
+        let counters = await metrics()
+        check(
+            "diagnostic_no_cookie_no_auth_no_redirect",
+            counters?["heads"] == 4 && counters?["cookie_headers"] == 0 && counters?["redirect_followed"] == 0
+        )
+        check(
+            "diagnostic_report_redacted",
+            !diagnostic.report.contains("127.0.0.1") && !diagnostic.report.contains("synthetic")
+                && !diagnostic.report.contains("http://"))
         let now = Date()
         settings.biometricLockEnabled = true
         settings.lockDelay = .minute
@@ -321,20 +443,24 @@ final class TestAction: WKNavigationAction {
         }
         let authentication = MockAuthenticator()
         let guarded = AppLockController(authenticator: authentication)
-        guarded.lock(); authentication.throwsCancellation = true
+        guarded.lock()
+        authentication.throwsCancellation = true
         await guarded.unlock()
         check("authentication_cancel_keeps_locked", guarded.isLocked && !guarded.isAuthenticating)
-        authentication.throwsCancellation = false; authentication.success = false
+        authentication.throwsCancellation = false
+        authentication.success = false
         await guarded.unlock()
         check("authentication_failure_keeps_locked", guarded.isLocked)
         authentication.success = true
         await guarded.unlock()
         check("authentication_success_unlocks", !guarded.isLocked && !guarded.isAuthenticating)
-        authentication.isAvailable = false; guarded.lock()
+        authentication.isAvailable = false
+        guarded.lock()
         await guarded.unlock()
         check("authentication_unavailable_keeps_locked", guarded.isLocked && guarded.lastMessage != nil)
         let output: [String: Any] = [
-            "completed": true, "checks": results,
+            "completed": true, "runID": ProcessInfo.processInfo.environment["REGRESSION_RUN_ID"] ?? "",
+            "checks": results,
             "passed": results.allSatisfy { $0["passed"] as? Bool == true },
             "date": ISO8601DateFormatter().string(from: Date()),
         ]

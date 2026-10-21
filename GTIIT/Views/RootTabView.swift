@@ -52,6 +52,7 @@ struct RootTabView: View {
                 .environmentObject(app)
         }
         .task {
+            await WebDataStoreRegistry.shared.cleanupRetiredStores()
             #if DEBUG
                 applyDebugLaunchOverrides()
             #endif

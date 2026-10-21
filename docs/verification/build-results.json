@@ -1,0 +1,30 @@
+{
+  "sourceSHA256": "45c127018e10f639aa1401f12ce48673c26a20bf07c2ee9606db20a8fc36cf62",
+  "builds": [
+    {
+      "name": "debug-simulator",
+      "configuration": "Debug",
+      "destination": "generic/platform=iOS Simulator",
+      "exitCode": 0,
+      "signing": false,
+      "log": "/tmp/gtiit-final-debug-simulator.log"
+    },
+    {
+      "name": "release-simulator",
+      "configuration": "Release",
+      "destination": "generic/platform=iOS Simulator",
+      "exitCode": 0,
+      "signing": false,
+      "log": "/tmp/gtiit-final-release-simulator.log"
+    },
+    {
+      "name": "release-device-unsigned",
+      "configuration": "Release",
+      "destination": "generic/platform=iOS",
+      "exitCode": 0,
+      "signing": false,
+      "log": "/tmp/gtiit-final-release-device-unsigned.log"
+    }
+  ],
+  "passed": true
+}

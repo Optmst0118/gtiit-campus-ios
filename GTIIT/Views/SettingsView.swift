@@ -79,17 +79,16 @@ private struct GeneralSettingsView: View {
     var body: some View {
         Form {
             Section("显示") {
-                Picker("外观", selection: $settings.appearance) {
-                    ForEach(AppAppearance.allCases) { Text($0.title).tag($0) }
-                }
+                SettingsChoicePicker(
+                    "外观", selection: $settings.appearance, choices: AppAppearance.allCases,
+                    title: { $0.title })
             }
             Section {
-                Picker("启动页面", selection: $settings.startupTab) {
-                    ForEach(AppTab.allCases) { Text($0.title).tag($0) }
-                }
-                Picker("默认预约分类", selection: $settings.defaultBooking) {
-                    ForEach(BookingSegment.allCases) { Text($0.title).tag($0) }
-                }
+                SettingsChoicePicker(
+                    "启动页面", selection: $settings.startupTab, choices: AppTab.allCases, title: { $0.title })
+                SettingsChoicePicker(
+                    "默认预约分类", selection: $settings.defaultBooking, choices: BookingSegment.allCases,
+                    title: { $0.title })
             } header: {
                 Text("启动")
             } footer: {
@@ -110,9 +109,9 @@ private struct PrivacySettingsView: View {
                 Toggle("使用\(app.lock.biometryLabel)锁定", isOn: $settings.biometricLockEnabled)
                     .disabled(!app.lock.isBiometryAvailable && !settings.biometricLockEnabled)
                 if settings.biometricLockEnabled {
-                    Picker("离开 App 后锁定", selection: $settings.lockDelay) {
-                        ForEach(LockDelay.allCases) { Text($0.title).tag($0) }
-                    }
+                    SettingsChoicePicker(
+                        "离开 App 后锁定", selection: $settings.lockDelay, choices: LockDelay.allCases,
+                        title: { $0.title })
                     Button("立即锁定") { app.lock.lock() }
                 }
             } footer: {
@@ -138,9 +137,9 @@ private struct BrowsingSettingsView: View {
     var body: some View {
         Form {
             Section {
-                Picker("其他网站链接", selection: $settings.externalLinks) {
-                    ForEach(ExternalLinkMode.allCases) { Text($0.title).tag($0) }
-                }
+                SettingsChoicePicker(
+                    "其他网站链接", selection: $settings.externalLinks, choices: ExternalLinkMode.allCases,
+                    title: { $0.title })
             } footer: {
                 Text("只影响主动点击的普通外站链接。登录、表单和重定向保留原网页上下文。不同浏览器可能需要分别登录。")
             }
@@ -241,6 +240,21 @@ struct StorageSettingsView: View {
                     value: ByteCountFormatter.string(fromByteCount: center.totalBytes, countStyle: .file))
             } footer: {
                 Text("下载大小按本机现有文件计算。网页缓存的准确字节数无法从 WebKit 获取。")
+            }
+            if WebDataStoreRegistry.shared.pendingCleanupCount > 0 {
+                Section {
+                    Text("部分旧缓存尚在被系统释放。新的浏览会话已与旧数据隔离。")
+                        .font(.subheadline).foregroundStyle(.secondary)
+                    Button("重试清理旧缓存") {
+                        Task {
+                            await WebDataStoreRegistry.shared.cleanupRetiredStores()
+                            await app.refreshStorageStates()
+                            app.toast(
+                                WebDataStoreRegistry.shared.pendingCleanupCount == 0
+                                    ? "旧缓存已清理" : "系统仍在释放旧缓存，请稍后重试")
+                        }
+                    }
+                }
             }
             Section {
                 Button("仅清理网页缓存") { action = .cache }

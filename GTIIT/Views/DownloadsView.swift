@@ -8,9 +8,9 @@ struct DownloadsView: View {
     var body: some View {
         List {
             Section {
-                Picker("临时文件保留", selection: $settings.downloadRetention) {
-                    ForEach(DownloadRetention.allCases) { Text($0.title).tag($0) }
-                }
+                SettingsChoicePicker(
+                    "临时文件保留", selection: $settings.downloadRetention, choices: DownloadRetention.allCases,
+                    title: { $0.title })
             } footer: {
                 Text("下次启动时清理过期文件；系统也可能提前回收缓存。需要长期保留的资料，请使用分享菜单中的“存储到文件”。")
             }

@@ -39,6 +39,7 @@
 		F730A77AD2139838CB757E5F /* SiteInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43B5301702FD01B8B163756D /* SiteInfoView.swift */; };
 		B6289E6DCDE0245188350CB4 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB09D49451D0FAEB09FBF175 /* WelcomeView.swift */; };
 		54782A73FEBE6E2F623D497C /* BrowserComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56F29BD0774926444F8EB287 /* BrowserComponents.swift */; };
+		C43BD859842F6E666E2C03A3 /* SettingsChoicePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */; };
 		4D20A64E6DA1B8D39585377E /* WebViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */; };
 		DB249DB9D0FF833647E29581 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F9973165E2B0FD4A3AAC566 /* Assets.xcassets */; };
 		7506060A154BFBC166F7764F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F839CA9D2B95AC144B1AA000 /* PrivacyInfo.xcprivacy */; };
@@ -77,6 +78,7 @@
 		43B5301702FD01B8B163756D /* SiteInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteInfoView.swift; sourceTree = "<group>"; };
 		FB09D49451D0FAEB09FBF175 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		56F29BD0774926444F8EB287 /* BrowserComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserComponents.swift; sourceTree = "<group>"; };
+		7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsChoicePicker.swift; sourceTree = "<group>"; };
 		FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContainer.swift; sourceTree = "<group>"; };
 		6F9973165E2B0FD4A3AAC566 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7625B5B2FEA398F8912F62D8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -205,6 +207,7 @@
 			isa = PBXGroup;
 			children = (
 				56F29BD0774926444F8EB287 /* BrowserComponents.swift */,
+				7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */,
 				FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */,
 			);
 			path = Components;
@@ -313,6 +316,7 @@
 				F730A77AD2139838CB757E5F /* in Sources */,
 				B6289E6DCDE0245188350CB4 /* in Sources */,
 				54782A73FEBE6E2F623D497C /* in Sources */,
+				C43BD859842F6E666E2C03A3 /* in Sources */,
 				4D20A64E6DA1B8D39585377E /* in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

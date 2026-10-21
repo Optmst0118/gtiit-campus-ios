@@ -146,17 +146,22 @@
       "test" : "download_resume"
     },
     {
+      "detail" : "hits=1",
+      "passed" : true,
+      "test" : "private_response_is_actually_cached"
+    },
+    {
       "detail" : "",
       "passed" : true,
       "test" : "clear_replaces_webview_and_history"
     },
     {
-      "detail" : "cookies=0, records=0",
+      "detail" : "cookies=0, records=0, types=[], oldURL=nil",
       "passed" : true,
       "test" : "clear_cookie_and_storage"
     },
     {
-      "detail" : "",
+      "detail" : "types=[], oldURL=nil",
       "passed" : true,
       "test" : "old_document_cannot_repopulate_storage"
     },
@@ -164,6 +169,16 @@
       "detail" : "",
       "passed" : true,
       "test" : "clear_does_not_autoload"
+    },
+    {
+      "detail" : "hits=Optional(2), before=<title>Private cache fixture 1<\/title><p>Synthetic cached content<\/p>, after=<title>Private cache fixture 2<\/title><p>Synthetic cached content<\/p>",
+      "passed" : true,
+      "test" : "clear_removes_actual_cached_response"
+    },
+    {
+      "detail" : "Optional({\"review\":null,\"timer\":null,\"cookies\":\"\"})",
+      "passed" : true,
+      "test" : "cleared_origin_storage_is_empty"
     },
     {
       "detail" : "",
@@ -174,6 +189,26 @@
       "detail" : "",
       "passed" : true,
       "test" : "download_cleanup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "retired_store_deleted"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "four_site_data_stores_are_independent"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "single_clear_preserves_other_sites"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "all_sites_clear_accounts"
     },
     {
       "detail" : "",
@@ -247,6 +282,7 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-21T09:39:08Z",
-  "passed" : true
+  "date" : "2026-10-21T10:35:36Z",
+  "passed" : true,
+  "runID" : "495372e6-bb68-4997-8bcf-89072eaf9066"
 }

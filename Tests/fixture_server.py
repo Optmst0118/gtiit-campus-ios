@@ -2,7 +2,7 @@
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import time
 import json
-METRICS = {"heads": 0, "cookie_headers": 0, "redirect_followed": 0}
+METRICS = {"heads": 0, "cookie_headers": 0, "redirect_followed": 0, "private_cache_hits": 0}
 
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args):
@@ -24,9 +24,21 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(b'<title>POST received</title><body>' + data + b'</body>')
     def do_GET(self):
         path = self.path.split('?')[0]
+        if path.startswith('/private-cache/'):
+            METRICS['private_cache_hits'] += 1
+            print('PRIVATE CACHE GET', METRICS['private_cache_hits'], flush=True)
+            content = ('<title>Private cache fixture ' + str(METRICS['private_cache_hits']) + '</title><p>Synthetic cached content</p>').encode()
+            self.send_response(200); self.send_header('Content-Type', 'text/html')
+            self.send_header('Cache-Control', 'private, max-age=3600')
+            self.send_header('Content-Length', str(len(content))); self.end_headers(); self.wfile.write(content); return
+        if path == '/inspect':
+            content = b'<title>Storage inspector</title><p>No storage writes</p>'
+            self.send_response(200); self.send_header('Content-Type', 'text/html'); self.send_header('Cache-Control', 'no-store')
+            self.send_header('Content-Length', str(len(content))); self.end_headers(); self.wfile.write(content); return
         if path == '/metrics':
+            print('METRICS GET', METRICS, flush=True)
             content = json.dumps(METRICS).encode()
-            self.send_response(200); self.send_header('Content-Length', str(len(content)))
+            self.send_response(200); self.send_header('Cache-Control', 'no-store'); self.send_header('Content-Length', str(len(content)))
             self.end_headers(); self.wfile.write(content); return
         if path == '/should-not-follow':
             METRICS['redirect_followed'] += 1

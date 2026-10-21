@@ -72,22 +72,32 @@ final class BrowserModel: NSObject, ObservableObject {
         observeWebView()
     }
     /// 停止活动文档和弹窗；清空后替换内核，移除 BackForwardList 与页面内存。
-    func prepareForDataClear() async {
+    func prepareForDataClear() async -> Bool {
         isResetting = true
         observations.removeAll()
         webView.stopLoading()
         webView.navigationDelegate = nil
         webView.uiDelegate = nil
         webView.isHidden = true
-        await DocumentTeardown().blank(webView)
+        let mainFinished = await DocumentTeardown().blank(webView)
+        var popupsFinished = true
         for popup in popups {
-            await DocumentTeardown().blank(popup)
+            let finished = await DocumentTeardown().blank(popup)
+            popupsFinished = popupsFinished && finished
             popupControllers[ObjectIdentifier(popup)]?.dismiss(animated: false)
         }
         popups.removeAll()
         popupControllers.removeAll()
+        return mainFinished && popupsFinished
     }
-    func finishDataClear() {
+    /// 移除对旧持久化容器的最后一个视图引用，允许 WebKit 删除整个旧容器。
+    func releaseDataStoreView() {
+        webView.removeFromSuperview()
+        let placeholder = WKWebViewConfiguration()
+        placeholder.websiteDataStore = .nonPersistent()
+        webView = WKWebView(frame: .zero, configuration: placeholder)
+    }
+    func finishDataClear(dataCleared: Bool = true) {
         webView.removeFromSuperview()
         webView = Self.makeWebView(site: site)
         pageTitle = site.displayName
@@ -99,7 +109,8 @@ final class BrowserModel: NSObject, ObservableObject {
         canGoForward = false
         hasLoadedOnce = false
         errorText = nil
-        needsReloadAfterClear = true
+        needsReloadAfterClear = dataCleared
+        if !dataCleared { errorText = "未能安全退出旧页面，网页数据尚未清除。请在设置中重试。" }
         isResetting = false
         configureWebView()
     }
@@ -110,6 +121,7 @@ final class BrowserModel: NSObject, ObservableObject {
         pageTitle.isEmpty ? site.displayName : pageTitle
     }
 
+    var canOpenInExternalBrowser: Bool { ["http", "https"].contains(currentURL?.scheme?.lowercased() ?? "") }
     var currentURL: URL? {
         webView.url ?? URL(string: currentURLString)
     }
@@ -131,7 +143,7 @@ final class BrowserModel: NSObject, ObservableObject {
 
     func reload() {
         errorText = nil
-        webView.reload()
+        if webView.url == nil { loadHome() } else { webView.reload() }
     }
 
     func reloadFromOrigin() {

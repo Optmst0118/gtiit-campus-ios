@@ -1,30 +1,41 @@
 import WebKit
 
-/// 在清除存储前销毁活动文档，避免旧页面的定时脚本重新写入 Cookie/LocalStorage。
+/// 在清除存储前销毁活动文档；只接收本次空白导航的回调，忽略旧页面的取消事件。
 @MainActor final class DocumentTeardown: NSObject, WKNavigationDelegate {
-    private var completion: (() -> Void)?
-    func blank(_ webView: WKWebView) async {
-        await withCheckedContinuation { continuation in
-            completion = { continuation.resume() }
+    private var completion: ((Bool) -> Void)?
+    private var blankNavigation: WKNavigation?
+    func blank(_ webView: WKWebView) async -> Bool {
+        let finished = await withCheckedContinuation { continuation in
+            completion = { continuation.resume(returning: $0) }
             webView.stopLoading()
             webView.navigationDelegate = self
             webView.uiDelegate = nil
-            webView.load(URLRequest(url: URL(string: "about:blank")!))
-            // 被系统回收的网页进程也必须让清理完成；新内核仍会替换旧内核。
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in self?.finish() }
+            blankNavigation = webView.load(URLRequest(url: URL(string: "about:blank")!))
+            DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [weak self] in self?.finish(false) }
         }
         webView.stopLoading()
         webView.navigationDelegate = nil
+        return finished
     }
-    private func finish() {
+    private func finish(_ success: Bool) {
         let done = completion
         completion = nil
-        done?()
+        blankNavigation = nil
+        done?(success)
     }
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { finish() }
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        guard navigation === blankNavigation else { return }
+        finish(webView.url?.absoluteString == "about:blank")
+    }
     func webView(
         _ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error
-    ) { finish() }
-    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { finish() }
-    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { finish() }
+    ) {
+        guard navigation === blankNavigation else { return }
+        finish(false)
+    }
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        guard navigation === blankNavigation else { return }
+        finish(false)
+    }
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { finish(true) }
 }

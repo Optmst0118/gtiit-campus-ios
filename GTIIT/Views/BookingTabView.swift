@@ -4,6 +4,7 @@ import SwiftUI
 /// 顶部原生分段切换，网页本身保持原样。
 struct BookingTabView: View {
     @EnvironmentObject private var app: AppModel
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         VStack(spacing: 0) {
@@ -19,12 +20,21 @@ struct BookingTabView: View {
 
     private var segmentBar: some View {
         VStack(spacing: 6) {
-            Picker("预约范围", selection: $app.bookingSegment) {
-                ForEach(BookingSegment.allCases) { segment in
-                    Text(segment.title).tag(segment)
+            if dynamicTypeSize.isAccessibilitySize {
+                Menu {
+                    Picker("预约范围", selection: $app.bookingSegment) {
+                        ForEach(BookingSegment.allCases) { Text($0.title).tag($0) }
+                    }
+                } label: {
+                    Label(app.bookingSegment.title, systemImage: "chevron.up.chevron.down")
+                        .font(.headline).fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, minHeight: 44)
                 }
+            } else {
+                Picker("预约范围", selection: $app.bookingSegment) {
+                    ForEach(BookingSegment.allCases) { Text($0.title).tag($0) }
+                }.pickerStyle(.segmented)
             }
-            .pickerStyle(.segmented)
 
             Text(app.bookingSegment.site.oneLineBoundary)
                 .font(.caption2)

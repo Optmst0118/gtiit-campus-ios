@@ -131,7 +131,7 @@ private struct BrowserChrome: View {
                 Label("强制刷新（忽略缓存）", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
             }
 
-            if let url = model.currentURL {
+            if model.canOpenInExternalBrowser, let url = model.currentURL {
                 ShareLink(item: url, subject: Text(model.displayTitle)) {
                     Label("分享当前页面", systemImage: "square.and.arrow.up")
                 }
@@ -141,13 +141,13 @@ private struct BrowserChrome: View {
                 model.openInSystemBrowser()
             } label: {
                 Label("在默认浏览器中打开", systemImage: "arrow.up.forward.app")
-            }
+            }.disabled(!model.canOpenInExternalBrowser)
 
             Button {
                 model.openInAppSafari()
             } label: {
                 Label("在 App 内 Safari 打开", systemImage: "safari")
-            }
+            }.disabled(!model.canOpenInExternalBrowser)
 
             Button {
                 app.siteInfo = model.site
