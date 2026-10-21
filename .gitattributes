@@ -1,0 +1,16 @@
+* text=auto eol=lf
+
+# Generated Xcode project – keep diffs reviewable
+GTIIT.xcodeproj/project.pbxproj text merge=union
+GTIIT.xcodeproj/xcshareddata/xcschemes/*.xcscheme text
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.icns binary
+*.car binary
+
+# Keep vendored JavaScript intact
+GTIIT/Resources/WebAppearance/*.js text eol=lf

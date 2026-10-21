@@ -46,7 +46,7 @@
 Xcode 许可证已同意，完成真机与模拟器运行验证：
 
 - `xcodebuild` 模拟器构建 **BUILD SUCCEEDED**；iPhone 17 / iOS 26.5 上四站真实加载（门户跳转 Microsoft 登录、Moodle 登录、Booked 登录）；
-- 真机 iPhone Air / iOS 27.0.1：`-allowProvisioningUpdates` 自动生成 iOS Team Provisioning Profile（team YOUR_TEAM_ID，7 天有效），`devicectl` 安装并启动成功，WebContent 进程正常；
+- 真机 iPhone / iOS 27：`-allowProvisioningUpdates` 自动生成 iOS Team Provisioning Profile（team YOUR_TEAM_ID，7 天有效），`devicectl` 安装并启动成功，WebContent 进程正常；
 - 修复 WebView 底部内容被 iOS 26 浮动 Tab 栏遮挡的问题（`contentInsetAdjustmentBehavior = .automatic`）。
 
 ## 仍然残留（需上架前处理）

@@ -1,0 +1,19 @@
+# 文档索引
+
+| 文档 | 内容 |
+| --- | --- |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | 分层、会话隔离、跨站路由与关键决策 |
+| [RESEARCH-SPEC.md](RESEARCH-SPEC.md) | 四个校园站点的能力边界、信息架构与中文文案规格（2026-10-21 快照） |
+| [design/DESIGN.md](design/DESIGN.md) | 配色、图标、动效、设计参考与数据边界 |
+| [RELEASE-1.4.md](RELEASE-1.4.md) | 1.4 变更、验收与回溯 |
+| [RELEASE-1.3.md](RELEASE-1.3.md) | 1.3 变更记录 |
+| [RELEASE-1.2.md](RELEASE-1.2.md) | 1.2 变更记录 |
+| [IMPROVEMENTS-20261021.md](IMPROVEMENTS-20261021.md) | 1.1 审查问题与修复对照 |
+| [QA-REPORT.md](QA-REPORT.md) | 独立 QA 报告（P0=0 / P1=2 / P2=16） |
+| [QA-FOLLOWUP.md](QA-FOLLOWUP.md) | QA 问题处置记录 |
+| [INDEPENDENT-REVIEW-20261021.md](INDEPENDENT-REVIEW-20261021.md) | 独立评审材料 |
+| [verification/](verification/) | 构建、回归与界面验收的机器结果与截图 |
+| [screenshots/](screenshots/) | iPhone 17 / iOS 26.5 模拟器截图 |
+| [design/](design/) | 图标、设计稿与参考看板 |
+
+> 学校页面与接口会变化，研究快照只代表 2026-10-21 的观察结果。

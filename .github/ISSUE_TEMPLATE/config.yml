@@ -1,0 +1,14 @@
+# Keep the issue tracker focused on reproducible bug reports.
+# Questions and open-ended ideas belong in Discussions; vulnerabilities go through
+# GitHub Security Advisories so they are not disclosed publicly.
+blank_issues_enabled: false
+contact_links:
+  - name: Questions, setup help and ideas (Discussions)
+    url: https://github.com/Optmst0118/gtiit-campus-ios/discussions
+    about: Ask how to build, sign or use the app, or discuss an idea before opening an issue.
+  - name: Report a security vulnerability (private)
+    url: https://github.com/Optmst0118/gtiit-campus-ios/security/advisories/new
+    about: Please report credential, privacy or web-injection issues privately. Never open a public issue for them.
+  - name: Support guide
+    url: https://github.com/Optmst0118/gtiit-campus-ios/blob/main/SUPPORT.md
+    about: Check common questions and learn how to collect diagnostics before asking for help.

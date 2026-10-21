@@ -1,0 +1,79 @@
+name: Build
+
+# Offline project checks, a Swift type check, and an unsigned simulator build.
+# No secrets, signing certificates, third-party services, or package installs
+# are needed for this workflow.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch or pull request cancels the older run.
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build (iOS Simulator)
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Select the newest installed Xcode
+        run: |
+          set -euo pipefail
+          # The runner image ships more than one Xcode. Prefer the newest one so
+          # that modern assets such as the layered AppIcon.icon are supported.
+          # If the image only has the default Xcode.app, keep using it.
+          xcode_app="$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V 2>/dev/null | tail -n 1 || true)"
+          if [ -n "${xcode_app}" ]; then
+            echo "Using ${xcode_app}"
+            sudo xcode-select -s "${xcode_app}/Contents/Developer"
+          fi
+          xcodebuild -version
+
+      - name: Validate the committed Xcode project
+        run: python3 Tools/check_project.py
+
+      - name: Verify the project generator
+        run: |
+          set -euo pipefail
+          # Tools/gen_project.py is the source of truth for GTIIT.xcodeproj.
+          # It reads DEVELOPMENT_TEAM from the environment or from
+          # Tools/signing.env (never committed), so CI regenerates an unsigned
+          # project. CODE_SIGNING_ALLOWED=NO makes that sufficient to build.
+          python3 Tools/gen_project.py
+          python3 Tools/check_project.py
+
+      - name: Swift type check
+        run: |
+          set -euo pipefail
+          target="$(uname -m)-apple-ios17.0-simulator"
+          sdk="$(xcrun --sdk iphonesimulator --show-sdk-path)"
+          cache="$(mktemp -d)"
+          # shellcheck disable=SC2046
+          xcrun swiftc -typecheck \
+            -sdk "${sdk}" \
+            -target "${target}" \
+            -module-name GTIIT \
+            -module-cache-path "${cache}" \
+            $(find GTIIT -name '*.swift' | sort)
+
+      - name: Build for iOS Simulator
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project GTIIT.xcodeproj \
+            -scheme GTIIT \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "${RUNNER_TEMP}/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            build

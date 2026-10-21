@@ -2,8 +2,10 @@
 # 一键构建 + 安装 + 启动到已连接的 iPhone。
 #
 # 用法：
-#   ./Tools/install_device.sh                # 自动使用默认设备（本机已配对的 iPhone Air）
-#   ./Tools/install_device.sh <设备UDID>      # 指定设备
+#   ./Tools/install_device.sh <设备UDID>
+#
+# 查看已连接设备：
+#   xcrun devicectl list devices
 #
 # 首次安装后需要在 iPhone 上信任开发者证书：
 #   设置 → 通用 → VPN 与设备管理 → “Apple Development: …” → 信任
@@ -13,7 +15,7 @@ cd "$(dirname "$0")/.."
 PROJECT="GTIIT.xcodeproj"
 SCHEME="GTIIT"
 BUNDLE_ID="io.github.optmst0118.gtiit"
-DEVICE_ID="${1:-YOUR_DEVICE_UDID}"
+DEVICE_ID="${1:?用法: ./Tools/install_device.sh <设备 UDID>（可用 xcrun devicectl list devices 查看）}"
 DERIVED="/tmp/GTIIT-DD-Device"
 
 echo "==> 构建（设备：${DEVICE_ID}）"

@@ -1,0 +1,138 @@
+name: Bug report
+description: Report a reproducible problem with the app
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve GTIIT Campus Assistant.
+
+        This is an **unofficial, student-built** iOS client for GTIIT websites and is not affiliated with the university. Please read the README and its "Known limitations" section first, and search existing issues/discussions before filing.
+
+        **Never paste** passwords, one-time codes, session cookies, student IDs, or full URLs that contain tokens. Redact screenshots and logs before uploading.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Pre-submission checks
+      options:
+        - label: I have read the README and the known limitations.
+          required: true
+        - label: I understand this project is unofficial and not affiliated with GTIIT.
+          required: true
+        - label: I searched existing issues and discussions for this problem.
+          required: true
+        - label: This report contains no passwords, cookies, student IDs, or other personal data.
+          required: true
+
+  - type: input
+    id: app_version
+    attributes:
+      label: App version and build
+      description: "Settings → 关于 (About), for example `1.5 (9)`. If you built from source, paste the commit SHA instead."
+      placeholder: "1.5 (9) / commit abc1234"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: build_source
+    attributes:
+      label: How are you running the app?
+      options:
+        - Built from source in Xcode
+        - Re-signed side-loaded build
+        - iOS Simulator
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: ios_version
+    attributes:
+      label: iOS version
+      placeholder: "17.5, 18.2, 26.0 ..."
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device or simulator
+      description: Device model, or the simulator name if you used one.
+      placeholder: "iPhone 15 / iPhone 15 Pro simulator"
+    validations:
+      required: true
+
+  - type: input
+    id: xcode_version
+    attributes:
+      label: Xcode version (only if you built from source)
+      placeholder: "Xcode 26.0"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Portal (students.gtiit.edu.cn)
+        - Learning / Moodle (moodle.gtiit.edu.cn)
+        - Room booking (roombooking.gtiit.edu.cn)
+        - Sports centre (gtiit.mike-x.com)
+        - Shuttle timetable
+        - Downloads and PDF preview
+        - App lock / Face ID
+        - Settings and appearance
+        - Network diagnostics
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps starting from a fresh launch. Mention whether you were logged in to the site.
+      placeholder: |
+        1. Open the app
+        2. Tap ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include error messages shown in the app. If the school page itself changed, say so.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and diagnostics (optional)
+      description: |
+        For a build from source, paste the relevant Xcode console output. You can also use Settings → 帮助 → 网络诊断 and share the summary.
+        The summary contains only app version, site, HTTP status, and time. Remove anything personal before pasting.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Screenshots (redacted), recent changes, or anything else that helps.
+    validations:
+      required: false

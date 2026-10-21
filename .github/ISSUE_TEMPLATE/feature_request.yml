@@ -1,0 +1,90 @@
+name: Feature request
+description: Suggest an improvement or a new capability
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion.
+
+        This project is an **unofficial, student-built** client. It mostly wraps official GTIIT web pages in WKWebView, so requests that require changing school servers, scraping grades, automating submissions, or bypassing login/verification are out of scope.
+
+        Please search existing issues and discussions first.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Pre-submission checks
+      options:
+        - label: I have read the README and the known limitations.
+          required: true
+        - label: I understand this project is unofficial and not affiliated with GTIIT.
+          required: true
+        - label: I searched existing issues and discussions for this idea.
+          required: true
+        - label: This request does not ask for data collection, scraping, automated submissions, or bypassing school authentication.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the user need, not only the implementation.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Portal (students.gtiit.edu.cn)
+        - Learning / Moodle (moodle.gtiit.edu.cn)
+        - Room booking (roombooking.gtiit.edu.cn)
+        - Sports centre (gtiit.mike-x.com)
+        - Shuttle timetable
+        - Downloads and PDF preview
+        - App lock / Face ID
+        - Settings and appearance
+        - Network diagnostics
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: impact
+    attributes:
+      label: What would this change?
+      description: Select everything that applies.
+      options:
+        - label: Reads data from school pages or web content
+        - label: Injects styles or scripts into pages (WebAppearance / Dark Reader)
+        - label: Stores new data locally or changes retention
+        - label: Changes privacy behavior or network requests
+        - label: Changes Info.plist, permissions, or App Transport Security
+        - label: UI, accessibility, or documentation only
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Mockups, examples from other apps, or related links.
+    validations:
+      required: false

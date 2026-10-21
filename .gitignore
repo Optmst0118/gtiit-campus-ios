@@ -1,8 +1,25 @@
 .DS_Store
+
+# Signing / local machine configuration
 Tools/signing.env
+
+# Xcode
 **/xcuserdata/
 DerivedData/
 build/
 *.ipa
+*.dSYM
+*.dSYM.zip
+
+# Python
 __pycache__/
 *.pyc
+
+# Local scratch & archives
+tmp/
+.cache/
+*.bundle
+*.zip
+
+# School documents that must not be redistributed
+docs/calendar/
