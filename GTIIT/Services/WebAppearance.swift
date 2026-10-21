@@ -5,6 +5,10 @@ import WebKit
     private static let marker = "/* GTIIT_WEB_APPEARANCE */"
     private static let world = WKContentWorld.defaultClient
     static let officialHosts = SiteID.allCases.map(\.host)
+    /// 登录页等也需要清理校徽的域名（只清理，不启用 Dark Reader）。
+    static let cleanupHosts = officialHosts + [
+        "login.microsoftonline.com", "login.microsoft.com", "microsoftonline.com"
+    ]
     static func allows(_ url: URL) -> Bool {
         ["https", "http"].contains(url.scheme?.lowercased() ?? "") && officialHosts.contains(url.host?.lowercased() ?? "")
     }
@@ -20,15 +24,20 @@ import WebKit
         hosts += ["127.0.0.1", "localhost"]
         #endif
         guard !engine.isEmpty, !adapter.isEmpty,
-            let data = try? JSONEncoder().encode(hosts), let json = String(data: data, encoding: .utf8) else { return "" }
+            let data = try? JSONEncoder().encode(hosts),
+            let cleanupData = try? JSONEncoder().encode(cleanupHosts),
+            let json = String(data: data, encoding: .utf8),
+            let cleanupJSON = String(data: cleanupData, encoding: .utf8) else { return "" }
         let body = adapter.replacingOccurrences(of: "GTIIT_INITIAL_ENABLED", with: enabled ? "true" : "false")
             .replacingOccurrences(of: "GTIIT_ALLOWED_HOSTS", with: json)
+            .replacingOccurrences(of: "GTIIT_CLEANUP_HOSTS", with: cleanupJSON)
         return marker + """
         (() => {
             const allowed = \(json);
+            const cleanup = \(cleanupJSON);
             let host = location.hostname;
             try { if (!host && location.href === 'about:blank' && parent !== self) host = parent.location.hostname; } catch (_) {}
-            if (!allowed.includes(host)) return;
+            if (!cleanup.includes(host)) return;
             \(engine)
             \(body)
         })();

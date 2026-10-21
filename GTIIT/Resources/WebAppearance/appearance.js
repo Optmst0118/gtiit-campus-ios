@@ -3,30 +3,65 @@
     let enabled = GTIIT_INITIAL_ENABLED;
     const dark = matchMedia('(prefers-color-scheme: dark)');
     const sameHost = (host) => GTIIT_ALLOWED_HOSTS.includes(host);
+    const pageHost = location.hostname;
+    const officialHost = GTIIT_ALLOWED_HOSTS.includes(pageHost);
+    const cleanupHost = (typeof GTIIT_CLEANUP_HOSTS === 'undefined' ? GTIIT_ALLOWED_HOSTS : GTIIT_CLEANUP_HOSTS)
+        .includes(pageHost);
 
-    // 始终隐藏四个站点自带的页脚、版权条与“Powered by”商标，让网页更像 App 内部页面。
-    const nativeChromeCSS = [
+    // 站点自带的页脚、版权条与商标条。
+    const shellCSS = [
         'footer,#footer,.footer,#page-footer,#course-footer,[class*="footer" i],[id*="footer" i],',
         '[class*="copyright" i],[class*="powered-by" i]{display:none !important}',
         'body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}',
         '::-webkit-scrollbar{width:0;height:0}'
     ].join('');
-    const installNativeChrome = () => {
+
+    // 校徽/品牌图：登录页、各站导航与登录卡片里的重复标志。
+    const brandingCSS = [
+        'img[src*="logo" i],img[src*="emblem" i],',
+        'img[alt*="logo" i],img[alt*="GTIIT" i],img[alt*="Guangdong" i],img[alt*="Technion" i],',
+        'img[alt*="体育中心"],img[alt*="Sports Center" i],img[class*="logo" i],',
+        '#companyLogo,[id*="companyLogo" i],.banner-logo,.company-logo,.logo img,#logo img,',
+        '.navbar-brand img,.brand img,svg[class*="logo" i],[class*="school-logo" i],',
+        '[class*="brand-logo" i]{display:none !important}'
+    ].join('');
+
+    // 门户顶部原本是白色 Tailwind 渐变；直接去掉，让网页背景跟随 App 深浅色。
+    const portalCSS = pageHost === 'students.gtiit.edu.cn' ? [
+        '.app-bg{background:transparent !important}',
+        '.bg-gradient-to-b,.bg-gradient-to-t,.bg-gradient-to-r{background-image:none !important}',
+        '.from-white,.from-gray-50{--tw-gradient-from:transparent !important}'
+    ].join('') : '';
+
+    // Booked：登录页顶部只剩空的品牌条时直接收起。
+    const roomsCSS = pageHost === 'roombooking.gtiit.edu.cn' ? [
+        '.navbar .logo,.navbar a.logo,#header .logo,#logo a,a.logo{display:none !important}'
+    ].join('') : '';
+
+    // 体育中心：删除顶部 hero 图与标题，保留开放时间、说明和场馆内容。
+    const sportsCSS = pageHost === 'gtiit.mike-x.com' ? [
+        '.background-fixed{display:none !important}',
+        '.main > .header{display:none !important}',
+        '.page-package > .fb_component:first-child .fbc_pictureImage{display:none !important}'
+    ].join('') : '';
+
+    const installStyles = () => {
         try {
             if (document.getElementById('gtiit-native-chrome')) return;
             const style = document.createElement('style');
             style.id = 'gtiit-native-chrome';
-            style.textContent = nativeChromeCSS;
+            style.textContent = (officialHost ? shellCSS : '') + brandingCSS + portalCSS + roomsCSS + sportsCSS;
             (document.head || document.documentElement).appendChild(style);
         } catch (_) {}
     };
+
     const CREDIT_PATTERNS = [
         /©\s*\d{4}/i, /copyright/i, /all rights reserved/i,
         /powered by/i, /twinkle toes/i, /booked scheduler/i,
         /mi-?ke|米客/
     ];
     const hideCreditBlocks = () => {
-        if (!document.body) return;
+        if (!officialHost || !document.body) return;
         const docHeight = Math.max(
             document.documentElement.scrollHeight,
             document.body.scrollHeight,
@@ -53,33 +88,87 @@
             target.dataset.gtiitHidden = '1';
         }
     };
-    const scheduleNativeChrome = () => {
+
+    // 兜底隐藏带“校徽/校名”语义的图片（包括登录页的 companyLogo）。
+    const hideBrandingImages = () => {
+        if (!cleanupHost || !document.body) return;
+        for (const image of document.images) {
+            if (image.dataset.gtiitHidden) continue;
+            const label = [
+                image.getAttribute('alt') || '', image.className || '', image.id || ''
+            ].join(' ').toLowerCase();
+            const source = (image.currentSrc || image.src || '').toLowerCase();
+            if (!/logo|emblem|technion|gtiit|体育中心|sports center/.test(label) &&
+                !/logo|emblem/.test(source)) continue;
+            image.style.setProperty('display', 'none', 'important');
+            image.dataset.gtiitHidden = '1';
+        }
+    };
+
+    // Moodle dashboard：Course overview 下方的 3 个筛选控件。
+    const hideMoodleOverviewFilters = () => {
+        if (pageHost !== 'moodle.gtiit.edu.cn' || !document.body) return;
+        const headings = Array.from(document.querySelectorAll('h2,h3,h4,h5,legend,span,div'))
+            .filter((element) => element.children.length === 0 &&
+                /course overview|课程概览/i.test((element.textContent || '').trim()));
+        for (const heading of headings) {
+            const block = heading.closest('.block,[data-block],.block-myoverview,[data-region="myoverview"]') ||
+                heading.parentElement;
+            if (!block) continue;
+            const controls = block.querySelectorAll(
+                '.dropdown,select,button[data-toggle="dropdown"],.dropdown-toggle,[data-region="filter"],.filter');
+            for (const control of controls) {
+                if (control.dataset.gtiitHidden) continue;
+                let target = control;
+                for (let depth = 0; depth < 2 && target.parentElement && target.parentElement !== block; depth += 1) {
+                    const parent = target.parentElement;
+                    if ((parent.textContent || '').trim().length > 120) break;
+                    target = parent;
+                }
+                target.style.setProperty('display', 'none', 'important');
+                target.dataset.gtiitHidden = '1';
+            }
+        }
+    };
+
+    const hideBookedLoginHeader = () => {
+        if (pageHost !== 'roombooking.gtiit.edu.cn' || !document.body) return;
+        if (!document.querySelector('input[type="password"]')) return;
+        const header = document.querySelector('#header, header, .navbar');
+        if (header && !header.querySelector('input[type="password"]')) {
+            header.style.setProperty('display', 'none', 'important');
+        }
+    };
+
+    const runCleanup = () => {
+        hideBrandingImages();
         hideCreditBlocks();
-        setTimeout(hideCreditBlocks, 800);
-        setTimeout(hideCreditBlocks, 2500);
+        hideBookedLoginHeader();
+        hideMoodleOverviewFilters();
+    };
+
+    const scheduleCleanup = () => {
+        runCleanup();
+        setTimeout(runCleanup, 800);
+        setTimeout(runCleanup, 2500);
         if (window.MutationObserver && document.body) {
             let timer = 0;
             const observer = new MutationObserver(() => {
                 clearTimeout(timer);
-                timer = setTimeout(hideCreditBlocks, 250);
+                timer = setTimeout(runCleanup, 250);
             });
             observer.observe(document.body, { childList: true, subtree: true });
             setTimeout(() => observer.disconnect(), 12000);
         }
     };
-    installNativeChrome();
+
+    installStyles();
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => { installNativeChrome(); scheduleNativeChrome(); }, { once: true });
+        document.addEventListener('DOMContentLoaded', () => { installStyles(); scheduleCleanup(); }, { once: true });
     } else {
-        scheduleNativeChrome();
+        scheduleCleanup();
     }
-    // 门户使用 Tailwind 渐变：深色模式下把白底渐变改成黑色，避免顶部仍是亮色。
-    const portalDarkCSS = location.hostname === 'students.gtiit.edu.cn' ? [
-        'html[data-darkreader-scheme="dark"] .app-bg{background:linear-gradient(75deg,#000 0%,#0b0f14 60%) !important}',
-        'html[data-darkreader-scheme="dark"] .from-gray-50{--tw-gradient-from:#000 !important}',
-        'html[data-darkreader-scheme="dark"] .from-white{--tw-gradient-from:#000 !important}',
-        'html[data-darkreader-scheme="dark"] .bg-gradient-to-b,html[data-darkreader-scheme="dark"] .bg-gradient-to-t{--tw-gradient-to:rgba(0,0,0,0) !important}'
-    ].join('') : '';
+
     const fixes = {
         disableProxyInjection: true,
         disableStyleSheetsProxy: true,
@@ -88,7 +177,7 @@
         ignoreInlineStyle: ['img', 'video', 'canvas', '[data-gtiit-original-colors]',
             '.reserved', '.unreservable', '.available', '.fc-event', '.fc-bg-event',
             '[class*="qrcode"]', '[class*="captcha"]'],
-        invert: [], css: 'img[src*="logo" i], img[alt*="logo" i], .logo img, .navbar-brand img { background-color: #ffffff !important; }' + portalDarkCSS
+        invert: [], css: ''
     };
     const theme = {
         mode: 1, brightness: 100, contrast: 100, sepia: 0,
@@ -123,7 +212,7 @@
         try {
             const pdf = (document.contentType || '').toLowerCase().includes('pdf');
             const lock = document.querySelector('meta[name="darkreader-lock"]');
-            if (enabled && dark.matches && !pdf && !lock) {
+            if (officialHost && enabled && dark.matches && !pdf && !lock) {
                 if (!DarkReader.isEnabled()) DarkReader.enable(theme, fixes);
             } else if (DarkReader.isEnabled()) { DarkReader.disable(); }
         } catch (_) { try { DarkReader.disable(); } catch (_) {} }

@@ -8,6 +8,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- Wrapped pages hide school/tenant logos (including the Microsoft sign-in banner and
+  Booked's navigation/login logos), the sports-centre hero image and title, and the
+  Moodle Course overview filter row. The portal's white Tailwind gradient is removed
+  so the page background follows the app's light/dark appearance; menus, notification
+  and error bars are untouched.
 - Wrapped pages now hide the sites' own footers, copyright lines and "Powered by"
   branding with an always-on injected stylesheet plus a small runtime cleanup. The
   Booked "© 2020 Twinkle Toes Software / Booked Scheduler" strip, Moodle's page footer
