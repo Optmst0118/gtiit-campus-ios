@@ -36,6 +36,8 @@ final class AppModel: ObservableObject {
         visitedTabs = [settings.startupTab]
         bookingSegment = settings.defaultBooking
         downloads.start(retention: settings.downloadRetention)
+        downloads.presentController = { [weak self] controller in self?.browserPresent(viewController: controller) ?? false }
+        downloads.onMessage = { [weak self] message in self?.toast(message) }
         // 下载的进度、成功与失败均由唯一的下载面板呈现，不再另叠 Toast。
         lockSubscription = lock.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
         launchSubscription = launch.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
@@ -191,7 +193,8 @@ extension AppModel: BrowserRouter {
     func browserDidFinish(url: URL, site: SiteID) { settings.remember(url, for: site) }
     func browserClearData(for site: SiteID) async { await clearData(for: site) }
     func browserDownload(_ download: WKDownload, webView: WKWebView, site: SiteID) {
-        downloads.track(download, webView: webView, site: site)
+        if site == .moodle { downloads.receiveForPreview(download, webView: webView, site: site) }
+        else { downloads.track(download, webView: webView, site: site) }
     }
     func browserRouteToOtherSite(url: URL, from site: SiteID) {
         guard !isClearingData else { return }

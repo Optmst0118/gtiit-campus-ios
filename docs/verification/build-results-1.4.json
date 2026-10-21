@@ -1,0 +1,23 @@
+{
+  "productSHA256": "e844e7633f474e4cf8221d73aae2f239b3a45db1aaec3b255687998667a924da",
+  "builds": [
+    {
+      "name": "debug-simulator",
+      "signing": false,
+      "passed": true,
+      "version": "1.4",
+      "build": "8",
+      "log": "/tmp/gtiit-1.4-build.log"
+    },
+    {
+      "name": "release-device",
+      "signing": true,
+      "passed": true,
+      "version": "1.4",
+      "build": "8",
+      "log": "/tmp/gtiit-1.4-device.log"
+    }
+  ],
+  "regressionChecks": 122,
+  "passed": true
+}

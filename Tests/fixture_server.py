@@ -2,9 +2,32 @@
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import time
 import json
-METRICS = {"heads": 0, "cookie_headers": 0, "redirect_followed": 0, "private_cache_hits": 0, "pdf_posts": 0, "pdf_gets": 0}
+METRICS = {"heads": 0, "cookie_headers": 0, "redirect_followed": 0, "private_cache_hits": 0, "pdf_posts": 0, "pdf_gets": 0, "preview_gets": 0, "preview_posts": 0, "once_gets": 0}
+
+def preview_pdf():
+    stream = b'BT /F1 18 Tf 40 120 Td (Preview fixture) Tj ET'
+    objects = [b'<< /Type /Catalog /Pages 2 0 R >>', b'<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+        b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 240 180] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+        b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+        b'<< /Length ' + str(len(stream)).encode() + b' >>\nstream\n' + stream + b'\nendstream']
+    content = b'%PDF-1.4\n'
+    offsets = [0]
+    for i, obj in enumerate(objects, 1):
+        offsets.append(len(content)); content += str(i).encode() + b' 0 obj\n' + obj + b'\nendobj\n'
+    xref = len(content)
+    content += b'xref\n0 6\n0000000000 65535 f \n'
+    content += b''.join(f'{off:010d} 00000 n \n'.encode() for off in offsets[1:])
+    content += b'trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n' + str(xref).encode() + b'\n%%EOF\n'
+    return content
 
 class Handler(BaseHTTPRequestHandler):
+    def preview_response(self, attachment=False, invalid=False):
+        content = b'<html>not a PDF</html>' if invalid else preview_pdf()
+        self.send_response(200); self.send_header('Content-Type', 'application/pdf')
+        self.send_header('Cache-Control', 'no-store')
+        self.send_header('Content-Disposition', ('attachment' if attachment else 'inline') + '; filename="preview.pdf"')
+        self.send_header('Content-Length', str(len(content))); self.end_headers(); self.wfile.write(content)
+
     def log_message(self, *args):
         pass
     def do_HEAD(self):
@@ -20,6 +43,9 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('Content-Length', '0'); self.end_headers()
     def do_POST(self):
         data = self.rfile.read(int(self.headers.get('Content-Length', 0)))
+        if self.path == '/preview-post':
+            METRICS['preview_posts'] += 1
+            self.preview_response(); return
         if self.path == '/post-pdf':
             METRICS['pdf_posts'] += 1
             self.send_response(200); self.send_header('Content-Type', 'application/pdf')
@@ -30,6 +56,15 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(b'<title>POST received</title><body>' + data + b'</body>')
     def do_GET(self):
         path = self.path.split('?')[0]
+        if path.startswith('/preview-'):
+            if path == '/preview-post':
+                METRICS['preview_gets'] += 1
+                self.send_response(405); self.end_headers(); return
+            if path == '/preview-once':
+                METRICS['once_gets'] += 1
+                if METRICS['once_gets'] > 1:
+                    self.send_response(410); self.end_headers(); return
+            self.preview_response(attachment=path == '/preview-attachment', invalid=path == '/preview-invalid'); return
         if path == '/slow-page':
             time.sleep(2)
             content = b'<title>Slow fixture</title><p>ready</p>'

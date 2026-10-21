@@ -12,6 +12,7 @@ import UIKit
         defaults.removePersistentDomain(forName: "ui-review.preferences")
         let settings = AppSettings(defaults: defaults)
         settings.hasSeenWelcome = true
+        settings.preloadSitesOnLaunch = false
         settings.startupTab = .me
         settings.appearance = ProcessInfo.processInfo.environment["UI_REVIEW_DARK"] == "1" ? .dark : .light
         _settings = StateObject(wrappedValue: settings)
@@ -23,7 +24,39 @@ import UIKit
     var body: some Scene {
         WindowGroup {
             Group {
-                if environment["UI_REVIEW_LOCK"] == "1" {
+                if environment["UI_REVIEW_DOWNLOADS"] == "1" {
+                    NavigationStack { DownloadsView(center: app.downloads).environmentObject(app).environmentObject(settings) }
+                        .task {
+                            if app.downloads.items.isEmpty {
+                                let source = FileManager.default.temporaryDirectory.appendingPathComponent("review.pdf")
+                                let renderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 595, height: 842))
+                                let data = renderer.pdfData { context in
+                                    context.beginPage()
+                                    ("GTIIT PDF Preview\nVisual test fixture\n\nPinch to zoom. Scroll to read." as NSString).draw(at: CGPoint(x: 48, y: 80), withAttributes: [.font: UIFont.systemFont(ofSize: 24)])
+                                }
+                                try? data.write(to: source)
+                                for name in ["Robotics syllabus.pdf", "Engineering mathematics.pdf", "Campus reference.pdf", "Week 3 notes.pdf"] {
+                                    _ = try? await app.downloads.savePreview(source, filename: name, site: .moodle)
+                                }
+                            }
+                            if environment["UI_REVIEW_PDF"] == "1", let item = app.downloads.items.first { app.downloads.open(item) }
+                            if environment["UI_REVIEW_UNSAVED_PDF"] == "1", let item = app.downloads.items.first, let url = app.downloads.fileURL(for: item) {
+                                let session = PDFPreviewSession(site: .moodle)
+                                session.filename = "PDF Preview.pdf"; session.read(url)
+                                let controller = UIHostingController(rootView: DocumentPreviewView(session: session))
+                                controller.modalPresentationStyle = .fullScreen
+                                session.closeAction = { [weak controller] in controller?.dismiss(animated: true) }
+                                session.saveAction = {
+                                    guard session.canSave else { return }; session.state = .saving
+                                    Task {
+                                        do { _ = try await app.downloads.savePreview(url, filename: session.filename, site: .moodle); session.state = .saved }
+                                        catch { session.state = .readable; session.error = error.localizedDescription }
+                                    }
+                                }
+                                _ = app.browserPresent(viewController: controller)
+                            }
+                        }
+                } else if environment["UI_REVIEW_LOCK"] == "1" {
                     LockScreenView().environmentObject(previewLock)
                 } else {
                     RootTabView().environmentObject(app).environmentObject(settings)

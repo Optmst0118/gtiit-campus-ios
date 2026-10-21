@@ -72,7 +72,7 @@ private struct AboutDetailsView: View {
                 PrivacyLine(title: "网页数据", detail: "Cookie、缓存与本地存储由 WebKit 保存在本机沙盒内，四个站点各用独立容器，可单独清除。")
                 PrivacyLine(
                     title: "下载文件",
-                    detail: "默认永久保存在本机 Documents/Downloads，可从“文件 → 我的 iPhone → GTIIT”访问；也可预览或另存到其他位置。限时清理为可选设置。断点凭证仅留在当前运行内存中。")
+                    detail: "Moodle PDF 先进入临时预览，点击下载后才保存。默认保存在本机 Documents/Downloads，可在下载管理更改新文件的保存位置。已有文件不迁移；外部文件夹不参与自动清理。临时预览关闭后清理，断点凭证只留在当前运行内存中。")
                 PrivacyLine(title: "账号凭据", detail: "由学校官方页面自行处理，App 代码不接触、不记录、不发送。")
                 PrivacyLine(
                     title: "本机偏好",

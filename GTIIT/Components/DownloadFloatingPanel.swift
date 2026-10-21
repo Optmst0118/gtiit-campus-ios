@@ -6,7 +6,6 @@ import UniformTypeIdentifiers
 struct DownloadFloatingPanel: View {
     @ObservedObject var center: DownloadCoordinator
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var previewURL: URL?
     @State private var exportURL: URL?
     private var item: DownloadItem? { center.items.first { $0.id == center.presentedID } }
 
@@ -36,11 +35,11 @@ struct DownloadFloatingPanel: View {
                         }
                     } else if item.state == .completed, let url = center.fileURL(for: item) {
                         HStack(spacing: 12) {
-                            Button { previewURL = url; center.dismissPresentation() } label: { Label("预览", systemImage: "doc.text.magnifyingglass") }
+                            Button { center.open(item) } label: { Label("预览", systemImage: "doc.text.magnifyingglass") }
                             Spacer(minLength: 0)
                             Button { exportURL = url; center.dismissPresentation() } label: { Label("存储到…", systemImage: "folder") }
                         }.font(.caption.weight(.semibold)).frame(minHeight: 36)
-                        Text("已保存到本机 Downloads").font(.caption2).foregroundStyle(.secondary)
+                        Text(item.destinationBookmark == nil ? "已保存到本机 Downloads" : "已保存到所选文件夹").font(.caption2).foregroundStyle(.secondary)
                     } else {
                         Text(item.error ?? "下载已取消").font(.caption).foregroundStyle(.secondary)
                         if center.canRetry(item.id) {
@@ -56,7 +55,6 @@ struct DownloadFloatingPanel: View {
         }
         .tint(Theme.accent)
         .animation(reduceMotion ? .easeOut(duration: 0.15) : .easeOut(duration: 0.25), value: center.presentedID)
-        .quickLookPreview($previewURL)
         .sheet(isPresented: Binding(get: { exportURL != nil }, set: { if !$0 { exportURL = nil } })) {
             if let exportURL { DownloadExportPicker(url: exportURL) }
         }

@@ -1,4 +1,4 @@
-# 架构说明 · 1.3
+# 架构说明 · 1.4
 
 ## 应用与界面
 
@@ -40,9 +40,15 @@ KVO 值由安全的主线程桥接写入 Published 状态。WebViewContainer 使
 
 AppModel 持有单个 DownloadCoordinator；WebKit 在原会话中处理下载请求，不另建会丢失 Cookie 的下载会话。Coordinator 强持有活动 WKDownload，观察 Progress，支持取消和服务器提供 resumeData 时的续传。断点数据仅留在进程内存，无法续传时给出打开来源站点的入口，不重放可能有副作用的 POST。
 
-每个任务以 UUID 创建独立目录，因此同名文件不会竞争路径。文件名去除路径字符并按 UTF-8 字节限制长度。文件使用 complete 数据保护，位于 App Documents/Downloads，可从“文件”访问；元数据只含任务标识、站点、文件名、状态、大小和创建时间，不保存下载请求 URL、Cookie 或断点凭证。
+本机下载以 UUID 创建独立目录，文件名去除路径字符并按 UTF-8 字节限制长度，使用 complete 数据保护。默认位于 Documents/Downloads。索引迁入固定 Application Support/GTIITDownloads/index.json，兼容旧 Codable 记录和旧目录。选择外部位置后，任务捕获当时的目录授权书签，接收仍使用本机任务目录，完成后通过 NSFileCoordinator 在后台复制到授权目录；成功后移除本机中转。外部同名文件添加编号，使用本次独有的中转文件再移动，不覆盖其他文件。外部文件不参加自动保留期限清理，用户明确删除时只针对该记录文件。
 
-PDF 响应直接转下载，右下角 DownloadFloatingPanel 提供 Quick Look 与 UIDocumentPicker 另存入口。默认永久保存，限时清理为显式选项。完成面板 4 秒后渐隐，切页时收起；计时任务按任务标识取消，旧任务不会隐藏新任务的面板。清除站点登录会取消其活动下载，保留已完成文件；清理下载才删除本机副本。
+目录使用系统文件夹选择器和持久授权书签；每条外部记录保留自己的位置引用，改变默认目录不迁移旧文件。目录失效明确失败，不静默回退。记录不保存源 URL、Cookie 或断点凭证。
+
+Moodle 的 WKDownload 先交给 PDFPreviewCoordinator，依据响应 MIME／建议文件名识别 PDF；非 PDF 回交正常下载。PDF 接收至独立临时目录，PDFPreviewSession 持有加载、阅读、保存、成功及失败状态。PDFKit 校验并呈现实际文件，用户点击按钮才调用 savePreview 并生成正式记录；关闭后清理临时内容。仍使用原响应，POST／一次性链接不重放。
+
+预览由独立 UIHostingController／QLPreviewController 呈现，不随 DownloadFloatingPanel 隐藏而消失。新窗口或菜单关闭的呈现过渡允许最多 2 秒就绪等待；重复点击打开同一批文件被合并。已存外部文件先在后台协调读取至临时预览副本，避免主线程等待 File Provider。下载管理提供列表／缩略图网格和三类双向排序，偏好使用 AppStorage 持久保存。
+
+其他页面的 PDF 仍直接转下载，右下角 DownloadFloatingPanel 提供稳定预览与 UIDocumentPicker 另存入口。默认永久保存，限时清理为显式选项。完成面板 4 秒后渐隐，切页时收起；计时任务按任务标识取消，旧任务不会隐藏新任务的面板。清除站点登录会取消其活动下载，保留已完成文件；清理下载才删除本机副本。
 
 ## 原生班车与图标
 

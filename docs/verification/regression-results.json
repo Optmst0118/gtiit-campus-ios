@@ -231,7 +231,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 2B078DC4-5CE5-424A-88B8-8AFACBA3A1F0, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-21 13:45:04 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 4DBBB2BB-44AE-498D-9CA9-5C4D10EF2794, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-21 14:46:16 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -294,6 +294,171 @@
       "detail" : "",
       "passed" : true,
       "test" : "pdf_no_get_refetch"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_inline_enters_pdfkit"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview_not_in_download_records"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview_original_content"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview_survives_float_dismissal"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview_explicit_save_once"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview_closes_and_cleans_temporary"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_preview-attachment_preview"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview-attachment_close_without_save"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_preview-once_preview"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview-once_close_without_save"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_post_pdf_preview"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview_no_refetch_for_post_or_once"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "custom_download_begins_with_captured_location"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inflight_uses_original_location"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inflight_external_file_saved_after_default_change"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "invalid_pdf_reports_preview_failure"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "invalid_pdf_not_saved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "saved_pdf_stable_preview"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "saved_preview_waits_for_transition_and_coalesces_taps"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "saved_preview_independent_of_popup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_new_window_pdf_preview"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "new_location_only_new_downloads"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "external_filename_collision_numbered"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_location_and_records_survive_relaunch"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sort_name_natural"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sort_name_reverse"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sort_size_bidirectional"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sort_time_bidirectional"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "bulk_cleanup_keeps_external_files"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "retention_does_not_delete_external"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "explicit_external_delete_targets_one_file"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "unavailable_location_no_silent_fallback"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "restore_default_download_folder"
     },
     {
       "detail" : "",
@@ -447,7 +612,7 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-21T13:45:16Z",
+  "date" : "2026-10-21T14:46:44Z",
   "passed" : true,
-  "runID" : "f3511461-3329-431e-b93c-64008f0e69f0"
+  "runID" : "5d9f4679-2281-4c9f-a1b1-1b0d540427b3"
 }

@@ -23,14 +23,17 @@
 		ED1275125F83C527E35E83C9 /* BrowserRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE0F6FADE74A2951106A4ED /* BrowserRouter.swift */; };
 		89C4820324FB117FB157BAD1 /* DocumentTeardown.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0DDFB65ED0B7414E58ADD4 /* DocumentTeardown.swift */; };
 		607CE0B1335D774C4A71183D /* DownloadCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F30D6D151A100C46A6C0AE8 /* DownloadCoordinator.swift */; };
+		3DDF1F474B2B43A1D5B1BEF6 /* DownloadLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA83B1947F848E5B025DEE92 /* DownloadLocation.swift */; };
 		FE696E0160EF2877CFDFD610 /* LaunchPreparation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3681D1B76590D940080E18E9 /* LaunchPreparation.swift */; };
 		2D227D5722A7043CD538FC3D /* LocalAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3355A38E3E2F1E7A1522EFA8 /* LocalAuthenticator.swift */; };
 		2BDDF352C1BE93B5F02434F0 /* NavigationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7406024295E4E0281ED1F4CA /* NavigationPolicy.swift */; };
 		2255BBF01A2D87BF634F92F6 /* NetworkDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */; };
+		C2B7887C08C2489429DB0DC5 /* PDFPreviewCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B75F42F72C62D34DF54409 /* PDFPreviewCoordinator.swift */; };
 		15C13241DD75B8D2EC70D8AE /* PopupBrowserController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48762481B5ED40D15B601992 /* PopupBrowserController.swift */; };
 		5994F7C3001534974E418DBD /* WebDataStoreRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BD19B151945EBF382F5E3FA /* WebDataStoreRegistry.swift */; };
 		623C1A25FDF62C3D9BF0836F /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D7171A0064517493C595D68 /* AboutView.swift */; };
 		BD2A8DE7BC76C89B398D2D94 /* BookingTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B6DFDA40F39218E6CB5B2 /* BookingTabView.swift */; };
+		A7C187FE88C4A60322677F3A /* DocumentPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F931FEE32FCC4E8DAD6C0A /* DocumentPreviewView.swift */; };
 		1E3CCF1B90772377B896875F /* DownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71865DECF3411BC2686A995B /* DownloadsView.swift */; };
 		3F7E4CF2E4C5A389A1139D86 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89577AFC0E3F31DFE26AAFAD /* HelpView.swift */; };
 		ED89A1505462C4E57FD89C92 /* LaunchPreloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */; };
@@ -68,14 +71,17 @@
 		4CE0F6FADE74A2951106A4ED /* BrowserRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserRouter.swift; sourceTree = "<group>"; };
 		AB0DDFB65ED0B7414E58ADD4 /* DocumentTeardown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentTeardown.swift; sourceTree = "<group>"; };
 		0F30D6D151A100C46A6C0AE8 /* DownloadCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadCoordinator.swift; sourceTree = "<group>"; };
+		BA83B1947F848E5B025DEE92 /* DownloadLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadLocation.swift; sourceTree = "<group>"; };
 		3681D1B76590D940080E18E9 /* LaunchPreparation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchPreparation.swift; sourceTree = "<group>"; };
 		3355A38E3E2F1E7A1522EFA8 /* LocalAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAuthenticator.swift; sourceTree = "<group>"; };
 		7406024295E4E0281ED1F4CA /* NavigationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationPolicy.swift; sourceTree = "<group>"; };
 		41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkDiagnostics.swift; sourceTree = "<group>"; };
+		F0B75F42F72C62D34DF54409 /* PDFPreviewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFPreviewCoordinator.swift; sourceTree = "<group>"; };
 		48762481B5ED40D15B601992 /* PopupBrowserController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupBrowserController.swift; sourceTree = "<group>"; };
 		0BD19B151945EBF382F5E3FA /* WebDataStoreRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDataStoreRegistry.swift; sourceTree = "<group>"; };
 		4D7171A0064517493C595D68 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		BD7B6DFDA40F39218E6CB5B2 /* BookingTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookingTabView.swift; sourceTree = "<group>"; };
+		31F931FEE32FCC4E8DAD6C0A /* DocumentPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPreviewView.swift; sourceTree = "<group>"; };
 		71865DECF3411BC2686A995B /* DownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
 		89577AFC0E3F31DFE26AAFAD /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchPreloadView.swift; sourceTree = "<group>"; };
@@ -190,10 +196,12 @@
 				4CE0F6FADE74A2951106A4ED /* BrowserRouter.swift */,
 				AB0DDFB65ED0B7414E58ADD4 /* DocumentTeardown.swift */,
 				0F30D6D151A100C46A6C0AE8 /* DownloadCoordinator.swift */,
+				BA83B1947F848E5B025DEE92 /* DownloadLocation.swift */,
 				3681D1B76590D940080E18E9 /* LaunchPreparation.swift */,
 				3355A38E3E2F1E7A1522EFA8 /* LocalAuthenticator.swift */,
 				7406024295E4E0281ED1F4CA /* NavigationPolicy.swift */,
 				41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */,
+				F0B75F42F72C62D34DF54409 /* PDFPreviewCoordinator.swift */,
 				48762481B5ED40D15B601992 /* PopupBrowserController.swift */,
 				0BD19B151945EBF382F5E3FA /* WebDataStoreRegistry.swift */,
 			);
@@ -205,6 +213,7 @@
 			children = (
 				4D7171A0064517493C595D68 /* AboutView.swift */,
 				BD7B6DFDA40F39218E6CB5B2 /* BookingTabView.swift */,
+				31F931FEE32FCC4E8DAD6C0A /* DocumentPreviewView.swift */,
 				71865DECF3411BC2686A995B /* DownloadsView.swift */,
 				89577AFC0E3F31DFE26AAFAD /* HelpView.swift */,
 				B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */,
@@ -319,14 +328,17 @@
 				ED1275125F83C527E35E83C9 /* in Sources */,
 				89C4820324FB117FB157BAD1 /* in Sources */,
 				607CE0B1335D774C4A71183D /* in Sources */,
+				3DDF1F474B2B43A1D5B1BEF6 /* in Sources */,
 				FE696E0160EF2877CFDFD610 /* in Sources */,
 				2D227D5722A7043CD538FC3D /* in Sources */,
 				2BDDF352C1BE93B5F02434F0 /* in Sources */,
 				2255BBF01A2D87BF634F92F6 /* in Sources */,
+				C2B7887C08C2489429DB0DC5 /* in Sources */,
 				15C13241DD75B8D2EC70D8AE /* in Sources */,
 				5994F7C3001534974E418DBD /* in Sources */,
 				623C1A25FDF62C3D9BF0836F /* in Sources */,
 				BD2A8DE7BC76C89B398D2D94 /* in Sources */,
+				A7C187FE88C4A60322677F3A /* in Sources */,
 				1E3CCF1B90772377B896875F /* in Sources */,
 				3F7E4CF2E4C5A389A1139D86 /* in Sources */,
 				ED89A1505462C4E57FD89C92 /* in Sources */,
@@ -437,7 +449,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -446,7 +458,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -462,7 +474,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -471,7 +483,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

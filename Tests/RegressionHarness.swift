@@ -1,4 +1,5 @@
 import Combine
+import PDFKit
 import UIKit
 import WebKit
 
@@ -293,6 +294,7 @@ private final class RetiredViewReference {
         })
         let pdfMetrics = await metrics()
         check("pdf_no_get_refetch", pdfMetrics?["pdf_posts"] == 1 && pdfMetrics?["pdf_gets"] == 0)
+        await verifyPreviewAndLocations(app)
         browser.load(base.appendingPathComponent("slow"))
         let gotSlow = await wait { app.downloads.items.contains { $0.state == .downloading && $0.bytes > 0 } }
         check("download_progress", gotSlow)
@@ -511,6 +513,139 @@ private final class RetiredViewReference {
         // 大块控制台 JSON 会阻塞部分 simctl --console 版本；证据已写入文件。
         print("Regression complete:", results.count, "checks; passed:", results.allSatisfy { $0["passed"] as? Bool == true })
         exit(results.allSatisfy { $0["passed"] as? Bool == true } ? 0 : 1)
+    }
+
+    private func verifyPreviewAndLocations(_ app: AppModel) async {
+        let moodle = app.browser(for: .moodle)
+        moodle.webView.stopLoading()
+        moodle.webView.frame = window!.bounds
+        window!.rootViewController!.view.addSubview(moodle.webView)
+        let before = app.downloads.items.count
+        moodle.load(base.appendingPathComponent("preview-inline"))
+        check("moodle_inline_enters_pdfkit", await wait { app.downloads.activePreview?.state == .readable && app.downloads.activePreview?.document?.pageCount == 1 })
+        check("preview_not_in_download_records", app.downloads.items.count == before && app.downloads.activePreview?.url?.path.contains("/tmp/") == true)
+        check("preview_original_content", app.downloads.activePreview?.document?.string?.contains("Preview fixture") == true)
+        if let preview = app.downloads.activePreview {
+            let temporary = preview.url
+            app.downloads.dismissPresentation()
+            check("preview_survives_float_dismissal", preview.document != nil && window?.rootViewController?.presentedViewController != nil)
+            preview.saveAction?(); preview.saveAction?()
+            check("preview_explicit_save_once", await wait { preview.state == .saved && app.downloads.items.count == before + 1 })
+            preview.closeAction?()
+            check("preview_closes_and_cleans_temporary", await wait { app.downloads.activePreview == nil && temporary.map { !FileManager.default.fileExists(atPath: $0.path) } == true })
+        }
+        for path in ["preview-attachment", "preview-once"] {
+            let count = app.downloads.items.count
+            moodle.load(base.appendingPathComponent(path))
+            check("moodle_\(path)_preview", await wait { app.downloads.activePreview?.state == .readable })
+            app.downloads.activePreview?.closeAction?()
+            _ = await wait { app.downloads.activePreview == nil }
+            check("\(path)_close_without_save", app.downloads.items.count == count)
+        }
+        _ = await load(moodle, "a")
+        _ = await js(moodle.webView, "document.querySelector('form').action='/preview-post';document.querySelector('form').submit();'submitted'")
+        check("moodle_post_pdf_preview", await wait { app.downloads.activePreview?.state == .readable })
+        app.downloads.activePreview?.saveAction?()
+        _ = await wait { app.downloads.activePreview?.state == .saved }
+        app.downloads.activePreview?.closeAction?()
+        _ = await wait { app.downloads.activePreview == nil }
+        let counters = await metrics()
+        check("preview_no_refetch_for_post_or_once", counters?["preview_posts"] == 1 && counters?["preview_gets"] == 0 && counters?["once_gets"] == 1)
+        let chosen = FileManager.default.temporaryDirectory.appendingPathComponent("inflight-location-" + UUID().uuidString)
+        try! FileManager.default.createDirectory(at: chosen, withIntermediateDirectories: true)
+        try! app.downloads.selectDefaultFolder(chosen)
+        let portal = app.browser(for: .portal)
+        portal.load(base.appendingPathComponent("slow"))
+        check("custom_download_begins_with_captured_location", await wait { app.downloads.items.first?.state == .downloading && app.downloads.items.first?.destinationBookmark != nil })
+        let inflightID = app.downloads.items.first?.id
+        app.downloads.resetDefaultFolder()
+        check("inflight_uses_original_location", await wait(15) {
+            app.downloads.items.first(where: { $0.id == inflightID })?.state == .completed
+        })
+        if let item = app.downloads.items.first(where: { $0.id == inflightID }) {
+            check("inflight_external_file_saved_after_default_change", item.destinationBookmark != nil && FileManager.default.fileExists(atPath: chosen.appendingPathComponent(item.filename).path))
+            await app.downloads.removeFile(item.id)
+        }
+        try? FileManager.default.removeItem(at: chosen)
+        let count = app.downloads.items.count
+        moodle.load(base.appendingPathComponent("preview-invalid"))
+        check("invalid_pdf_reports_preview_failure", await wait { app.downloads.activePreview?.state == .failed && app.downloads.activePreview?.document == nil })
+        check("invalid_pdf_not_saved", app.downloads.items.count == count)
+        app.downloads.activePreview?.closeAction?()
+        _ = await wait { app.downloads.activePreview == nil }
+        if let item = app.downloads.items.first(where: { $0.site == .moodle && $0.state == .completed }) {
+            let originalPresenter = app.downloads.presentController
+            var attempts = 0
+            app.downloads.presentController = { controller in
+                attempts += 1
+                if attempts < 3 { return false }
+                return originalPresenter?(controller) ?? false
+            }
+            app.downloads.open(item)
+            app.downloads.open(item)
+            check("saved_pdf_stable_preview", await wait { app.downloads.activePreview?.state == .saved && app.downloads.activePreview?.document?.pageCount == 1 })
+            check("saved_preview_waits_for_transition_and_coalesces_taps", attempts == 3)
+            app.downloads.presentController = originalPresenter
+            app.downloads.dismissPresentation()
+            check("saved_preview_independent_of_popup", app.downloads.activePreview?.document != nil)
+            app.downloads.activePreview?.closeAction?()
+            _ = await wait { app.downloads.activePreview == nil }
+        }
+        _ = await load(moodle, "a")
+        _ = await js(moodle.webView, "window.open('/preview-attachment','pdf-preview-test');'opened'")
+        check("moodle_new_window_pdf_preview", await wait { app.downloads.activePreview?.state == .readable })
+        app.downloads.activePreview?.closeAction?()
+        _ = await wait { app.downloads.activePreview == nil }
+        // 同时清理该测试创建的原生网页子窗口。
+        await app.clearData(for: .moodle)
+        _ = await wait { window?.rootViewController?.presentedViewController == nil }
+        moodle.releaseDataStoreView()
+        if let saved = app.downloads.items.first(where: { $0.site == .moodle }), let source = app.downloads.fileURL(for: saved) {
+            await verifyDownloadLocation(source)
+        }
+    }
+    private func verifyDownloadLocation(_ source: URL) async {
+        let suite = "regression.downloads." + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let local = root.appendingPathComponent("local")
+        let external = root.appendingPathComponent("chosen")
+        try! FileManager.default.createDirectory(at: external, withIntermediateDirectories: true)
+        let center = DownloadCoordinator(directory: local, defaults: defaults)
+        center.start(retention: .forever)
+        do {
+            let original = try await center.savePreview(source, filename: "File 2.pdf", site: .moodle)
+            let originalURL = center.fileURL(for: original)
+            try center.selectDefaultFolder(external)
+            let one = try await center.savePreview(source, filename: "File 10.pdf", site: .moodle)
+            let two = try await center.savePreview(source, filename: "File 10.pdf", site: .moodle)
+            check("new_location_only_new_downloads", center.fileURL(for: original) == originalURL && originalURL?.path.contains("/local/") == true && center.fileURL(for: one)?.deletingLastPathComponent().resolvingSymlinksInPath().path == external.resolvingSymlinksInPath().path)
+            check("external_filename_collision_numbered", one.filename == "File 10.pdf" && two.filename == "File 10 (2).pdf")
+            let restored = DownloadCoordinator(directory: local, defaults: defaults)
+            restored.start(retention: .forever)
+            check("download_location_and_records_survive_relaunch", restored.defaultFolderBookmark != nil && restored.items.count == 3 && restored.fileURL(for: one) == center.fileURL(for: one))
+            check("sort_name_natural", DownloadSort.name.ordered([one, original], ascending: true).first?.id == original.id)
+            check("sort_name_reverse", DownloadSort.name.ordered([one, original], ascending: false).first?.id == one.id)
+            var big = one; big.bytes = 1000
+            var small = original; small.bytes = 10
+            check("sort_size_bidirectional", DownloadSort.size.ordered([small, big], ascending: false).first?.id == big.id && DownloadSort.size.ordered([small, big], ascending: true).first?.id == small.id)
+            check("sort_time_bidirectional", DownloadSort.time.ordered([one, original], ascending: false).first?.id == one.id && DownloadSort.time.ordered([one, original], ascending: true).first?.id == original.id)
+            restored.clear()
+            check("bulk_cleanup_keeps_external_files", restored.items.count == 2 && FileManager.default.fileExists(atPath: external.appendingPathComponent(one.filename).path))
+            let next = DownloadCoordinator(directory: local, defaults: defaults); next.start(retention: .session)
+            check("retention_does_not_delete_external", next.items.count == 2)
+            await next.removeFile(two.id)
+            check("explicit_external_delete_targets_one_file", next.items.count == 1 && !FileManager.default.fileExists(atPath: external.appendingPathComponent(two.filename).path) && FileManager.default.fileExists(atPath: external.appendingPathComponent(one.filename).path))
+            try FileManager.default.removeItem(at: external)
+            let previousCount = next.items.count
+            do { _ = try await next.savePreview(source, filename: "unavailable.pdf", site: .moodle); check("unavailable_location_no_silent_fallback", false) }
+            catch { check("unavailable_location_no_silent_fallback", next.items.count == previousCount) }
+            next.resetDefaultFolder()
+            let back = try await next.savePreview(source, filename: "default.pdf", site: .moodle)
+            check("restore_default_download_folder", back.destinationBookmark == nil && next.fileURL(for: back)?.path.contains("/local/") == true)
+        } catch { check("download_location_fixture_success", false, "\(error)") }
+        defaults.removePersistentDomain(forName: suite)
+        try? FileManager.default.removeItem(at: root)
     }
 
     private func verifyLaunchPreparation() async {
