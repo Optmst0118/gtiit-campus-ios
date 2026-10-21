@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- Wrapped pages now hide the sites' own footers, copyright lines and "Powered by"
+  branding with an always-on injected stylesheet plus a small runtime cleanup. The
+  Booked "© 2020 Twinkle Toes Software / Booked Scheduler" strip, Moodle's page footer
+  and similar blocks no longer show, so pages read as part of the app.
 - The welcome hero is a rounded gradient card again instead of a full-bleed square
   gradient.
 - Web shell scrolling: pinch and double-tap zoom are disabled in all four site tabs;

@@ -3,6 +3,76 @@
     let enabled = GTIIT_INITIAL_ENABLED;
     const dark = matchMedia('(prefers-color-scheme: dark)');
     const sameHost = (host) => GTIIT_ALLOWED_HOSTS.includes(host);
+
+    // 始终隐藏四个站点自带的页脚、版权条与“Powered by”商标，让网页更像 App 内部页面。
+    const nativeChromeCSS = [
+        'footer,#footer,.footer,#page-footer,#course-footer,[class*="footer" i],[id*="footer" i],',
+        '[class*="copyright" i],[class*="powered-by" i]{display:none !important}',
+        'body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}',
+        '::-webkit-scrollbar{width:0;height:0}'
+    ].join('');
+    const installNativeChrome = () => {
+        try {
+            if (document.getElementById('gtiit-native-chrome')) return;
+            const style = document.createElement('style');
+            style.id = 'gtiit-native-chrome';
+            style.textContent = nativeChromeCSS;
+            (document.head || document.documentElement).appendChild(style);
+        } catch (_) {}
+    };
+    const CREDIT_PATTERNS = [
+        /©\s*\d{4}/i, /copyright/i, /all rights reserved/i,
+        /powered by/i, /twinkle toes/i, /booked scheduler/i,
+        /mi-?ke|米客/
+    ];
+    const hideCreditBlocks = () => {
+        if (!document.body) return;
+        const docHeight = Math.max(
+            document.documentElement.scrollHeight,
+            document.body.scrollHeight,
+            window.innerHeight
+        );
+        for (const element of document.querySelectorAll('body *')) {
+            if (element.dataset.gtiitHidden) continue;
+            if (element.closest('[role="dialog"],[aria-modal="true"],.modal,form,dialog')) continue;
+            if (element.children.length > 2) continue;
+            const text = (element.textContent || '').trim();
+            if (!text || text.length > 160) continue;
+            if (!CREDIT_PATTERNS.some((pattern) => pattern.test(text))) continue;
+            const rect = element.getBoundingClientRect();
+            const fixed = getComputedStyle(element).position === 'fixed';
+            if (!fixed && rect.top + window.scrollY < docHeight * 0.7) continue;
+            let target = element;
+            for (let depth = 0; depth < 3 && target.parentElement && target.parentElement !== document.body; depth += 1) {
+                const parent = target.parentElement;
+                if ((parent.textContent || '').trim().length > 220) break;
+                if (parent.querySelector('input,select,textarea,button,form')) break;
+                target = parent;
+            }
+            target.style.setProperty('display', 'none', 'important');
+            target.dataset.gtiitHidden = '1';
+        }
+    };
+    const scheduleNativeChrome = () => {
+        hideCreditBlocks();
+        setTimeout(hideCreditBlocks, 800);
+        setTimeout(hideCreditBlocks, 2500);
+        if (window.MutationObserver && document.body) {
+            let timer = 0;
+            const observer = new MutationObserver(() => {
+                clearTimeout(timer);
+                timer = setTimeout(hideCreditBlocks, 250);
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+            setTimeout(() => observer.disconnect(), 12000);
+        }
+    };
+    installNativeChrome();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => { installNativeChrome(); scheduleNativeChrome(); }, { once: true });
+    } else {
+        scheduleNativeChrome();
+    }
     // 门户使用 Tailwind 渐变：深色模式下把白底渐变改成黑色，避免顶部仍是亮色。
     const portalDarkCSS = location.hostname === 'students.gtiit.edu.cn' ? [
         'html[data-darkreader-scheme="dark"] .app-bg{background:linear-gradient(75deg,#000 0%,#0b0f14 60%) !important}',
