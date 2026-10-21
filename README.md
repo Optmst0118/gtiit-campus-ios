@@ -111,6 +111,8 @@ cd gtiit-campus-ios
 open GTIIT.xcodeproj
 ```
 
+不需要新建 Xcode 工程：仓库里已经包含完整、可打开的 `GTIIT.xcodeproj`。在已存在的本地目录里更新时，直接 `git pull` 即可。
+
 在 Xcode 中：
 
 1. 选择 target **GTIIT** → **Signing & Capabilities**，选择你自己的开发团队；
@@ -138,14 +140,19 @@ python3 Tools/check_project.py    # 校验引用、UUID、签名设置、图标�
 ## 真机安装
 
 ```bash
-./Tools/install_device.sh <设备 UDID>
+./Tools/install_device.sh          # 自动选择已连接的实体设备
+./Tools/install_device.sh <UDID>   # 指定设备
 ```
 
-脚本会构建、自动续签、安装并启动。首次安装后需要在 iPhone 上信任开发者证书：
+脚本会：读取 `Tools/signing.env` 里的团队（或 `DEVELOPMENT_TEAM` 环境变量）→ 构建并自动续签 → 安装 → 启动。**不需要在 Xcode 里手工点 Team，也不会把团队写进 `project.pbxproj`。**
+
+首次安装后需要在 iPhone 上信任开发者证书：
 
 > 设置 → 通用 → VPN 与设备管理 → 「Apple Development: …」→ 信任
 
 免费个人团队的描述文件 **7 天过期**，到期重跑脚本即可续签。
+
+> 公开仓库使用中性 bundle id `io.github.optmst0118.gtiit`。如果你之前装过内部版本（`com.zhufengyi.gtiit`），新版本会作为另一个 App 并行安装；想原地升级就改 `Tools/gen_project.py` 里的 `BUNDLE_ID` 后重新生成工程。
 
 ## 测试与验证
 
