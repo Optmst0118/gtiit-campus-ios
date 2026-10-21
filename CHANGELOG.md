@@ -10,10 +10,12 @@ All notable changes to this project are documented here. The format follows
 
 - Web shell scrolling: pinch and double-tap zoom are disabled in all four site tabs;
   pages now only scroll vertically.
-- The site "more" menu is rebuilt as a compact panel: back, forward, home and refresh
-  are icon-only and evenly distributed at the top; share, Safari and clear-site-data
-  entries were removed; the per-site appearance toggle is renamed "暗色适配" with a
-  moon icon.
+- The site "more" menu is now a native SwiftUI Menu, so iOS 26 renders it with the
+  system Liquid Glass material. The four icon-only navigation shortcuts were removed:
+  native menus present control groups as submenus, so they cannot sit side by side.
+  Back/forward remain available with the edge-swipe gesture, refresh with pull-to-refresh,
+  and home by tapping the page title. Share, Safari and clear-site-data entries were
+  removed, and the per-site appearance switch is renamed "暗色适配" with a moon icon.
 - Downloads management now matches the rest of Settings: the download location is a
   separate rounded card, files live in one grouped card with hairline separators, and
   list rows support trailing swipe-to-delete.
