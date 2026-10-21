@@ -105,16 +105,24 @@ struct WelcomeView: View {
             }
             .padding(.top, 2)
         }
-        .padding(.top, 34)
+        .padding(.top, 30)
         .padding(.bottom, 24)
         .frame(maxWidth: .infinity)
         .background(
             LinearGradient(
-                colors: [Theme.accent.opacity(0.10), Color.clear],
+                colors: [Theme.accent.opacity(0.16), Theme.accent.opacity(0.04)],
                 startPoint: .top,
                 endPoint: .bottom
-            )
+            ),
+            in: RoundedRectangle(cornerRadius: 28, style: .continuous)
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.06))
+        )
+        .padding(.horizontal, 16)
+        .padding(.top, 8)
+        .padding(.bottom, 4)
     }
 
     private var disclaimerCard: some View {

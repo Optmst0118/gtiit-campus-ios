@@ -8,6 +8,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- The welcome hero is a rounded gradient card again instead of a full-bleed square
+  gradient.
 - Web shell scrolling: pinch and double-tap zoom are disabled in all four site tabs;
   pages now only scroll vertically.
 - The site "more" menu is now a native SwiftUI Menu, so iOS 26 renders it with the
