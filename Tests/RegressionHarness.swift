@@ -163,6 +163,11 @@ private final class RetiredViewReference {
         let model = BrowserModel(site: .portal, router: spy)
         model.webView.stopLoading()
         keep += [spy, model]
+        check("download_policy_interruption_is_expected", NavigationPolicy.isExpectedInterruption(NSError(domain: "WebKitErrorDomain", code: 102)))
+        check("network_failure_not_suppressed", !NavigationPolicy.isExpectedInterruption(NSError(domain: NSURLErrorDomain, code: NSURLErrorNotConnectedToInternet)))
+        check("certificate_failure_not_suppressed", !NavigationPolicy.isExpectedInterruption(NSError(domain: NSURLErrorDomain, code: NSURLErrorServerCertificateUntrusted)))
+        model.webView(model.webView, didFailProvisionalNavigation: nil, withError: NSError(domain: "WebKitErrorDomain", code: 102))
+        check("download_interruption_no_error_overlay", model.errorText == nil && !model.isLoading)
         let cross = URL(string: "https://moodle.gtiit.edu.cn/moodle/my/")!
         var policies: [Int] = []
         for _ in 0..<2 {
@@ -208,6 +213,13 @@ private final class RetiredViewReference {
         _ = await model.prepareForDataClear()
         model.releaseDataStoreView()
         let app = AppModel(settings: settings)
+        // Loopback fixtures stay inside this test's WebView; external routing is tested above.
+        settings.externalLinks = .webView
+        let popupOwner = UUID()
+        app.downloads.setPopupPresenter(popupOwner, visible: true)
+        check("popup_owns_only_download_surface", !app.downloads.presentsOnRoot)
+        app.downloads.setPopupPresenter(popupOwner, visible: false)
+        check("root_download_surface_restored", app.downloads.presentsOnRoot)
         keep.append(app)
         check("startup_preferences_applied", app.selectedTab == .me && app.bookingSegment == .sports)
         let browser = app.browser(for: .portal)
@@ -240,20 +252,46 @@ private final class RetiredViewReference {
         check(
             "popup_window_close",
             await wait { self.window?.rootViewController?.presentedViewController == nil })
+        check("popup_restores_browser_window", await wait { browser.webView.window != nil })
 
+        app.toastText = nil
         browser.load(base.appendingPathComponent("file"))
+        let initialDownloadFinished = await wait { app.downloads.items.contains { $0.state == .completed } }
         check(
             "renderable_pdf_attachment_download",
-            await wait { app.downloads.items.contains { $0.state == .completed } })
+            initialDownloadFinished, "\(app.downloads.items)")
+        check("real_pdf_download_has_no_error_overlay", browser.errorText == nil)
+        check("download_completion_no_duplicate_toast", app.toastText == nil)
+        check("completed_download_auto_dismiss", await wait(6) { app.downloads.presentedID == nil })
+        check("auto_dismiss_keeps_file", app.downloads.items.contains { $0.state == .completed && app.downloads.fileURL(for: $0) != nil })
         browser.load(base.appendingPathComponent("file"))
         check(
             "same_filename_download_twice",
             await wait { app.downloads.items.filter { $0.state == .completed }.count >= 2 })
+        app.downloads.dismissCompletedPresentation()
+        check("page_change_dismisses_completed_panel", app.downloads.presentedID == nil && app.downloads.items.filter { $0.state == .completed }.count >= 2)
         let completed = app.downloads.items.filter { $0.state == .completed }
         let urls = completed.compactMap { app.downloads.fileURL(for: $0) }
         check(
             "download_destinations_unique",
             urls.count >= 2 && Set(urls).count == urls.count && app.downloads.totalBytes > 0)
+        let beforeInline = app.downloads.items.count
+        browser.load(base.appendingPathComponent("inline-pdf"))
+        check("inline_pdf_auto_download", await wait {
+            app.downloads.items.count > beforeInline && app.downloads.items.first?.state == .completed
+        })
+        check("download_panel_presented", app.downloads.presentedID != nil && app.downloads.presentedID == app.downloads.items.first?.id)
+        if let item = app.downloads.items.first, let url = app.downloads.fileURL(for: item) {
+            check("downloads_persist_in_documents", url.path.contains("/Documents/Downloads/"))
+        }
+        _ = await load(browser, "a")
+        let beforePostPDF = app.downloads.items.count
+        _ = await js(browser.webView, "document.querySelector('form').action='/post-pdf';document.querySelector('form').submit();'submitted'")
+        check("post_pdf_response_downloaded", await wait {
+            app.downloads.items.count > beforePostPDF && app.downloads.items.first?.state == .completed
+        })
+        let pdfMetrics = await metrics()
+        check("pdf_no_get_refetch", pdfMetrics?["pdf_posts"] == 1 && pdfMetrics?["pdf_gets"] == 0)
         browser.load(base.appendingPathComponent("slow"))
         let gotSlow = await wait { app.downloads.items.contains { $0.state == .downloading && $0.bytes > 0 } }
         check("download_progress", gotSlow)
@@ -469,7 +507,8 @@ private final class RetiredViewReference {
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("regression-results.json")
         try! data.write(to: url)
-        print(String(data: data, encoding: .utf8)!)
+        // 大块控制台 JSON 会阻塞部分 simctl --console 版本；证据已写入文件。
+        print("Regression complete:", results.count, "checks; passed:", results.allSatisfy { $0["passed"] as? Bool == true })
         exit(results.allSatisfy { $0["passed"] as? Bool == true } ? 0 : 1)
     }
 }

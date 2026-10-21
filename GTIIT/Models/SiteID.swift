@@ -67,10 +67,8 @@ enum SiteID: String, CaseIterable, Identifiable, Codable {
 
     var tint: Color {
         switch self {
-        case .portal: return Color(red: 0.16, green: 0.40, blue: 0.88)
-        case .moodle: return Color(red: 0.92, green: 0.48, blue: 0.12)
-        case .rooms: return Color(red: 0.44, green: 0.32, blue: 0.82)
-        case .sports: return Color(red: 0.10, green: 0.62, blue: 0.44)
+        case .portal, .rooms: return Theme.accent
+        case .moodle, .sports: return Theme.orange
         }
     }
 

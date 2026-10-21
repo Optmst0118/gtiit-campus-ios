@@ -244,7 +244,8 @@ final class BrowserModel: NSObject, ObservableObject {
         webView.scrollView.refreshControl?.endRefreshing()
 
         let nsError = error as NSError
-        if nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled {
+        if NavigationPolicy.isExpectedInterruption(nsError) {
+            errorText = nil
             return
         }
         errorText = Self.friendlyMessage(for: nsError, site: site)
@@ -275,6 +276,7 @@ final class BrowserModel: NSObject, ObservableObject {
 
 extension BrowserModel: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        router?.browserDownloadCenter?.dismissCompletedPresentation()
         guard webView === self.webView else { return }
         isLoading = true
         errorText = nil
@@ -326,6 +328,9 @@ extension BrowserModel: WKNavigationDelegate {
         guard let url = navigationAction.request.url else {
             decisionHandler(.allow)
             return
+        }
+        if navigationAction.navigationType == .linkActivated || navigationAction.navigationType == .formSubmitted {
+            router?.browserDownloadCenter?.dismissCompletedPresentation()
         }
         if navigationAction.shouldPerformDownload {
             decisionHandler(.download)
@@ -386,7 +391,9 @@ extension BrowserModel: WKNavigationDelegate {
     ) {
         let response = navigationResponse.response as? HTTPURLResponse
         let disposition = response?.value(forHTTPHeaderField: "Content-Disposition")?.lowercased() ?? ""
-        if navigationResponse.isForMainFrame
+        let isPDF = navigationResponse.response.mimeType?.lowercased() == "application/pdf"
+        // 使用当前响应直接下载，保留 POST、一次性链接、Cookie 及 blob 的原始内容；不额外发 GET。
+        if isPDF || navigationResponse.isForMainFrame
             && (!navigationResponse.canShowMIMEType || disposition.hasPrefix("attachment"))
         {
             decisionHandler(.download)
@@ -396,13 +403,22 @@ extension BrowserModel: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
+        finishDownloadNavigation(webView)
         router?.browserDownload(download, webView: webView, site: site)
     }
 
     func webView(
         _ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload
     ) {
+        finishDownloadNavigation(webView)
         router?.browserDownload(download, webView: webView, site: site)
+    }
+    private func finishDownloadNavigation(_ webView: WKWebView) {
+        guard webView === self.webView else { return }
+        isLoading = false
+        errorText = nil
+        hasLoadedOnce = true
+        webView.scrollView.refreshControl?.endRefreshing()
     }
 }
 
@@ -423,7 +439,7 @@ extension BrowserModel: WKUIDelegate {
         popup.navigationDelegate = self
         popup.uiDelegate = self
         popup.allowsBackForwardNavigationGestures = true
-        let controller = PopupBrowserController(webView: popup)
+        let controller = PopupBrowserController(webView: popup, downloads: router?.browserDownloadCenter)
         controller.onClose = { [weak self, weak popup] in
             guard let popup else { return }
             self?.closePopup(popup)

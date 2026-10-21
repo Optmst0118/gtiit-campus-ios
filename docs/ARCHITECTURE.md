@@ -1,4 +1,4 @@
-# 架构说明 · 1.1
+# 架构说明 · 1.2
 
 ## 应用与界面
 
@@ -30,7 +30,7 @@ BrowserModel 持有每个入口的主 WebView，BrowserRouter 向 AppModel 请�
 - 子窗口使用 WebKit 提供的 WKWebViewConfiguration 创建，由原内核管理，保留 opener、postMessage 和 window.close。
 - `blob:`、`data:`、`about:` 在 WebKit 内处理；受支持的系统 App scheme 仅在用户点击时交给系统。
 - 外站普通链接按偏好留在当前网页、进入内置 Safari，或交给默认浏览器。网页菜单对两个浏览器出口分别命名；内部预览不能直接分享或外部打开时隐藏/禁用相应动作。
-- 浏览栏不使用与真实 TLS 状态无关的锁图标。所有导航按钮至少 44×44 点，辅助功能字号下把次要动作收进菜单。
+- 顶栏只显示可点击回主页的标题和更多菜单，网址、前后退与一级刷新已移除，菜单按钮至少 44×44 点。WebKitErrorDomain:102 的正常策略中断不显示网络错误。
 
 KVO 值由安全的主线程桥接写入 Published 状态。WebViewContainer 使用稳定宿主重新挂载内核。网页进程被系统回收时显示重载入口，不无提示地刷新可能正在编辑的表单。
 
@@ -38,9 +38,13 @@ KVO 值由安全的主线程桥接写入 Published 状态。WebViewContainer 使
 
 AppModel 持有单个 DownloadCoordinator；WebKit 在原会话中处理下载请求，不另建会丢失 Cookie 的下载会话。Coordinator 强持有活动 WKDownload，观察 Progress，支持取消和服务器提供 resumeData 时的续传。断点数据仅留在进程内存，无法续传时给出打开来源站点的入口，不重放可能有副作用的 POST。
 
-每个任务以 UUID 创建独立目录，因此同名文件不会竞争路径。文件名去除路径字符并按 UTF-8 字节限制长度。文件使用 complete 数据保护，位于 App 缓存目录；元数据只含任务标识、站点、文件名、状态、大小和创建时间，不保存下载请求 URL、Cookie 或断点凭证。
+每个任务以 UUID 创建独立目录，因此同名文件不会竞争路径。文件名去除路径字符并按 UTF-8 字节限制长度。文件使用 complete 数据保护，位于 App Documents/Downloads，可从“文件”访问；元数据只含任务标识、站点、文件名、状态、大小和创建时间，不保存下载请求 URL、Cookie 或断点凭证。
 
-文件可通过系统分享面板保存到“文件”。默认下次启动清理，也可选择 1 天或 7 天；系统可能提前回收。清除站点登录会取消其活动下载，保留已完成的文件；清理下载则停止任务并删除缓存副本。
+PDF 响应直接转下载，右下角 DownloadFloatingPanel 提供 Quick Look 与 UIDocumentPicker 另存入口。默认永久保存，限时清理为显式选项。完成面板 4 秒后渐隐，切页时收起；计时任务按任务标识取消，旧任务不会隐藏新任务的面板。清除站点登录会取消其活动下载，保留已完成文件；清理下载才删除本机副本。
+
+## 原生班车与图标
+
+ShuttleSchedule 的 58 个独立车次来自用户源表，按 Asia/Shanghai Calendar 计算，2 号车受教学周开关和指定星期约束。同一时间不同车辆保留独立 ID；过末班寻找次日，明确只做计划发车倒计时。ShuttleView 左右两列显示两个方向；TimelineView 每秒更新，numericText 遵循减弱动态效果。AppIcon.icon 包含透明校徽改绘层和背景填充，由 Apple actool 统一编译 Liquid Glass；备用 PNG 无预制角蒙版。
 
 ## 本地锁与后台遮挡
 
@@ -58,4 +62,4 @@ NetworkDiagnostics 使用 ephemeral URLSession，显式关闭 Cookie、URL 缓�
 
 Tests 和 Tools 提供独立测试入口，不进入产品 Sources。回归运行于独立测试 App 和可丢弃模拟器，覆盖真实 WebKit 行为、合成 Cookie 隔离、实际缓存命中/清理、下载及隐私状态。认证状态用可注入接口测试，生产入口固定使用系统认证。
 
-参考 Apple 官方设计与接口说明：[Settings](https://developer.apple.com/design/human-interface-guidelines/settings)、[Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility)、[WKUIDelegate 子窗口](https://developer.apple.com/documentation/webkit/wkuidelegate/webview(_:createwebviewwith:for:windowfeatures:))。最终验证范围和外部限制见 `IMPROVEMENTS-20261021.md`。
+参考 Apple 官方设计与接口说明：[Settings](https://developer.apple.com/design/human-interface-guidelines/settings)、[Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility)、[WKUIDelegate 子窗口](https://developer.apple.com/documentation/webkit/wkuidelegate/webview(_:createwebviewwith:for:windowfeatures:))。最新验证范围与限制见 `RELEASE-1.2.md`；1.1 记录保留在 `IMPROVEMENTS-20261021.md`。

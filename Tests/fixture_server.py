@@ -2,7 +2,7 @@
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import time
 import json
-METRICS = {"heads": 0, "cookie_headers": 0, "redirect_followed": 0, "private_cache_hits": 0}
+METRICS = {"heads": 0, "cookie_headers": 0, "redirect_followed": 0, "private_cache_hits": 0, "pdf_posts": 0, "pdf_gets": 0}
 
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args):
@@ -20,10 +20,24 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('Content-Length', '0'); self.end_headers()
     def do_POST(self):
         data = self.rfile.read(int(self.headers.get('Content-Length', 0)))
+        if self.path == '/post-pdf':
+            METRICS['pdf_posts'] += 1
+            self.send_response(200); self.send_header('Content-Type', 'application/pdf')
+            self.send_header('Content-Disposition', 'inline; filename="post-only.pdf"')
+            content = b'%PDF-1.4\nOriginal POST response\n'
+            self.send_header('Content-Length', str(len(content))); self.end_headers(); self.wfile.write(content); return
         self.send_response(200); self.send_header('Content-Type', 'text/html'); self.end_headers()
         self.wfile.write(b'<title>POST received</title><body>' + data + b'</body>')
     def do_GET(self):
         path = self.path.split('?')[0]
+        if path == '/post-pdf':
+            METRICS['pdf_gets'] += 1
+            self.send_response(405); self.end_headers(); return
+        if path == '/inline-pdf':
+            content = b'%PDF-1.4\nInline authenticated PDF fixture\n'
+            self.send_response(200); self.send_header('Content-Type', 'application/pdf')
+            self.send_header('Content-Disposition', 'inline; filename="inline.pdf"')
+            self.send_header('Content-Length', str(len(content))); self.end_headers(); self.wfile.write(content); return
         if path.startswith('/private-cache/'):
             METRICS['private_cache_hits'] += 1
             print('PRIVATE CACHE GET', METRICS['private_cache_hits'], flush=True)

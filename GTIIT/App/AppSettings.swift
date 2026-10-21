@@ -49,9 +49,10 @@ enum LockDelay: String, SettingChoice {
     }
 }
 enum DownloadRetention: String, SettingChoice {
-    case session, day, week
+    case forever, session, day, week
     var title: String {
         switch self {
+        case .forever: return "永久保留（手动删除）"
         case .session: return "下次启动时清理"
         case .day: return "1 天"
         case .week: return "7 天"
@@ -59,6 +60,7 @@ enum DownloadRetention: String, SettingChoice {
     }
     var seconds: TimeInterval {
         switch self {
+        case .forever: return .infinity
         case .session: return 0
         case .day: return 86_400
         case .week: return 604_800
@@ -68,6 +70,9 @@ enum DownloadRetention: String, SettingChoice {
 
 @MainActor final class AppSettings: ObservableObject {
     private let defaults: UserDefaults
+    @Published var shuttleTeachingWeek: Bool {
+        didSet { defaults.set(shuttleTeachingWeek, forKey: "settings.shuttleTeachingWeek") }
+    }
     @Published var hasSeenWelcome: Bool {
         didSet { defaults.set(hasSeenWelcome, forKey: "settings.hasSeenWelcome") }
     }
@@ -104,10 +109,11 @@ enum DownloadRetention: String, SettingChoice {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        shuttleTeachingWeek = defaults.object(forKey: "settings.shuttleTeachingWeek") as? Bool ?? true
         hasSeenWelcome = defaults.bool(forKey: "settings.hasSeenWelcome")
         biometricLockEnabled = defaults.bool(forKey: "settings.biometricLock")
         appearance = AppAppearance(rawValue: defaults.string(forKey: "settings.appearance") ?? "") ?? .system
-        startupTab = AppTab(rawValue: defaults.string(forKey: "settings.startupTab") ?? "") ?? .portal
+        startupTab = AppTab(rawValue: defaults.string(forKey: "settings.startupTab") ?? "") ?? .shuttle
         defaultBooking =
             BookingSegment(rawValue: defaults.string(forKey: "settings.defaultBooking") ?? "") ?? .rooms
         externalLinks =
@@ -115,9 +121,12 @@ enum DownloadRetention: String, SettingChoice {
         lockDelay = LockDelay(rawValue: defaults.string(forKey: "settings.lockDelay") ?? "") ?? .immediately
         hideInAppSwitcher = defaults.object(forKey: "settings.hideInAppSwitcher") as? Bool ?? true
         restoreLastPage = defaults.bool(forKey: "settings.restoreLastPage")
-        downloadRetention =
-            DownloadRetention(rawValue: defaults.string(forKey: "settings.downloadRetention") ?? "")
-            ?? .session
+        // 1.2 起默认保存为本机文件；迁移旧版的默认“会话缓存”策略。
+        if !defaults.bool(forKey: "settings.persistentDownloadsV1") {
+            defaults.set("forever", forKey: "settings.downloadRetention")
+            defaults.set(true, forKey: "settings.persistentDownloadsV1")
+        }
+        downloadRetention = DownloadRetention(rawValue: defaults.string(forKey: "settings.downloadRetention") ?? "") ?? .forever
     }
     func markWelcomeSeen() { hasSeenWelcome = true }
     func resetWelcome() { hasSeenWelcome = false }

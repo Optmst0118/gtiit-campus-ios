@@ -13,7 +13,6 @@ struct SiteBrowserView: View {
 private struct BrowserChrome: View {
     @EnvironmentObject private var app: AppModel
     @ObservedObject var model: BrowserModel
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var showClearDataDialog = false
 
@@ -41,41 +40,20 @@ private struct BrowserChrome: View {
     // MARK: - 顶部铬
 
     private var header: some View {
-        HStack(spacing: 2) {
-            navButton("chevron.backward", label: "后退", isEnabled: model.canGoBack) {
-                model.goBack()
-            }
-
-            VStack(spacing: 1) {
+        HStack(spacing: 0) {
+            // 与右侧菜单等宽，保持页面标题居中。
+            Color.clear.frame(width: 44, height: 44).accessibilityHidden(true)
+            Button { model.loadHome() } label: {
                 Text(model.displayTitle)
                     .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
-                HStack(spacing: 4) {
-                    if model.isLoading {
-                        ProgressView()
-                            .controlSize(.mini)
-                            .scaleEffect(0.7)
-                            .frame(width: 8, height: 8)
-                    } else {
-                        Image(systemName: "globe")
-                            .font(.caption2)
-                    }
-                    Text(model.currentHost)
-                        .font(.caption)
-                        .lineLimit(1)
-                }
-                .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .contentShape(Rectangle())
             }
-            .frame(maxWidth: .infinity)
-            .contentShape(Rectangle())
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel("\(model.displayTitle)，\(model.currentHost)")
-
-            if !dynamicTypeSize.isAccessibilitySize {
-                navButton("chevron.forward", label: "前进", isEnabled: model.canGoForward) { model.goForward() }
-                navButton("arrow.clockwise", label: "刷新", isEnabled: true) { model.reload() }
-            }
-
+            .buttonStyle(.plain)
+            .accessibilityLabel("\(model.displayTitle)，回到\(model.site.defaultLandingTitle)")
+            .accessibilityHint("轻点回到网站主页")
             menu
         }
         .padding(.horizontal, 4)
@@ -85,19 +63,6 @@ private struct BrowserChrome: View {
         .overlay(alignment: .bottom) {
             Divider()
         }
-    }
-
-    private func navButton(_ symbol: String, label: String, isEnabled: Bool, action: @escaping () -> Void)
-        -> some View
-    {
-        Button(action: action) {
-            Image(systemName: symbol)
-                .font(.system(size: 16, weight: .semibold))
-                .frame(width: 44, height: 44)
-                .contentShape(Rectangle())
-        }
-        .disabled(!isEnabled)
-        .accessibilityLabel(label)
     }
 
     private var menu: some View {
@@ -123,6 +88,10 @@ private struct BrowserChrome: View {
                 model.reload()
             } label: {
                 Label("刷新", systemImage: "arrow.clockwise")
+            }
+
+            Button { app.showDownloads = true } label: {
+                Label("下载", systemImage: "arrow.down.circle")
             }
 
             Button {

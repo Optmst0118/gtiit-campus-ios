@@ -1,12 +1,26 @@
 import SwiftUI
 
 enum Theme {
-    /// 与图标同源的校园蓝。
-    static let accent = Color(uiColor: .systemBlue)
+    /// 天蓝用于操作，橙色用于方向和信息高亮；深色模式提高亮度。
+    static let accent = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.35, green: 0.76, blue: 1, alpha: 1)
+            : UIColor(red: 0.02, green: 0.42, blue: 0.67, alpha: 1)
+    })
+    static let orange = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 1, green: 0.66, blue: 0.36, alpha: 1)
+            : UIColor(red: 0.71, green: 0.29, blue: 0.06, alpha: 1)
+    })
+    static let sky = Color(red: 0.30, green: 0.73, blue: 0.96)
 
     static let corner: CGFloat = 18
 
-    static let pageBackground = Color(uiColor: .systemGroupedBackground)
+    static let pageBackground = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.055, green: 0.08, blue: 0.11, alpha: 1)
+            : UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1)
+    })
     static let cardBackground = Color(uiColor: .secondarySystemGroupedBackground)
 
     static let headerHeight: CGFloat = 46
@@ -27,17 +41,11 @@ struct SiteBadge: View {
 
     var body: some View {
         RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
-            .fill(
-                LinearGradient(
-                    colors: [site.tint.opacity(0.95), site.tint.opacity(0.65)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
+            .fill(site.tint.opacity(0.12))
             .overlay(
                 Image(systemName: site.symbol)
                     .font(.system(size: size * 0.44, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(site.tint)
             )
             .frame(width: size, height: size)
             .accessibilityHidden(true)

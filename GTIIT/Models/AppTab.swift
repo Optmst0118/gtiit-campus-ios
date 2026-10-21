@@ -1,8 +1,8 @@
 import Foundation
 
-/// 底部四个一级入口。研究建议的「今日」由学生门户 Dashboard 网页承担，
-/// 因此这里保留「门户 / 学习 / 预约 / 我的」四个一级容器。
+/// 原生班车在最左侧，保留四个校园服务入口。
 enum AppTab: String, CaseIterable, Identifiable {
+    case shuttle
     case portal
     case learning
     case booking
@@ -12,6 +12,7 @@ enum AppTab: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
+        case .shuttle: return "班车"
         case .portal: return "门户"
         case .learning: return "学习"
         case .booking: return "预约"
@@ -21,6 +22,7 @@ enum AppTab: String, CaseIterable, Identifiable {
 
     var symbol: String {
         switch self {
+        case .shuttle: return "bus.fill"
         case .portal: return "house.fill"
         case .learning: return "book.closed.fill"
         case .booking: return "calendar.badge.clock"
@@ -31,6 +33,7 @@ enum AppTab: String, CaseIterable, Identifiable {
     /// 「预约」Tab 内部的两个网页分段。
     var primarySite: SiteID? {
         switch self {
+        case .shuttle: return nil
         case .portal: return .portal
         case .learning: return .moodle
         case .booking: return nil

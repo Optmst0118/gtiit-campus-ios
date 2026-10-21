@@ -9,10 +9,10 @@ struct DownloadsView: View {
         List {
             Section {
                 SettingsChoicePicker(
-                    "临时文件保留", selection: $settings.downloadRetention, choices: DownloadRetention.allCases,
+                    "文件保留", selection: $settings.downloadRetention, choices: DownloadRetention.allCases,
                     title: { $0.title })
             } footer: {
-                Text("下次启动时清理过期文件；系统也可能提前回收缓存。需要长期保留的资料，请使用分享菜单中的“存储到文件”。")
+                Text("默认保存在“文件 → 我的 iPhone → GTIIT → Downloads”。可预览、分享或另存到 iCloud Drive。选择限时保留后，下次启动会清理过期下载；其他位置的副本不受影响。")
             }
             if center.items.isEmpty {
                 ContentUnavailableView(
@@ -65,7 +65,7 @@ struct DownloadsView: View {
             }
         }.navigationTitle("下载管理").navigationBarTitleDisplayMode(.inline)
             .confirmationDialog(
-                "删除此临时下载？",
+                "删除此下载？",
                 isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } }),
                 titleVisibility: .visible
             ) {

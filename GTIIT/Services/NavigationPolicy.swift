@@ -3,6 +3,11 @@ import WebKit
 
 /// 只有用户点击的普通 GET 链接跨容器。认证、表单、重定向保留 WebKit 上下文。
 enum NavigationPolicy {
+    /// WebKit 转下载/策略取消不是网络失败；真实连接、证书等错误仍正常显示。
+    static func isExpectedInterruption(_ error: NSError) -> Bool {
+        error.domain == NSURLErrorDomain && error.code == NSURLErrorCancelled
+            || error.domain == "WebKitErrorDomain" && error.code == 102
+    }
     static func canRoute(_ action: WKNavigationAction) -> Bool {
         action.navigationType == .linkActivated
             && (action.request.httpMethod ?? "GET").uppercased() == "GET"

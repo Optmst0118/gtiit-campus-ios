@@ -17,6 +17,7 @@
 		B07491556B0C1FD3F60A5E38 /* TopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E206F42DC4371879EE003AA5 /* TopViewController.swift */; };
 		9AEED1708E52FB5AE2F07F4A /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBFEBCC56CC9922AAC86A6B /* AppTab.swift */; };
 		16C92FA2CA5B121DDDF1CBE3 /* QuickLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59CDAAE096BF94BDD5ABD6EE /* QuickLink.swift */; };
+		ADA172965216773CFED3F029 /* ShuttleSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EF269BFC34E0530BC48D95 /* ShuttleSchedule.swift */; };
 		F5D9D663F4D2123943FCEE49 /* SiteID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B456582ADF2A287683AE3D6A /* SiteID.swift */; };
 		228AAF074AAC8EE7A95958A9 /* BrowserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D0A0F6171AA951EEA57AB8 /* BrowserModel.swift */; };
 		ED1275125F83C527E35E83C9 /* BrowserRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE0F6FADE74A2951106A4ED /* BrowserRouter.swift */; };
@@ -35,12 +36,15 @@
 		42163D6FEAAEABE45B668B9F /* MyTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AC536C50EC4B48743196A7 /* MyTabView.swift */; };
 		9B5E893ADDF2C6FFE4F53584 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B32A814B9C6172E0E91CE6 /* RootTabView.swift */; };
 		ED1AC996BD82FB03BDB65AA8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26C175066343BFC70B55756C /* SettingsView.swift */; };
+		0988B2548695716D021D9802 /* ShuttleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0435FEB7A1B0FB99C3D29B /* ShuttleView.swift */; };
 		82E4D42542032248E4F480B6 /* SiteBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA6DF1D76567F59A5678423 /* SiteBrowserView.swift */; };
 		F730A77AD2139838CB757E5F /* SiteInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43B5301702FD01B8B163756D /* SiteInfoView.swift */; };
 		B6289E6DCDE0245188350CB4 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB09D49451D0FAEB09FBF175 /* WelcomeView.swift */; };
 		54782A73FEBE6E2F623D497C /* BrowserComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56F29BD0774926444F8EB287 /* BrowserComponents.swift */; };
+		11783755FBDAEF486C4F99B2 /* DownloadFloatingPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A76D7E48B5F2AE15724473B /* DownloadFloatingPanel.swift */; };
 		C43BD859842F6E666E2C03A3 /* SettingsChoicePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */; };
 		4D20A64E6DA1B8D39585377E /* WebViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */; };
+		1C8CA7D267FCA2FBAAC1BEED /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = BF502227C43E265CAD1A2037 /* AppIcon.icon */; };
 		DB249DB9D0FF833647E29581 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F9973165E2B0FD4A3AAC566 /* Assets.xcassets */; };
 		7506060A154BFBC166F7764F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F839CA9D2B95AC144B1AA000 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
@@ -56,6 +60,7 @@
 		E206F42DC4371879EE003AA5 /* TopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopViewController.swift; sourceTree = "<group>"; };
 		ECBFEBCC56CC9922AAC86A6B /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTab.swift; sourceTree = "<group>"; };
 		59CDAAE096BF94BDD5ABD6EE /* QuickLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLink.swift; sourceTree = "<group>"; };
+		51EF269BFC34E0530BC48D95 /* ShuttleSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleSchedule.swift; sourceTree = "<group>"; };
 		B456582ADF2A287683AE3D6A /* SiteID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteID.swift; sourceTree = "<group>"; };
 		A0D0A0F6171AA951EEA57AB8 /* BrowserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserModel.swift; sourceTree = "<group>"; };
 		4CE0F6FADE74A2951106A4ED /* BrowserRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserRouter.swift; sourceTree = "<group>"; };
@@ -74,12 +79,15 @@
 		70AC536C50EC4B48743196A7 /* MyTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTabView.swift; sourceTree = "<group>"; };
 		06B32A814B9C6172E0E91CE6 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		26C175066343BFC70B55756C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		FB0435FEB7A1B0FB99C3D29B /* ShuttleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleView.swift; sourceTree = "<group>"; };
 		8BA6DF1D76567F59A5678423 /* SiteBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteBrowserView.swift; sourceTree = "<group>"; };
 		43B5301702FD01B8B163756D /* SiteInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteInfoView.swift; sourceTree = "<group>"; };
 		FB09D49451D0FAEB09FBF175 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		56F29BD0774926444F8EB287 /* BrowserComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserComponents.swift; sourceTree = "<group>"; };
+		7A76D7E48B5F2AE15724473B /* DownloadFloatingPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadFloatingPanel.swift; sourceTree = "<group>"; };
 		7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsChoicePicker.swift; sourceTree = "<group>"; };
 		FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContainer.swift; sourceTree = "<group>"; };
+		BF502227C43E265CAD1A2037 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer; path = AppIcon.icon; sourceTree = "<group>"; };
 		6F9973165E2B0FD4A3AAC566 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7625B5B2FEA398F8912F62D8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F839CA9D2B95AC144B1AA000 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -132,6 +140,7 @@
 			isa = PBXGroup;
 			children = (
 				6F9973165E2B0FD4A3AAC566 /* Assets.xcassets */,
+				BF502227C43E265CAD1A2037 /* AppIcon.icon */,
 				F839CA9D2B95AC144B1AA000 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Resources;
@@ -164,6 +173,7 @@
 			children = (
 				ECBFEBCC56CC9922AAC86A6B /* AppTab.swift */,
 				59CDAAE096BF94BDD5ABD6EE /* QuickLink.swift */,
+				51EF269BFC34E0530BC48D95 /* ShuttleSchedule.swift */,
 				B456582ADF2A287683AE3D6A /* SiteID.swift */,
 			);
 			path = Models;
@@ -196,6 +206,7 @@
 				70AC536C50EC4B48743196A7 /* MyTabView.swift */,
 				06B32A814B9C6172E0E91CE6 /* RootTabView.swift */,
 				26C175066343BFC70B55756C /* SettingsView.swift */,
+				FB0435FEB7A1B0FB99C3D29B /* ShuttleView.swift */,
 				8BA6DF1D76567F59A5678423 /* SiteBrowserView.swift */,
 				43B5301702FD01B8B163756D /* SiteInfoView.swift */,
 				FB09D49451D0FAEB09FBF175 /* WelcomeView.swift */,
@@ -207,6 +218,7 @@
 			isa = PBXGroup;
 			children = (
 				56F29BD0774926444F8EB287 /* BrowserComponents.swift */,
+				7A76D7E48B5F2AE15724473B /* DownloadFloatingPanel.swift */,
 				7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */,
 				FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */,
 			);
@@ -273,6 +285,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DB249DB9D0FF833647E29581 /* Assets.xcassets in Resources */,
+                1C8CA7D267FCA2FBAAC1BEED /* AppIcon.icon in Resources */,
 				7506060A154BFBC166F7764F /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -294,6 +307,7 @@
 				B07491556B0C1FD3F60A5E38 /* in Sources */,
 				9AEED1708E52FB5AE2F07F4A /* in Sources */,
 				16C92FA2CA5B121DDDF1CBE3 /* in Sources */,
+				ADA172965216773CFED3F029 /* in Sources */,
 				F5D9D663F4D2123943FCEE49 /* in Sources */,
 				228AAF074AAC8EE7A95958A9 /* in Sources */,
 				ED1275125F83C527E35E83C9 /* in Sources */,
@@ -312,10 +326,12 @@
 				42163D6FEAAEABE45B668B9F /* in Sources */,
 				9B5E893ADDF2C6FFE4F53584 /* in Sources */,
 				ED1AC996BD82FB03BDB65AA8 /* in Sources */,
+				0988B2548695716D021D9802 /* in Sources */,
 				82E4D42542032248E4F480B6 /* in Sources */,
 				F730A77AD2139838CB757E5F /* in Sources */,
 				B6289E6DCDE0245188350CB4 /* in Sources */,
 				54782A73FEBE6E2F623D497C /* in Sources */,
+				11783755FBDAEF486C4F99B2 /* in Sources */,
 				C43BD859842F6E666E2C03A3 /* in Sources */,
 				4D20A64E6DA1B8D39585377E /* in Sources */,
 			);
@@ -413,7 +429,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -422,7 +438,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -438,7 +454,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -447,7 +463,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

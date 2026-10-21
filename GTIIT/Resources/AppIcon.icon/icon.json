@@ -1,0 +1,42 @@
+{
+  "features": [
+    "specular-location"
+  ],
+  "fill": {
+    "solid": "srgb:0.93,0.975,1,1"
+  },
+  "fill-specializations": [
+    {
+      "appearance": "dark",
+      "value": {
+        "solid": "srgb:0.055,0.105,0.16,1"
+      }
+    }
+  ],
+  "groups": [
+    {
+      "name": "Campus · Blueprint",
+      "layers": [
+        {
+          "name": "GTIIT · Sky / Orange",
+          "image-name": "CampusDraft.png",
+          "glass": true
+        }
+      ],
+      "lighting": "individual",
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.08
+      },
+      "specular": "inside",
+      "translucency": {
+        "enabled": false,
+        "value": 0
+      },
+      "blur-material": 0
+    }
+  ],
+  "supported-platforms": {
+    "squares": "shared"
+  }
+}

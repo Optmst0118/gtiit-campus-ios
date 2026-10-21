@@ -32,7 +32,7 @@ struct LoadingPlaceholderView: View {
             VStack(spacing: 3) {
                 Text("正在打开\(site.displayName)")
                     .font(.footnote.weight(.medium))
-                Text(site.host)
+                Text("正在连接学校网站")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }

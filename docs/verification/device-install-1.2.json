@@ -1,0 +1,11 @@
+{
+  "version": "1.2",
+  "build": "6",
+  "model": "iPhone Air",
+  "os": "iOS 27.0.1",
+  "bundleID": "io.github.optmst0118.gtiit",
+  "installed": true,
+  "launchVerified": true,
+  "signedRelease": true,
+  "date": "2026-10-21T13:25:43.000224+00:00"
+}

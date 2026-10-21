@@ -20,7 +20,9 @@ struct RootTabView: View {
         .allowsHitTesting(!app.lock.isLocked && !app.isClearingData)
         .onChange(of: app.selectedTab) { _, newValue in
             app.markVisited(newValue)
+            app.downloads.dismissCompletedPresentation()
         }
+        .onChange(of: app.bookingSegment) { _, _ in app.downloads.dismissCompletedPresentation() }
         .overlay {
             if app.isClearingData {
                 ZStack {
@@ -29,12 +31,22 @@ struct RootTabView: View {
                 }.accessibilityAddTraits(.isModal)
             }
         }
-        .overlay(alignment: .bottom) {
-            if let text = app.toastText {
-                ToastView(text: text)
-                    .padding(.bottom, 58)
-                    .allowsHitTesting(false)
-                    .animation(.spring(response: 0.35, dampingFraction: 0.85), value: app.toastText)
+        .overlay(alignment: .bottomTrailing) {
+            BrowserFeedbackOverlay(center: app.downloads, toastText: app.toastText)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 72)
+                .allowsHitTesting(!app.lock.isLocked && !app.isClearingData)
+                .accessibilityHidden(app.lock.isLocked)
+        }
+        .sheet(isPresented: $app.showDownloads) {
+            NavigationStack {
+                DownloadsView(center: app.downloads)
+                    .onAppear { app.downloads.dismissPresentation() }
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("完成") { app.showDownloads = false }
+                        }
+                    }
             }
         }
         .background(
@@ -85,6 +97,11 @@ struct RootTabView: View {
             if let raw = environment["GTIIT_TAB"], let tab = AppTab(rawValue: raw) {
                 app.select(tab: tab)
             }
+            if let raw = environment["GTIIT_REVIEW_URL"], let url = URL(string: raw),
+                url.scheme == "https" || url.host == "127.0.0.1" {
+                app.select(tab: .portal)
+                app.browser(for: .portal).load(url)
+            }
         }
     #endif
 
@@ -94,6 +111,8 @@ struct RootTabView: View {
     private func tabContent(for tab: AppTab) -> some View {
         if app.visitedTabs.contains(tab), settings.hasSeenWelcome {
             switch tab {
+            case .shuttle:
+                ShuttleView()
             case .portal:
                 SiteBrowserView(site: .portal)
             case .learning:

@@ -16,5 +16,5 @@ enum AppInfo {
         "\(version) (\(build))"
     }
 
-    static let tagline = "四个官方网页，一个 App"
+    static let tagline = "校园服务，一路相连"
 }

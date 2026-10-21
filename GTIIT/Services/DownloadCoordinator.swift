@@ -13,9 +13,16 @@ struct DownloadItem: Identifiable, Codable {
     var error: String?
 }
 
-/// 文件和元数据只保存在本机缓存。请求 URL、Cookie 与断点凭证不落盘。
+/// 文件保存到“文件 → 我的 iPhone → GTIIT → Downloads”。请求 URL、Cookie 与断点凭证不落盘。
 @MainActor final class DownloadCoordinator: NSObject, ObservableObject, WKDownloadDelegate {
     @Published private(set) var items: [DownloadItem] = []
+    @Published private(set) var presentedID: UUID?
+    private var dismissTask: Task<Void, Never>?
+    @Published private(set) var popupPresenters: Set<UUID> = []
+    var presentsOnRoot: Bool { popupPresenters.isEmpty }
+    func setPopupPresenter(_ id: UUID, visible: Bool) {
+        if visible { popupPresenters.insert(id) } else { popupPresenters.remove(id) }
+    }
     var onFinish: ((URL) -> Void)?
     var onFailure: ((Error) -> Void)?
     private var active: [ObjectIdentifier: (WKDownload, UUID)] = [:]
@@ -29,9 +36,17 @@ struct DownloadItem: Identifiable, Codable {
     }
 
     init(directory: URL? = nil) {
-        self.directory = directory ?? FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("GTIITDownloads", isDirectory: true)
+        self.directory = directory ?? FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("Downloads", isDirectory: true)
         super.init()
+        if directory == nil {
+            let previous = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("GTIITDownloads", isDirectory: true)
+            if FileManager.default.fileExists(atPath: previous.path),
+                !FileManager.default.fileExists(atPath: self.directory.path) {
+                try? FileManager.default.moveItem(at: previous, to: self.directory)
+            }
+        }
     }
     func start(retention: DownloadRetention) {
         guard !started else { return }
@@ -66,6 +81,8 @@ struct DownloadItem: Identifiable, Codable {
                 at: 0)
         }
         resumptions.removeValue(forKey: id)
+        dismissTask?.cancel()
+        presentedID = id
         active[ObjectIdentifier(download)] = (download, id)
         download.delegate = self
         observations[id] = download.progress.observe(\.fractionCompleted, options: [.new]) {
@@ -104,7 +121,7 @@ struct DownloadItem: Identifiable, Codable {
             completionHandler(folder.appendingPathComponent(name))
         } catch {
             items[index].state = .failed
-            items[index].error = "无法创建下载文件"
+            items[index].error = "无法创建下载文件（\((error as NSError).code)）"
             onFailure?(error)
             completionHandler(nil)
             persist()
@@ -121,9 +138,11 @@ struct DownloadItem: Identifiable, Codable {
             items[index].bytes =
                 (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize).map(Int64.init) ?? 0
             onFinish?(url)
+            scheduleDismiss(id, after: 4)
         } else {
             items[index].state = .failed
             items[index].error = "下载文件已被系统清理"
+            scheduleDismiss(id, after: 8)
         }
         persist()
     }
@@ -133,13 +152,14 @@ struct DownloadItem: Identifiable, Codable {
         else { return }
         observations.removeValue(forKey: id)
         items[index].state = .failed
-        items[index].error = "下载中断，请检查网络后重试"
+        items[index].error = "下载中断（\((error as NSError).domain):\((error as NSError).code)），请检查网络后重试"
         if let data = resumeData, let webView = download.webView {
             resumptions[id] = (data, WeakWebView(webView))
         } else {
             removePartialFile(id)
         }
         onFailure?(error)
+        scheduleDismiss(id, after: 8)
         persist()
     }
     func cancel(_ id: UUID) {
@@ -159,6 +179,7 @@ struct DownloadItem: Identifiable, Codable {
             }
             self.persist()
         }
+        scheduleDismiss(id, after: 4)
         persist()
     }
     func canRetry(_ id: UUID) -> Bool { resumptions[id]?.1.value != nil }
@@ -192,10 +213,33 @@ struct DownloadItem: Identifiable, Codable {
         observations.removeValue(forKey: id)
         removePartialFile(id)
         items.removeAll { $0.id == id }
+        if presentedID == id { dismissPresentation() }
         persist()
+    }
+    /// 收起提示与取消下载是两个不同操作，收起不会删除文件或中止传输。
+    func dismissPresentation() {
+        dismissTask?.cancel()
+        dismissTask = nil
+        presentedID = nil
+    }
+    func dismissCompletedPresentation() {
+        guard let id = presentedID,
+            let item = items.first(where: { $0.id == id }), item.state != .downloading else { return }
+        dismissPresentation()
+    }
+    private func scheduleDismiss(_ id: UUID, after seconds: Double) {
+        guard presentedID == id else { return }
+        dismissTask?.cancel()
+        dismissTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+            guard !Task.isCancelled, let self, self.presentedID == id else { return }
+            self.presentedID = nil
+            self.dismissTask = nil
+        }
     }
     func invalidateSession(for site: SiteID) {
         let ids = Set(items.filter { $0.site == site }.map(\.id))
+        if let id = presentedID, ids.contains(id) { dismissPresentation() }
         for pair in active.filter({ ids.contains($0.value.1) }) {
             pair.value.0.delegate = nil
             pair.value.0.cancel(nil)

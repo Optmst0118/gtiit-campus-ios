@@ -1,0 +1,22 @@
+{
+  "productSHA256": "947c3fd15040d4c5a598a62bc658cca44e080d03f658c3c28446a2d7f5a1042b",
+  "builds": [
+    {
+      "name": "debug-simulator",
+      "signing": false,
+      "passed": true,
+      "version": "1.2",
+      "build": "6",
+      "log": "/tmp/gtiit-1.2-build.log"
+    },
+    {
+      "name": "release-device",
+      "signing": true,
+      "passed": true,
+      "version": "1.2",
+      "build": "6",
+      "log": "/tmp/gtiit-1.2-device.log"
+    }
+  ],
+  "passed": true
+}

@@ -26,6 +26,26 @@
       "test" : "real_main_frame_available"
     },
     {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_policy_interruption_is_expected"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "network_failure_not_suppressed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "certificate_failure_not_suppressed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_interruption_no_error_overlay"
+    },
+    {
       "detail" : "policies=[0, 0], routes=2",
       "passed" : true,
       "test" : "repeated_cross_site_link_cancelled"
@@ -69,6 +89,16 @@
       "detail" : "",
       "passed" : true,
       "test" : "filename_safe_utf8"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "popup_owns_only_download_surface"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "root_download_surface_restored"
     },
     {
       "detail" : "",
@@ -118,7 +148,32 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "popup_restores_browser_window"
+    },
+    {
+      "detail" : "[Regression.DownloadItem(id: 666067D9-AB66-48FA-8478-5BB4F6D60FC4, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-21 13:20:07 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil)]",
+      "passed" : true,
       "test" : "renderable_pdf_attachment_download"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "real_pdf_download_has_no_error_overlay"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_completion_no_duplicate_toast"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "completed_download_auto_dismiss"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "auto_dismiss_keeps_file"
     },
     {
       "detail" : "",
@@ -128,7 +183,37 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "page_change_dismisses_completed_panel"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "download_destinations_unique"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inline_pdf_auto_download"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_panel_presented"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "downloads_persist_in_documents"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "post_pdf_response_downloaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "pdf_no_get_refetch"
     },
     {
       "detail" : "",
@@ -282,7 +367,7 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-21T10:35:36Z",
+  "date" : "2026-10-21T13:20:20Z",
   "passed" : true,
-  "runID" : "495372e6-bb68-4997-8bcf-89072eaf9066"
+  "runID" : "c453fa7d-27a1-498c-819c-6ee6510e2d78"
 }

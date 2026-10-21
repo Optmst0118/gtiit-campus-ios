@@ -72,6 +72,12 @@ def build_project() -> str:
             )
 
     assets_ref = uid("ref:assets")
+    icon_ref = uid("ref:layered-icon")
+    has_icon = (SOURCE_DIR / RESOURCE_DIR / "AppIcon.icon").exists()
+    if has_icon:
+        file_refs.append(
+            f'\t\t{icon_ref} /* AppIcon.icon */ = {{isa = PBXFileReference; lastKnownFileType = folder.iconcomposer; path = AppIcon.icon; sourceTree = "<group>"; }};'
+        )
     file_refs.append(
         f"\t\t{assets_ref} /* Assets.xcassets */ = {{isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = \"<group>\"; }};"
     )
@@ -111,12 +117,20 @@ def build_project() -> str:
             f"\t\t{uid('group:' + directory)} /* {directory} */ = {{\n\t\t\tisa = PBXGroup;\n\t\t\tchildren = (\n{members}\t\t\t);\n\t\t\tpath = {directory};\n\t\t\tsourceTree = \"<group>\";\n\t\t}};"
         )
 
+    if has_icon:
+        groups_section = [s.replace(f'{assets_ref} /* Assets.xcassets */,', f'{assets_ref} /* Assets.xcassets */,\n\t\t\t\t{icon_ref} /* AppIcon.icon */,') for s in groups_section]
+
     # ---------- Phases ----------
     sources_phase = uid("phase:sources")
     frameworks_phase = uid("phase:frameworks")
     resources_phase = uid("phase:resources")
     source_files_list = "".join(f"\t\t\t\t{i} /* in Sources */,\n" for i in source_build_ids)
     assets_build = uid("build:assets")
+    icon_build = uid("build:layered-icon")
+    if has_icon:
+        build_files.append(
+            f'\t\t{icon_build} /* AppIcon.icon in Resources */ = {{isa = PBXBuildFile; fileRef = {icon_ref} /* AppIcon.icon */; }};'
+        )
     build_files.append(
         f"\t\t{assets_build} /* Assets.xcassets in Resources */ = {{isa = PBXBuildFile; fileRef = {assets_ref} /* Assets.xcassets */; }};"
     )
@@ -196,7 +210,7 @@ def build_project() -> str:
     target_settings = team_line + """\t\t\t\tASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 \t\t\t\tASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 \t\t\t\tCODE_SIGN_STYLE = Automatic;
-\t\t\t\tCURRENT_PROJECT_VERSION = 2;
+\t\t\t\tCURRENT_PROJECT_VERSION = 6;
 \t\t\t\tENABLE_PREVIEWS = YES;
 \t\t\t\tGENERATE_INFOPLIST_FILE = NO;
 \t\t\t\tINFOPLIST_FILE = %s/Info.plist;
@@ -205,7 +219,7 @@ def build_project() -> str:
 \t\t\t\t\t"$(inherited)",
 \t\t\t\t\t"@executable_path/Frameworks",
 \t\t\t\t);
-\t\t\t\tMARKETING_VERSION = 1.1;
+\t\t\t\tMARKETING_VERSION = 1.2;
 \t\t\t\tPRODUCT_BUNDLE_IDENTIFIER = "%s";
 \t\t\t\tPRODUCT_NAME = "$(TARGET_NAME)";
 \t\t\t\tSWIFT_EMIT_LOC_STRINGS = YES;
@@ -301,6 +315,7 @@ def build_project() -> str:
 \t\t\tbuildActionMask = 2147483647;
 \t\t\tfiles = (
 \t\t\t\t{assets_build} /* Assets.xcassets in Resources */,
+{f'                {icon_build} /* AppIcon.icon in Resources */,' if has_icon else ''}
 \t\t\t\t{privacy_build} /* PrivacyInfo.xcprivacy in Resources */,
 \t\t\t);
 \t\t\trunOnlyForDeploymentPostprocessing = 0;

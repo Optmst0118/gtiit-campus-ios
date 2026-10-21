@@ -54,6 +54,8 @@ struct SettingsView: View {
                 Text("GTIIT \(AppInfo.versionText) · 非官方客户端")
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Theme.pageBackground)
         .navigationTitle("设置")
         .navigationBarTitleDisplayMode(.large)
     }
@@ -128,7 +130,7 @@ private struct PrivacySettingsView: View {
             } footer: {
                 Text("开启锁定时始终遮挡后台内容，包括分享面板和网页窗口。")
             }
-            Section { NavigationLink("数据与隐私说明") { AboutView() } }
+            Section { NavigationLink("隐私与安全说明") { PrivacyAndSafetyView() } }
         }.navigationTitle("隐私与锁定").navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -236,7 +238,7 @@ struct StorageSettingsView: View {
                     LabeledContent("网页数据", value: "按站点管理")
                 }
                 LabeledContent(
-                    "临时下载",
+                    "本机下载",
                     value: ByteCountFormatter.string(fromByteCount: center.totalBytes, countStyle: .file))
             } footer: {
                 Text("下载大小按本机现有文件计算。网页缓存的准确字节数无法从 WebKit 获取。")
@@ -258,7 +260,7 @@ struct StorageSettingsView: View {
             }
             Section {
                 Button("仅清理网页缓存") { action = .cache }
-                Button("清理临时下载", role: .destructive) { action = .downloads }
+                Button("清理本机下载", role: .destructive) { action = .downloads }
                 Button("清除全部登录与网页数据", role: .destructive) { action = .all }
             }.disabled(app.isClearingData)
         }.navigationTitle("存储空间").navigationBarTitleDisplayMode(.inline)
@@ -275,7 +277,7 @@ struct StorageSettingsView: View {
                         case .all: await app.clearAllData()
                         case .downloads:
                             app.downloads.clear()
-                            app.toast("已清理临时下载")
+                            app.toast("已清理本机下载")
                         case .none: break
                         }
                     }
@@ -286,7 +288,7 @@ struct StorageSettingsView: View {
                     action == .cache
                         ? "只清理缓存，保留 Cookie 与登录存储。不重新载入正在编辑的页面。"
                         : action == .downloads
-                            ? "停止下载并删除 App 内临时文件。已另存到“文件”的副本不受影响。"
+                            ? "停止下载并删除 GTIIT/Downloads 内的文件。已另存到其他位置的副本不受影响。"
                             : "四站需要重新登录，未提交的内容会丢失。已完成的下载文件和 Safari 数据不受影响。")
             }
     }

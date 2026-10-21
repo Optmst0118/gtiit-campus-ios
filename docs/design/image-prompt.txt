@@ -1,0 +1,9 @@
+Built-in image_gen workflow (transparent foreground; original output preserved in Codex generated_images).
+
+Initial prompt:
+Create a single transparent foreground layer for Apple Icon Composer based on the supplied official GTIIT emblem. Preserve the central torch, angular V, left gear and right flower. Remove the round seal, outer text, stars and 2015. Precise flat 2D architectural drafting linework, sky blue and warm orange, faint construction guides, no background tile, border, baked glass, shadow or text. Native Icon Composer supplies Liquid Glass.
+
+Refinement prompt:
+Keep exact silhouettes, layout and orange elements. Change royal blue to sky blue #149BD7. Reduce guide hairlines to faint pale blue. Smooth edges, no speckles. Preserve transparency; no background, frame, shadow or text.
+
+Packaging: sips resized 1254px PNG to 1024px. AppIcon.icon contains native Apple glass layer settings and light/dark fills. Tools/render_legacy_icon.swift produces an opaque full-square fallback from the same artwork.

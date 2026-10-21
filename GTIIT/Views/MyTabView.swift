@@ -6,19 +6,14 @@ struct MyTabView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
-                    Label {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("GTIIT 校园助手").font(.headline)
-                            Text("校园服务，随手可达").font(.subheadline).foregroundStyle(.secondary)
-                        }
-                    } icon: {
-                        Image(systemName: "building.columns").font(.title2).foregroundStyle(Theme.accent)
-                            .frame(width: 40, height: 44)
-                    }
-                    .padding(.vertical, 8)
-                }
                 Section("常用入口") {
+                    Button { app.select(tab: .shuttle) } label: {
+                        HStack {
+                            Label("校园班车", systemImage: "bus.fill").foregroundStyle(Theme.accent)
+                            Spacer()
+                            Text("南北校区").font(.subheadline).foregroundStyle(.secondary)
+                        }.frame(minHeight: 32)
+                    }
                     ForEach(QuickLinkCatalog.highlights) { link in
                         Button {
                             app.open(link)
@@ -28,24 +23,6 @@ struct MyTabView: View {
                                 Spacer()
                                 Text(link.site.shortName).font(.subheadline).foregroundStyle(.secondary)
                             }.foregroundStyle(.primary).frame(minHeight: 32)
-                        }
-                    }
-                }
-                Section("校园网站") {
-                    ForEach(SiteID.allCases) { site in
-                        Button {
-                            app.openSite(site)
-                        } label: {
-                            HStack(spacing: 12) {
-                                Image(systemName: site.symbol).foregroundStyle(Theme.accent).frame(width: 24)
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(site.displayName).foregroundStyle(.primary)
-                                    Text(site.host).font(.caption).foregroundStyle(.secondary).lineLimit(2)
-                                }
-                                Spacer()
-                                Image(systemName: "arrow.up.forward").font(.caption).foregroundStyle(
-                                    .tertiary)
-                            }.padding(.vertical, 3)
                         }
                     }
                 }
@@ -65,11 +42,12 @@ struct MyTabView: View {
                     } label: {
                         Label("帮助与诊断", systemImage: "questionmark.circle")
                     }
-                } footer: {
-                    Text("非官方校园客户端。登录与业务操作在官方网页中完成。")
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Theme.pageBackground)
             .navigationTitle("我的")
+            .onAppear { app.downloads.dismissCompletedPresentation() }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {

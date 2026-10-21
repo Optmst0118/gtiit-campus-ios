@@ -4,24 +4,61 @@ struct AboutView: View {
     var body: some View {
         List {
             Section {
+                HStack(spacing: 16) {
+                    Image("CampusMark").resizable().scaledToFit().frame(width: 62, height: 62)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("YOUR CAMPUS, CONNECTED").font(.system(size: 9, weight: .semibold))
+                            .tracking(1.3).foregroundStyle(Theme.accent)
+                        Text("GTIIT 校园助手").font(.headline)
+                        Text("学习、生活，一路相连。").font(.subheadline).foregroundStyle(.secondary)
+                        Text(AppInfo.versionText).font(.caption).foregroundStyle(.secondary)
+                    }
+                }.padding(.vertical, 16)
+            }
+            Section {
+                NavigationLink {
+                    PrivacyAndSafetyView()
+                } label: {
+                    Label("隐私与安全", systemImage: "lock.shield")
+                }
+                NavigationLink {
+                    TechnicalLogView()
+                } label: {
+                    Label("技术日志", systemImage: "doc.text")
+                }
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .background(Theme.pageBackground)
+        .navigationTitle("关于 GTIIT")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct PrivacyAndSafetyView: View {
+    var body: some View { AboutDetailsView(privacy: true) }
+}
+struct TechnicalLogView: View {
+    var body: some View { AboutDetailsView(privacy: false) }
+}
+
+private struct AboutDetailsView: View {
+    let privacy: Bool
+    var body: some View {
+        List {
+            if privacy {
+            Section {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("非官方客户端")
                         .font(.headline)
                     Text(
-                        "这是学生自制的客户端，不是 GTIIT（广东以色列理工学院）发布的官方 App，也与学校没有隶属或合作关系。它的作用只有一个：把四个官方网页放进同一个窗口，减少在浏览器里来回切标签的成本。"
+                        "这是学生自制的客户端，不是 GTIIT（广东以色列理工学院）发布的官方 App，也与学校没有隶属或合作关系。它将校园网站与班车时刻表集中到一个 App。"
                     )
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.vertical, 4)
-            }
-
-            Section("App 做什么") {
-                bullet("square.grid.2x2", "用底部四个标签承载门户、Moodle、预约与我的。", color: Theme.accent)
-                bullet("safari", "每个标签加载对应官方网页，页面布局、登录和业务操作都不改造。", color: Theme.accent)
-                bullet("arrow.triangle.branch", "主动点击普通跨站链接时切换标签；表单、登录与新窗口保留原认证上下文。", color: Theme.accent)
-                bullet("lock.shield", "四个站点各自持久保存网页会话，可单独清除，也可用面容 ID 遮挡。", color: Theme.accent)
             }
 
             Section("App 不做什么") {
@@ -35,7 +72,7 @@ struct AboutView: View {
                 PrivacyLine(title: "网页数据", detail: "Cookie、缓存与本地存储由 WebKit 保存在本机沙盒内，四个站点各用独立容器，可单独清除。")
                 PrivacyLine(
                     title: "下载文件",
-                    detail: "仅存于本机缓存，可在下载管理中分享、删除或保存到“文件”。按所选期限在下次启动时清理，系统也可能提前回收。断点凭证仅留在当前运行内存中。")
+                    detail: "默认永久保存在本机 Documents/Downloads，可从“文件 → 我的 iPhone → GTIIT”访问；也可预览或另存到其他位置。限时清理为可选设置。断点凭证仅留在当前运行内存中。")
                 PrivacyLine(title: "账号凭据", detail: "由学校官方页面自行处理，App 代码不接触、不记录、不发送。")
                 PrivacyLine(
                     title: "本机偏好",
@@ -47,12 +84,21 @@ struct AboutView: View {
                 PrivacyLine(title: "隐私清单", detail: "App 声明不追踪、不收集数据；唯一声明的 API 用途是 UserDefaults（保存本机偏好）。")
             }
 
+            } else {
+            Section("App 做什么") {
+                bullet("square.grid.2x2", "用底部五个标签承载班车、门户、Moodle、预约与我的。", color: Theme.accent)
+                bullet("bus", "班车按提供的时刻表计算计划发车倒计时，不是实时到站信息。", color: Theme.orange)
+                bullet("safari", "每个标签加载对应官方网页，页面布局、登录和业务操作都不改造。", color: Theme.accent)
+                bullet("arrow.triangle.branch", "主动点击普通跨站链接时切换标签；表单、登录与新窗口保留原认证上下文。", color: Theme.accent)
+                bullet("lock.shield", "四个站点各自持久保存网页会话，可单独清除，也可用面容 ID 遮挡。", color: Theme.accent)
+            }
+
             Section("技术实现") {
                 bullet(
                     "iphone", "SwiftUI + WKWebView，最低 iOS 17（使用带标识符的持久化 WKWebsiteDataStore）。",
                     color: .secondary)
                 bullet("square.stack.3d.up", "四站独立数据容器，切换标签不重新加载页面。", color: .secondary)
-                bullet("arrow.down.doc", "网页文件在本机临时管理，支持进度、取消、可用时续传及系统分享。", color: .secondary)
+                bullet("arrow.down.doc", "网页文件保存在本机，支持进度、取消、可用时续传、预览及系统另存。", color: .secondary)
             }
 
             Section("已知限制（研究快照 \(AppInfo.researchDate)）") {
@@ -76,8 +122,11 @@ struct AboutView: View {
                     Text("GTIIT iOS 调研包").foregroundStyle(.secondary)
                 }
             }
+            }
         }
-        .navigationTitle("非官方说明")
+        .scrollContentBackground(.hidden)
+        .background(Theme.pageBackground)
+        .navigationTitle(privacy ? "隐私与安全" : "技术日志")
         .navigationBarTitleDisplayMode(.inline)
     }
 

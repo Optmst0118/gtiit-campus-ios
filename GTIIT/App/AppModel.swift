@@ -13,6 +13,7 @@ final class AppModel: ObservableObject {
     @Published var toastText: String?
     @Published var showWelcome = false
     @Published var siteInfo: SiteID?
+    @Published var showDownloads = false
     @Published private(set) var storageStates: [SiteID: Bool] = [:]
 
     let lock = AppLockController()
@@ -33,8 +34,7 @@ final class AppModel: ObservableObject {
         visitedTabs = [settings.startupTab]
         bookingSegment = settings.defaultBooking
         downloads.start(retention: settings.downloadRetention)
-        downloads.onFinish = { [weak self] _ in self?.toast("下载完成，可在下载管理中查看或保存到文件") }
-        downloads.onFailure = { [weak self] _ in self?.toast("下载中断，可在下载管理中查看") }
+        // 下载的进度、成功与失败均由唯一的下载面板呈现，不再另叠 Toast。
         lockSubscription = lock.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
     }
 
@@ -171,6 +171,7 @@ final class AppModel: ObservableObject {
 // MARK: - BrowserRouter
 
 extension AppModel: BrowserRouter {
+    var browserDownloadCenter: DownloadCoordinator? { downloads }
     var externalLinkMode: ExternalLinkMode { settings.externalLinks }
     func browserInitialURL(for site: SiteID) -> URL { settings.initialURL(for: site) }
     func browserDidFinish(url: URL, site: SiteID) { settings.remember(url, for: site) }
