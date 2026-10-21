@@ -1,0 +1,252 @@
+{
+  "checks" : [
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preferences_persist"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "restore_safe_location"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "reject_auth_parameters_and_wrong_origin"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "disable_restore_removes_locations"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "real_main_frame_available"
+    },
+    {
+      "detail" : "policies=[0, 0], routes=2",
+      "passed" : true,
+      "test" : "repeated_cross_site_link_cancelled"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "cross_site_post_keeps_request_context"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "internal_scheme_blob"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "internal_scheme_data"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "internal_scheme_about"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "external_link_system_route"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "external_link_safari_route"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "other_mike_tenant_not_sports"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "filename_safe_utf8"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "startup_preferences_applied"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "fixture_load_a"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "fixture_load_b"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "browser_has_history_before_clear"
+    },
+    {
+      "detail" : "cookies=2",
+      "passed" : true,
+      "test" : "cache_clear_preserves_login_and_storage"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "real_webkit_post_reaches_echo"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "real_blob_preview"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "real_popup_opener_postMessage"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "popup_window_close"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "renderable_pdf_attachment_download"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "same_filename_download_twice"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_destinations_unique"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_progress"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_cancel"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_resume"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "clear_replaces_webview_and_history"
+    },
+    {
+      "detail" : "cookies=0, records=0",
+      "passed" : true,
+      "test" : "clear_cookie_and_storage"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "old_document_cannot_repopulate_storage"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "clear_does_not_autoload"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "clear_keeps_completed_downloads"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_cleanup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_retention_week"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_retention_day"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_retention_session"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "diagnostic_four_head_responses"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "diagnostic_no_cookie_no_auth_no_redirect"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "diagnostic_report_redacted"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "lock_delay_before_threshold"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "lock_delay_at_threshold"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "privacy_shield_over_modal"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "privacy_shield_removed_on_return"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "authentication_cancel_keeps_locked"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "authentication_failure_keeps_locked"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "authentication_success_unlocks"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "authentication_unavailable_keeps_locked"
+    }
+  ],
+  "completed" : true,
+  "date" : "2026-10-21T09:39:08Z",
+  "passed" : true
+}

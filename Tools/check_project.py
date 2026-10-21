@@ -228,9 +228,6 @@ def main() -> int:
         if extra:
             fail(f"编译列表里有磁盘不存在的文件：{extra}")
         notes.append(f"编译 Swift 文件：{len(compiled)} / 磁盘 {len(disk_swift)}")
-        expected_swift = 24
-        if len(compiled) != expected_swift:
-            notes.append(f"注意：期望 {expected_swift} 个 Swift 文件，实际 {len(compiled)}（如已改结构可忽略）")
 
     # Resources 阶段
     resources_phase = next((o for o in objects.values()

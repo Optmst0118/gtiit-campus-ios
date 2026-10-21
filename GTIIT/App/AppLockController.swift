@@ -1,66 +1,57 @@
 import Foundation
 import LocalAuthentication
 
-/// 可选的本地门禁：用面容 ID / 触控 ID / 设备密码遮住网页内容。
-/// 解锁结果只影响界面可见性，不参与任何网络请求，也不上传任何数据。
-@MainActor
-final class AppLockController: ObservableObject {
+@MainActor final class AppLockController: ObservableObject {
     @Published private(set) var isLocked = false
     @Published private(set) var isAuthenticating = false
     @Published private(set) var lastMessage: String?
-
-    private var biometryContext: LAContext?
-
-    var biometryLabel: String {
-        let context = LAContext()
-        _ = context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil)
-        switch context.biometryType {
-        case .faceID: return "面容 ID"
-        case .touchID: return "触控 ID"
-        case .opticID: return "光学 ID"
-        case .none: return "设备密码"
-        @unknown default: return "设备密码"
-        }
+    @Published private(set) var isPrivacyCovered = false
+    @Published private(set) var isActive = true
+    private var inactiveAt: Date?
+    private let authenticator: LocalAuthenticating
+    init(authenticator: LocalAuthenticating? = nil) {
+        self.authenticator = authenticator ?? SystemAuthenticator()
     }
-
-    var isBiometryAvailable: Bool {
-        LAContext().canEvaluatePolicy(.deviceOwnerAuthentication, error: nil)
-    }
-
+    var biometryLabel: String { authenticator.label }
+    var isBiometryAvailable: Bool { authenticator.isAvailable }
     func lock() {
         guard !isLocked else { return }
         lastMessage = nil
         isLocked = true
     }
-
+    func setInactive(settings: AppSettings, now: Date = Date()) {
+        // 系统认证面板本身会使 scene inactive，不把它算作新一次离开。
+        guard !isAuthenticating else { return }
+        if inactiveAt == nil { inactiveAt = now }
+        isActive = false
+        isPrivacyCovered = settings.hideInAppSwitcher || settings.biometricLockEnabled
+        if settings.biometricLockEnabled && settings.lockDelay == .immediately { lock() }
+    }
+    func setActive(settings: AppSettings, now: Date = Date()) {
+        if settings.biometricLockEnabled, let inactiveAt,
+            now.timeIntervalSince(inactiveAt) >= settings.lockDelay.seconds
+        {
+            lock()
+        }
+        inactiveAt = nil
+        isActive = true
+        isPrivacyCovered = false
+    }
     func unlock() async {
-        guard isLocked, !isAuthenticating else { return }
-        let context = LAContext()
-        context.localizedCancelTitle = "取消"
-        context.localizedFallbackTitle = "使用密码"
-
-        var authError: NSError?
-        guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &authError) else {
-            // 设备没有设置密码或生物识别时不把用户挡在外面
-            lastMessage = authError?.localizedDescription
-            isLocked = false
+        guard isLocked, isActive, !isAuthenticating else { return }
+        guard authenticator.isAvailable else {
+            lastMessage = "系统验证暂不可用。请在系统设置中检查设备密码或生物识别，再返回重试。"
             return
         }
-
         isAuthenticating = true
-        defer { isAuthenticating = false }
-
-        do {
-            let success = try await context.evaluatePolicy(
-                .deviceOwnerAuthentication,
-                localizedReason: "解锁 GTIIT 校园助手，继续查看官网页面"
-            )
-            if success {
-                lastMessage = nil
-                isLocked = false
-            }
-        } catch {
-            lastMessage = "验证未通过，可再试一次。"
+        defer {
+            isAuthenticating = false
         }
+        do {
+            if try await authenticator.authenticate() {
+                isLocked = false
+                lastMessage = nil
+            }
+        } catch { lastMessage = "验证未完成，请重试。" }
     }
 }

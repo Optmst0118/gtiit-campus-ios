@@ -52,7 +52,7 @@ enum SiteID: String, CaseIterable, Identifiable, Codable {
         case .portal: return ["students.gtiit.edu.cn"]
         case .moodle: return ["moodle.gtiit.edu.cn"]
         case .rooms: return ["roombooking.gtiit.edu.cn"]
-        case .sports: return ["gtiit.mike-x.com", "mike-x.com"]
+        case .sports: return ["gtiit.mike-x.com"]
         }
     }
 
@@ -81,25 +81,25 @@ enum SiteID: String, CaseIterable, Identifiable, Codable {
             return [
                 "登录由学校统一身份认证完成，会话只保存在本机的网页数据容器内。",
                 "成绩、选课、考勤、培养计划的原生读取尚无获准接口，首版一律以官方网页呈现。",
-                "请假、额外学分、教学评价等业务不代填、不代提交。"
+                "请假、额外学分、教学评价等业务不代填、不代提交。",
             ]
         case .moodle:
             return [
                 "使用学校配置的浏览器登录（含 Office 365 / SAML2 入口），App 不接管 Moodle 移动令牌。",
                 "作业可能同时存在 Assignment 与 Quiz 两类，作答与提交仍在官方页面完成。",
-                "课程资料下载交给系统文件分享，App 不额外上传文件。"
+                "课程资料下载交给系统文件分享，App 不额外上传文件。",
             ]
         case .rooms:
             return [
                 "Booked 标准 API 在本校为关闭状态，首版只做官方网页容器与本地快捷入口。",
                 "可用性颜色与冲突校验以服务器结果为准，App 不预判空闲时段。",
-                "练习房管理规定来自官方文件（工作日 09:00–22:00、最多提前两天等），文件未标注生效日期。"
+                "练习房管理规定来自官方文件（工作日 09:00–22:00、最多提前两天等），文件未标注生效日期。",
             ]
         case .sports:
             return [
                 "体育中心需要会员邮箱登录，会员权限、时段与票券规则都在官方页面内。",
                 "场馆目录来自公开入口，公开可见不代表本人可预约。",
-                "预约、取消与签到均不代提交。"
+                "预约、取消与签到均不代提交。",
             ]
         }
     }
@@ -121,25 +121,25 @@ enum SiteID: String, CaseIterable, Identifiable, Codable {
             return [
                 "需要能访问 students.gtiit.edu.cn 的校园网络或学校认可的访问方式。",
                 "登录由学校统一身份认证完成（可能跳转到 Office 365 页面）。",
-                "成绩页首次进入可能要求先同意 Code of Conduct；App 不会代替你同意。"
+                "成绩页首次进入可能要求先同意 Code of Conduct；App 不会代替你同意。",
             ]
         case .moodle:
             return [
                 "需要能访问 moodle.gtiit.edu.cn。",
                 "登录方式为浏览器登录（学校配置了 Office 365 / SAML2 入口），App 不生成或接管移动令牌。",
-                "资料与作业附件通过系统下载与分享，不在 App 内建离线库。"
+                "资料与作业附件通过系统下载与分享，不在 App 内建离线库。",
             ]
         case .rooms:
             return [
                 "需要能访问 roombooking.gtiit.edu.cn，并使用本站账号登录。",
                 "Booked 标准 API 在本校为关闭状态，App 不会预判可用性或冲突。",
-                "练习房的时间窗与配额以官方管理规定文件为准，文件未标注生效日期。"
+                "练习房的时间窗与配额以官方管理规定文件为准，文件未标注生效日期。",
             ]
         case .sports:
             return [
                 "需要能访问 gtiit.mike-x.com。",
                 "多数场馆要求会员邮箱登录后才能看到真实时段。",
-                "票券、取消与签到规则以各场馆页面为准，App 不代操作。"
+                "票券、取消与签到规则以各场馆页面为准，App 不代操作。",
             ]
         }
     }

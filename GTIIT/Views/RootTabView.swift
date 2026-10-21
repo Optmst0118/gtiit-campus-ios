@@ -17,9 +17,17 @@ struct RootTabView: View {
         }
         .tint(Theme.accent)
         .accessibilityHidden(app.lock.isLocked)
-        .allowsHitTesting(!app.lock.isLocked)
+        .allowsHitTesting(!app.lock.isLocked && !app.isClearingData)
         .onChange(of: app.selectedTab) { _, newValue in
             app.markVisited(newValue)
+        }
+        .overlay {
+            if app.isClearingData {
+                ZStack {
+                    Color(uiColor: .systemBackground).opacity(0.95).ignoresSafeArea()
+                    ProgressView("正在清理网页数据…").padding()
+                }.accessibilityAddTraits(.isModal)
+            }
         }
         .overlay(alignment: .bottom) {
             if let text = app.toastText {
@@ -29,10 +37,11 @@ struct RootTabView: View {
                     .animation(.spring(response: 0.35, dampingFraction: 0.85), value: app.toastText)
             }
         }
-        .overlay {
-            LockGate(lock: app.lock)
-                .zIndex(2)
-        }
+        .background(
+            SceneWindowReader { scene in
+                app.privacyShield.attach(to: scene, lock: app.lock, settings: settings)
+            }.frame(width: 0, height: 0)
+        )
         .fullScreenCover(isPresented: $app.showWelcome) {
             WelcomeView()
                 .environmentObject(app)
@@ -44,7 +53,7 @@ struct RootTabView: View {
         }
         .task {
             #if DEBUG
-            applyDebugLaunchOverrides()
+                applyDebugLaunchOverrides()
             #endif
         }
         .onAppear {
@@ -55,26 +64,27 @@ struct RootTabView: View {
             }
         }
         .onChange(of: scenePhase) { _, phase in
-            // 在切后台（含切换器快照）前就遮住内容，避免成绩页出现在系统快照里
-            if phase == .background || phase == .inactive, settings.biometricLockEnabled {
-                app.lock.lock()
+            if phase == .active {
+                app.lock.setActive(settings: settings)
+            } else {
+                app.lock.setInactive(settings: settings)
             }
         }
     }
 
     #if DEBUG
-    /// 只用于开发期截图/回归：`SIMCTL_CHILD_GTIIT_SKIP_WELCOME=1`、`GTIIT_TAB=me`。
-    /// Release 构建里不存在这段代码。
-    private func applyDebugLaunchOverrides() {
-        let environment = ProcessInfo.processInfo.environment
-        if environment["GTIIT_SKIP_WELCOME"] == "1" {
-            settings.markWelcomeSeen()
-            app.showWelcome = false
+        /// 只用于开发期截图/回归：`SIMCTL_CHILD_GTIIT_SKIP_WELCOME=1`、`GTIIT_TAB=me`。
+        /// Release 构建里不存在这段代码。
+        private func applyDebugLaunchOverrides() {
+            let environment = ProcessInfo.processInfo.environment
+            if environment["GTIIT_SKIP_WELCOME"] == "1" {
+                settings.markWelcomeSeen()
+                app.showWelcome = false
+            }
+            if let raw = environment["GTIIT_TAB"], let tab = AppTab(rawValue: raw) {
+                app.select(tab: tab)
+            }
         }
-        if let raw = environment["GTIIT_TAB"], let tab = AppTab(rawValue: raw) {
-            app.select(tab: tab)
-        }
-    }
     #endif
 
     /// 首次进入某个 Tab 时才创建网页内核，避免冷启动同时打四个站点；
@@ -94,19 +104,6 @@ struct RootTabView: View {
             }
         } else {
             Color.clear
-        }
-    }
-}
-
-/// 用 @ObservedObject 单独观察锁屏状态，避免 AppModel 再转发一层。
-private struct LockGate: View {
-    @ObservedObject var lock: AppLockController
-
-    var body: some View {
-        if lock.isLocked {
-            LockScreenView()
-                .environmentObject(lock)
-                .transition(.opacity)
         }
     }
 }

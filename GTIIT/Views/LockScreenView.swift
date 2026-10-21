@@ -6,7 +6,7 @@ struct LockScreenView: View {
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(.ultraThinMaterial)
+                .fill(Color(uiColor: .systemBackground))
                 .ignoresSafeArea()
 
             VStack(spacing: 16) {
@@ -37,7 +37,7 @@ struct LockScreenView: View {
                             ProgressView()
                                 .controlSize(.small)
                         } else {
-                            Image(systemName: "faceid")
+                            Image(systemName: "lock.open")
                         }
                         Text(lock.isAuthenticating ? "正在验证…" : "使用\(lock.biometryLabel)解锁")
                     }

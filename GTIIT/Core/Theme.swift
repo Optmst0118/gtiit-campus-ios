@@ -2,7 +2,7 @@ import SwiftUI
 
 enum Theme {
     /// 与图标同源的校园蓝。
-    static let accent = Color(red: 0.14, green: 0.38, blue: 0.86)
+    static let accent = Color(uiColor: .systemBlue)
 
     static let corner: CGFloat = 18
 

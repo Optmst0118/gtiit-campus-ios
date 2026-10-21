@@ -13,6 +13,7 @@ struct SiteBrowserView: View {
 private struct BrowserChrome: View {
     @EnvironmentObject private var app: AppModel
     @ObservedObject var model: BrowserModel
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var showClearDataDialog = false
 
@@ -47,7 +48,7 @@ private struct BrowserChrome: View {
 
             VStack(spacing: 1) {
                 Text(model.displayTitle)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.subheadline.weight(.semibold))
                     .lineLimit(1)
                 HStack(spacing: 4) {
                     if model.isLoading {
@@ -56,11 +57,11 @@ private struct BrowserChrome: View {
                             .scaleEffect(0.7)
                             .frame(width: 8, height: 8)
                     } else {
-                        Image(systemName: "lock.fill")
-                            .font(.system(size: 7, weight: .bold))
+                        Image(systemName: "globe")
+                            .font(.caption2)
                     }
                     Text(model.currentHost)
-                        .font(.system(size: 10))
+                        .font(.caption)
                         .lineLimit(1)
                 }
                 .foregroundStyle(.secondary)
@@ -70,29 +71,29 @@ private struct BrowserChrome: View {
             .accessibilityElement(children: .combine)
             .accessibilityLabel("\(model.displayTitle)，\(model.currentHost)")
 
-            navButton("chevron.forward", label: "前进", isEnabled: model.canGoForward) {
-                model.goForward()
-            }
-
-            navButton("arrow.clockwise", label: "刷新", isEnabled: true) {
-                model.reload()
+            if !dynamicTypeSize.isAccessibilitySize {
+                navButton("chevron.forward", label: "前进", isEnabled: model.canGoForward) { model.goForward() }
+                navButton("arrow.clockwise", label: "刷新", isEnabled: true) { model.reload() }
             }
 
             menu
         }
         .padding(.horizontal, 4)
-        .frame(height: Theme.headerHeight)
+        .frame(minHeight: Theme.headerHeight)
+        .padding(.vertical, 4)
         .background(.bar)
         .overlay(alignment: .bottom) {
             Divider()
         }
     }
 
-    private func navButton(_ symbol: String, label: String, isEnabled: Bool, action: @escaping () -> Void) -> some View {
+    private func navButton(_ symbol: String, label: String, isEnabled: Bool, action: @escaping () -> Void)
+        -> some View
+    {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: 16, weight: .semibold))
-                .frame(width: 34, height: 34)
+                .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }
         .disabled(!isEnabled)
@@ -101,6 +102,17 @@ private struct BrowserChrome: View {
 
     private var menu: some View {
         Menu {
+            Button {
+                model.goBack()
+            } label: {
+                Label("后退", systemImage: "chevron.backward")
+            }.disabled(!model.canGoBack)
+            Button {
+                model.goForward()
+            } label: {
+                Label("前进", systemImage: "chevron.forward")
+            }.disabled(!model.canGoForward)
+
             Button {
                 model.loadHome()
             } label: {
@@ -128,7 +140,13 @@ private struct BrowserChrome: View {
             Button {
                 model.openInSystemBrowser()
             } label: {
-                Label("在 Safari 中打开", systemImage: "safari")
+                Label("在默认浏览器中打开", systemImage: "arrow.up.forward.app")
+            }
+
+            Button {
+                model.openInAppSafari()
+            } label: {
+                Label("在 App 内 Safari 打开", systemImage: "safari")
             }
 
             Button {
@@ -147,7 +165,7 @@ private struct BrowserChrome: View {
         } label: {
             Image(systemName: "ellipsis.circle")
                 .font(.system(size: 17))
-                .frame(width: 34, height: 34)
+                .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }
         .accessibilityLabel("更多操作")
@@ -159,7 +177,15 @@ private struct BrowserChrome: View {
         ZStack {
             WebViewContainer(model: model)
 
-            if let error = model.errorText {
+            if model.needsReloadAfterClear {
+                ContentUnavailableView {
+                    Label("网页数据已清除", systemImage: "checkmark.shield")
+                } description: {
+                    Text("本站的登录与浏览历史已移除。重新打开网站后可登录。")
+                } actions: {
+                    Button("重新打开网站") { model.loadHome() }.buttonStyle(.borderedProminent)
+                }.background(Color(uiColor: .systemBackground))
+            } else if let error = model.errorText {
                 LoadErrorView(
                     site: model.site,
                     message: error,

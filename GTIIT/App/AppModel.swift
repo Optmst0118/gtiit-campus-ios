@@ -1,6 +1,8 @@
-import SwiftUI
+import Combine
 import SafariServices
+import SwiftUI
 import UIKit
+import WebKit
 
 /// 应用级状态：Tab 选择、四个站点的网页内核、跨站路由、轻提示与外部呈现。
 @MainActor
@@ -14,19 +16,26 @@ final class AppModel: ObservableObject {
     @Published private(set) var storageStates: [SiteID: Bool] = [:]
 
     let lock = AppLockController()
+    let downloads = DownloadCoordinator()
+    let privacyShield = PrivacyShieldController()
+    let settings: AppSettings
+    @Published private(set) var isClearingData = false
+    @Published private(set) var storageSummaries: [SiteID: SiteStorageSummary] = [:]
+    private var lockSubscription: AnyCancellable?
 
     private var browsers: [SiteID: BrowserModel] = [:]
     private var toastTask: Task<Void, Never>?
 
-    init() {
-        Self.resetTemporaryDownloads()
-    }
-
-    /// 下载文件只在当次分享时使用；每次启动清掉上一次的临时文件，避免占用空间。
-    private static func resetTemporaryDownloads() {
-        let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("GTIITDownloads", isDirectory: true)
-        try? FileManager.default.removeItem(at: directory)
+    init(settings: AppSettings? = nil) {
+        let settings = settings ?? AppSettings()
+        self.settings = settings
+        selectedTab = settings.startupTab
+        visitedTabs = [settings.startupTab]
+        bookingSegment = settings.defaultBooking
+        downloads.start(retention: settings.downloadRetention)
+        downloads.onFinish = { [weak self] _ in self?.toast("下载完成，可在下载管理中查看或保存到文件") }
+        downloads.onFailure = { [weak self] _ in self?.toast("下载中断，可在下载管理中查看") }
+        lockSubscription = lock.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
     }
 
     // MARK: - 网页内核
@@ -58,6 +67,7 @@ final class AppModel: ObservableObject {
     }
 
     func openSite(_ site: SiteID) {
+        guard !isClearingData else { return }
         switchTo(site)
         let browser = self.browser(for: site)
         if browser.webView.url == nil {
@@ -91,34 +101,63 @@ final class AppModel: ObservableObject {
     // MARK: - 网页数据
 
     func refreshStorageStates() async {
-        var result: [SiteID: Bool] = [:]
-        for site in SiteID.allCases {
-            result[site] = await WebDataStoreRegistry.shared.hasStoredData(for: site)
-        }
-        storageStates = result
+        var summaries: [SiteID: SiteStorageSummary] = [:]
+        for site in SiteID.allCases { summaries[site] = await WebDataStoreRegistry.shared.summary(for: site) }
+        storageSummaries = summaries
+        storageStates = summaries.mapValues(\.hasData)
     }
-
     func clearData(for site: SiteID) async {
+        guard !isClearingData else { return }
+        isClearingData = true
+        defer { isClearingData = false }
+        downloads.invalidateSession(for: site)
+        await browsers[site]?.prepareForDataClear()
         await WebDataStoreRegistry.shared.clearData(for: site)
-        browsers[site]?.loadHome()
+        settings.clearLocation(for: site)
+        browsers[site]?.finishDataClear()
         await refreshStorageStates()
-        toast("已清除「\(site.displayName)」的网页数据")
+        toast("已清除「\(site.displayName)」的登录与网页数据")
     }
-
     func clearAllData() async {
+        guard !isClearingData else { return }
+        isClearingData = true
+        defer { isClearingData = false }
+        for site in SiteID.allCases {
+            downloads.invalidateSession(for: site)
+            await browsers[site]?.prepareForDataClear()
+        }
         for site in SiteID.allCases {
             await WebDataStoreRegistry.shared.clearData(for: site)
-            browsers[site]?.loadHome()
+            browsers[site]?.finishDataClear()
+        }
+        settings.clearLocations()
+        await refreshStorageStates()
+        toast("已清除全部站点的登录与网页数据")
+    }
+    func clearCaches() async {
+        guard !isClearingData else { return }
+        isClearingData = true
+        defer { isClearingData = false }
+        for site in SiteID.allCases {
+            await WebDataStoreRegistry.shared.clearData(for: site, cacheOnly: true)
         }
         await refreshStorageStates()
-        toast("已清除全部站点的网页数据")
+        toast("已清理现有缓存，登录数据保持不变")
     }
 }
 
 // MARK: - BrowserRouter
 
 extension AppModel: BrowserRouter {
+    var externalLinkMode: ExternalLinkMode { settings.externalLinks }
+    func browserInitialURL(for site: SiteID) -> URL { settings.initialURL(for: site) }
+    func browserDidFinish(url: URL, site: SiteID) { settings.remember(url, for: site) }
+    func browserClearData(for site: SiteID) async { await clearData(for: site) }
+    func browserDownload(_ download: WKDownload, webView: WKWebView, site: SiteID) {
+        downloads.track(download, webView: webView, site: site)
+    }
     func browserRouteToOtherSite(url: URL, from site: SiteID) {
+        guard !isClearingData else { return }
         guard let target = SiteID.site(for: url), target != site else {
             browserOpenExternal(url: url)
             return
@@ -129,19 +168,25 @@ extension AppModel: BrowserRouter {
     }
 
     func browserOpenExternal(url: URL) {
-        guard let scheme = url.scheme?.lowercased() else { return }
-        if scheme == "http" || scheme == "https" {
-            let safari = SFSafariViewController(url: url)
-            safari.preferredControlTintColor = UIColor(Theme.accent)
-            _ = browserPresent(viewController: safari)
-        } else {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        guard let scheme = url.scheme?.lowercased(),
+            scheme == "http" || scheme == "https" || NavigationPolicy.isExternalScheme(scheme), !lock.isLocked
+        else { return }
+        UIApplication.shared.open(url, options: [:]) { [weak self] success in
+            if !success { Task { @MainActor in self?.toast("无法打开此链接，请确认已安装对应 App") } }
         }
+    }
+    func browserOpenInAppSafari(url: URL) {
+        guard ["http", "https"].contains(url.scheme?.lowercased() ?? "") else { return }
+        let safari = SFSafariViewController(url: url)
+        safari.preferredControlTintColor = UIColor(Theme.accent)
+        _ = browserPresent(viewController: safari)
     }
 
     func browserPresentShare(items: [Any]) {
         let activity = UIActivityViewController(activityItems: items, applicationActivities: nil)
-        if let popover = activity.popoverPresentationController, let sourceView = TopViewController.current()?.view {
+        if let popover = activity.popoverPresentationController,
+            let sourceView = TopViewController.current()?.view
+        {
             popover.sourceView = sourceView
             popover.sourceRect = CGRect(
                 x: sourceView.bounds.midX,
@@ -155,7 +200,9 @@ extension AppModel: BrowserRouter {
     }
 
     func browserPresent(viewController: UIViewController) -> Bool {
-        guard let top = TopViewController.current() else { return false }
+        guard !lock.isLocked, lock.isActive, !isClearingData, let top = TopViewController.current(), !top.isBeingDismissed,
+            !top.isBeingPresented
+        else { return false }
         top.present(viewController, animated: true)
         return true
     }

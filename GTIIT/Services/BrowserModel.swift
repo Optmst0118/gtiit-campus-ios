@@ -13,7 +13,7 @@ import WebKit
 @MainActor
 final class BrowserModel: NSObject, ObservableObject {
     let site: SiteID
-    let webView: WKWebView
+    @Published private(set) var webView: WKWebView
 
     @Published private(set) var pageTitle: String
     @Published private(set) var currentHost: String
@@ -27,9 +27,11 @@ final class BrowserModel: NSObject, ObservableObject {
 
     private weak var router: BrowserRouter?
     private var observations: [NSKeyValueObservation] = []
-    private var lastRoutedURLString: String?
-    private var lastRoutedAt = Date.distantPast
-    private let downloadCoordinator = DownloadCoordinator()
+    @Published private(set) var needsReloadAfterClear = false
+    private var popups: [WKWebView] = []
+    private var popupControllers: [ObjectIdentifier: UIViewController] = [:]
+    private var mayRememberLocation = true
+    private var isResetting = false
 
     init(site: SiteID, router: BrowserRouter) {
         self.site = site
@@ -38,43 +40,68 @@ final class BrowserModel: NSObject, ObservableObject {
         self.currentHost = site.host
         self.currentURLString = site.homeURLString
 
+        self.webView = Self.makeWebView(site: site)
+        super.init()
+
+        configureWebView()
+        load(router.browserInitialURL(for: site))
+    }
+
+    private static func makeWebView(site: SiteID) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = WebDataStoreRegistry.shared.store(for: site)
         configuration.defaultWebpagePreferences.allowsContentJavaScript = true
         configuration.allowsInlineMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = .audio
         configuration.preferences.isFraudulentWebsiteWarningEnabled = true
-
-        self.webView = WKWebView(frame: .zero, configuration: configuration)
-        super.init()
-
+        return WKWebView(frame: .zero, configuration: configuration)
+    }
+    private func configureWebView() {
         webView.navigationDelegate = self
         webView.uiDelegate = self
         webView.allowsBackForwardNavigationGestures = true
         webView.allowsLinkPreview = true
-        // 让 WebView 自己处理安全区：iOS 26 的浮动 Tab 栏会盖住网页底部，
-        // .automatic 会把 Tab 栏/Toolbar 的高度加进内容内边距。
         webView.scrollView.contentInsetAdjustmentBehavior = .automatic
         webView.scrollView.alwaysBounceVertical = true
         #if DEBUG
-        webView.isInspectable = true
+            webView.isInspectable = true
         #endif
-
-        let refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(handlePullToRefresh), for: .valueChanged)
-        webView.scrollView.refreshControl = refreshControl
-
-        downloadCoordinator.onFinish = { [weak self] url in
-            guard let self else { return }
-            self.router?.browserToast("已下载 \(url.lastPathComponent)")
-            self.router?.browserPresentShare(items: [url])
-        }
-        downloadCoordinator.onFailure = { [weak self] error in
-            self?.router?.browserToast("下载失败：\(error.localizedDescription)")
-        }
-
+        let refresh = UIRefreshControl()
+        refresh.addTarget(self, action: #selector(handlePullToRefresh), for: .valueChanged)
+        webView.scrollView.refreshControl = refresh
         observeWebView()
-        loadHome()
+    }
+    /// 停止活动文档和弹窗；清空后替换内核，移除 BackForwardList 与页面内存。
+    func prepareForDataClear() async {
+        isResetting = true
+        observations.removeAll()
+        webView.stopLoading()
+        webView.navigationDelegate = nil
+        webView.uiDelegate = nil
+        webView.isHidden = true
+        await DocumentTeardown().blank(webView)
+        for popup in popups {
+            await DocumentTeardown().blank(popup)
+            popupControllers[ObjectIdentifier(popup)]?.dismiss(animated: false)
+        }
+        popups.removeAll()
+        popupControllers.removeAll()
+    }
+    func finishDataClear() {
+        webView.removeFromSuperview()
+        webView = Self.makeWebView(site: site)
+        pageTitle = site.displayName
+        currentHost = site.host
+        currentURLString = site.homeURLString
+        progress = 0
+        isLoading = false
+        canGoBack = false
+        canGoForward = false
+        hasLoadedOnce = false
+        errorText = nil
+        needsReloadAfterClear = true
+        isResetting = false
+        configureWebView()
     }
 
     // MARK: - 对外操作
@@ -92,6 +119,9 @@ final class BrowserModel: NSObject, ObservableObject {
     }
 
     func load(_ url: URL) {
+        guard !isResetting else { return }
+        needsReloadAfterClear = false
+        mayRememberLocation = true
         errorText = nil
         var request = URLRequest(url: url)
         request.timeoutInterval = 60
@@ -127,13 +157,11 @@ final class BrowserModel: NSObject, ObservableObject {
         router?.browserOpenExternal(url: url)
     }
 
-    func clearSiteData() async {
-        await WebDataStoreRegistry.shared.clearData(for: site)
-        pageTitle = site.displayName
-        errorText = nil
-        loadHome()
-        router?.browserToast("已清除「\(site.displayName)」的网页数据，需要重新登录")
+    func openInAppSafari() {
+        guard let url = currentURL, ["http", "https"].contains(url.scheme?.lowercased() ?? "") else { return }
+        router?.browserOpenInAppSafari(url: url)
     }
+    func clearSiteData() async { await router?.browserClearData(for: site) }
 
     @objc private func handlePullToRefresh() {
         webView.reload()
@@ -142,43 +170,49 @@ final class BrowserModel: NSObject, ObservableObject {
     // MARK: - KVO
 
     private func observeWebView() {
-        observations.append(webView.observe(\.estimatedProgress, options: [.initial, .new]) { [weak self] view, _ in
-            let value = view.estimatedProgress
-            self?.onMain { [weak self] in self?.progress = value }
-        })
+        observations.append(
+            webView.observe(\.estimatedProgress, options: [.initial, .new]) { [weak self] view, _ in
+                let value = view.estimatedProgress
+                self?.onMain { [weak self] in self?.progress = value }
+            })
 
-        observations.append(webView.observe(\.isLoading, options: [.initial, .new]) { [weak self] view, _ in
-            let value = view.isLoading
-            self?.onMain { [weak self] in self?.isLoading = value }
-        })
+        observations.append(
+            webView.observe(\.isLoading, options: [.initial, .new]) { [weak self] view, _ in
+                let value = view.isLoading
+                self?.onMain { [weak self] in self?.isLoading = value }
+            })
 
-        observations.append(webView.observe(\.canGoBack, options: [.initial, .new]) { [weak self] view, _ in
-            let value = view.canGoBack
-            self?.onMain { [weak self] in self?.canGoBack = value }
-        })
+        observations.append(
+            webView.observe(\.canGoBack, options: [.initial, .new]) { [weak self] view, _ in
+                let value = view.canGoBack
+                self?.onMain { [weak self] in self?.canGoBack = value }
+            })
 
-        observations.append(webView.observe(\.canGoForward, options: [.initial, .new]) { [weak self] view, _ in
-            let value = view.canGoForward
-            self?.onMain { [weak self] in self?.canGoForward = value }
-        })
+        observations.append(
+            webView.observe(\.canGoForward, options: [.initial, .new]) { [weak self] view, _ in
+                let value = view.canGoForward
+                self?.onMain { [weak self] in self?.canGoForward = value }
+            })
 
-        observations.append(webView.observe(\.title, options: [.initial, .new]) { [weak self] view, _ in
-            let title = view.title ?? ""
-            self?.onMain { [weak self] in
-                guard let self else { return }
-                self.pageTitle = title.isEmpty ? self.site.displayName : title
-            }
-        })
+        observations.append(
+            webView.observe(\.title, options: [.initial, .new]) { [weak self] view, _ in
+                let title = view.title ?? ""
+                self?.onMain { [weak self] in
+                    guard let self else { return }
+                    self.pageTitle = title.isEmpty ? self.site.displayName : title
+                }
+            })
 
-        observations.append(webView.observe(\.url, options: [.initial, .new]) { [weak self] view, _ in
-            let absoluteString = view.url?.absoluteString
-            let host = view.url?.host
-            self?.onMain { [weak self] in
-                guard let self else { return }
-                self.currentURLString = absoluteString ?? self.site.homeURLString
-                self.currentHost = host ?? self.site.host
-            }
-        })
+        observations.append(
+            webView.observe(\.url, options: [.initial, .new]) { [weak self] view, _ in
+                let absoluteString = view.url?.absoluteString
+                let host = view.url?.host
+                self?.onMain { [weak self] in
+                    guard let self else { return }
+                    self.currentURLString = absoluteString ?? self.site.homeURLString
+                    self.currentHost = host ?? self.site.host
+                }
+            })
     }
 
     /// WebKit 的 KVO 通常在主线投递，但没有 API 契约保证。
@@ -229,32 +263,43 @@ final class BrowserModel: NSObject, ObservableObject {
 
 extension BrowserModel: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        guard webView === self.webView else { return }
         isLoading = true
         errorText = nil
     }
 
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        guard webView === self.webView else { return }
         errorText = nil
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        guard webView === self.webView else { return }
         isLoading = false
         hasLoadedOnce = true
+        if webView === self.webView, mayRememberLocation, let url = webView.url {
+            router?.browserDidFinish(url: url, site: site)
+        }
         webView.scrollView.refreshControl?.endRefreshing()
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        handleNavigationError(error)
+        if webView === self.webView { handleNavigationError(error) }
     }
 
-    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        handleNavigationError(error)
+    func webView(
+        _ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error
+    ) {
+        if webView === self.webView { handleNavigationError(error) }
     }
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        guard webView === self.webView else {
+            closePopup(webView)
+            return
+        }
         isLoading = false
-        errorText = "页面进程被系统回收，已自动重新载入。"
-        webView.reload()
+        errorText = "页面进程已被系统回收。请重新载入；尚未提交的内容可能需要重新填写。"
     }
 
     func webView(
@@ -262,37 +307,63 @@ extension BrowserModel: WKNavigationDelegate {
         decidePolicyFor navigationAction: WKNavigationAction,
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
     ) {
+        guard !isResetting else {
+            decisionHandler(.cancel)
+            return
+        }
         guard let url = navigationAction.request.url else {
             decisionHandler(.allow)
             return
         }
-
-        // 用户主动点击的下载型导航（Moodle 资源、作业附件等）
         if navigationAction.shouldPerformDownload {
             decisionHandler(.download)
             return
         }
-
         let scheme = url.scheme?.lowercased() ?? ""
         if scheme == "http" || scheme == "https" {
-            let isMainFrame = navigationAction.targetFrame?.isMainFrame ?? true
-            let isUserInitiated = navigationAction.navigationType == .linkActivated
-                || navigationAction.navigationType == .formSubmitted
-                || navigationAction.navigationType == .formResubmitted
-            if isMainFrame, isUserInitiated,
-               let target = SiteID.site(for: url), target != site, shouldRoute(to: url) {
-                // 跨站链接：交给 App 切到对应 Tab，避免在一个 WebView 里"串站"。
-                // 服务端 3xx 重定向（.other）不参与路由，避免 A ↔ B 回跳时两个 WebView 抖动。
-                router?.browserRouteToOtherSite(url: url, from: site)
-                decisionHandler(.cancel)
-                return
+            if navigationAction.targetFrame?.isMainFrame != false {
+                let method = (navigationAction.request.httpMethod ?? "GET").uppercased()
+                if method != "GET" {
+                    mayRememberLocation = false
+                } else if navigationAction.navigationType == .linkActivated {
+                    mayRememberLocation = true
+                }
+            }
+            // 弹窗必须保留 opener、window 引用和配置；交给 createWebView 实际创建。
+            if webView === self.webView, navigationAction.targetFrame != nil,
+                NavigationPolicy.canRoute(navigationAction), !NavigationPolicy.isAuthentication(url)
+            {
+                if let target = SiteID.site(for: url), target != site {
+                    router?.browserRouteToOtherSite(url: url, from: site)
+                    decisionHandler(.cancel)
+                    return
+                }
+                if SiteID.site(for: url) == nil {
+                    switch router?.externalLinkMode ?? .webView {
+                    case .webView: break
+                    case .safariView:
+                        router?.browserOpenInAppSafari(url: url)
+                        decisionHandler(.cancel)
+                        return
+                    case .systemBrowser:
+                        router?.browserOpenExternal(url: url)
+                        decisionHandler(.cancel)
+                        return
+                    }
+                }
             }
             decisionHandler(.allow)
             return
         }
-
-        // tel: / mailto: / msteams: / 微信 等交给系统处理
-        router?.browserOpenExternal(url: url)
+        if NavigationPolicy.isInternalScheme(scheme) {
+            decisionHandler(.allow)
+            return
+        }
+        if NavigationPolicy.isExternalScheme(scheme), navigationAction.navigationType == .linkActivated {
+            router?.browserOpenExternal(url: url)
+        } else {
+            router?.browserToast("此链接类型暂不支持，请使用默认浏览器打开原页面")
+        }
         decisionHandler(.cancel)
     }
 
@@ -301,31 +372,25 @@ extension BrowserModel: WKNavigationDelegate {
         decidePolicyFor navigationResponse: WKNavigationResponse,
         decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void
     ) {
-        if navigationResponse.isForMainFrame && !navigationResponse.canShowMIMEType {
+        let response = navigationResponse.response as? HTTPURLResponse
+        let disposition = response?.value(forHTTPHeaderField: "Content-Disposition")?.lowercased() ?? ""
+        if navigationResponse.isForMainFrame
+            && (!navigationResponse.canShowMIMEType || disposition.hasPrefix("attachment"))
+        {
             decisionHandler(.download)
             return
         }
         decisionHandler(.allow)
     }
 
-    /// 同一目标 URL 在 3 秒内只路由一次，防止重定向/回跳造成来回切 Tab。
-    private func shouldRoute(to url: URL) -> Bool {
-        let key = url.absoluteString
-        let now = Date()
-        if key == lastRoutedURLString, now.timeIntervalSince(lastRoutedAt) < 3 {
-            return false
-        }
-        lastRoutedURLString = key
-        lastRoutedAt = now
-        return true
-    }
-
     func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
-        download.delegate = downloadCoordinator
+        router?.browserDownload(download, webView: webView, site: site)
     }
 
-    func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
-        download.delegate = downloadCoordinator
+    func webView(
+        _ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload
+    ) {
+        router?.browserDownload(download, webView: webView, site: site)
     }
 }
 
@@ -338,14 +403,33 @@ extension BrowserModel: WKUIDelegate {
         for navigationAction: WKNavigationAction,
         windowFeatures: WKWindowFeatures
     ) -> WKWebView? {
-        guard let url = navigationAction.request.url else { return nil }
-        if let target = SiteID.site(for: url), target != site {
-            router?.browserRouteToOtherSite(url: url, from: site)
-        } else {
-            // SSO 弹窗在同一个 WebView 内完成，避免学校登录流程中断
-            webView.load(URLRequest(url: url))
+        guard !isResetting, popups.count < 4 else {
+            router?.browserToast("请先关闭已打开的网页窗口")
+            return nil
         }
-        return nil
+        let popup = WKWebView(frame: .zero, configuration: configuration)
+        popup.navigationDelegate = self
+        popup.uiDelegate = self
+        popup.allowsBackForwardNavigationGestures = true
+        let controller = PopupBrowserController(webView: popup)
+        controller.onClose = { [weak self, weak popup] in
+            guard let popup else { return }
+            self?.closePopup(popup)
+        }
+        let navigation = UINavigationController(rootViewController: controller)
+        navigation.modalPresentationStyle = .fullScreen
+        guard present(navigation) else { return nil }
+        popups.append(popup)
+        popupControllers[ObjectIdentifier(popup)] = navigation
+        return popup
+    }
+    func webViewDidClose(_ webView: WKWebView) { closePopup(webView) }
+    private func closePopup(_ webView: WKWebView) {
+        webView.stopLoading()
+        webView.navigationDelegate = nil
+        webView.uiDelegate = nil
+        popupControllers.removeValue(forKey: ObjectIdentifier(webView))?.dismiss(animated: true)
+        popups.removeAll { $0 === webView }
     }
 
     func webView(
@@ -407,15 +491,15 @@ extension BrowserModel: WKUIDelegate {
             field.text = defaultText
         }
         alert.addAction(UIAlertAction(title: "取消", style: .cancel) { _ in completionHandler(nil) })
-        alert.addAction(UIAlertAction(title: "确定", style: .default) { [weak alert] _ in
-            completionHandler(alert?.textFields?.first?.text)
-        })
+        alert.addAction(
+            UIAlertAction(title: "确定", style: .default) { [weak alert] _ in
+                completionHandler(alert?.textFields?.first?.text)
+            })
         guard present(alert) else {
             completionHandler(nil)
             return
         }
     }
-
 
     @discardableResult
     private func present(_ controller: UIViewController) -> Bool {
