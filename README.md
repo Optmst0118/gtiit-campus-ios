@@ -9,7 +9,7 @@
 > **非官方项目。** 由学生独立开发，与广东以色列理工学院（GTIIT）及其信息系统运营方没有隶属、授权或背书关系。
 > Unofficial, student-built client. Not affiliated with, endorsed by, or supported by GTIIT.
 
-把学校的四个官方网页装进一个 iOS App，再把网页做不到的事用原生补齐：班车倒计时、下载管理、App 锁、外观与设置。App 不抓取、不转发、不代提交任何校园业务数据。
+把学校的四个官方网页装进一个 iOS App，再把网页做不到的事用原生补齐：班车倒计时、下载管理、App 锁、外观与设置。课表仅在用户主动提取并确认时保存到本机；不转发、不代提交校园业务数据。
 
 <p align="center">
   <img src="docs/screenshots/01-welcome.png" width="200" alt="首次启动说明">
@@ -55,9 +55,18 @@ GTIIT 的日常学习与预约分散在四个系统里：
 - 网页布局与业务逻辑完全不改，登录、提交、预约都在官方页面完成；
 - 原生只负责网页无法稳定提供的能力：**班车时刻**、**下载与 PDF 预览**、**App 锁**、**设置**、**加载/错误状态**。
 
-这不是把网页截图或数据抓下来做成原生列表。App 代码不读取页面内容、不解析接口、不保存账号密码。
+除用户主动确认的本地课表提取外，校园业务仍在官方网页完成。课表提取只读取正式选课的课程名称、班组、星期、时间和教室，不读取账号密码、成绩或认证令牌，也不调用原生业务接口。
 
 ## 功能
+
+### 1.6（10）本地功能
+
+- **我的 → 校历**：2025–2026 / 2026–2027 学年、近期事项、带事项圆点的原生月历、假期倒计时和原始 PDF。放假、调课、教学考试、节日说明分开；原表的六月 31 日标为待核实，不自动修正。
+- **设置 → 提取课表到本地**：在 App 内打开门户 Enrollments，提取正式选课并核对日期后保存。“我的”直接展示当天与下一节课程、教室，点击进入整周安排。离线快照不会自动同步，支持删除和重新提取。
+- **设置 → 语言**：English / 中文，仅切换原生界面，即时生效并保留网页实例。
+- **以龙彩蛋**：在“关于 GTIIT”标题或简介卡片连续点击六次，解锁设置中的“以龙”。三视图贴纸从触点弹出，带碰撞和橡胶回弹；可收起，减弱动态效果时静态展示。
+- 本地校历原件不公开再分发；已授权的本机原件放在 `GTIIT/Resources/CampusData/`。缺失原件时校历数据仍可浏览，原始 PDF 入口会提示不可用。
+- 变更与验证见 [1.6 交付记录](docs/RELEASE-1.6.md)。
 
 ### 网页容器
 
@@ -174,7 +183,7 @@ python3 Tools/verify_builds.py
 
 | 验证 | 数量 | 说明 |
 | --- | --- | --- |
-| 集成回归 | 122 项 | 导航策略、真实 WebKit POST / blob / 弹窗、下载、清理、保留期限、诊断、锁定状态 |
+| 集成回归 | 215 项 | 导航策略、WebKit、下载、锁定、暗色、校历、本地课表、语言与彩蛋 |
 | 班车检查 | 40 项 | 时刻表解析、跨日、教学周、末班 |
 | 构建 | 3 种 | Debug 模拟器、Release 模拟器、Release 真机目标（`CODE_SIGNING_ALLOWED=NO`） |
 
@@ -220,7 +229,7 @@ GTIIT-iOS-App/
 ## 隐私与安全
 
 - **不采集数据**：没有自建后端、统计 SDK、埋点或崩溃上报；仓库内没有真实学生数据。
-- **账号只在官方网页输入**：App 代码不接触账号密码，不注入登录表单，不读取页面内容。
+- **账号只在官方网页输入**：App 代码不接触账号密码，不注入登录表单；课程提取是用户主动发起、字段受限的本地读取。
 - **会话只在本地**：Cookie 与网页存储在 WebKit 沙盒内，四站隔离；可单站或全站清除。
 - **下载本地保存**：文件写入 App 的 Documents/Downloads，可随时删除；不上传。
 - **锁屏**：`LocalAuthentication` 的设备密码 / 生物识别，App 只收到成功或失败。
@@ -258,7 +267,7 @@ GTIIT-iOS-App/
 
 几条硬性边界：
 
-- 不加入抓取页面、解析接口、绕过验证码/证书、硬编码凭据或伪造数据；
+- 除用户主动确认的本地课表字段白名单外，不加入其他页面采集、业务接口解析、绕过验证码/证书、硬编码凭据或伪造数据；
 - 不提交真实学生数据、截图中的账号信息或设备标识；
 - 涉及网页注入的改动必须说明作用域，并补充回归测试；
 - 提交前运行 `python3 Tools/gen_project.py`、`python3 Tools/check_project.py` 与模拟器构建。
@@ -279,7 +288,7 @@ An unofficial, open-source iOS client for GTIIT campus services, written in Swif
 
 - Five tabs: Shuttle · Portal · Learning · Booking · Me; booking switches between practice rooms and sports venues.
 - Per-site persistent `WKWebsiteDataStore` (iOS 17+), cross-site routing only for user-initiated GET links, real popup windows, and downloads that keep the original POST/cookie context.
-- No scraping, no analytics, no backend, no account storage. All sessions live in the WebKit sandbox and can be cleared per site.
+- No analytics, backend or account storage. Optional, explicitly confirmed timetable imports read registered course fields only and stay on the device. All sessions live in the WebKit sandbox and can be cleared per site.
 - No third-party dependencies; Dark Reader (MIT) is bundled only for optional web dark appearance.
 
 **Build**

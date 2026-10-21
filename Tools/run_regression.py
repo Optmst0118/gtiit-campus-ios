@@ -39,6 +39,7 @@ def main():
         'NSAppTransportSecurity': {'NSAllowsArbitraryLoads': True}
     }))
     shutil.copytree(ROOT/'GTIIT/Resources/WebAppearance', app/'WebAppearance')
+    shutil.copytree(ROOT/'GTIIT/Resources/CampusData', app/'CampusData')
     server = subprocess.Popen([sys.executable, str(ROOT/'Tests/fixture_server.py')], cwd=ROOT)
     try:
         call(['xcrun','simctl','install',device,str(app)])

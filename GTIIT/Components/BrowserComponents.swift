@@ -2,10 +2,13 @@ import SwiftUI
 
 /// 顶部 2pt 加载进度条。
 struct ProgressBarView: View {
+    @Environment(\.locale) private var nativeLocale
     let progress: Double
     let isActive: Bool
 
     var body: some View {
+        let _ = nativeLocale.identifier
+
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
                 Color.clear
@@ -23,16 +26,19 @@ struct ProgressBarView: View {
 
 /// 首次加载时的占位。
 struct LoadingPlaceholderView: View {
+    @Environment(\.locale) private var nativeLocale
     let site: SiteID
 
     var body: some View {
+        let _ = nativeLocale.identifier
+
         VStack(spacing: 14) {
             SiteBadge(site: site, size: 52)
             ProgressView()
             VStack(spacing: 3) {
-                Text("正在打开\(site.displayName)")
+                Text(L10n.format("正在打开%@", String(describing: site.displayName)))
                     .font(.footnote.weight(.medium))
-                Text("正在连接学校网站")
+                Text(L10n.tr("正在连接学校网站"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -44,6 +50,7 @@ struct LoadingPlaceholderView: View {
 
 /// 加载失败时的可操作错误页。
 struct LoadErrorView: View {
+    @Environment(\.locale) private var nativeLocale
     let site: SiteID
     let message: String
     let onRetry: () -> Void
@@ -51,6 +58,8 @@ struct LoadErrorView: View {
     let onOpenHome: () -> Void
 
     var body: some View {
+        let _ = nativeLocale.identifier
+
         ScrollView {
             VStack(spacing: 16) {
                 Image(systemName: "wifi.exclamationmark")
@@ -58,7 +67,7 @@ struct LoadErrorView: View {
                     .foregroundStyle(.secondary)
                     .padding(.top, 40)
 
-                Text("无法打开\(site.displayName)")
+                Text(L10n.format("无法打开%@", String(describing: site.displayName)))
                     .font(.headline)
 
                 Text(message)
@@ -69,19 +78,19 @@ struct LoadErrorView: View {
 
                 VStack(spacing: 10) {
                     Button(action: onRetry) {
-                        Text("重试").frame(maxWidth: .infinity)
+                        Text(L10n.tr("重试")).frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
 
                     Button(action: onOpenHome) {
-                        Text("回到站点首页").frame(maxWidth: .infinity)
+                        Text(L10n.tr("回到站点首页")).frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.large)
 
                     Button(action: onOpenSafari) {
-                        Text("在 Safari 中打开").frame(maxWidth: .infinity)
+                        Text(L10n.tr("在 Safari 中打开")).frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderless)
                     .font(.footnote)
@@ -89,8 +98,8 @@ struct LoadErrorView: View {
                 .padding(.top, 4)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Label("校园站点通常需要校内网络；校外访问可能需要学校认可的接入方式。", systemImage: "info.circle")
-                    Label("App 不会绕过证书校验，也不会替你输入账号。", systemImage: "lock.shield")
+                    Label(L10n.tr("校园站点通常需要校内网络；校外访问可能需要学校认可的接入方式。"), systemImage: "info.circle")
+                    Label(L10n.tr("App 不会绕过证书校验，也不会替你输入账号。"), systemImage: "lock.shield")
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -108,9 +117,12 @@ struct LoadErrorView: View {
 
 /// 底部轻提示。
 struct ToastView: View {
+    @Environment(\.locale) private var nativeLocale
     let text: String
 
     var body: some View {
+        let _ = nativeLocale.identifier
+
         HStack(spacing: 8) {
             Image(systemName: "checkmark.circle.fill")
                 .foregroundStyle(Theme.accent)

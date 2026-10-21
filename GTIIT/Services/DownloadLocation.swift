@@ -79,7 +79,7 @@ enum DownloadFileAccess {
 enum DownloadSort: String, CaseIterable, Identifiable {
     case name, size, time
     var id: String { rawValue }
-    var title: String { switch self { case .name: return "名称"; case .size: return "大小"; case .time: return "时间" } }
+    var title: String { switch self { case .name: return L10n.tr("名称"); case .size: return L10n.tr("大小"); case .time: return L10n.tr("时间") } }
     func ordered(_ items: [DownloadItem], ascending: Bool) -> [DownloadItem] {
         items.sorted { a, b in
             let comparison: ComparisonResult

@@ -157,6 +157,7 @@ private final class RetiredViewReference {
         check("disable_restore_removes_locations", settings.initialURL(for: .portal) == SiteID.portal.homeURL)
         await verifyLaunchPreparation()
         await verifyWebAppearance()
+        await verifyCampusFeatures()
         let capture = FrameCapture()
         let frameWebView = WKWebView()
         frameWebView.navigationDelegate = capture
@@ -562,7 +563,7 @@ private final class RetiredViewReference {
             let functional = await js(model.webView, "document.getElementById('name').value==='synthetic' && document.getElementById('password').value==='synthetic-password' && document.getElementById('form').checkValidity() && document.getElementById('disabled').disabled")
             check("\(site.rawValue)_form_values_and_validation_unchanged", functional == "true")
             check("\(site.rawValue)_no_media_or_page_inversion", (await js(model.webView, "['html','body','#qr','#canvas'].every(s=>getComputedStyle(document.querySelector(s)).filter==='none')")) == "true")
-            check("\(site.rawValue)_transparent_brand_logo_has_readable_backing", (await js(model.webView, "getComputedStyle(document.getElementById('brand-logo')).backgroundColor==='rgb(255, 255, 255)'")) == "true")
+            check("\(site.rawValue)_duplicate_brand_logo_hidden", (await js(model.webView, "getComputedStyle(document.getElementById('brand-logo')).display==='none'")) == "true")
             let roles = await js(model.webView, "(() => {const r=getComputedStyle(document.querySelector('.reserved')).backgroundColor.match(/\\d+/g).map(Number),g=getComputedStyle(document.querySelector('.available')).backgroundColor.match(/\\d+/g).map(Number);return r[0]>r[1]*1.3&&g[1]>g[0]*1.3})()")
             check("\(site.rawValue)_availability_color_meaning_preserved", roles == "true")
             _ = await js(model.webView, "document.getElementById('check').click();document.getElementById('dialogButton').click();'clicked'")
@@ -594,7 +595,7 @@ private final class RetiredViewReference {
         excluded.webView.overrideUserInterfaceStyle = .dark
         excluded.webView.loadHTMLString("<title>External auth fixture</title><style>body{background:white;color:black}</style><p>No injected theme</p>", baseURL: URL(string: "https://login.microsoftonline.com/"))
         _ = await wait { excluded.webView.title == "External auth fixture" && !excluded.isLoading }
-        check("external_auth_page_not_modified", (await clientJS(excluded.webView, "typeof globalThis.__gtiitAppearance")) == "undefined")
+        check("external_auth_page_no_dark_theme_or_js_proxy", (await js(excluded.webView, "getComputedStyle(document.body).backgroundColor==='rgb(255, 255, 255)' && !document.querySelector('style.darkreader')")) == "true")
         _ = await excluded.prepareForDataClear(); excluded.releaseDataStoreView()
         defaults.removePersistentDomain(forName: suite)
     }
@@ -806,5 +807,95 @@ private final class RetiredViewReference {
         self.window = window
         app.window = window
         Task { await app.run() }
+    }
+}
+
+extension RegressionApp {
+    func verifyCampusFeatures() async {
+        let events = AcademicCalendarStore.events
+        check("calendar_both_years_and_bundled_originals", events.count == 85 && AcademicCalendarStore.years.allSatisfy { AcademicCalendarStore.pdfURL(year: $0) != nil })
+        check("calendar_all_dates_valid_inclusive", events.allSatisfy { $0.startDate != nil && ($0.end == nil || $0.endDate != nil) && ($0.endDate ?? $0.startDate!) >= $0.startDate! })
+        check("calendar_june31_never_normalized", events.filter { $0.end == nil && !$0.verified && $0.raw.contains("31") }.count == 2 && CampusDate.parse("2027-06-31") == nil)
+        check("calendar_current_academic_year", AcademicCalendarStore.defaultYear(now: CampusDate.parse("2026-10-22")!) == "2026-2027" && AcademicCalendarStore.defaultYear(now: CampusDate.parse("2026-03-02")!) == "2025-2026")
+        check("calendar_festivals_separate_from_holidays", events.contains { $0.en == "Hanukkah" && $0.kind == "festival" } && events.contains { $0.en == "Passover holidays" && $0.kind == "holiday" })
+        let course = LocalCourse(name: "Synthetic Physics", code: "S001", group: "L1", weekday: 1, start: "08:00", end: "10:00", room: "TEST-101", building: "Synthetic Building")
+        var snapshot = TimetableSnapshot(semester: "2026-27 WINTER", validFrom: "2026-10-12", validUntil: "2027-01-11", courses: [course])
+        check("local_timetable_monday_with_room", snapshot.courses(on: CampusDate.parse("2026-10-19")!).first?.room == "TEST-101")
+        check("local_timetable_validity_not_indefinite", snapshot.courses(on: CampusDate.parse("2026-10-05")!).isEmpty && snapshot.courses(on: CampusDate.parse("2027-01-18")!).isEmpty)
+        var friday = course; friday.id = UUID(); friday.weekday = 5; friday.name = "Synthetic Friday"
+        snapshot.courses.append(friday)
+        check("local_timetable_verified_makeup_day", snapshot.courses(on: CampusDate.parse("2027-01-11")!).first?.name == "Synthetic Friday")
+        check("local_timetable_verified_holiday", snapshot.courses(on: CampusDate.parse("2027-01-01")!).isEmpty)
+        check("local_timetable_festival_is_not_day_off", snapshot.courses(on: CampusDate.parse("2026-12-07")!).first?.name == "Synthetic Physics")
+        let after = CampusDate.parse("2026-10-19")!.addingTimeInterval(9 * 3600)
+        check("local_timetable_next_after_class_start", snapshot.next(after: after)?.0.name == "Synthetic Friday")
+        check("local_timetable_time_validation", LocalCourse.minutes("24:00") == nil && LocalCourse.minutes("08:60") == nil && LocalCourse.minutes("8:00") == nil && LocalCourse.minutes("09:15") == 555)
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let store = LocalTimetableStore(directory: folder)
+        do {
+            try store.save(snapshot)
+            let restored = LocalTimetableStore(directory: folder)
+            check("local_timetable_persist_and_restore", restored.snapshot?.courses == snapshot.courses)
+            let flags = try folder.resourceValues(forKeys: [.isExcludedFromBackupKey])
+            check("local_timetable_excluded_from_backup", flags.isExcludedFromBackup == true)
+            var invalid = snapshot; invalid.validUntil = "2026-06-31"
+            do { try store.save(invalid); check("local_timetable_invalid_save_rejected", false) }
+            catch { check("local_timetable_invalid_save_keeps_existing", LocalTimetableStore(directory: folder).snapshot?.courses == snapshot.courses) }
+            try store.clear()
+            check("local_timetable_clear", store.snapshot == nil && LocalTimetableStore(directory: folder).snapshot == nil)
+            try? FileManager.default.removeItem(at: folder)
+        } catch { check("local_timetable_storage", false, error.localizedDescription) }
+        let suite = "campus.localization.tests"; let defaults = UserDefaults(suiteName: suite)!
+        defaults.removePersistentDomain(forName: suite)
+        let prefs = AppSettings(defaults: defaults)
+        _ = QuickLinkCatalog.highlights
+        prefs.language = .english
+        check("quick_links_switch_language_live", QuickLinkCatalog.link(for: "moodle.home")?.title == "My courses")
+        check("native_language_translation", L10n.tr("设置") == "Settings" && AppTab.me.title == "Me" && L10n.format("还有 %@ 天", "7") == "In 7 days")
+        check("native_language_literal_percent", L10n.format("下载中 %@%", "50") == "Downloading 50%")
+        check("native_language_persist", AppSettings(defaults: defaults).language == .english)
+        let keys = L10n.translations
+        check("native_language_dictionary_complete", keys.count >= 505 && keys.values.allSatisfy { !$0.isEmpty })
+        let model = AppModel(settings: prefs)
+        let browser = model.browser(for: .portal); let original = browser.webView
+        prefs.language = .chinese
+        check("native_language_preserves_webview_identity", model.browser(for: .portal).webView === original && L10n.tr("设置") == "设置")
+        let egg = YilongController(), origin = CGPoint(x: 120, y: 220), time = Date()
+        for offset in 0..<5 { egg.tap(at: origin, settings: prefs, now: time.addingTimeInterval(Double(offset) * 0.2)) }
+        check("yilong_hidden_before_six_taps", !egg.visible && !prefs.yilongUnlocked)
+        egg.tap(at: origin, settings: prefs, now: time.addingTimeInterval(1))
+        check("yilong_six_taps_unlock_at_touch", egg.visible && prefs.yilongUnlocked && egg.origin == origin)
+        check("yilong_unlock_persist", AppSettings(defaults: defaults).yilongUnlocked)
+        egg.close(); check("yilong_dismiss", !egg.visible)
+        let interrupted = YilongController()
+        for offset in 0..<5 { interrupted.tap(at: origin, settings: prefs, now: time.addingTimeInterval(Double(offset) * 0.2)) }
+        interrupted.tap(at: origin, settings: prefs, now: time.addingTimeInterval(5))
+        check("yilong_interrupted_taps_do_not_unlock", !interrupted.visible)
+        check("yilong_three_view_asset_exists", Bundle.main.url(forResource: "yilong", withExtension: "png", subdirectory: "CampusData") != nil)
+        defaults.removePersistentDomain(forName: suite); L10n.language = .chinese
+        // Exact product extraction script on synthetic page with the verified school field shape.
+        let web = WKWebView(); window?.rootViewController?.view.addSubview(web)
+        keep.append(web)
+        let fixture = #"""
+        <html><head><title>Timetable fixture</title></head><body>
+        <select><option>2026-27 WINTER</option></select><div id="host"><div class="konvajs-content"></div></div>
+        <input id="guard" value="DO_NOT_CHANGE">
+        <script>
+        const c={courseCode:'S001',courseName:'Synthetic Mechanics',groupId:'10',type:'L',day:'2',startTime:'08:00:00',endTime:'10:00:00',classNumber:'TEST-101',building:'Synthetic Building',enrolled:true,postPending:false,deletePending:false};
+        document.getElementById('host')['__reactFiber$test']={memoizedProps:{},return:{memoizedProps:{groups:[c,{...c,isPreview:true},{...c,enrolled:false},{...c,deletePending:true}]},return:null}};
+        </script></body></html>
+        """#
+        web.loadHTMLString(fixture, baseURL: URL(string: "https://students.gtiit.edu.cn/enrollments")!)
+        check("timetable_fixture_ready", await wait { web.title == "Timetable fixture" && !web.isLoading })
+        do {
+            let result = try await TimetableExtractor.extract(from: web)
+            check("timetable_extractor_registered_only", result.courses.count == 1 && result.courses[0].weekday == 2 && result.courses[0].room == "TEST-101" && result.semester == "2026-27 WINTER")
+            check("timetable_extractor_read_only", await js(web, "document.getElementById('guard').value") == "DO_NOT_CHANGE")
+        } catch { check("timetable_extractor", false, error.localizedDescription) }
+        web.loadHTMLString(fixture, baseURL: URL(string: "https://login.microsoftonline.com/enrollments")!)
+        _ = await wait { web.url?.host == "login.microsoftonline.com" && !web.isLoading }
+        do { _ = try await TimetableExtractor.extract(from: web); check("timetable_rejects_auth_origin", false) }
+        catch { check("timetable_rejects_auth_origin", true) }
+        web.removeFromSuperview()
     }
 }

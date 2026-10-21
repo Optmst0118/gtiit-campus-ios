@@ -1,9 +1,12 @@
 import SwiftUI
 
 struct LaunchPreloadView: View {
+    @Environment(\.locale) private var nativeLocale
     @ObservedObject var preparation: LaunchPreparation
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var body: some View {
+        let _ = nativeLocale.identifier
+
         ZStack {
             // 让四个真实内核拥有布局与窗口，避免进入标签时重新初始化/首次绘制。
             ZStack {
@@ -15,8 +18,8 @@ struct LaunchPreloadView: View {
                 VStack(spacing: 18) {
                     Image("CampusMark").resizable().scaledToFit().frame(width: 88, height: 88)
                         .accessibilityHidden(true)
-                    Text("校园，即将就绪").font(.title.weight(.semibold))
-                    Text("正在准备网站与登录会话")
+                    Text(L10n.tr("校园，即将就绪")).font(.title.weight(.semibold))
+                    Text(L10n.tr("正在准备网站与登录会话"))
                         .font(.subheadline).foregroundStyle(.secondary)
                 }
                 VStack(spacing: 18) {
@@ -29,13 +32,13 @@ struct LaunchPreloadView: View {
                         }
                     }
                     ProgressView(value: Double(preparation.settledCount), total: 4)
-                        .tint(Theme.accent).accessibilityLabel("网站准备进度")
+                        .tint(Theme.accent).accessibilityLabel(L10n.tr("网站准备进度"))
                 }.padding(20).cardBackground(corner: 24)
                 Spacer(minLength: 24)
                 VStack(spacing: 12) {
-                    Button("直接进入") { preparation.skip() }
+                    Button(L10n.tr("直接进入")) { preparation.skip() }
                         .font(.subheadline.weight(.semibold)).frame(minHeight: 44)
-                    Text("会话有效时自动恢复；需要密码或验证时由你完成。")
+                    Text(L10n.tr("会话有效时自动恢复；需要密码或验证时由你完成。"))
                         .font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
                 }
             }

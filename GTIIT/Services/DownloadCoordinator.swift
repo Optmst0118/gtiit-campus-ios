@@ -83,7 +83,7 @@ struct DownloadItem: Identifiable, Codable {
         }
         for index in items.indices where items[index].state == .downloading {
             items[index].state = .failed
-            items[index].error = "上次下载未完成，请重新打开来源站点"
+            items[index].error = L10n.tr("上次下载未完成，请重新打开来源站点")
         }
         let expired = items.filter {
             $0.destinationBookmark == nil && (retention == .session || Date().timeIntervalSince($0.createdAt) > retention.seconds)
@@ -99,7 +99,7 @@ struct DownloadItem: Identifiable, Codable {
             items[index].error = nil
         } else {
             items.insert(
-                DownloadItem(id: id, site: site, filename: "准备下载…", createdAt: Date(), state: .downloading, destinationBookmark: defaultFolderBookmark),
+                DownloadItem(id: id, site: site, filename: L10n.tr("准备下载…"), createdAt: Date(), state: .downloading, destinationBookmark: defaultFolderBookmark),
                 at: 0)
         }
         resumptions.removeValue(forKey: id)
@@ -143,7 +143,7 @@ struct DownloadItem: Identifiable, Codable {
             completionHandler(folder.appendingPathComponent(name))
         } catch {
             items[index].state = .failed
-            items[index].error = "无法创建下载文件（\((error as NSError).code)）"
+            items[index].error = L10n.format("无法创建下载文件（%@）", String(describing: (error as NSError).code))
             onFailure?(error)
             completionHandler(nil)
             persist()
@@ -177,7 +177,7 @@ struct DownloadItem: Identifiable, Codable {
             } catch {
                 if let index = items.firstIndex(where: { $0.id == id && $0.state == .downloading }) {
                     items[index].state = .failed
-                    items[index].error = "无法保存，请检查下载位置后重新下载。\(error.localizedDescription)"
+                    items[index].error = L10n.format("无法保存，请检查下载位置后重新下载。%@", String(describing: error.localizedDescription))
                 }
                 onFailure?(error); scheduleDismiss(id, after: 8)
             }
@@ -190,7 +190,7 @@ struct DownloadItem: Identifiable, Codable {
         else { return }
         observations.removeValue(forKey: id)
         items[index].state = .failed
-        items[index].error = "下载中断（\((error as NSError).domain):\((error as NSError).code)），请检查网络后重试"
+        items[index].error = L10n.format("下载中断（%@:%@），请检查网络后重试", String(describing: (error as NSError).domain), String(describing: (error as NSError).code))
         if let data = resumeData, let webView = download.webView {
             resumptions[id] = (data, WeakWebView(webView))
         } else {
@@ -263,8 +263,8 @@ struct DownloadItem: Identifiable, Codable {
         return FileManager.default.fileExists(atPath: url.path) ? url : nil
     }
     var defaultLocationTitle: String {
-        guard let bookmark = defaultFolderBookmark else { return "我的 iPhone · GTIIT / Downloads" }
-        return (try? folderURL(bookmark).lastPathComponent) ?? "位置不可用，轻点重新选择"
+        guard let bookmark = defaultFolderBookmark else { return L10n.tr("我的 iPhone · GTIIT / Downloads") }
+        return (try? folderURL(bookmark).lastPathComponent) ?? L10n.tr("位置不可用，轻点重新选择")
     }
     func selectDefaultFolder(_ url: URL) throws {
         let access = url.startAccessingSecurityScopedResource()
@@ -300,12 +300,12 @@ struct DownloadItem: Identifiable, Codable {
     func removeFile(_ id: UUID) async {
         guard let item = items.first(where: { $0.id == id }) else { return }
         if item.destinationBookmark != nil, item.state == .completed {
-            guard let url = fileURL(for: item) else { reportError("下载位置不可用，无法删除文件。"); return }
+            guard let url = fileURL(for: item) else { reportError(L10n.tr("下载位置不可用，无法删除文件。")); return }
             do { try await Task.detached { try DownloadFileAccess.remove(url) }.value }
             catch {
                 let failure = error as NSError
                 if failure.domain != NSCocoaErrorDomain || ![NSFileNoSuchFileError, NSFileReadNoSuchFileError].contains(failure.code) {
-                    reportError("无法删除文件：\(error.localizedDescription)"); return
+                    reportError(L10n.format("无法删除文件：%@", String(describing: error.localizedDescription))); return
                 }
             }
         }

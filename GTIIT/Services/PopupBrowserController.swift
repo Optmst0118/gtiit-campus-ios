@@ -34,12 +34,12 @@ import SwiftUI
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
-        title = "网页窗口"
+        title = L10n.tr("网页窗口")
         navigationItem.leftBarButtonItem = UIBarButtonItem(
-            title: "关闭", style: .done, target: self, action: #selector(close))
+            title: L10n.tr("关闭"), style: .done, target: self, action: #selector(close))
         titleObservation = webView.observe(\.title) { [weak self] webView, _ in
             let title = webView.title
-            Task { @MainActor in self?.title = title ?? "网页窗口" }
+            Task { @MainActor in self?.title = title ?? L10n.tr("网页窗口") }
         }
         if let downloads {
             let panel = UIHostingController(rootView: DownloadFloatingPanel(center: downloads))

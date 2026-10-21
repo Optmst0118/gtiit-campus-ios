@@ -161,7 +161,7 @@ final class BrowserModel: NSObject, ObservableObject {
         hasLoadedOnce = false
         errorText = nil
         needsReloadAfterClear = dataCleared
-        if !dataCleared { errorText = "未能安全退出旧页面，网页数据尚未清除。请在设置中重试。" }
+        if !dataCleared { errorText = L10n.tr("未能安全退出旧页面，网页数据尚未清除。请在设置中重试。") }
         isResetting = false
         configureWebView()
     }
@@ -304,21 +304,21 @@ final class BrowserModel: NSObject, ObservableObject {
 
     static func friendlyMessage(for error: NSError, site: SiteID) -> String {
         guard error.domain == NSURLErrorDomain else {
-            return "页面加载失败：\(error.localizedDescription)"
+            return L10n.format("页面加载失败：%@", String(describing: error.localizedDescription))
         }
         switch error.code {
         case NSURLErrorNotConnectedToInternet, NSURLErrorNetworkConnectionLost:
-            return "没有可用的网络连接。请确认已连接校园网或蜂窝网络后重试。"
+            return L10n.tr("没有可用的网络连接。请确认已连接校园网或蜂窝网络后重试。")
         case NSURLErrorCannotFindHost, NSURLErrorDNSLookupFailed:
-            return "无法解析 \(site.host)。校园站点需要校内网络或学校的访问方式，公共网络下可能解析失败。"
+            return L10n.format("无法解析 %@。校园站点需要校内网络或学校的访问方式，公共网络下可能解析失败。", String(describing: site.host))
         case NSURLErrorTimedOut:
-            return "连接超时。校园站点在校外可能需要较长时间，请稍后重试。"
+            return L10n.tr("连接超时。校园站点在校外可能需要较长时间，请稍后重试。")
         case NSURLErrorSecureConnectionFailed, NSURLErrorServerCertificateUntrusted:
-            return "安全连接未建立（证书校验失败）。App 不会绕过证书校验，请检查网络环境。"
+            return L10n.tr("安全连接未建立（证书校验失败）。App 不会绕过证书校验，请检查网络环境。")
         case NSURLErrorCannotConnectToHost:
-            return "无法连接到 \(site.host)。请确认是否需要校园网或学校 VPN。"
+            return L10n.format("无法连接到 %@。请确认是否需要校园网或学校 VPN。", String(describing: site.host))
         default:
-            return "页面加载失败：\(error.localizedDescription)"
+            return L10n.format("页面加载失败：%@", String(describing: error.localizedDescription))
         }
     }
 }
@@ -365,7 +365,7 @@ extension BrowserModel: WKNavigationDelegate {
             return
         }
         isLoading = false
-        errorText = "页面进程已被系统回收。请重新载入；尚未提交的内容可能需要重新填写。"
+        errorText = L10n.tr("页面进程已被系统回收。请重新载入；尚未提交的内容可能需要重新填写。")
     }
 
     func webView(
@@ -431,7 +431,7 @@ extension BrowserModel: WKNavigationDelegate {
         if NavigationPolicy.isExternalScheme(scheme), navigationAction.navigationType == .linkActivated {
             router?.browserOpenExternal(url: url)
         } else {
-            router?.browserToast("此链接类型暂不支持，请使用默认浏览器打开原页面")
+            router?.browserToast(L10n.tr("此链接类型暂不支持，请使用默认浏览器打开原页面"))
         }
         decisionHandler(.cancel)
     }
@@ -484,7 +484,7 @@ extension BrowserModel: WKUIDelegate {
         windowFeatures: WKWindowFeatures
     ) -> WKWebView? {
         guard !isResetting, popups.count < 4 else {
-            router?.browserToast("请先关闭已打开的网页窗口")
+            router?.browserToast(L10n.tr("请先关闭已打开的网页窗口"))
             return nil
         }
         configuration.userContentController.addUserScript(
@@ -525,12 +525,12 @@ extension BrowserModel: WKUIDelegate {
     ) {
         let kind: String
         switch type {
-        case .camera: kind = "摄像头"
-        case .microphone: kind = "麦克风"
-        case .cameraAndMicrophone: kind = "摄像头和麦克风"
-        @unknown default: kind = "录制设备"
+        case .camera: kind = L10n.tr("摄像头")
+        case .microphone: kind = L10n.tr("麦克风")
+        case .cameraAndMicrophone: kind = L10n.tr("摄像头和麦克风")
+        @unknown default: kind = L10n.tr("录制设备")
         }
-        router?.browserToast("网页请求使用\(kind)；本 App 不开放该权限")
+        router?.browserToast(L10n.format("网页请求使用%@；本 App 不开放该权限", String(describing: kind)))
         decisionHandler(.deny)
     }
 
@@ -541,7 +541,7 @@ extension BrowserModel: WKUIDelegate {
         completionHandler: @escaping () -> Void
     ) {
         let alert = UIAlertController(title: displayTitle, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "好", style: .default) { _ in completionHandler() })
+        alert.addAction(UIAlertAction(title: L10n.tr("好"), style: .default) { _ in completionHandler() })
         guard present(alert) else {
             completionHandler()
             return
@@ -555,8 +555,8 @@ extension BrowserModel: WKUIDelegate {
         completionHandler: @escaping (Bool) -> Void
     ) {
         let alert = UIAlertController(title: displayTitle, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "取消", style: .cancel) { _ in completionHandler(false) })
-        alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in completionHandler(true) })
+        alert.addAction(UIAlertAction(title: L10n.tr("取消"), style: .cancel) { _ in completionHandler(false) })
+        alert.addAction(UIAlertAction(title: L10n.tr("确定"), style: .default) { _ in completionHandler(true) })
         guard present(alert) else {
             completionHandler(false)
             return
@@ -574,9 +574,9 @@ extension BrowserModel: WKUIDelegate {
         alert.addTextField { field in
             field.text = defaultText
         }
-        alert.addAction(UIAlertAction(title: "取消", style: .cancel) { _ in completionHandler(nil) })
+        alert.addAction(UIAlertAction(title: L10n.tr("取消"), style: .cancel) { _ in completionHandler(nil) })
         alert.addAction(
-            UIAlertAction(title: "确定", style: .default) { [weak alert] _ in
+            UIAlertAction(title: L10n.tr("确定"), style: .default) { [weak alert] _ in
                 completionHandler(alert?.textFields?.first?.text)
             })
         guard present(alert) else {

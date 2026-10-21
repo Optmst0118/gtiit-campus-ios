@@ -12,17 +12,17 @@ import LocalAuthentication
         let context = LAContext()
         _ = context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil)
         switch context.biometryType {
-        case .faceID: return "面容 ID"
-        case .touchID: return "触控 ID"
-        default: return "设备密码"
+        case .faceID: return L10n.tr("面容 ID")
+        case .touchID: return L10n.tr("触控 ID")
+        default: return L10n.tr("设备密码")
         }
     }
     func authenticate() async throws -> Bool {
         let context = LAContext()
         self.context = context
         defer { self.context = nil }
-        context.localizedCancelTitle = "取消"
-        context.localizedFallbackTitle = "使用设备密码"
-        return try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: "解锁 GTIIT，继续浏览校园网页")
+        context.localizedCancelTitle = L10n.tr("取消")
+        context.localizedFallbackTitle = L10n.tr("使用设备密码")
+        return try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: L10n.tr("解锁 GTIIT，继续浏览校园网页"))
     }
 }

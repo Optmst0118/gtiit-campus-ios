@@ -1,7 +1,7 @@
 import Foundation
 
 enum AppInfo {
-    static let displayName = "GTIIT 校园助手"
+    static var displayName: String { L10n.tr("GTIIT 校园助手") }
     static let researchDate = "2026-10-21"
 
     static var version: String {
@@ -16,5 +16,5 @@ enum AppInfo {
         "\(version) (\(build))"
     }
 
-    static let tagline = "校园服务，一路相连"
+    static var tagline: String { L10n.tr("校园服务，一路相连") }
 }

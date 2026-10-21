@@ -75,6 +75,10 @@ def build_project() -> str:
     web_build = uid("build:web-appearance")
     file_refs.append(f'\t\t{web_ref} /* WebAppearance */ = {{isa = PBXFileReference; lastKnownFileType = folder; path = WebAppearance; sourceTree = "<group>"; }};')
     build_files.append(f'\t\t{web_build} /* WebAppearance in Resources */ = {{isa = PBXBuildFile; fileRef = {web_ref} /* WebAppearance */; }};')
+    campus_ref = uid("ref:campus-data")
+    campus_build = uid("build:campus-data")
+    file_refs.append(f'\t\t{campus_ref} /* CampusData */ = {{isa = PBXFileReference; lastKnownFileType = folder; path = CampusData; sourceTree = "<group>"; }};')
+    build_files.append(f'\t\t{campus_build} /* CampusData in Resources */ = {{isa = PBXBuildFile; fileRef = {campus_ref} /* CampusData */; }};')
     assets_ref = uid("ref:assets")
     icon_ref = uid("ref:layered-icon")
     has_icon = (SOURCE_DIR / RESOURCE_DIR / "AppIcon.icon").exists()
@@ -121,7 +125,7 @@ def build_project() -> str:
             f"\t\t{uid('group:' + directory)} /* {directory} */ = {{\n\t\t\tisa = PBXGroup;\n\t\t\tchildren = (\n{members}\t\t\t);\n\t\t\tpath = {directory};\n\t\t\tsourceTree = \"<group>\";\n\t\t}};"
         )
 
-    groups_section = [s.replace(f'{privacy_ref} /* PrivacyInfo.xcprivacy */,', f'{privacy_ref} /* PrivacyInfo.xcprivacy */,\n\t\t\t\t{web_ref} /* WebAppearance */,') for s in groups_section]
+    groups_section = [s.replace(f'{privacy_ref} /* PrivacyInfo.xcprivacy */,', f'{privacy_ref} /* PrivacyInfo.xcprivacy */,\n\t\t\t\t{web_ref} /* WebAppearance */,\n\t\t\t\t{campus_ref} /* CampusData */,') for s in groups_section]
     if has_icon:
         groups_section = [s.replace(f'{assets_ref} /* Assets.xcassets */,', f'{assets_ref} /* Assets.xcassets */,\n\t\t\t\t{icon_ref} /* AppIcon.icon */,') for s in groups_section]
 
@@ -215,7 +219,7 @@ def build_project() -> str:
     target_settings = team_line + """\t\t\t\tASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 \t\t\t\tASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 \t\t\t\tCODE_SIGN_STYLE = Automatic;
-\t\t\t\tCURRENT_PROJECT_VERSION = 9;
+\t\t\t\tCURRENT_PROJECT_VERSION = 10;
 \t\t\t\tENABLE_PREVIEWS = YES;
 \t\t\t\tGENERATE_INFOPLIST_FILE = NO;
 \t\t\t\tINFOPLIST_FILE = %s/Info.plist;
@@ -224,7 +228,7 @@ def build_project() -> str:
 \t\t\t\t\t"$(inherited)",
 \t\t\t\t\t"@executable_path/Frameworks",
 \t\t\t\t);
-\t\t\t\tMARKETING_VERSION = 1.5;
+\t\t\t\tMARKETING_VERSION = 1.6;
 \t\t\t\tPRODUCT_BUNDLE_IDENTIFIER = "%s";
 \t\t\t\tPRODUCT_NAME = "$(TARGET_NAME)";
 \t\t\t\tSWIFT_EMIT_LOC_STRINGS = YES;
@@ -323,6 +327,7 @@ def build_project() -> str:
 {f'                {icon_build} /* AppIcon.icon in Resources */,' if has_icon else ''}
 \t\t\t\t{privacy_build} /* PrivacyInfo.xcprivacy in Resources */,
                 {web_build} /* WebAppearance in Resources */,
+                {campus_build} /* CampusData in Resources */,
 \t\t\t);
 \t\t\trunOnlyForDeploymentPostprocessing = 0;
 \t\t}};

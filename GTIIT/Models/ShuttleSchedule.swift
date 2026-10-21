@@ -3,9 +3,9 @@ import Foundation
 enum ShuttleDirection: String, CaseIterable, Identifiable {
     case southToNorth, northToSouth
     var id: String { rawValue }
-    var title: String { self == .southToNorth ? "南 → 北" : "北 → 南" }
-    var origin: String { self == .southToNorth ? "南校区" : "北校区" }
-    var destination: String { self == .southToNorth ? "北校区" : "南校区" }
+    var title: String { self == .southToNorth ? L10n.tr("南 → 北") : L10n.tr("北 → 南") }
+    var origin: String { self == .southToNorth ? L10n.tr("南校区") : L10n.tr("北校区") }
+    var destination: String { self == .southToNorth ? L10n.tr("北校区") : L10n.tr("南校区") }
 }
 
 struct ShuttleTrip: Identifiable {
@@ -17,19 +17,20 @@ struct ShuttleTrip: Identifiable {
     var id: String { "\(direction.rawValue)-\(minute)-\(bus)" }
     var time: String { String(format: "%02d:%02d", minute / 60, minute % 60) }
     var daysLabel: String {
-        if weekdays.isEmpty { return "每日" }
-        if weekdays == Set(2...6) { return "周一至周五" }
-        let names = [2: "一", 3: "二", 4: "三", 5: "四", 6: "五"]
-        return "周" + weekdays.sorted().compactMap { names[$0] }.joined(separator: "、")
+        if weekdays.isEmpty { return L10n.tr("每日") }
+        if weekdays == Set(2...6) { return L10n.tr("周一至周五") }
+        let names = [2: L10n.tr("一"), 3: L10n.tr("二"), 4: L10n.tr("三"), 5: L10n.tr("四"), 6: L10n.tr("五")]
+        if L10n.isEnglish { return weekdays.sorted().compactMap { names[$0] }.joined(separator: ", ") }
+        return L10n.tr("周") + weekdays.sorted().compactMap { names[$0] }.joined(separator: "、")
     }
-    var serviceLabel: String { bus == 1 ? "1 号 · 每日" : "2 号 · 教学周" }
+    var serviceLabel: String { bus == 1 ? L10n.tr("1 号 · 每日") : L10n.tr("2 号 · 教学周") }
     var gateClosed: Bool { minute >= 19 * 60 + 30 }
     var route: String {
         switch direction {
         case .southToNorth:
-            return "南校区 9 号门 → 2 号门 → 北校区正门"
+            return L10n.tr("南校区 9 号门 → 2 号门 → 北校区正门")
         case .northToSouth:
-            return "北校区正门 → 南校区 2 号门 → 9 号门"
+            return L10n.tr("北校区正门 → 南校区 2 号门 → 9 号门")
         }
     }
 }
@@ -41,10 +42,10 @@ struct ShuttleDeparture: Identifiable {
     func seconds(from now: Date) -> Int { max(0, Int(ceil(date.timeIntervalSince(now)))) }
     func countdown(from now: Date) -> String {
         let seconds = seconds(from: now)
-        if seconds < 60 { return "\(seconds) 秒" }
+        if seconds < 60 { return L10n.format("%@ 秒", String(describing: seconds)) }
         let minutes = Int(ceil(Double(seconds) / 60))
-        if minutes < 60 { return "\(minutes) 分钟" }
-        return "\(minutes / 60) 小时 \(minutes % 60) 分"
+        if minutes < 60 { return L10n.format("%@ 分钟", String(describing: minutes)) }
+        return L10n.format("%@ 小时 %@ 分", String(describing: minutes / 60), String(describing: minutes % 60))
     }
 }
 
@@ -57,7 +58,7 @@ enum ShuttleSchedule {
         return value
     }
     static let effectiveDate = calendar.date(from: DateComponents(year: 2026, month: 10, day: 12))!
-    static let effectiveLabel = "2026.10.12 起生效"
+    static var effectiveLabel: String { L10n.tr("2026.10.12 起生效") }
     static let trips: [ShuttleTrip] = {
         func daily(_ direction: ShuttleDirection, _ times: [String]) -> [ShuttleTrip] {
             times.map { make(direction, $0, 1, []) }
@@ -121,9 +122,9 @@ enum ShuttleSchedule {
         return Array(result.prefix(limit))
     }
     static func dayLabel(_ date: Date, relativeTo now: Date) -> String {
-        if calendar.isDate(date, inSameDayAs: now) { return "今天" }
-        if let tomorrow = calendar.date(byAdding: .day, value: 1, to: now), calendar.isDate(date, inSameDayAs: tomorrow) { return "明天" }
+        if calendar.isDate(date, inSameDayAs: now) { return L10n.tr("今天") }
+        if let tomorrow = calendar.date(byAdding: .day, value: 1, to: now), calendar.isDate(date, inSameDayAs: tomorrow) { return L10n.tr("明天") }
         let parts = calendar.dateComponents([.month, .day], from: date)
-        return "\(parts.month ?? 0)月\(parts.day ?? 0)日"
+        return L10n.format("%@月%@日", String(describing: parts.month ?? 0), String(describing: parts.day ?? 0))
     }
 }

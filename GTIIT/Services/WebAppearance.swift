@@ -37,7 +37,7 @@ import WebKit
             const cleanup = \(cleanupJSON);
             let host = location.hostname;
             try { if (!host && location.href === 'about:blank' && parent !== self) host = parent.location.hostname; } catch (_) {}
-            if (!cleanup.includes(host)) return;
+            if (!cleanup.includes(host) && !allowed.includes(host)) return;
             \(engine)
             \(body)
         })();

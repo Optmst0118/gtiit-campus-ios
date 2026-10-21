@@ -1,9 +1,12 @@
 import SwiftUI
 
 struct LockScreenView: View {
+    @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var lock: AppLockController
 
     var body: some View {
+        let _ = nativeLocale.identifier
+
         ZStack {
             Rectangle()
                 .fill(Color(uiColor: .systemBackground))
@@ -16,10 +19,10 @@ struct LockScreenView: View {
                             .font(.system(size: 46, weight: .light))
                             .foregroundStyle(Theme.accent)
 
-                        Text("GTIIT 已锁定")
+                        Text(L10n.tr("GTIIT 已锁定"))
                             .font(.title3.weight(.semibold))
 
-                        Text("成绩、考勤与预约页面已隐藏。解锁后继续浏览官方网页。")
+                        Text(L10n.tr("成绩、考勤与预约页面已隐藏。解锁后继续浏览官方网页。"))
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -41,7 +44,7 @@ struct LockScreenView: View {
                                 } else {
                                     Image(systemName: "lock.open")
                                 }
-                                Text(lock.isAuthenticating ? "正在验证…" : "使用\(lock.biometryLabel)解锁")
+                                Text(lock.isAuthenticating ? L10n.tr("正在验证…") : L10n.format("使用%@解锁", String(describing: lock.biometryLabel)))
                             }
                             .frame(maxWidth: 260)
                         }

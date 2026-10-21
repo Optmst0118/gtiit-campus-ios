@@ -1,0 +1,141 @@
+{
+  "date": "2026-10-21T20:14:06.290126+00:00",
+  "baseline": {
+    "commit": "79d3f88",
+    "phoneVersion": "1.5",
+    "phoneBuild": "9",
+    "tag": "gtiit-before-1.6"
+  },
+  "product": {
+    "CFBundleIdentifier": "io.github.optmst0118.gtiit",
+    "CFBundleShortVersionString": "1.6",
+    "CFBundleVersion": "10"
+  },
+  "builds": {
+    "debugSimulator": true,
+    "signedReleaseDevice": true
+  },
+  "regression": {
+    "passed": true,
+    "checks": 215,
+    "file": "regression-results.json"
+  },
+  "translations": {
+    "keys": 505,
+    "missing": 0,
+    "instantSwitchVisuallyVerified": true,
+    "doesNotRecreateWebViews": true
+  },
+  "calendar": {
+    "events": 85,
+    "years": [
+      "2025-2026",
+      "2026-2027"
+    ],
+    "unverifiedJune31Ranges": 2,
+    "nativeMonthSelectionVerified": true,
+    "sourcePdfHashesMatch": true
+  },
+  "timetable": {
+    "livePortalShapeVerified": true,
+    "fixtureExtractionVerified": true,
+    "realPhoneExtractionVerified": false,
+    "storedRealStudentDataInRepository": false,
+    "weeklyRoomWrappingVerified": true,
+    "largestAccessibilityTypeVerified": true
+  },
+  "yilong": {
+    "sixTapUIVerified": true,
+    "threeViewsVisuallyVerified": true,
+    "navigationWhileActiveVerified": true,
+    "settingUnlockVerified": true
+  },
+  "about": {
+    "redrawnIconVisible": true,
+    "testHarnessVersionCorrect": true
+  },
+  "deviceInstall": {
+    "installed": true,
+    "transport": "localNetwork",
+    "model": "iPhone Air",
+    "wireless": true,
+    "launchVerified": false,
+    "launchBlocker": "Device locked; user unlock requested"
+  },
+  "sourceSHA256": {
+    "App/AppLockController.swift": "371f19b123420ce9504d9e9677fdaaa1adbf141ce3e8f0025cb309fcef8b4e2c",
+    "App/AppModel.swift": "ca3c01294bfc2eb705fd37bdc8ea75da95934910723ec9a79a81a35c7579ef8f",
+    "App/AppSettings.swift": "07e9761a57cc98f58381e6ef038c4247df63888be60f98a40c658eff57af1a68",
+    "App/GTIITApp.swift": "cf5a1daf4482a42b19058d325eabf870bc83336d8b73a68bfcb9285e63ab5b6c",
+    "App/PrivacyShieldController.swift": "bd669601703747223d37d279562ce84f42f174d8d3ddbbbaa80099cbe5fb0c78",
+    "Components/BrowserComponents.swift": "2ad78a4e130fadf303933a4722b40e65ef7bfeffe79b6ddd5b7e2aabf7855009",
+    "Components/DownloadFloatingPanel.swift": "6dad48e95968f9208ff0dcfc7ba761682fcdfe6390e35ddca02312e8b0113808",
+    "Components/SettingsChoicePicker.swift": "d9b2b3b5b520b858f513a8b9c4bb46ebc581699ac973dca0f4161b377abfee6f",
+    "Components/WebViewContainer.swift": "c78ca76495715731333196aeee631aa67324f4371f4405b6f39b08f7f879d68a",
+    "Core/AppInfo.swift": "f8277735e3c89bcd9695a8558c45e7081bf61ccb79a5d7af30211a1738ad800d",
+    "Core/Localization.swift": "8ae5eb18035d646704bf05d12b2088f3cff66771eb77040843a196eb2aaa4b10",
+    "Core/Theme.swift": "0169f04bd838bfe38f315489c09d3305470edc29d2dfc72b09978ff2875b1412",
+    "Core/TopViewController.swift": "bdaa70478f1fa61af37335dd9585720e3ee4de92b883d6ae0a4859649953ed57",
+    "Info.plist": "083ee245b5d712a7c817a90025c348fa2c9dffd44b29ce17c852922d4e5770aa",
+    "Models/AcademicCalendar.swift": "a907dbf7f991e17b17a97f92c1d012999a13848aaf1fa790bff857ad2b94c4e1",
+    "Models/AppTab.swift": "f1f08e9dd40673a79c34c28076070ef6cc961c5ffd15e4fc6720b0391797c24b",
+    "Models/LocalTimetable.swift": "a336205b01877e6fc7e4789e849951f3cc563cfbe4c63a8bdec9fc6a569b5738",
+    "Models/QuickLink.swift": "f43d34828006c6f2eeee4b73c9f5a78f1517990655eb479c518bad60f48b7421",
+    "Models/ShuttleSchedule.swift": "2d0c4c9e90f7f66f73a839ab19162290f0f1d95968260ca4c927abe6a5ef8835",
+    "Models/SiteID.swift": "fdbe7d6973ed7a8f1b6eb79c52ae8b5af9dbb660f0ccb2acc6f0e3ee219b3327",
+    "Resources/.DS_Store": "f38cd3e821d21b21adcce9b4f98661107be9648303a37bd680b94be705f39d08",
+    "Resources/Assets.xcassets/AccentColor.colorset/Contents.json": "587726b83f38dc35cde232e565873191f96ada0cc87e678a23075dd6c16e7573",
+    "Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png": "69fd8f23bb48c92be02fc4058d06fb63b6e45943d12ac8cc0779a9acfa07091d",
+    "Resources/Assets.xcassets/AppIcon.appiconset/Contents.json": "3725fefca1cc2f15dcff52b03b7db47884c8141e5be1d4e559367b76117f8c48",
+    "Resources/Assets.xcassets/CampusMark.imageset/CampusMark.png": "849a77e29ba74a7da7f6856ec0c6a0c4284f81900c789631be00f54b713a6a0b",
+    "Resources/Assets.xcassets/CampusMark.imageset/Contents.json": "b086350990851de89d7ed1115ae1b51c5b31400b41baf73a6e16c1490d97d5cd",
+    "Resources/Assets.xcassets/Contents.json": "0fd49ba3c3585c709678e0046a821c3c60685ec7063720d30d3a3448be3a208b",
+    "Resources/Assets.xcassets/LaunchBackground.colorset/Contents.json": "e2ed17e730c5aefd8f930c8b551a8cba361888c92276bb3a7a0650862c0bc644",
+    "Resources/CampusData/CampusMark.png": "849a77e29ba74a7da7f6856ec0c6a0c4284f81900c789631be00f54b713a6a0b",
+    "Resources/CampusData/README.txt": "955f34d432fe54d25bd4fcbd0b4cd17b590e32ce06e33c7052af5504eaabebe4",
+    "Resources/CampusData/academic-calendar-2025-2026-original.pdf": "5b41e9b64030f899137d2d76b81c4a1ce47fe35c841360290373949a36682c07",
+    "Resources/CampusData/academic-calendar-2026-2027-original.pdf": "d646fea7a54e08a185cfa89dd72d93f171fa8afba4d044bde6e15694145563ff",
+    "Resources/CampusData/academic-events.json": "e2db8b59e7b41e15052f4236974cff82c6f8a24317033c97fe22f0b86bcb2b59",
+    "Resources/CampusData/native-en.json": "db1b42e05cea7ff84c4a0129cd06f87cfc7c530bab022502c0733f83474c15d5",
+    "Resources/CampusData/sources.json": "345d420204f8f7a4d32f7849159fd404d99029c40d7819be9be66232a6bc6a22",
+    "Resources/CampusData/yilong.png": "e1bd06bfcddf8b997460af5541e37a14e333e8ecc76de2f3e9ca9340daa3a519",
+    "Resources/PrivacyInfo.xcprivacy": "a331d51864743ebe4e00dd22360b4a538b6b3ac26a6b3eb54094e60a36959a12",
+    "Resources/WebAppearance/DARKREADER-LICENSE.txt": "f0a5f835174494f8981b2cbb1a34054d4f887a5c865318650d6a17afe1c7850e",
+    "Resources/WebAppearance/NOTICE.txt": "35a5180c063ff093e6e17a5a054627576c78e1055170ef8cba7a505de7117949",
+    "Resources/WebAppearance/appearance.js": "212aa939317413cbbec5dca6ff2a2f515395a21c6af84eeaea1ef1a88c549fb5",
+    "Resources/WebAppearance/darkreader.js": "6e4a60f8b33a8f249f73555a270e7e912aec3930c612aa3fe336aeb5ad22e36d",
+    "Services/BrowserModel.swift": "aa73140f2d42de54d447e62b398fa8031ca5fbd79c421cc66d2eb705b4c73f2b",
+    "Services/BrowserRouter.swift": "de412a88f4ece1c0f144680ae45f418ce9f19062ade5f61de66b0731cce580fd",
+    "Services/DocumentTeardown.swift": "7f66a8b2a59f6c165bb5993836055d3438ca432b0bbd63b78fa1d14cb79dd098",
+    "Services/DownloadCoordinator.swift": "efe572b260f23c9aa6d713e501f744cbbae01fce2d34c0cbec5b07db690d7530",
+    "Services/DownloadLocation.swift": "b29151355c7e0cc989b7c19e6d64e0bb051f472c359b7854fe9b58dd66a4c8eb",
+    "Services/LaunchPreparation.swift": "64f88a857e07e5a9c4ca18e7cf2ddd5e9c243c461eee999aaccbbe1caa823bb0",
+    "Services/LocalAuthenticator.swift": "8e7b69f81c84ced95c08226ae021cfafec612477cdbe4d02b1243b95dd779c75",
+    "Services/NavigationPolicy.swift": "9ff2050e41e14da6f58e012329608d6264be1b2dbcdfae2c6e99dbe9d24296bd",
+    "Services/NetworkDiagnostics.swift": "db50d9051217274eaec05ff9cf4b4267aba6a0cb7187187108a314b538c58c85",
+    "Services/PDFPreviewCoordinator.swift": "874205f2cc630cc883c5bb365ec4fd29b908b179994d03c2b0b97544af143e1c",
+    "Services/PopupBrowserController.swift": "6282d737f61be085c295ea21b81a73b0072d1ba2401de95b7094dd5951d9dd58",
+    "Services/TimetableExtractor.swift": "dd220fbfe6572c946f5236d2e151835b53f6036853310d66c3c51957c43ec411",
+    "Services/WebAppearance.swift": "d4f131494a8efe158ae305e21c16519ba558b42f0b22e3b6c353673bfbcde6fc",
+    "Services/WebDataStoreRegistry.swift": "e37a4fb2e59e9b52bb60616aded3e5fc9d578092dc30f9b2473f498bf37a81e3",
+    "Services/YilongController.swift": "74297f3301c96794ecfb4c2fb555c06ee5e6fb76984d2af06f1f88081016a9da",
+    "Views/AboutView.swift": "f3bbb4272807c2f17ca13341098c0b4265290e98452f74ed9e923c9bb9f57fd3",
+    "Views/AcademicCalendarView.swift": "0bcc4a4a4463968b1f60637d1be0f9ace0e3d6051895b76996466f33c161a21e",
+    "Views/BookingTabView.swift": "d874d68cab2f76288b3689b55f2c62e59163653855cf0a8275141be3be884087",
+    "Views/DocumentPreviewView.swift": "2684d55c9ff802fe8cd8aea5c534e07fb8ff9684700fb81eb731909588d5a5d7",
+    "Views/DownloadsView.swift": "c2e2e14a3a4e74ffed12d4486c770a0c67a85fdfb50d0d2b2429866e8884c672",
+    "Views/HelpView.swift": "15c30b12b8e77fa5bd32acef9468d1b14e58d637f86b3639e7c23889bbf6cb1e",
+    "Views/LanguageSettingsView.swift": "25a0c2220de669fa70238ba186cab29f4d26bade13a1344fcabc33d587e52100",
+    "Views/LaunchPreloadView.swift": "31d47c2ab9d675ee6c3e7dd095c25bdee34a51584b5a84598657890bf65fc53d",
+    "Views/LocalTimetableView.swift": "98637911032487601057a5b5e7967bad5e430a0375100f74a97d30e100378250",
+    "Views/LockScreenView.swift": "6178e597ee277122f70848c4127b1276745a832faff762e104852005a65aca60",
+    "Views/MyTabView.swift": "8ce4d5965e12f3cd29fd655e45f93044d8640525e8d39bdc5245860b7b54c49a",
+    "Views/RootTabView.swift": "36a71a13b37162262ffb33f22c2054083fb37e672f4bf3dd99dac4485018d287",
+    "Views/SettingsView.swift": "ea4af808ca95f2b67180b6a5ea71b4e5afdbb739e7b014eb73172c6f6f61fa62",
+    "Views/ShuttleView.swift": "41e0888b27fc07c3db7cef64e07e523e84fe06ba02114e23cb9eb61101f1d54a",
+    "Views/SiteBrowserView.swift": "38192f369fd5d162760c0b1e2ab4a7b5efb6cfc05d62c67f07bae5578a0e12c3",
+    "Views/SiteInfoView.swift": "d83a1a101a504f2fdce2415951521b87981db764f39442f8db1941da1b617fd1",
+    "Views/WelcomeView.swift": "27c10a864109b9700f17230b975112dc03ca865c910b4e6be61c28266eadee97",
+    "Views/YilongView.swift": "82f6e46c00479ad414000114d662282f477fece9e1b06f231cbd5ad9c11e06d5"
+  }
+}

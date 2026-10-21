@@ -13,9 +13,12 @@
 		7F7ECCE7E1177B67B652D9C7 /* GTIITApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4456731700DD9B25B01836 /* GTIITApp.swift */; };
 		B103F34496279EB788346139 /* PrivacyShieldController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C56E001D2F02EF10E19AB1 /* PrivacyShieldController.swift */; };
 		DF2B3A006FC9A6A9F9FE00E6 /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C95E8CB19F9D2825DAB78323 /* AppInfo.swift */; };
+		9C16A2E0FB12C4ACC2BAEA9B /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01B5EDC8361742DD96337C4 /* Localization.swift */; };
 		3AD3E627581DEF930696DB00 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E67AA6C3790A3D36FB0F8824 /* Theme.swift */; };
 		B07491556B0C1FD3F60A5E38 /* TopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E206F42DC4371879EE003AA5 /* TopViewController.swift */; };
+		9217C6142B1B1C48DD899C74 /* AcademicCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70001F4B259CB71FCF94AF9D /* AcademicCalendar.swift */; };
 		9AEED1708E52FB5AE2F07F4A /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBFEBCC56CC9922AAC86A6B /* AppTab.swift */; };
+		CE84FE883830373710DAE7AD /* LocalTimetable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C721B8B8578DC35894C507B4 /* LocalTimetable.swift */; };
 		16C92FA2CA5B121DDDF1CBE3 /* QuickLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59CDAAE096BF94BDD5ABD6EE /* QuickLink.swift */; };
 		ADA172965216773CFED3F029 /* ShuttleSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EF269BFC34E0530BC48D95 /* ShuttleSchedule.swift */; };
 		F5D9D663F4D2123943FCEE49 /* SiteID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B456582ADF2A287683AE3D6A /* SiteID.swift */; };
@@ -30,14 +33,19 @@
 		2255BBF01A2D87BF634F92F6 /* NetworkDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */; };
 		C2B7887C08C2489429DB0DC5 /* PDFPreviewCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B75F42F72C62D34DF54409 /* PDFPreviewCoordinator.swift */; };
 		15C13241DD75B8D2EC70D8AE /* PopupBrowserController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48762481B5ED40D15B601992 /* PopupBrowserController.swift */; };
+		3ACB076C81FF8FC11E1570B9 /* TimetableExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF764FE1570E2311AC7BB40A /* TimetableExtractor.swift */; };
 		A729B4691C46D6547CE1A89E /* WebAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02EF5CD5DE5D29A2E1C8A75 /* WebAppearance.swift */; };
 		5994F7C3001534974E418DBD /* WebDataStoreRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BD19B151945EBF382F5E3FA /* WebDataStoreRegistry.swift */; };
+		4EE02E0FF781BF337B04E032 /* YilongController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFE4A1D2D0C6034A1554E26 /* YilongController.swift */; };
 		623C1A25FDF62C3D9BF0836F /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D7171A0064517493C595D68 /* AboutView.swift */; };
+		8835211BC76A4CE1AD3F1D3C /* AcademicCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD166CB68922226477AC17D /* AcademicCalendarView.swift */; };
 		BD2A8DE7BC76C89B398D2D94 /* BookingTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B6DFDA40F39218E6CB5B2 /* BookingTabView.swift */; };
 		A7C187FE88C4A60322677F3A /* DocumentPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F931FEE32FCC4E8DAD6C0A /* DocumentPreviewView.swift */; };
 		1E3CCF1B90772377B896875F /* DownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71865DECF3411BC2686A995B /* DownloadsView.swift */; };
 		3F7E4CF2E4C5A389A1139D86 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89577AFC0E3F31DFE26AAFAD /* HelpView.swift */; };
+		08F437CEFDB0E1E97FC364BE /* LanguageSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68A4412041D868E407C90AC /* LanguageSettingsView.swift */; };
 		ED89A1505462C4E57FD89C92 /* LaunchPreloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */; };
+		2B91C1A0D8A5231E97879D2C /* LocalTimetableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FD7E3BAD835CC92FB8D4EB /* LocalTimetableView.swift */; };
 		2083A20EED7A9DA069E3F650 /* LockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FAD011A1658F97414746F9 /* LockScreenView.swift */; };
 		42163D6FEAAEABE45B668B9F /* MyTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AC536C50EC4B48743196A7 /* MyTabView.swift */; };
 		9B5E893ADDF2C6FFE4F53584 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B32A814B9C6172E0E91CE6 /* RootTabView.swift */; };
@@ -46,11 +54,13 @@
 		82E4D42542032248E4F480B6 /* SiteBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA6DF1D76567F59A5678423 /* SiteBrowserView.swift */; };
 		F730A77AD2139838CB757E5F /* SiteInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43B5301702FD01B8B163756D /* SiteInfoView.swift */; };
 		B6289E6DCDE0245188350CB4 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB09D49451D0FAEB09FBF175 /* WelcomeView.swift */; };
+		A6CB65F91AE7EA184C7EDAED /* YilongView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20503328BF017AAAA6EE50AC /* YilongView.swift */; };
 		54782A73FEBE6E2F623D497C /* BrowserComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56F29BD0774926444F8EB287 /* BrowserComponents.swift */; };
 		11783755FBDAEF486C4F99B2 /* DownloadFloatingPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A76D7E48B5F2AE15724473B /* DownloadFloatingPanel.swift */; };
 		C43BD859842F6E666E2C03A3 /* SettingsChoicePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */; };
 		4D20A64E6DA1B8D39585377E /* WebViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */; };
 		98E9014021A2D1D103CF64A5 /* WebAppearance in Resources */ = {isa = PBXBuildFile; fileRef = EE3FA5B18333AF022DDBDFD8 /* WebAppearance */; };
+		24632A86BE1621343A567F0A /* CampusData in Resources */ = {isa = PBXBuildFile; fileRef = 03C35614971D5F506DC6159E /* CampusData */; };
 		DB249DB9D0FF833647E29581 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F9973165E2B0FD4A3AAC566 /* Assets.xcassets */; };
 		7506060A154BFBC166F7764F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F839CA9D2B95AC144B1AA000 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
@@ -62,9 +72,12 @@
 		7B4456731700DD9B25B01836 /* GTIITApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GTIITApp.swift; sourceTree = "<group>"; };
 		C3C56E001D2F02EF10E19AB1 /* PrivacyShieldController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyShieldController.swift; sourceTree = "<group>"; };
 		C95E8CB19F9D2825DAB78323 /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
+		B01B5EDC8361742DD96337C4 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		E67AA6C3790A3D36FB0F8824 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		E206F42DC4371879EE003AA5 /* TopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopViewController.swift; sourceTree = "<group>"; };
+		70001F4B259CB71FCF94AF9D /* AcademicCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcademicCalendar.swift; sourceTree = "<group>"; };
 		ECBFEBCC56CC9922AAC86A6B /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTab.swift; sourceTree = "<group>"; };
+		C721B8B8578DC35894C507B4 /* LocalTimetable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalTimetable.swift; sourceTree = "<group>"; };
 		59CDAAE096BF94BDD5ABD6EE /* QuickLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLink.swift; sourceTree = "<group>"; };
 		51EF269BFC34E0530BC48D95 /* ShuttleSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleSchedule.swift; sourceTree = "<group>"; };
 		B456582ADF2A287683AE3D6A /* SiteID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteID.swift; sourceTree = "<group>"; };
@@ -79,14 +92,19 @@
 		41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkDiagnostics.swift; sourceTree = "<group>"; };
 		F0B75F42F72C62D34DF54409 /* PDFPreviewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFPreviewCoordinator.swift; sourceTree = "<group>"; };
 		48762481B5ED40D15B601992 /* PopupBrowserController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupBrowserController.swift; sourceTree = "<group>"; };
+		AF764FE1570E2311AC7BB40A /* TimetableExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimetableExtractor.swift; sourceTree = "<group>"; };
 		F02EF5CD5DE5D29A2E1C8A75 /* WebAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppearance.swift; sourceTree = "<group>"; };
 		0BD19B151945EBF382F5E3FA /* WebDataStoreRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDataStoreRegistry.swift; sourceTree = "<group>"; };
+		5CFE4A1D2D0C6034A1554E26 /* YilongController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YilongController.swift; sourceTree = "<group>"; };
 		4D7171A0064517493C595D68 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		0CD166CB68922226477AC17D /* AcademicCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcademicCalendarView.swift; sourceTree = "<group>"; };
 		BD7B6DFDA40F39218E6CB5B2 /* BookingTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookingTabView.swift; sourceTree = "<group>"; };
 		31F931FEE32FCC4E8DAD6C0A /* DocumentPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPreviewView.swift; sourceTree = "<group>"; };
 		71865DECF3411BC2686A995B /* DownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
 		89577AFC0E3F31DFE26AAFAD /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
+		B68A4412041D868E407C90AC /* LanguageSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSettingsView.swift; sourceTree = "<group>"; };
 		B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchPreloadView.swift; sourceTree = "<group>"; };
+		17FD7E3BAD835CC92FB8D4EB /* LocalTimetableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalTimetableView.swift; sourceTree = "<group>"; };
 		91FAD011A1658F97414746F9 /* LockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenView.swift; sourceTree = "<group>"; };
 		70AC536C50EC4B48743196A7 /* MyTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTabView.swift; sourceTree = "<group>"; };
 		06B32A814B9C6172E0E91CE6 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
@@ -95,11 +113,13 @@
 		8BA6DF1D76567F59A5678423 /* SiteBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteBrowserView.swift; sourceTree = "<group>"; };
 		43B5301702FD01B8B163756D /* SiteInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteInfoView.swift; sourceTree = "<group>"; };
 		FB09D49451D0FAEB09FBF175 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		20503328BF017AAAA6EE50AC /* YilongView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YilongView.swift; sourceTree = "<group>"; };
 		56F29BD0774926444F8EB287 /* BrowserComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserComponents.swift; sourceTree = "<group>"; };
 		7A76D7E48B5F2AE15724473B /* DownloadFloatingPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadFloatingPanel.swift; sourceTree = "<group>"; };
 		7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsChoicePicker.swift; sourceTree = "<group>"; };
 		FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContainer.swift; sourceTree = "<group>"; };
 		EE3FA5B18333AF022DDBDFD8 /* WebAppearance */ = {isa = PBXFileReference; lastKnownFileType = folder; path = WebAppearance; sourceTree = "<group>"; };
+		03C35614971D5F506DC6159E /* CampusData */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CampusData; sourceTree = "<group>"; };
 		6F9973165E2B0FD4A3AAC566 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7625B5B2FEA398F8912F62D8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F839CA9D2B95AC144B1AA000 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -154,6 +174,7 @@
 				6F9973165E2B0FD4A3AAC566 /* Assets.xcassets */,
 				F839CA9D2B95AC144B1AA000 /* PrivacyInfo.xcprivacy */,
 				EE3FA5B18333AF022DDBDFD8 /* WebAppearance */,
+				03C35614971D5F506DC6159E /* CampusData */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -174,6 +195,7 @@
 			isa = PBXGroup;
 			children = (
 				C95E8CB19F9D2825DAB78323 /* AppInfo.swift */,
+				B01B5EDC8361742DD96337C4 /* Localization.swift */,
 				E67AA6C3790A3D36FB0F8824 /* Theme.swift */,
 				E206F42DC4371879EE003AA5 /* TopViewController.swift */,
 			);
@@ -183,7 +205,9 @@
 		A1C86A29E589D48EC70B6A32 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				70001F4B259CB71FCF94AF9D /* AcademicCalendar.swift */,
 				ECBFEBCC56CC9922AAC86A6B /* AppTab.swift */,
+				C721B8B8578DC35894C507B4 /* LocalTimetable.swift */,
 				59CDAAE096BF94BDD5ABD6EE /* QuickLink.swift */,
 				51EF269BFC34E0530BC48D95 /* ShuttleSchedule.swift */,
 				B456582ADF2A287683AE3D6A /* SiteID.swift */,
@@ -205,8 +229,10 @@
 				41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */,
 				F0B75F42F72C62D34DF54409 /* PDFPreviewCoordinator.swift */,
 				48762481B5ED40D15B601992 /* PopupBrowserController.swift */,
+				AF764FE1570E2311AC7BB40A /* TimetableExtractor.swift */,
 				F02EF5CD5DE5D29A2E1C8A75 /* WebAppearance.swift */,
 				0BD19B151945EBF382F5E3FA /* WebDataStoreRegistry.swift */,
+				5CFE4A1D2D0C6034A1554E26 /* YilongController.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -215,11 +241,14 @@
 			isa = PBXGroup;
 			children = (
 				4D7171A0064517493C595D68 /* AboutView.swift */,
+				0CD166CB68922226477AC17D /* AcademicCalendarView.swift */,
 				BD7B6DFDA40F39218E6CB5B2 /* BookingTabView.swift */,
 				31F931FEE32FCC4E8DAD6C0A /* DocumentPreviewView.swift */,
 				71865DECF3411BC2686A995B /* DownloadsView.swift */,
 				89577AFC0E3F31DFE26AAFAD /* HelpView.swift */,
+				B68A4412041D868E407C90AC /* LanguageSettingsView.swift */,
 				B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */,
+				17FD7E3BAD835CC92FB8D4EB /* LocalTimetableView.swift */,
 				91FAD011A1658F97414746F9 /* LockScreenView.swift */,
 				70AC536C50EC4B48743196A7 /* MyTabView.swift */,
 				06B32A814B9C6172E0E91CE6 /* RootTabView.swift */,
@@ -228,6 +257,7 @@
 				8BA6DF1D76567F59A5678423 /* SiteBrowserView.swift */,
 				43B5301702FD01B8B163756D /* SiteInfoView.swift */,
 				FB09D49451D0FAEB09FBF175 /* WelcomeView.swift */,
+				20503328BF017AAAA6EE50AC /* YilongView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -306,6 +336,7 @@
 
 				7506060A154BFBC166F7764F /* PrivacyInfo.xcprivacy in Resources */,
                 98E9014021A2D1D103CF64A5 /* WebAppearance in Resources */,
+                24632A86BE1621343A567F0A /* CampusData in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -322,9 +353,12 @@
 				7F7ECCE7E1177B67B652D9C7 /* in Sources */,
 				B103F34496279EB788346139 /* in Sources */,
 				DF2B3A006FC9A6A9F9FE00E6 /* in Sources */,
+				9C16A2E0FB12C4ACC2BAEA9B /* in Sources */,
 				3AD3E627581DEF930696DB00 /* in Sources */,
 				B07491556B0C1FD3F60A5E38 /* in Sources */,
+				9217C6142B1B1C48DD899C74 /* in Sources */,
 				9AEED1708E52FB5AE2F07F4A /* in Sources */,
+				CE84FE883830373710DAE7AD /* in Sources */,
 				16C92FA2CA5B121DDDF1CBE3 /* in Sources */,
 				ADA172965216773CFED3F029 /* in Sources */,
 				F5D9D663F4D2123943FCEE49 /* in Sources */,
@@ -339,14 +373,19 @@
 				2255BBF01A2D87BF634F92F6 /* in Sources */,
 				C2B7887C08C2489429DB0DC5 /* in Sources */,
 				15C13241DD75B8D2EC70D8AE /* in Sources */,
+				3ACB076C81FF8FC11E1570B9 /* in Sources */,
 				A729B4691C46D6547CE1A89E /* in Sources */,
 				5994F7C3001534974E418DBD /* in Sources */,
+				4EE02E0FF781BF337B04E032 /* in Sources */,
 				623C1A25FDF62C3D9BF0836F /* in Sources */,
+				8835211BC76A4CE1AD3F1D3C /* in Sources */,
 				BD2A8DE7BC76C89B398D2D94 /* in Sources */,
 				A7C187FE88C4A60322677F3A /* in Sources */,
 				1E3CCF1B90772377B896875F /* in Sources */,
 				3F7E4CF2E4C5A389A1139D86 /* in Sources */,
+				08F437CEFDB0E1E97FC364BE /* in Sources */,
 				ED89A1505462C4E57FD89C92 /* in Sources */,
+				2B91C1A0D8A5231E97879D2C /* in Sources */,
 				2083A20EED7A9DA069E3F650 /* in Sources */,
 				42163D6FEAAEABE45B668B9F /* in Sources */,
 				9B5E893ADDF2C6FFE4F53584 /* in Sources */,
@@ -355,6 +394,7 @@
 				82E4D42542032248E4F480B6 /* in Sources */,
 				F730A77AD2139838CB757E5F /* in Sources */,
 				B6289E6DCDE0245188350CB4 /* in Sources */,
+				A6CB65F91AE7EA184C7EDAED /* in Sources */,
 				54782A73FEBE6E2F623D497C /* in Sources */,
 				11783755FBDAEF486C4F99B2 /* in Sources */,
 				C43BD859842F6E666E2C03A3 /* in Sources */,
@@ -450,10 +490,11 @@
 		F22D2FFCC45240A8FF5EBE4A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = "H8M27P5YTH";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -462,7 +503,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -474,10 +515,11 @@
 		FE4F802C632EAD717BA35062 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = "H8M27P5YTH";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -486,7 +528,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

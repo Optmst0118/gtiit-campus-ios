@@ -11,6 +11,7 @@ import SwiftUI
     var body: some Scene {
         WindowGroup {
             RootTabView().environmentObject(app).environmentObject(settings)
+                .environment(\.locale, Locale(identifier: settings.language.rawValue))
                 .tint(Theme.accent)
                 .preferredColorScheme(settings.appearance.colorScheme)
         }

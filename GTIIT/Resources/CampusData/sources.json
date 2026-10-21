@@ -1,0 +1,22 @@
+{
+  "sources": [
+    {
+      "file": "academic-calendar-2025-2026-original.pdf",
+      "sha256": "5b41e9b64030f899137d2d76b81c4a1ce47fe35c841360290373949a36682c07",
+      "bytes": 210655,
+      "source": "User-provided local Downloads PDF; preserved without edits",
+      "pages": 1
+    },
+    {
+      "file": "academic-calendar-2026-2027-original.pdf",
+      "sha256": "d646fea7a54e08a185cfa89dd72d93f171fa8afba4d044bde6e15694145563ff",
+      "bytes": 206501,
+      "source": "User-provided local Downloads PDF; preserved without edits",
+      "pages": 1
+    }
+  ],
+  "verification": "Text extracted with pypdf; both pages rendered and visually checked",
+  "knownIssues": [
+    "Both source PDFs list an invalid June 31 in spring exam period A. Do not create valid events by silently correcting it."
+  ]
+}

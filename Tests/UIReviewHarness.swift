@@ -12,11 +12,19 @@ import UIKit
         defaults.removePersistentDomain(forName: "ui-review.preferences")
         let settings = AppSettings(defaults: defaults)
         settings.hasSeenWelcome = true
+        settings.language = ProcessInfo.processInfo.environment["UI_REVIEW_ENGLISH"] == "1" ? .english : .chinese
         settings.preloadSitesOnLaunch = false
         settings.startupTab = .me
         settings.appearance = ProcessInfo.processInfo.environment["UI_REVIEW_DARK"] == "1" ? .dark : .light
         _settings = StateObject(wrappedValue: settings)
         let model = AppModel(settings: settings)
+        if ProcessInfo.processInfo.environment["UI_REVIEW_TIMETABLE"] == "1" {
+            let classes = (1...5).flatMap { day in [
+                LocalCourse(name: "Engineering Mechanics", code: "TEST1001", group: "L10", weekday: day, start: "08:00", end: "09:45", room: "SC E1-201", building: "Education Building 1"),
+                LocalCourse(name: "Design Studio", code: "TEST2002", group: "Lab20", weekday: day, start: "14:00", end: "16:00", room: "SC E2-302", building: "Education Building 2")
+            ] }
+            try? model.timetable.save(TimetableSnapshot(semester: "Synthetic review semester", validFrom: "2026-10-12", validUntil: "2027-01-11", courses: classes))
+        }
         if let raw = ProcessInfo.processInfo.environment["UI_REVIEW_SITE"], let site = SiteID(rawValue: raw) { model.openSite(site) }
         _app = StateObject(wrappedValue: model)
         let lock = AppLockController(authenticator: PreviewUnavailableAuthenticator())
@@ -26,7 +34,14 @@ import UIKit
     var body: some Scene {
         WindowGroup {
             Group {
-                if environment["UI_REVIEW_DOWNLOADS"] == "1" {
+                if environment["UI_REVIEW_CALENDAR"] == "1" {
+                    NavigationStack { AcademicCalendarView() }
+                } else if environment["UI_REVIEW_WEEK"] == "1" {
+                    NavigationStack { LocalTimetableView(store: app.timetable).environmentObject(app) }
+                } else if environment["UI_REVIEW_ABOUT"] == "1" {
+                    NavigationStack { AboutView().environmentObject(app).environmentObject(settings) }
+                        .overlay { YilongOverlay(controller: app.yilong) }
+                } else if environment["UI_REVIEW_DOWNLOADS"] == "1" {
                     NavigationStack { DownloadsView(center: app.downloads).environmentObject(app).environmentObject(settings) }
                         .task {
                             if app.downloads.items.isEmpty {
@@ -64,6 +79,7 @@ import UIKit
                     RootTabView().environmentObject(app).environmentObject(settings)
                 }
             }
+            .environment(\.locale, Locale(identifier: settings.language.rawValue))
             .tint(Theme.accent)
             .preferredColorScheme(settings.appearance.colorScheme)
             .background(

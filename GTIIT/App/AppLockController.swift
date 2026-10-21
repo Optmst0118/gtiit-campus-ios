@@ -40,7 +40,7 @@ import LocalAuthentication
     func unlock() async {
         guard isLocked, isActive, !isAuthenticating else { return }
         guard authenticator.isAvailable else {
-            lastMessage = "系统验证暂不可用。请在系统设置中检查设备密码或生物识别，再返回重试。"
+            lastMessage = L10n.tr("系统验证暂不可用。请在系统设置中检查设备密码或生物识别，再返回重试。")
             return
         }
         isAuthenticating = true
@@ -52,6 +52,6 @@ import LocalAuthentication
                 isLocked = false
                 lastMessage = nil
             }
-        } catch { lastMessage = "验证未完成，请重试。" }
+        } catch { lastMessage = L10n.tr("验证未完成，请重试。") }
     }
 }

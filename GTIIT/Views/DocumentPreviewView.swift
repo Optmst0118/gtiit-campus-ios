@@ -2,8 +2,11 @@ import PDFKit
 import SwiftUI
 
 struct DocumentPreviewView: View {
+    @Environment(\.locale) private var nativeLocale
     @ObservedObject var session: PDFPreviewSession
     var body: some View {
+        let _ = nativeLocale.identifier
+
         NavigationStack {
             GeometryReader { geometry in
                 let placement = PDFDownloadPlacement(bottomSafeArea: geometry.safeAreaInsets.bottom, trailingSafeArea: geometry.safeAreaInsets.trailing)
@@ -12,9 +15,9 @@ struct DocumentPreviewView: View {
                 if let document = session.document {
                     PDFCanvas(document: document).ignoresSafeArea(edges: .bottom)
                 } else if session.state == .failed {
-                    ContentUnavailableView("无法预览 PDF", systemImage: "doc.badge.exclamationmark", description: Text(session.error ?? "请返回课程后重试。"))
+                    ContentUnavailableView(L10n.tr("无法预览 PDF"), systemImage: "doc.badge.exclamationmark", description: Text(session.error ?? L10n.tr("请返回课程后重试。")))
                 } else {
-                    VStack(spacing: 16) { ProgressView(value: session.progress); Text("正在加载预览…").font(.subheadline).foregroundStyle(.secondary) }.padding(40)
+                    VStack(spacing: 16) { ProgressView(value: session.progress); Text(L10n.tr("正在加载预览…")).font(.subheadline).foregroundStyle(.secondary) }.padding(40)
                 }
                 if session.document != nil, session.saveAction != nil {
                     VStack(alignment: .trailing, spacing: 12) {
@@ -31,7 +34,7 @@ struct DocumentPreviewView: View {
                         .modifier(PDFDownloadGlass(saved: session.state == .saved))
                         .disabled(session.state == .saving)
                         .allowsHitTesting(session.canSave)
-                        .accessibilityLabel(session.state == .saved ? "已下载" : session.state == .saving ? "正在保存" : "下载 PDF")
+                        .accessibilityLabel(session.state == .saved ? L10n.tr("已下载") : session.state == .saving ? L10n.tr("正在保存") : L10n.tr("下载 PDF"))
                     }
                     .padding(.trailing, placement.trailingPadding)
                     .padding(.bottom, placement.bottomPadding)
@@ -39,7 +42,7 @@ struct DocumentPreviewView: View {
                 }
             }
             .navigationTitle(session.filename).navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("完成") { session.closeAction?() }.disabled(session.state == .saving) } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L10n.tr("完成")) { session.closeAction?() }.disabled(session.state == .saving) } }
         }.tint(Theme.accent)
     }
 }

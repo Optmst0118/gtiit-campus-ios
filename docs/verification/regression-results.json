@@ -158,7 +158,7 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "portal_transparent_brand_logo_has_readable_backing"
+      "test" : "portal_duplicate_brand_logo_hidden"
     },
     {
       "detail" : "",
@@ -223,7 +223,7 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "moodle_transparent_brand_logo_has_readable_backing"
+      "test" : "moodle_duplicate_brand_logo_hidden"
     },
     {
       "detail" : "",
@@ -298,7 +298,7 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "rooms_transparent_brand_logo_has_readable_backing"
+      "test" : "rooms_duplicate_brand_logo_hidden"
     },
     {
       "detail" : "",
@@ -363,7 +363,7 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "sports_transparent_brand_logo_has_readable_backing"
+      "test" : "sports_duplicate_brand_logo_hidden"
     },
     {
       "detail" : "",
@@ -403,7 +403,167 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "external_auth_page_not_modified"
+      "test" : "external_auth_page_no_dark_theme_or_js_proxy"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_both_years_and_bundled_originals"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_all_dates_valid_inclusive"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_june31_never_normalized"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_current_academic_year"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_festivals_separate_from_holidays"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_monday_with_room"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_validity_not_indefinite"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_verified_makeup_day"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_verified_holiday"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_festival_is_not_day_off"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_next_after_class_start"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_time_validation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_persist_and_restore"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_excluded_from_backup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_invalid_save_keeps_existing"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_clear"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "quick_links_switch_language_live"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_language_translation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_language_literal_percent"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_language_persist"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_language_dictionary_complete"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_language_preserves_webview_identity"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "yilong_hidden_before_six_taps"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "yilong_six_taps_unlock_at_touch"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "yilong_unlock_persist"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "yilong_dismiss"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "yilong_interrupted_taps_do_not_unlock"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "yilong_three_view_asset_exists"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_fixture_ready"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_extractor_registered_only"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_extractor_read_only"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_rejects_auth_origin"
     },
     {
       "detail" : "",
@@ -536,7 +696,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 19B1F385-8271-4610-AB77-33086E6B999D, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-21 16:03:37 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: E509FDD8-3B78-45A6-BEFD-711A65B6F812, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-21 19:58:19 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -917,7 +1077,7 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-21T16:04:08Z",
+  "date" : "2026-10-21T19:58:48Z",
   "passed" : true,
-  "runID" : "066c152d-168c-48d6-b530-3351aa247a22"
+  "runID" : "7b902704-cde3-49e9-9aa9-656d223634f3"
 }

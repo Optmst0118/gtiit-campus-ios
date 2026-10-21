@@ -1,17 +1,25 @@
 import SwiftUI
 
 struct MyTabView: View {
+    @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @State private var showSettings = false
     var body: some View {
+        let _ = nativeLocale.identifier
+
         NavigationStack {
             List {
-                Section("常用入口") {
+                Section {
+                    NavigationLink { LocalTimetableView(store: app.timetable) } label: { TodayTimetableCard(store: app.timetable) }
+                        .buttonStyle(.plain)
+                    NavigationLink { AcademicCalendarView() } label: { Label(L10n.tr("校历"), systemImage: "calendar.circle") }
+                }
+                Section(L10n.tr("常用入口")) {
                     Button { app.select(tab: .shuttle) } label: {
                         HStack {
-                            Label("校园班车", systemImage: "bus.fill").foregroundStyle(Theme.accent)
+                            Label(L10n.tr("校园班车"), systemImage: "bus.fill").foregroundStyle(Theme.accent)
                             Spacer()
-                            Text("南北校区").font(.subheadline).foregroundStyle(.secondary)
+                            Text(L10n.tr("南北校区")).font(.subheadline).foregroundStyle(.secondary)
                         }.frame(minHeight: 32)
                     }
                     ForEach(QuickLinkCatalog.highlights) { link in
@@ -30,23 +38,23 @@ struct MyTabView: View {
                     NavigationLink {
                         DownloadsView(center: app.downloads)
                     } label: {
-                        Label("下载管理", systemImage: "arrow.down.circle")
+                        Label(L10n.tr("下载管理"), systemImage: "arrow.down.circle")
                     }
                     NavigationLink {
                         SettingsView()
                     } label: {
-                        Label("设置", systemImage: "gearshape")
+                        Label(L10n.tr("设置"), systemImage: "gearshape")
                     }
                     NavigationLink {
                         HelpView()
                     } label: {
-                        Label("帮助与诊断", systemImage: "questionmark.circle")
+                        Label(L10n.tr("帮助与诊断"), systemImage: "questionmark.circle")
                     }
                 }
             }
             .scrollContentBackground(.hidden)
             .background(Theme.pageBackground)
-            .navigationTitle("我的")
+            .navigationTitle(L10n.tr("我的"))
             .onAppear { app.downloads.dismissCompletedPresentation() }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -55,7 +63,7 @@ struct MyTabView: View {
                     } label: {
                         Image(systemName: "gearshape").frame(minWidth: 44, minHeight: 44)
                     }
-                    .accessibilityLabel("设置")
+                    .accessibilityLabel(L10n.tr("设置"))
                 }
             }
             .navigationDestination(isPresented: $showSettings) { SettingsView() }

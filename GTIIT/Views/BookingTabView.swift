@@ -3,10 +3,13 @@ import SwiftUI
 /// 「预约」一级 Tab：一个 Tab 里放两套官方预约系统，
 /// 顶部原生分段切换，网页本身保持原样。
 struct BookingTabView: View {
+    @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
+        let _ = nativeLocale.identifier
+
         VStack(spacing: 0) {
             segmentBar
             switch app.bookingSegment {
@@ -22,7 +25,7 @@ struct BookingTabView: View {
         VStack(spacing: 6) {
             if dynamicTypeSize.isAccessibilitySize {
                 Menu {
-                    Picker("预约范围", selection: $app.bookingSegment) {
+                    Picker(L10n.tr("预约范围"), selection: $app.bookingSegment) {
                         ForEach(BookingSegment.allCases) { Text($0.title).tag($0) }
                     }
                 } label: {
@@ -31,7 +34,7 @@ struct BookingTabView: View {
                         .frame(maxWidth: .infinity, minHeight: 44)
                 }
             } else {
-                Picker("预约范围", selection: $app.bookingSegment) {
+                Picker(L10n.tr("预约范围"), selection: $app.bookingSegment) {
                     ForEach(BookingSegment.allCases) { Text($0.title).tag($0) }
                 }.pickerStyle(.segmented)
             }

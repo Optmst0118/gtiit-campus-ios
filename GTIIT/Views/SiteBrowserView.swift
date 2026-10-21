@@ -2,20 +2,26 @@ import SwiftUI
 
 /// 单个站点的完整浏览界面：原生极简铬 + 官方网页。
 struct SiteBrowserView: View {
+    @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     let site: SiteID
 
     var body: some View {
+        let _ = nativeLocale.identifier
+
         BrowserChrome(model: app.browser(for: site))
     }
 }
 
 private struct BrowserChrome: View {
+    @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var app: AppModel
     @ObservedObject var model: BrowserModel
 
     var body: some View {
+        let _ = nativeLocale.identifier
+
         VStack(spacing: 0) {
             header
             ProgressBarView(progress: model.progress, isActive: model.isLoading)
@@ -39,8 +45,8 @@ private struct BrowserChrome: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("\(model.displayTitle)，回到\(model.site.defaultLandingTitle)")
-            .accessibilityHint("轻点回到网站主页")
+            .accessibilityLabel(L10n.format("%@，回到%@", String(describing: model.displayTitle), String(describing: model.site.defaultLandingTitle)))
+            .accessibilityHint(L10n.tr("轻点回到网站主页"))
             menu
         }
         .padding(.horizontal, 4)
@@ -57,20 +63,20 @@ private struct BrowserChrome: View {
     private var menu: some View {
         Menu {
             Toggle(isOn: appearanceBinding) {
-                Label("暗色适配", systemImage: "moon")
+                Label(L10n.tr("暗色适配"), systemImage: "moon")
             }
             .disabled(!settings.webDarkMode)
 
             Button { app.showDownloads = true } label: {
-                Label("下载", systemImage: "arrow.down.circle")
+                Label(L10n.tr("下载"), systemImage: "arrow.down.circle")
             }
 
             Button { model.reloadFromOrigin() } label: {
-                Label("强制刷新（忽略缓存）", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
+                Label(L10n.tr("强制刷新（忽略缓存）"), systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
             }
 
             Button { app.siteInfo = model.site } label: {
-                Label("站点说明", systemImage: "info.circle")
+                Label(L10n.tr("站点说明"), systemImage: "info.circle")
             }
         } label: {
             Image(systemName: "ellipsis.circle")
@@ -78,7 +84,7 @@ private struct BrowserChrome: View {
                 .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }
-        .accessibilityLabel("更多操作")
+        .accessibilityLabel(L10n.tr("更多操作"))
         .menuOrder(.fixed)
     }
 
@@ -99,11 +105,11 @@ private struct BrowserChrome: View {
 
             if model.needsReloadAfterClear {
                 ContentUnavailableView {
-                    Label("网页数据已清除", systemImage: "checkmark.shield")
+                    Label(L10n.tr("网页数据已清除"), systemImage: "checkmark.shield")
                 } description: {
-                    Text("本站的登录与浏览历史已移除。重新打开网站后可登录。")
+                    Text(L10n.tr("本站的登录与浏览历史已移除。重新打开网站后可登录。"))
                 } actions: {
-                    Button("重新打开网站") { model.loadHome() }.buttonStyle(.borderedProminent)
+                    Button(L10n.tr("重新打开网站")) { model.loadHome() }.buttonStyle(.borderedProminent)
                 }.background(Color(uiColor: .systemBackground))
             } else if let error = model.errorText {
                 LoadErrorView(

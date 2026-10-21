@@ -8,9 +8,9 @@ enum AppAppearance: String, SettingChoice {
     case system, light, dark
     var title: String {
         switch self {
-        case .system: return "跟随系统"
-        case .light: return "浅色"
-        case .dark: return "深色"
+        case .system: return L10n.tr("跟随系统")
+        case .light: return L10n.tr("浅色")
+        case .dark: return L10n.tr("深色")
         }
     }
     var colorScheme: ColorScheme? {
@@ -25,9 +25,9 @@ enum ExternalLinkMode: String, SettingChoice {
     case webView, safariView, systemBrowser
     var title: String {
         switch self {
-        case .webView: return "当前网页"
-        case .safariView: return "App 内 Safari"
-        case .systemBrowser: return "默认浏览器"
+        case .webView: return L10n.tr("当前网页")
+        case .safariView: return L10n.tr("App 内 Safari")
+        case .systemBrowser: return L10n.tr("默认浏览器")
         }
     }
 }
@@ -35,9 +35,9 @@ enum LockDelay: String, SettingChoice {
     case immediately, minute, fiveMinutes
     var title: String {
         switch self {
-        case .immediately: return "立即"
-        case .minute: return "1 分钟后"
-        case .fiveMinutes: return "5 分钟后"
+        case .immediately: return L10n.tr("立即")
+        case .minute: return L10n.tr("1 分钟后")
+        case .fiveMinutes: return L10n.tr("5 分钟后")
         }
     }
     var seconds: TimeInterval {
@@ -52,10 +52,10 @@ enum DownloadRetention: String, SettingChoice {
     case forever, session, day, week
     var title: String {
         switch self {
-        case .forever: return "永久保留（手动删除）"
-        case .session: return "下次启动时清理"
-        case .day: return "1 天"
-        case .week: return "7 天"
+        case .forever: return L10n.tr("永久保留（手动删除）")
+        case .session: return L10n.tr("下次启动时清理")
+        case .day: return L10n.tr("1 天")
+        case .week: return L10n.tr("7 天")
         }
     }
     var seconds: TimeInterval {
@@ -69,6 +69,12 @@ enum DownloadRetention: String, SettingChoice {
 }
 
 @MainActor final class AppSettings: ObservableObject {
+    @Published var language: AppLanguage {
+        didSet { defaults.set(language.rawValue, forKey: "settings.language"); L10n.language = language }
+    }
+    @Published var yilongUnlocked: Bool {
+        didSet { defaults.set(yilongUnlocked, forKey: "settings.yilongUnlocked") }
+    }
     private let defaults: UserDefaults
     @Published var webDarkMode: Bool {
         didSet { defaults.set(webDarkMode, forKey: "settings.webDarkMode") }
@@ -119,6 +125,8 @@ enum DownloadRetention: String, SettingChoice {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        language = AppLanguage(rawValue: defaults.string(forKey: "settings.language") ?? "") ?? .chinese
+        yilongUnlocked = defaults.bool(forKey: "settings.yilongUnlocked")
         webDarkMode = defaults.object(forKey: "settings.webDarkMode") as? Bool ?? true
         originalColorSites = Set((defaults.stringArray(forKey: "settings.originalColorSites") ?? []).compactMap(SiteID.init(rawValue:)))
         preloadSitesOnLaunch = defaults.object(forKey: "settings.preloadSitesOnLaunch") as? Bool ?? true
@@ -140,6 +148,7 @@ enum DownloadRetention: String, SettingChoice {
             defaults.set(true, forKey: "settings.persistentDownloadsV1")
         }
         downloadRetention = DownloadRetention(rawValue: defaults.string(forKey: "settings.downloadRetention") ?? "") ?? .forever
+        L10n.language = language
     }
     func markWelcomeSeen() { hasSeenWelcome = true }
     func resetWelcome() { hasSeenWelcome = false }

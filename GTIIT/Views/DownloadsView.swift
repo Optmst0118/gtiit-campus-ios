@@ -3,6 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct DownloadsView: View {
+    @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
     @ObservedObject var center: DownloadCoordinator
@@ -16,19 +17,21 @@ struct DownloadsView: View {
     }
 
     var body: some View {
+        let _ = nativeLocale.identifier
+
         List {
             Section {
                 Button { chooseFolder = true } label: { locationRow }
                     .buttonStyle(.plain)
-                    .accessibilityHint("选择之后新下载文件的默认文件夹")
+                    .accessibilityHint(L10n.tr("选择之后新下载文件的默认文件夹"))
             }
 
             Section {
                 if center.items.isEmpty {
                     ContentUnavailableView {
-                        Label("暂无下载", systemImage: "arrow.down.circle")
+                        Label(L10n.tr("暂无下载"), systemImage: "arrow.down.circle")
                     } description: {
-                        Text("保存的文件会显示在这里。")
+                        Text(L10n.tr("保存的文件会显示在这里。"))
                     }
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
@@ -48,66 +51,66 @@ struct DownloadsView: View {
                                 Button(role: .destructive) {
                                     pendingDelete = item.id
                                 } label: {
-                                    Label("删除", systemImage: "trash")
+                                    Label(L10n.tr("删除"), systemImage: "trash")
                                 }
                             }
                     }
                 }
             } header: {
-                Text(center.items.isEmpty ? "文件" : "文件 · \(center.items.count)")
+                Text(center.items.isEmpty ? L10n.tr("文件") : L10n.format("文件 · %@", String(describing: center.items.count)))
             } footer: {
                 if !center.items.isEmpty {
-                    Text(grid ? "点按文件可预览或继续操作。" : "左滑文件可以删除；删除只影响本机文件与这条记录。")
+                    Text(grid ? L10n.tr("点按文件可预览或继续操作。") : L10n.tr("左滑文件可以删除；删除只影响本机文件与这条记录。"))
                 }
             }
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
         .background(Theme.pageBackground)
-        .navigationTitle("下载管理")
+        .navigationTitle(L10n.tr("下载管理"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button { grid.toggle() } label: {
                     Image(systemName: grid ? "list.bullet" : "square.grid.2x2")
-                }.accessibilityLabel(grid ? "切换列表视图" : "切换网格视图")
+                }.accessibilityLabel(grid ? L10n.tr("切换列表视图") : L10n.tr("切换网格视图"))
                 Menu {
-                    Picker("排序方式", selection: $sortRaw) {
+                    Picker(L10n.tr("排序方式"), selection: $sortRaw) {
                         ForEach(DownloadSort.allCases) { Text($0.title).tag($0.rawValue) }
                     }
-                    Picker("顺序", selection: $ascending) {
-                        Text("升序").tag(true); Text("降序").tag(false)
+                    Picker(L10n.tr("顺序"), selection: $ascending) {
+                        Text(L10n.tr("升序")).tag(true); Text(L10n.tr("降序")).tag(false)
                     }
                     Divider()
-                    Picker("文件保留（仅本机）", selection: $settings.downloadRetention) {
+                    Picker(L10n.tr("文件保留（仅本机）"), selection: $settings.downloadRetention) {
                         ForEach(DownloadRetention.allCases) { Text($0.title).tag($0) }
                     }
-                    Button("更改下载位置", systemImage: "folder") { chooseFolder = true }
+                    Button(L10n.tr("更改下载位置"), systemImage: "folder") { chooseFolder = true }
                     if center.defaultFolderBookmark != nil {
-                        Button("恢复默认 Downloads 位置") { center.resetDefaultFolder() }
+                        Button(L10n.tr("恢复默认 Downloads 位置")) { center.resetDefaultFolder() }
                     }
-                } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel("排序与下载选项")
+                } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel(L10n.tr("排序与下载选项"))
             }
         }
         .sheet(isPresented: $chooseFolder) {
             DownloadFolderPicker { url in
                 do { try center.selectDefaultFolder(url) }
-                catch { center.reportError("无法使用此文件夹，请重新选择。\(error.localizedDescription)") }
+                catch { center.reportError(L10n.format("无法使用此文件夹，请重新选择。%@", String(describing: error.localizedDescription))) }
             }
         }
         .confirmationDialog(
-            "删除此下载文件？",
+            L10n.tr("删除此下载文件？"),
             isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } }),
             titleVisibility: .visible
         ) {
-            Button("删除文件", role: .destructive) {
+            Button(L10n.tr("删除文件"), role: .destructive) {
                 if let id = pendingDelete { Task { await center.removeFile(id) } }
                 pendingDelete = nil
             }
-            Button("取消", role: .cancel) { pendingDelete = nil }
-        } message: { Text("仅删除这条记录对应的文件，其他文件及另存副本不受影响。") }
-        .alert("文件操作未完成", isPresented: Binding(get: { center.locationError != nil }, set: { if !$0 { center.locationError = nil } })) {
-            Button("好") { center.locationError = nil }
+            Button(L10n.tr("取消"), role: .cancel) { pendingDelete = nil }
+        } message: { Text(L10n.tr("仅删除这条记录对应的文件，其他文件及另存副本不受影响。")) }
+        .alert(L10n.tr("文件操作未完成"), isPresented: Binding(get: { center.locationError != nil }, set: { if !$0 { center.locationError = nil } })) {
+            Button(L10n.tr("好")) { center.locationError = nil }
         } message: { Text(center.locationError ?? "") }
     }
 
@@ -117,7 +120,7 @@ struct DownloadsView: View {
                 .foregroundStyle(Theme.accent)
                 .frame(width: 24)
             VStack(alignment: .leading, spacing: 2) {
-                Text("下载位置")
+                Text(L10n.tr("下载位置"))
                     .foregroundStyle(.primary)
                 Text(center.defaultLocationTitle)
                     .font(.caption)
@@ -191,18 +194,18 @@ struct DownloadsView: View {
     @ViewBuilder
     private func contextMenu(for item: DownloadItem) -> some View {
         if item.state == .completed {
-            Button("预览", systemImage: "doc.text.magnifyingglass") { center.open(item) }
+            Button(L10n.tr("预览"), systemImage: "doc.text.magnifyingglass") { center.open(item) }
             if let url = center.fileURL(for: item) {
-                ShareLink(item: url) { Label("分享", systemImage: "square.and.arrow.up") }
+                ShareLink(item: url) { Label(L10n.tr("分享"), systemImage: "square.and.arrow.up") }
             }
         } else if item.state == .downloading {
-            Button("取消下载", systemImage: "xmark.circle") { center.cancel(item.id) }
+            Button(L10n.tr("取消下载"), systemImage: "xmark.circle") { center.cancel(item.id) }
         } else if center.canRetry(item.id) {
-            Button("继续下载", systemImage: "arrow.clockwise") { center.retry(item.id) }
+            Button(L10n.tr("继续下载"), systemImage: "arrow.clockwise") { center.retry(item.id) }
         } else {
-            Button("打开来源站点", systemImage: "safari") { app.openSite(item.site) }
+            Button(L10n.tr("打开来源站点"), systemImage: "safari") { app.openSite(item.site) }
         }
-        Button("删除", systemImage: "trash", role: .destructive) { pendingDelete = item.id }
+        Button(L10n.tr("删除"), systemImage: "trash", role: .destructive) { pendingDelete = item.id }
     }
 
     private func activate(_ item: DownloadItem) {
@@ -226,19 +229,22 @@ struct DownloadsView: View {
             let date = item.createdAt.formatted(date: .abbreviated, time: .shortened)
             return "\(item.site.shortName) · \(size) · \(date)"
         case .downloading:
-            return "下载中 \(Int((item.progress * 100).rounded()))%"
+            return L10n.format("下载中 %@%", String(describing: Int((item.progress * 100).rounded())))
         case .failed:
-            return "下载失败"
+            return L10n.tr("下载失败")
         case .cancelled:
-            return "已取消"
+            return L10n.tr("已取消")
         }
     }
 }
 
 private struct DownloadThumbnail: View {
+    @Environment(\.locale) private var nativeLocale
     let url: URL?
     @State private var image: UIImage?
     var body: some View {
+        let _ = nativeLocale.identifier
+
         Group {
             if let image { Image(uiImage: image).resizable().scaledToFit() }
             else { Image(systemName: "doc.fill").resizable().scaledToFit().foregroundStyle(Theme.accent.opacity(0.7)).padding(10) }

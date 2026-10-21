@@ -50,13 +50,13 @@ private final class NoRedirectDelegate: NSObject, URLSessionTaskDelegate, @unche
                     let code = (response as? HTTPURLResponse)?.statusCode ?? 0
                     results.append(
                         DiagnosticResult(
-                            site: site, message: "HTTP \(code) · 服务器已响应", reachable: true, checkedAt: Date()))
+                            site: site, message: L10n.format("HTTP %@ · 服务器已响应", String(describing: code)), reachable: true, checkedAt: Date()))
                 } catch {
                     guard !Task.isCancelled else { break }
                     let error = error as NSError
                     results.append(
                         DiagnosticResult(
-                            site: site, message: "未连通 · 网络错误 \(error.code)", reachable: false,
+                            site: site, message: L10n.format("未连通 · 网络错误 %@", String(describing: error.code)), reachable: false,
                             checkedAt: Date()))
                 }
             }
@@ -64,7 +64,7 @@ private final class NoRedirectDelegate: NSObject, URLSessionTaskDelegate, @unche
     }
     func cancel() { task?.cancel() }
     var report: String {
-        (["GTIIT \(AppInfo.versionText)", "网络连通性检查（不代表已登录或业务可用）"]
+        (["GTIIT \(AppInfo.versionText)", L10n.tr("网络连通性检查（不代表已登录或业务可用）")]
             + results.map {
                 "\($0.site.displayName) | \($0.site.host) | \($0.message) | \($0.checkedAt.formatted(date: .numeric, time: .shortened))"
             }).joined(separator: "\n")

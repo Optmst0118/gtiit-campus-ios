@@ -8,7 +8,7 @@ import WebKit
     enum State: Equatable { case loading, readable, saving, saved, failed }
     let id = UUID()
     let site: SiteID
-    @Published var filename = "PDF 预览"
+    @Published var filename = L10n.tr("PDF 预览")
     @Published var state: State = .loading
     @Published var progress: Double = 0
     @Published var error: String?
@@ -21,7 +21,7 @@ import WebKit
     init(site: SiteID) { self.site = site }
     func read(_ url: URL, alreadySaved: Bool = false) {
         guard let document = PDFDocument(url: url), document.pageCount > 0, !document.isLocked else {
-            error = "无法读取此 PDF。文件可能不完整、需要密码，或服务器返回了登录页面。"
+            error = L10n.tr("无法读取此 PDF。文件可能不完整、需要密码，或服务器返回了登录页面。")
             state = .failed
             return
         }
@@ -90,7 +90,7 @@ import WebKit
                     session.state = .saved
                 } catch {
                     session.state = .readable
-                    session.error = "未能保存，请检查下载位置后重试。\(error.localizedDescription)"
+                    session.error = L10n.format("未能保存，请检查下载位置后重试。%@", String(describing: error.localizedDescription))
                 }
             }
         }
@@ -117,7 +117,7 @@ import WebKit
         let key = ObjectIdentifier(download)
         pending.removeValue(forKey: key); observations.removeValue(forKey: key)
         guard let session = sessions.removeValue(forKey: key) else { return }
-        session.error = "PDF 加载失败，请返回课程后重新打开。\(error.localizedDescription)"
+        session.error = L10n.format("PDF 加载失败，请返回课程后重新打开。%@", String(describing: error.localizedDescription))
         session.state = .failed
     }
     @discardableResult func show(_ session: PDFPreviewSession) -> Bool {
@@ -142,7 +142,7 @@ import WebKit
     }
     func open(_ item: DownloadItem) {
         guard !openingFile else { return }
-        guard let center, let url = center.fileURL(for: item) else { center?.reportError("文件不存在或下载位置已失效，请重新选择位置。"); return }
+        guard let center, let url = center.fileURL(for: item) else { center?.reportError(L10n.tr("文件不存在或下载位置已失效，请重新选择位置。")); return }
         openingFile = true
         center.dismissPresentation()
         let folder = temporaryRoot.appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -157,7 +157,7 @@ import WebKit
                     session.read(copy, alreadySaved: true)
                     if !(await showWhenReady(session)) {
                         try? FileManager.default.removeItem(at: folder)
-                        center.reportError("预览窗口暂时无法打开，请稍后重试。")
+                        center.reportError(L10n.tr("预览窗口暂时无法打开，请稍后重试。"))
                     }
                 } else {
                     let preview = StableQuickLookController(url: copy, folder: folder)
@@ -169,12 +169,12 @@ import WebKit
                     } while !Task.isCancelled && Date() < deadline
                     if !shown {
                         try? FileManager.default.removeItem(at: folder)
-                        center.reportError("预览窗口暂时无法打开，请稍后重试。")
+                        center.reportError(L10n.tr("预览窗口暂时无法打开，请稍后重试。"))
                     }
                 }
             } catch {
                 try? FileManager.default.removeItem(at: folder)
-                center.reportError("无法打开文件：\(error.localizedDescription)")
+                center.reportError(L10n.format("无法打开文件：%@", String(describing: error.localizedDescription)))
             }
         }
     }

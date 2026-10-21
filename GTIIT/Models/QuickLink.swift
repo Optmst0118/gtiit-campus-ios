@@ -21,54 +21,54 @@ struct QuickLinkGroup: Identifiable {
 }
 
 enum QuickLinkCatalog {
-    static let groups: [QuickLinkGroup] = [
+    static var groups: [QuickLinkGroup] { [
         QuickLinkGroup(
             id: "study",
-            title: "学习与课程",
+            title: L10n.tr("学习与课程"),
             symbol: "graduationcap.fill",
             links: [
-                QuickLink(id: "moodle.home", title: "我的课程", subtitle: "Dashboard / 最近访问", symbol: "book.closed.fill", site: .moodle, urlString: "https://moodle.gtiit.edu.cn/moodle/my/"),
-                QuickLink(id: "moodle.upcoming", title: "截止与日历", subtitle: "Upcoming events", symbol: "calendar.day.timeline.left", site: .moodle, urlString: "https://moodle.gtiit.edu.cn/moodle/calendar/view.php?view=upcoming"),
-                QuickLink(id: "moodle.export", title: "导出日历", subtitle: "官方 iCal 订阅入口", symbol: "square.and.arrow.up", site: .moodle, urlString: "https://moodle.gtiit.edu.cn/moodle/calendar/export.php"),
-                QuickLink(id: "moodle.timetable", title: "学校课表", subtitle: "GTIIT Calendar 插件", symbol: "tablecells", site: .moodle, urlString: "https://moodle.gtiit.edu.cn/moodle/local/calendar/index.php")
+                QuickLink(id: "moodle.home", title: L10n.tr("我的课程"), subtitle: L10n.tr("Dashboard / 最近访问"), symbol: "book.closed.fill", site: .moodle, urlString: "https://moodle.gtiit.edu.cn/moodle/my/"),
+                QuickLink(id: "moodle.upcoming", title: L10n.tr("截止与日历"), subtitle: "Upcoming events", symbol: "calendar.day.timeline.left", site: .moodle, urlString: "https://moodle.gtiit.edu.cn/moodle/calendar/view.php?view=upcoming"),
+                QuickLink(id: "moodle.export", title: L10n.tr("导出日历"), subtitle: L10n.tr("官方 iCal 订阅入口"), symbol: "square.and.arrow.up", site: .moodle, urlString: "https://moodle.gtiit.edu.cn/moodle/calendar/export.php"),
+                QuickLink(id: "moodle.timetable", title: L10n.tr("学校课表"), subtitle: L10n.tr("GTIIT Calendar 插件"), symbol: "tablecells", site: .moodle, urlString: "https://moodle.gtiit.edu.cn/moodle/local/calendar/index.php")
             ]
         ),
         QuickLinkGroup(
             id: "academics",
-            title: "学业与成绩",
+            title: L10n.tr("学业与成绩"),
             symbol: "doc.text.fill",
             links: [
-                QuickLink(id: "portal.grades", title: "成绩", subtitle: "Grades / 考试记录", symbol: "chart.bar.doc.horizontal", site: .portal, urlString: "https://students.gtiit.edu.cn/grades"),
-                QuickLink(id: "portal.enrollments", title: "选课与周课表", subtitle: "Enrollments", symbol: "calendar", site: .portal, urlString: "https://students.gtiit.edu.cn/enrollments"),
-                QuickLink(id: "portal.checklist", title: "培养计划", subtitle: "PCC / PEC / GE / MOE 清单", symbol: "checklist", site: .portal, urlString: "https://students.gtiit.edu.cn/checklist"),
-                QuickLink(id: "portal.attendance", title: "刷卡考勤", subtitle: "Summary / Records / Leave", symbol: "checkmark.circle", site: .portal, urlString: "https://students.gtiit.edu.cn/attendance")
+                QuickLink(id: "portal.grades", title: L10n.tr("成绩"), subtitle: L10n.tr("Grades / 考试记录"), symbol: "chart.bar.doc.horizontal", site: .portal, urlString: "https://students.gtiit.edu.cn/grades"),
+                QuickLink(id: "portal.enrollments", title: L10n.tr("选课与周课表"), subtitle: "Enrollments", symbol: "calendar", site: .portal, urlString: "https://students.gtiit.edu.cn/enrollments"),
+                QuickLink(id: "portal.checklist", title: L10n.tr("培养计划"), subtitle: L10n.tr("PCC / PEC / GE / MOE 清单"), symbol: "checklist", site: .portal, urlString: "https://students.gtiit.edu.cn/checklist"),
+                QuickLink(id: "portal.attendance", title: L10n.tr("刷卡考勤"), subtitle: "Summary / Records / Leave", symbol: "checkmark.circle", site: .portal, urlString: "https://students.gtiit.edu.cn/attendance")
             ]
         ),
         QuickLinkGroup(
             id: "services",
-            title: "校园服务",
+            title: L10n.tr("校园服务"),
             symbol: "building.columns.fill",
             links: [
-                QuickLink(id: "portal.apps", title: "申请与下载", subtitle: "Applications", symbol: "tray.full", site: .portal, urlString: "https://students.gtiit.edu.cn/apps"),
-                QuickLink(id: "portal.leave", title: "请假申请", subtitle: "Leave Request", symbol: "bed.double", site: .portal, urlString: "https://students.gtiit.edu.cn/apps/leave"),
-                QuickLink(id: "portal.credits", title: "额外学分", subtitle: "Additional Credits", symbol: "plus.forwardslash.minus", site: .portal, urlString: "https://students.gtiit.edu.cn/apps/addcredits"),
-                QuickLink(id: "portal.eval", title: "教学评价", subtitle: "开放时间以页面提示为准", symbol: "star.bubble", site: .portal, urlString: "https://students.gtiit.edu.cn/evaluations")
+                QuickLink(id: "portal.apps", title: L10n.tr("申请与下载"), subtitle: "Applications", symbol: "tray.full", site: .portal, urlString: "https://students.gtiit.edu.cn/apps"),
+                QuickLink(id: "portal.leave", title: L10n.tr("请假申请"), subtitle: "Leave Request", symbol: "bed.double", site: .portal, urlString: "https://students.gtiit.edu.cn/apps/leave"),
+                QuickLink(id: "portal.credits", title: L10n.tr("额外学分"), subtitle: "Additional Credits", symbol: "plus.forwardslash.minus", site: .portal, urlString: "https://students.gtiit.edu.cn/apps/addcredits"),
+                QuickLink(id: "portal.eval", title: L10n.tr("教学评价"), subtitle: L10n.tr("开放时间以页面提示为准"), symbol: "star.bubble", site: .portal, urlString: "https://students.gtiit.edu.cn/evaluations")
             ]
         ),
         QuickLinkGroup(
             id: "booking",
-            title: "场地与预约",
+            title: L10n.tr("场地与预约"),
             symbol: "calendar.badge.clock",
             links: [
-                QuickLink(id: "rooms.dashboard", title: "预约面板", subtitle: "Upcoming / 可用性", symbol: "rectangle.grid.1x2", site: .rooms, urlString: "https://roombooking.gtiit.edu.cn/Web/dashboard.php"),
-                QuickLink(id: "rooms.mine", title: "我的预约", subtitle: "My Calendar", symbol: "calendar.badge.checkmark", site: .rooms, urlString: "https://roombooking.gtiit.edu.cn/Web/my-calendar.php"),
-                QuickLink(id: "rooms.find", title: "查找空闲", subtitle: "Find A Time", symbol: "magnifyingglass.circle", site: .rooms, urlString: "https://roombooking.gtiit.edu.cn/Web/search-availability.php"),
-                QuickLink(id: "rooms.rid78", title: "D4-103-9 练习房", subtitle: "原始目标资源 rid=78", symbol: "pianokeys", site: .rooms, urlString: "https://roombooking.gtiit.edu.cn/Web/reservation.php?rid=78"),
-                QuickLink(id: "sports.home", title: "体育中心首页", subtitle: "场馆入口与开放时间", symbol: "sportscourt", site: .sports, urlString: "https://gtiit.mike-x.com/0x2Rg"),
-                QuickLink(id: "sports.badminton", title: "羽毛球馆", subtitle: "会员登录入口", symbol: "figure.badminton", site: .sports, urlString: "https://gtiit.mike-x.com/kcr2S")
+                QuickLink(id: "rooms.dashboard", title: L10n.tr("预约面板"), subtitle: L10n.tr("Upcoming / 可用性"), symbol: "rectangle.grid.1x2", site: .rooms, urlString: "https://roombooking.gtiit.edu.cn/Web/dashboard.php"),
+                QuickLink(id: "rooms.mine", title: L10n.tr("我的预约"), subtitle: "My Calendar", symbol: "calendar.badge.checkmark", site: .rooms, urlString: "https://roombooking.gtiit.edu.cn/Web/my-calendar.php"),
+                QuickLink(id: "rooms.find", title: L10n.tr("查找空闲"), subtitle: "Find A Time", symbol: "magnifyingglass.circle", site: .rooms, urlString: "https://roombooking.gtiit.edu.cn/Web/search-availability.php"),
+                QuickLink(id: "rooms.rid78", title: L10n.tr("D4-103-9 练习房"), subtitle: L10n.tr("原始目标资源 rid=78"), symbol: "pianokeys", site: .rooms, urlString: "https://roombooking.gtiit.edu.cn/Web/reservation.php?rid=78"),
+                QuickLink(id: "sports.home", title: L10n.tr("体育中心首页"), subtitle: L10n.tr("场馆入口与开放时间"), symbol: "sportscourt", site: .sports, urlString: "https://gtiit.mike-x.com/0x2Rg"),
+                QuickLink(id: "sports.badminton", title: L10n.tr("羽毛球馆"), subtitle: L10n.tr("会员登录入口"), symbol: "figure.badminton", site: .sports, urlString: "https://gtiit.mike-x.com/kcr2S")
             ]
         )
-    ]
+    ] }
 
     static var all: [QuickLink] { groups.flatMap(\.links) }
 

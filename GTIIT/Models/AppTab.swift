@@ -12,11 +12,11 @@ enum AppTab: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .shuttle: return "班车"
-        case .portal: return "门户"
-        case .learning: return "学习"
-        case .booking: return "预约"
-        case .me: return "我的"
+        case .shuttle: return L10n.tr("班车")
+        case .portal: return L10n.tr("门户")
+        case .learning: return L10n.tr("学习")
+        case .booking: return L10n.tr("预约")
+        case .me: return L10n.tr("我的")
         }
     }
 
@@ -59,15 +59,15 @@ enum BookingSegment: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .rooms: return "练习房 / 讨论室"
-        case .sports: return "体育场馆"
+        case .rooms: return L10n.tr("练习房 / 讨论室")
+        case .sports: return L10n.tr("体育场馆")
         }
     }
 
     var shortTitle: String {
         switch self {
-        case .rooms: return "练习房"
-        case .sports: return "体育"
+        case .rooms: return L10n.tr("练习房")
+        case .sports: return L10n.tr("体育")
         }
     }
 

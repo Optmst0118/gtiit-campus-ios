@@ -5,12 +5,12 @@ enum SitePreparationState: Equatable {
     case preparing, restoringSession, ready, needsLogin, unavailable, deferred
     var title: String {
         switch self {
-        case .preparing: return "正在准备"
-        case .restoringSession: return "正在恢复会话"
-        case .ready: return "页面已就绪"
-        case .needsLogin: return "需要登录"
-        case .unavailable: return "暂时无法连接"
-        case .deferred: return "后台继续准备"
+        case .preparing: return L10n.tr("正在准备")
+        case .restoringSession: return L10n.tr("正在恢复会话")
+        case .ready: return L10n.tr("页面已就绪")
+        case .needsLogin: return L10n.tr("需要登录")
+        case .unavailable: return L10n.tr("暂时无法连接")
+        case .deferred: return L10n.tr("后台继续准备")
         }
     }
     var isSettled: Bool { self != .preparing && self != .restoringSession }

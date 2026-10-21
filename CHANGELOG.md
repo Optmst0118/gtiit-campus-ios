@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — local 1.6 (10), 2026-10-22
+
+- Source-backed academic calendar in Me, with year selection, upcoming events, native month decorations, source PDF viewing and explicit unverified source dates.
+- User-initiated registered timetable extraction from the portal Enrollments page. Review validity dates before local protected storage; today/next-class card and weekly view include rooms. Verified calendar holidays and makeup weekdays are applied within the confirmed validity range.
+- Persistent Chinese / English native interface selection without reloading website sessions.
+- Six-tap About easter egg unlocking Yilong. Three transparent views use bounded SpriteKit collisions and squash/stretch; dismiss, background/lock cleanup and Reduce Motion support.
+- About retains the existing CampusMark redrawn icon. Isolated visual-review builds now include that asset and report 1.6 (10).
+
+
 ### Changed
 
 - Wrapped pages hide school/tenant logos (including the Microsoft sign-in banner and

@@ -1,11 +1,14 @@
 import SwiftUI
 
 struct RootTabView: View {
+    @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
+        let _ = nativeLocale.identifier
+
         ZStack {
             if settings.hasSeenWelcome && settings.preloadSitesOnLaunch && !app.launch.didFinish {
                 LaunchPreloadView(preparation: app.launch)
@@ -13,6 +16,7 @@ struct RootTabView: View {
                 tabs
             }
         }
+        .overlay { YilongOverlay(controller: app.yilong).allowsHitTesting(!app.lock.isLocked) }
         .modifier(RootLifecycle(app: app, settings: settings))
     }
 
@@ -47,7 +51,7 @@ private struct RootLifecycle: ViewModifier {
             if app.isClearingData {
                 ZStack {
                     Color(uiColor: .systemBackground).opacity(0.95).ignoresSafeArea()
-                    ProgressView("正在清理网页数据…").padding()
+                    ProgressView(L10n.tr("正在清理网页数据…")).padding()
                 }.accessibilityAddTraits(.isModal)
             }
         }
@@ -64,7 +68,7 @@ private struct RootLifecycle: ViewModifier {
                     .onAppear { app.downloads.dismissPresentation() }
                     .toolbar {
                         ToolbarItem(placement: .confirmationAction) {
-                            Button("完成") { app.showDownloads = false }
+                            Button(L10n.tr("完成")) { app.showDownloads = false }
                         }
                     }
             }
@@ -102,10 +106,11 @@ private struct RootLifecycle: ViewModifier {
                 app.lock.setActive(settings: settings)
                 app.prepareLaunchIfAllowed()
             } else {
+                app.yilong.close()
                 app.lock.setInactive(settings: settings)
             }
         }
-        .onChange(of: app.lock.isLocked) { _, locked in if !locked { app.prepareLaunchIfAllowed() } }
+        .onChange(of: app.lock.isLocked) { _, locked in if !locked { app.prepareLaunchIfAllowed() } else { app.yilong.close() } }
         .onChange(of: settings.hasSeenWelcome) { _, _ in app.prepareLaunchIfAllowed() }
         .onChange(of: app.showWelcome) { _, shown in if !shown { app.prepareLaunchIfAllowed() } }
     }

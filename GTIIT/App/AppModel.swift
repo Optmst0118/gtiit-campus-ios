@@ -16,6 +16,8 @@ final class AppModel: ObservableObject {
     @Published var showDownloads = false
     @Published private(set) var storageStates: [SiteID: Bool] = [:]
 
+    let timetable = LocalTimetableStore()
+    let yilong = YilongController()
     let lock = AppLockController()
     let launch = LaunchPreparation()
     let downloads = DownloadCoordinator()
@@ -98,17 +100,17 @@ final class AppModel: ObservableObject {
         if browser.webView.url == nil {
             browser.loadHome()
         }
-        toast("已打开「\(site.displayName)」")
+        toast(L10n.format("已打开「%@」", String(describing: site.displayName)))
     }
 
     func open(_ link: QuickLink) {
         guard let url = link.url else {
-            toast("链接无效")
+            toast(L10n.tr("链接无效"))
             return
         }
         switchTo(link.site)
         browser(for: link.site).load(url)
-        toast("正在打开「\(link.title)」")
+        toast(L10n.format("正在打开「%@」", String(describing: link.title)))
     }
 
     // MARK: - 轻提示
@@ -138,7 +140,7 @@ final class AppModel: ObservableObject {
         downloads.invalidateSession(for: site)
         if let browser = browsers[site], !(await browser.prepareForDataClear()) {
             browser.finishDataClear(dataCleared: false)
-            toast("网页尚未退出，数据清理未完成，请重试")
+            toast(L10n.tr("网页尚未退出，数据清理未完成，请重试"))
             return
         }
         browsers[site]?.releaseDataStoreView()
@@ -147,9 +149,9 @@ final class AppModel: ObservableObject {
         browsers[site]?.finishDataClear()
         await refreshStorageStates()
         if WebDataStoreRegistry.shared.pendingCleanupCount == 0 {
-            toast("已清除「\(site.displayName)」的登录与网页数据")
+            toast(L10n.format("已清除「%@」的登录与网页数据", String(describing: site.displayName)))
         } else {
-            toast("登录数据已清除，旧缓存待释放后清理；可在存储空间中重试")
+            toast(L10n.tr("登录数据已清除，旧缓存待释放后清理；可在存储空间中重试"))
         }
     }
     func clearAllData() async {
@@ -163,7 +165,7 @@ final class AppModel: ObservableObject {
                 prepared.append(browser)
                 guard await browser.prepareForDataClear() else {
                     for browser in prepared { browser.finishDataClear(dataCleared: false) }
-                    toast("网页尚未退出，数据清理未完成，请重试")
+                    toast(L10n.tr("网页尚未退出，数据清理未完成，请重试"))
                     return
                 }
             }
@@ -176,9 +178,9 @@ final class AppModel: ObservableObject {
         settings.clearLocations()
         await refreshStorageStates()
         if WebDataStoreRegistry.shared.pendingCleanupCount == 0 {
-            toast("已清除全部站点的登录与网页数据")
+            toast(L10n.tr("已清除全部站点的登录与网页数据"))
         } else {
-            toast("登录数据已清除，旧缓存待释放后清理；可在存储空间中重试")
+            toast(L10n.tr("登录数据已清除，旧缓存待释放后清理；可在存储空间中重试"))
         }
     }
     func clearCaches() async {
@@ -189,7 +191,7 @@ final class AppModel: ObservableObject {
             await WebDataStoreRegistry.shared.clearData(for: site, cacheOnly: true)
         }
         await refreshStorageStates()
-        toast("已清理现有缓存，登录数据保持不变")
+        toast(L10n.tr("已清理现有缓存，登录数据保持不变"))
     }
 }
 
@@ -214,7 +216,7 @@ extension AppModel: BrowserRouter {
         }
         switchTo(target)
         browser(for: target).load(url)
-        toast("已跳转到「\(target.displayName)」")
+        toast(L10n.format("已跳转到「%@」", String(describing: target.displayName)))
     }
 
     func browserOpenExternal(url: URL) {
@@ -222,7 +224,7 @@ extension AppModel: BrowserRouter {
             scheme == "http" || scheme == "https" || NavigationPolicy.isExternalScheme(scheme), !lock.isLocked
         else { return }
         UIApplication.shared.open(url, options: [:]) { [weak self] success in
-            if !success { Task { @MainActor in self?.toast("无法打开此链接，请确认已安装对应 App") } }
+            if !success { Task { @MainActor in self?.toast(L10n.tr("无法打开此链接，请确认已安装对应 App")) } }
         }
     }
     func browserOpenInAppSafari(url: URL) {

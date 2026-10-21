@@ -23,3 +23,6 @@ tmp/
 
 # School documents that must not be redistributed
 docs/calendar/
+
+# Local licensed calendar originals (not published)
+GTIIT/Resources/CampusData/*.pdf
