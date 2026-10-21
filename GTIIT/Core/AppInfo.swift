@@ -1,0 +1,20 @@
+import Foundation
+
+enum AppInfo {
+    static let displayName = "GTIIT 校园助手"
+    static let researchDate = "2026-10-21"
+
+    static var version: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+    }
+
+    static var build: String {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+    }
+
+    static var versionText: String {
+        "\(version) (\(build))"
+    }
+
+    static let tagline = "四个官方网页，一个 App"
+}

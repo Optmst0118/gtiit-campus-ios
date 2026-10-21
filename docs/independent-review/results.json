@@ -1,0 +1,16 @@
+{
+  "blob_policy_cancel0" : 0,
+  "blob_sent_to_system" : [
+    "blob:https:\/\/students.gtiit.edu.cn\/review"
+  ],
+  "cross_site_form_input_method" : "POST",
+  "cross_site_form_source_policy" : 0,
+  "destination_actual_request_methods" : [
+    "GET"
+  ],
+  "routed_count" : 1,
+  "same_link_policies_cancel0_allow1" : [
+    0,
+    1
+  ]
+}

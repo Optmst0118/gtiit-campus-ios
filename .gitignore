@@ -1,0 +1,6 @@
+.DS_Store
+Tools/signing.env
+**/xcuserdata/
+DerivedData/
+build/
+*.ipa
