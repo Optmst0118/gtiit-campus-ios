@@ -90,6 +90,10 @@ GTIIT 的日常学习与预约分散在四个系统里：
 | --- | --- | --- |
 | <img src="docs/screenshots/05-learning.png" width="220"> | <img src="docs/screenshots/04-me.png" width="220"> | <img src="docs/verification/settings-iphone-se.png" width="220"> |
 
+| 网页更多菜单 | 下载管理 |
+| --- | --- |
+| <img src="docs/screenshots/06-site-menu.png" width="220"> | <img src="docs/screenshots/07-downloads.png" width="220"> |
+
 更多设计稿与验收截图见 [docs/design](docs/design) 与 [docs/verification](docs/verification)。
 
 ## 环境要求
