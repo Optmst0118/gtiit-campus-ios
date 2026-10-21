@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | [ArtCenter College of Design](https://www.artcenter.edu/) | 清楚的内容分区、简短标题、突出核心信息 | 班车页首先呈现两方向的下一班，大字号倒计时 |
 | [RISD Graphic Design](https://www.risd.edu/academics/graphic-design) | 编辑式字体层级、网格、内容优先 | 左右平行线路、等宽时间、低密度信息 |
-| [Apple Icon Composer](https://developer.apple.com/icon-composer/) | 透明前景和背景分层、系统材质、适配图标外观 | 实际 AppIcon.icon 工程，由 actool 编译 Liquid Glass |
+| [Apple Icon Composer](https://developer.apple.com/icon-composer/) | 透明前景和背景分层、系统材质、适配图标外观 | 可编辑的 Icon Composer 工程保存在 `docs/design/AppIcon.icon`（Xcode 27 下可编译 Liquid Glass；主工程默认使用 PNG 图标，以便 Xcode 26 构建） |
 | [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/) | 系统导航、44pt 触控、语义字体、动态字号、辅助功能 | 原生 Tab / List / Menu / Quick Look / Files，遵循减弱动态效果 |
 
 参考的是排版和信息层级，天蓝／橙色是本项目的独立配色，不声称上述学校使用同一配色。
@@ -29,7 +29,7 @@
 ![深色 Liquid Glass](icon-dark.png)
 ![透明外观](icon-clear.png)
 
-基于用户提供的校徽进行非官方改绘：保留火炬、几何 V、齿轮、花朵；移除印章式外圈和环绕文字，加入轻量制图辅助线。完整方形背景由 Icon Composer 提供，系统负责外部蒙版，没有额外套一层边框或预留一圈空白。
+基于用户提供的校徽进行非官方改绘：保留火炬、几何 V、齿轮、花朵；移除印章式外圈和环绕文字，加入轻量制图辅助线。完整方形背景由 Icon Composer 提供，系统负责外部蒙版，没有额外套一层边框或预留一圈空白。分层工程不在编译目标内，见 `docs/design/AppIcon.icon`。
 
 图像素材使用内置 image_gen 生成，透明 PNG 缩放到 1024px 后导入；玻璃、光照和阴影来自 Apple 原生渲染，并非贴在 PNG 里的假玻璃。原始两次提示词见 `image-prompt.txt`。
 

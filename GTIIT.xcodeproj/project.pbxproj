@@ -51,7 +51,6 @@
 		C43BD859842F6E666E2C03A3 /* SettingsChoicePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */; };
 		4D20A64E6DA1B8D39585377E /* WebViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */; };
 		98E9014021A2D1D103CF64A5 /* WebAppearance in Resources */ = {isa = PBXBuildFile; fileRef = EE3FA5B18333AF022DDBDFD8 /* WebAppearance */; };
-		1C8CA7D267FCA2FBAAC1BEED /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = BF502227C43E265CAD1A2037 /* AppIcon.icon */; };
 		DB249DB9D0FF833647E29581 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F9973165E2B0FD4A3AAC566 /* Assets.xcassets */; };
 		7506060A154BFBC166F7764F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F839CA9D2B95AC144B1AA000 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
@@ -101,7 +100,6 @@
 		7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsChoicePicker.swift; sourceTree = "<group>"; };
 		FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContainer.swift; sourceTree = "<group>"; };
 		EE3FA5B18333AF022DDBDFD8 /* WebAppearance */ = {isa = PBXFileReference; lastKnownFileType = folder; path = WebAppearance; sourceTree = "<group>"; };
-		BF502227C43E265CAD1A2037 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer; path = AppIcon.icon; sourceTree = "<group>"; };
 		6F9973165E2B0FD4A3AAC566 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7625B5B2FEA398F8912F62D8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F839CA9D2B95AC144B1AA000 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -154,7 +152,6 @@
 			isa = PBXGroup;
 			children = (
 				6F9973165E2B0FD4A3AAC566 /* Assets.xcassets */,
-				BF502227C43E265CAD1A2037 /* AppIcon.icon */,
 				F839CA9D2B95AC144B1AA000 /* PrivacyInfo.xcprivacy */,
 				EE3FA5B18333AF022DDBDFD8 /* WebAppearance */,
 			);
@@ -306,7 +303,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DB249DB9D0FF833647E29581 /* Assets.xcassets in Resources */,
-                1C8CA7D267FCA2FBAAC1BEED /* AppIcon.icon in Resources */,
+
 				7506060A154BFBC166F7764F /* PrivacyInfo.xcprivacy in Resources */,
                 98E9014021A2D1D103CF64A5 /* WebAppearance in Resources */,
 			);

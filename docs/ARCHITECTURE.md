@@ -52,7 +52,7 @@ Moodle 的 WKDownload 先交给 PDFPreviewCoordinator，依据响应 MIME／建�
 
 ## 原生班车与图标
 
-ShuttleSchedule 的 58 个独立车次来自用户源表，按 Asia/Shanghai Calendar 计算，2 号车受教学周开关和指定星期约束。同一时间不同车辆保留独立 ID；过末班寻找次日，明确只做计划发车倒计时。ShuttleView 左右两列显示两个方向；TimelineView 每秒更新，numericText 遵循减弱动态效果。AppIcon.icon 包含透明校徽改绘层和背景填充，由 Apple actool 统一编译 Liquid Glass；备用 PNG 无预制角蒙版。
+ShuttleSchedule 的 58 个独立车次来自用户源表，按 Asia/Shanghai Calendar 计算，2 号车受教学周开关和指定星期约束。同一时间不同车辆保留独立 ID；过末班寻找次日，明确只做计划发车倒计时。ShuttleView 左右两列显示两个方向；TimelineView 每秒更新，numericText 遵循减弱动态效果。分层图标工程（透明改绘层与背景填充）保留在 docs/design/AppIcon.icon；主工程使用 Assets 里的 PNG 图标，因为 Xcode 26 的 actool 无法编译该格式。
 
 ## 本地锁与后台遮挡
 
