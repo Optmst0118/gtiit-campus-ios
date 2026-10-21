@@ -5,6 +5,7 @@ import UIKit
 @main struct UIReviewApp: App {
     @StateObject private var settings: AppSettings
     @StateObject private var app: AppModel
+    @StateObject private var previewLock: AppLockController
     private let environment = ProcessInfo.processInfo.environment
     init() {
         let defaults = UserDefaults(suiteName: "ui-review.preferences")!
@@ -15,18 +16,33 @@ import UIKit
         settings.appearance = ProcessInfo.processInfo.environment["UI_REVIEW_DARK"] == "1" ? .dark : .light
         _settings = StateObject(wrappedValue: settings)
         _app = StateObject(wrappedValue: AppModel(settings: settings))
+        let lock = AppLockController(authenticator: PreviewUnavailableAuthenticator())
+        lock.lock()
+        _previewLock = StateObject(wrappedValue: lock)
     }
     var body: some Scene {
         WindowGroup {
-            RootTabView().environmentObject(app).environmentObject(settings)
-                .tint(Theme.accent)
-                .preferredColorScheme(settings.appearance.colorScheme)
-                .background(
-                    SceneWindowReader { scene in
-                        scene.traitOverrides.preferredContentSizeCategory =
-                            environment["UI_REVIEW_LARGE_TEXT"] == "1"
-                            ? .accessibilityExtraExtraExtraLarge : .large
-                    }.frame(width: 0, height: 0))
+            Group {
+                if environment["UI_REVIEW_LOCK"] == "1" {
+                    LockScreenView().environmentObject(previewLock)
+                } else {
+                    RootTabView().environmentObject(app).environmentObject(settings)
+                }
+            }
+            .tint(Theme.accent)
+            .preferredColorScheme(settings.appearance.colorScheme)
+            .background(
+                SceneWindowReader { scene in
+                    scene.traitOverrides.preferredContentSizeCategory =
+                        environment["UI_REVIEW_LARGE_TEXT"] == "1"
+                        ? .accessibilityExtraExtraExtraLarge : .large
+                }.frame(width: 0, height: 0))
         }
     }
+}
+
+@MainActor private final class PreviewUnavailableAuthenticator: LocalAuthenticating {
+    var isAvailable: Bool { false }
+    var label: String { "设备密码" }
+    func authenticate() async throws -> Bool { false }
 }

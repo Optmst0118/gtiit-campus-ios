@@ -35,7 +35,7 @@
 
 最终 Debug 模拟器、Release 模拟器、Release 真机目标三种构建均成功；全程 `CODE_SIGNING_ALLOWED=NO`。机器记录见 `verification/build-results.json`，含源文件摘要。`Tools/check_project.py` 校验 34/34 源文件及图标资源通过，`git diff --check` 通过。构建仅有未使用 AppIntents 时跳过元数据提取的工具提示，没有 Swift 编译警告。无签名真机目标构建不等于已签名安装或 App Store 可发布。
 
-视觉与交互检查覆盖 iPhone 17、iPhone SE（375 点宽）、iPad 13 英寸竖屏/横屏、浅色/深色，以及最大的辅助功能字号。大字号选择器会进入独立列表，长值可以换行，选择后返回并更新。SE 检查使用独立 UIReview 包与原产品视图（截图中的测试包版本可不同）；iPhone 17 与 iPad 使用 GTIIT 产品目标。截图保存在 `verification/`。
+视觉与交互检查覆盖 iPhone 17、iPhone SE（375 点宽）、iPad 13 英寸竖屏/横屏、浅色/深色，以及最大的辅助功能字号。大字号选择器会进入独立列表，长值可以换行，选择后返回并更新。锁屏在最大字号下可滚动到解锁按钮，避免内容超出小屏后无法操作；这张版面测试使用认证不可用的测试接口，不触发真实系统认证。SE 检查使用独立 UIReview 包与原产品视图（截图中的测试包版本可不同）；iPhone 17 与 iPad 使用 GTIIT 产品目标。截图保存在 `verification/`。
 
 缓存验证不仅检查记录数量：本地页面先确认命中可缓存响应；清理后重新请求并取得服务器更新的响应。Cookie 与 LocalStorage 通过网页实际读取确认清空，并验证四站容器互相隔离、单站清理保留其他站点、全站清理删除所有合成 Cookie。旧容器删除由 WebKit API 结果验证。测试异步等待使用真实 Promise 完成回调，测试编译开启 warnings-as-errors，运行标识防止误用旧结果。
 
@@ -57,5 +57,6 @@
 | 最大辅助功能字号 | [设置页](verification/settings-iphone-se-largest-text.png)、[完整选项列表](verification/choices-iphone-se-largest-text.png) |
 | iPad 竖屏 / 横屏 | [竖屏](verification/settings-ipad-portrait.png)、[横屏](verification/settings-ipad-landscape.png) |
 | 深色外观 | [iPad 通用设置](verification/settings-ipad-dark.png) |
+| 大字号锁屏按钮可达性 | [滚动到解锁按钮](verification/lock-iphone-se-largest-text.png) |
 
 最终源码与回溯历史分别导出为同级 `GTIIT-iOS-App-1.1-reviewed.zip` 和 `GTIIT-iOS-App-history.bundle`，原 ZIP 保留。源码 ZIP 不包含 `.git`、个人签名环境文件或编译产物；Git bundle 用于恢复完整提交历史。
