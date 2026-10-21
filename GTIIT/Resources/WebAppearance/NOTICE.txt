@@ -1,0 +1,5 @@
+Dark Reader 4.9.133, MIT License. https://github.com/darkreader/darkreader
+Source: https://registry.npmjs.org/darkreader/-/darkreader-4.9.133.tgz
+GTIIT modification: add fixes.disableProxyInjection guard around main-world proxy script injection.
+The app enables this guard to avoid overriding any page JavaScript prototypes.
+All color adaptation runs in a WebKit isolated content world. Image analysis is disabled.

@@ -56,7 +56,16 @@ final class BrowserModel: NSObject, ObservableObject {
         configuration.preferences.isFraudulentWebsiteWarningEnabled = true
         return WKWebView(frame: .zero, configuration: configuration)
     }
+    func applyWebAppearance() {
+        let enabled = router?.browserWebDarkModeEnabled(for: site) ?? true
+        WebAppearance.update(webView, enabled: enabled)
+        for popup in popups { WebAppearance.update(popup, enabled: enabled) }
+    }
     private func configureWebView() {
+        WebAppearance.install(on: webView.configuration, enabled: router?.browserWebDarkModeEnabled(for: site) ?? true)
+        webView.isOpaque = false
+        webView.backgroundColor = .systemBackground
+        webView.scrollView.backgroundColor = .systemBackground
         webView.navigationDelegate = self
         webView.uiDelegate = self
         webView.allowsBackForwardNavigationGestures = true
@@ -436,6 +445,7 @@ extension BrowserModel: WKUIDelegate {
             return nil
         }
         let popup = WKWebView(frame: .zero, configuration: configuration)
+        WebAppearance.install(on: configuration, enabled: router?.browserWebDarkModeEnabled(for: site) ?? true)
         popup.navigationDelegate = self
         popup.uiDelegate = self
         popup.allowsBackForwardNavigationGestures = true

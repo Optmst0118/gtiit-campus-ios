@@ -24,6 +24,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var isClearingData = false
     @Published private(set) var storageSummaries: [SiteID: SiteStorageSummary] = [:]
     private var lockSubscription: AnyCancellable?
+    private var appearanceSubscription: AnyCancellable?
     private var launchSubscription: AnyCancellable?
 
     private var browsers: [SiteID: BrowserModel] = [:]
@@ -41,6 +42,14 @@ final class AppModel: ObservableObject {
         // 下载的进度、成功与失败均由唯一的下载面板呈现，不再另叠 Toast。
         lockSubscription = lock.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
         launchSubscription = launch.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
+        appearanceSubscription = settings.$webDarkMode.combineLatest(settings.$originalColorSites).sink { [weak self] enabled, original in
+            guard let self else { return }
+            for (site, model) in self.browsers {
+                // Publisher 在属性更新前发值；此处直接使用新值。
+                WebAppearance.update(model.webView, enabled: enabled && !original.contains(site))
+                Task { @MainActor [weak model] in model?.applyWebAppearance() }
+            }
+        }
         if settings.biometricLockEnabled { lock.lock() }
     }
 
@@ -187,6 +196,7 @@ final class AppModel: ObservableObject {
 // MARK: - BrowserRouter
 
 extension AppModel: BrowserRouter {
+    func browserWebDarkModeEnabled(for site: SiteID) -> Bool { settings.webDarkModeEnabled(for: site) }
     var browserDownloadCenter: DownloadCoordinator? { downloads }
     var externalLinkMode: ExternalLinkMode { settings.externalLinks }
     func browserInitialURL(for site: SiteID) -> URL { settings.initialURL(for: site) }

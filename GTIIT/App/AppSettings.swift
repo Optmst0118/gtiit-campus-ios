@@ -70,6 +70,13 @@ enum DownloadRetention: String, SettingChoice {
 
 @MainActor final class AppSettings: ObservableObject {
     private let defaults: UserDefaults
+    @Published var webDarkMode: Bool {
+        didSet { defaults.set(webDarkMode, forKey: "settings.webDarkMode") }
+    }
+    @Published var originalColorSites: Set<SiteID> {
+        didSet { defaults.set(originalColorSites.map(\.rawValue), forKey: "settings.originalColorSites") }
+    }
+    func webDarkModeEnabled(for site: SiteID) -> Bool { webDarkMode && !originalColorSites.contains(site) }
     @Published var preloadSitesOnLaunch: Bool {
         didSet { defaults.set(preloadSitesOnLaunch, forKey: "settings.preloadSitesOnLaunch") }
     }
@@ -112,6 +119,8 @@ enum DownloadRetention: String, SettingChoice {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        webDarkMode = defaults.object(forKey: "settings.webDarkMode") as? Bool ?? true
+        originalColorSites = Set((defaults.stringArray(forKey: "settings.originalColorSites") ?? []).compactMap(SiteID.init(rawValue:)))
         preloadSitesOnLaunch = defaults.object(forKey: "settings.preloadSitesOnLaunch") as? Bool ?? true
         shuttleTeachingWeek = defaults.object(forKey: "settings.shuttleTeachingWeek") as? Bool ?? true
         hasSeenWelcome = defaults.bool(forKey: "settings.hasSeenWelcome")

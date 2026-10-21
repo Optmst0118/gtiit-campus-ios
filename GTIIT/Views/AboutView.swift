@@ -80,7 +80,7 @@ private struct AboutDetailsView: View {
                 PrivacyLine(title: "生物识别", detail: "由 iOS 系统校验面容 ID / 触控 ID / 设备密码，App 只收到成功或失败，接触不到生物特征数据。")
                 PrivacyLine(
                     title: "网络请求",
-                    detail: "网页会访问所打开的站点、页面资源与登录服务。主动运行诊断时，向四站公开首页发送不带 Cookie 的 HEAD 请求。没有自建后端和统计 SDK。")
+                    detail: "网页会访问所打开的站点、页面资源与登录服务。主动运行诊断时，向四站公开首页发送不带 Cookie 的 HEAD 请求。没有自建后端和统计 SDK。网页暗色适配会按需读取当前页面已引用的 CSS，不加载远程配色脚本、不分析图片、不读取表单值。")
                 PrivacyLine(title: "隐私清单", detail: "App 声明不追踪、不收集数据；唯一声明的 API 用途是 UserDefaults（保存本机偏好）。")
             }
 
@@ -100,6 +100,7 @@ private struct AboutDetailsView: View {
                     color: .secondary)
                 bullet("square.stack.3d.up", "四站独立数据容器，切换标签不重新加载页面。", color: .secondary)
                 bullet("arrow.down.doc", "网页文件保存在本机，支持进度、取消、可用时续传、预览及系统另存。", color: .secondary)
+                bullet("moon", "网页暗色适配使用本地 Dark Reader 4.9.133（MIT）。隔离脚本世界运行，禁用页面 JS 原型代理，可逐站恢复原色。", color: .secondary)
             }
 
             Section("已知限制（研究快照 \(AppInfo.researchDate)）") {

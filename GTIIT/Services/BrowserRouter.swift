@@ -3,6 +3,7 @@ import WebKit
 
 @MainActor protocol BrowserRouter: AnyObject {
     var browserDownloadCenter: DownloadCoordinator? { get }
+    func browserWebDarkModeEnabled(for site: SiteID) -> Bool
     var externalLinkMode: ExternalLinkMode { get }
     func browserInitialURL(for site: SiteID) -> URL
     func browserDidFinish(url: URL, site: SiteID)
@@ -17,5 +18,6 @@ import WebKit
 }
 
 extension BrowserRouter {
+    func browserWebDarkModeEnabled(for site: SiteID) -> Bool { true }
     var browserDownloadCenter: DownloadCoordinator? { nil }
 }

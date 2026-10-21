@@ -1,4 +1,5 @@
 import Combine
+import CoreFoundation
 import PDFKit
 import UIKit
 import WebKit
@@ -97,7 +98,8 @@ private final class RetiredViewReference {
     }
     func js(_ webView: WKWebView, _ source: String) async -> String {
         do {
-            let value = try await webView.evaluateJavaScript(source)
+            guard let value = try await webView.evaluateJavaScript(source) else { return "undefined" }
+            if let number = value as? NSNumber, CFGetTypeID(number) == CFBooleanGetTypeID() { return number.boolValue ? "true" : "false" }
             return String(describing: value)
         } catch { return "ERROR \(error)" }
     }
@@ -154,6 +156,7 @@ private final class RetiredViewReference {
         settings.restoreLastPage = false
         check("disable_restore_removes_locations", settings.initialURL(for: .portal) == SiteID.portal.homeURL)
         await verifyLaunchPreparation()
+        await verifyWebAppearance()
         let capture = FrameCapture()
         let frameWebView = WKWebView()
         frameWebView.navigationDelegate = capture
@@ -513,6 +516,87 @@ private final class RetiredViewReference {
         // 大块控制台 JSON 会阻塞部分 simctl --console 版本；证据已写入文件。
         print("Regression complete:", results.count, "checks; passed:", results.allSatisfy { $0["passed"] as? Bool == true })
         exit(results.allSatisfy { $0["passed"] as? Bool == true } ? 0 : 1)
+    }
+
+    private func clientJS(_ webView: WKWebView, _ source: String) async -> String {
+        await withCheckedContinuation { continuation in
+            webView.evaluateJavaScript(source, in: nil, in: .defaultClient) { result in
+                switch result {
+                case .success(let value): continuation.resume(returning: String(describing: value))
+                case .failure(let error): continuation.resume(returning: "ERROR \(error)")
+                }
+            }
+        }
+    }
+    private func verifyWebAppearance() async {
+        check("appearance_engine_bundled", WebAppearance.script(enabled: true).contains("Dark Reader v4.9.133") && WebAppearance.script(enabled: true).contains("disableProxyInjection: true"))
+        check("appearance_exact_school_hosts", SiteID.allCases.allSatisfy { WebAppearance.allows($0.homeURL) } && !WebAppearance.allows(URL(string: "https://login.microsoftonline.com/")!) && !WebAppearance.allows(URL(string: "https://moodle.gtiit.edu.cn.evil.example/")!))
+        let portrait = PDFDownloadPlacement(bottomSafeArea: 34, trailingSafeArea: 0)
+        let landscape = PDFDownloadPlacement(bottomSafeArea: 21, trailingSafeArea: 62)
+        check("pdf_button_larger_and_concentric_portrait", PDFDownloadPlacement.diameter == 60 && portrait.trailingPadding + 30 == portrait.bottomPadding + 34 + 30)
+        check("pdf_button_concentric_landscape", landscape.trailingPadding + 62 == landscape.bottomPadding + 21 && landscape.bottomPadding >= 0)
+        let suite = "regression.webappearance." + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        let settings = AppSettings(defaults: defaults)
+        settings.hasSeenWelcome = true
+        settings.preloadSitesOnLaunch = false
+        check("web_dark_default_enabled", settings.webDarkMode && SiteID.allCases.allSatisfy(settings.webDarkModeEnabled))
+        settings.originalColorSites.insert(.rooms)
+        let restored = AppSettings(defaults: defaults)
+        check("per_site_original_colors_persist", !restored.webDarkModeEnabled(for: .rooms) && restored.webDarkModeEnabled(for: .moodle))
+        settings.originalColorSites = []
+        let app = AppModel(settings: settings)
+        let darkBackground = "(() => {const c=getComputedStyle(document.body).backgroundColor.match(/[0-9.]+/g);return c && Number(c[0])<80 && Number(c[1])<80 && Number(c[2])<80})()"
+        for site in SiteID.allCases {
+            let model = app.browser(for: site)
+            model.webView.stopLoading(); model.webView.overrideUserInterfaceStyle = .dark
+            model.webView.frame = window!.bounds
+            window!.rootViewController!.view.addSubview(model.webView)
+            model.load(base.appendingPathComponent("dark-fixture"))
+            let loaded = await wait { model.webView.title == "Dark fixture" && !model.isLoading }
+            check("\(site.rawValue)_dark_fixture_loaded", loaded)
+            let dark = await wait { (await self.js(model.webView, darkBackground)) == "true" }
+            check("\(site.rawValue)_dark_background", dark)
+            check("\(site.rawValue)_page_prototypes_untouched", (await js(model.webView, "window.originalInsertRule===CSSStyleSheet.prototype.insertRule && window.originalDefine===customElements.define")) == "true")
+            let geometry = await js(model.webView, "JSON.stringify(Array.from(document.querySelectorAll('#panel,input,select,button')).map(e=>{const r=e.getBoundingClientRect();return [r.x,r.y,r.width,r.height]}))")
+            let functional = await js(model.webView, "document.getElementById('name').value==='synthetic' && document.getElementById('password').value==='synthetic-password' && document.getElementById('form').checkValidity() && document.getElementById('disabled').disabled")
+            check("\(site.rawValue)_form_values_and_validation_unchanged", functional == "true")
+            check("\(site.rawValue)_no_media_or_page_inversion", (await js(model.webView, "['html','body','#qr','#canvas'].every(s=>getComputedStyle(document.querySelector(s)).filter==='none')")) == "true")
+            check("\(site.rawValue)_transparent_brand_logo_has_readable_backing", (await js(model.webView, "getComputedStyle(document.getElementById('brand-logo')).backgroundColor==='rgb(255, 255, 255)'")) == "true")
+            let roles = await js(model.webView, "(() => {const r=getComputedStyle(document.querySelector('.reserved')).backgroundColor.match(/\\d+/g).map(Number),g=getComputedStyle(document.querySelector('.available')).backgroundColor.match(/\\d+/g).map(Number);return r[0]>r[1]*1.3&&g[1]>g[0]*1.3})()")
+            check("\(site.rawValue)_availability_color_meaning_preserved", roles == "true")
+            _ = await js(model.webView, "document.getElementById('check').click();document.getElementById('dialogButton').click();'clicked'")
+            check("\(site.rawValue)_checkbox_and_dialog_work", (await js(model.webView, "document.getElementById('check').checked && window.fixtureClicks===1 && document.getElementById('dialog').open")) == "true")
+            _ = await js(model.webView, "document.getElementById('dialog').close(); const s=document.createElement('style');s.textContent='#dynamic{background:#fafafa;color:#111}';document.head.appendChild(s);'dynamic'")
+            check("\(site.rawValue)_dynamic_style_adapts", await wait { (await self.js(model.webView, "Number(getComputedStyle(document.getElementById('dynamic')).backgroundColor.match(/\\d+/g)[0])<80")) == "true" })
+            if site == .moodle {
+                _ = await js(model.webView, "const f=document.createElement('iframe');f.id='theme-frame';f.src='/dark-fixture';document.body.appendChild(f);'frame'")
+                check("same_origin_iframe_adapts", await wait { (await self.js(model.webView, "(() => {const b=document.getElementById('theme-frame')?.contentDocument?.body;return b && Number(getComputedStyle(b).backgroundColor.match(/\\d+/g)[0])<80})()")) == "true" })
+            }
+            settings.originalColorSites.insert(site)
+            check("\(site.rawValue)_live_disable_restores_original", await wait { (await self.js(model.webView, "getComputedStyle(document.body).backgroundColor==='rgb(255, 255, 255)'")) == "true" })
+            if site == .moodle {
+                check("existing_iframe_live_disable", await wait { (await self.js(model.webView, "document.getElementById('theme-frame')?.contentDocument?.body && getComputedStyle(document.getElementById('theme-frame').contentDocument.body).backgroundColor==='rgb(255, 255, 255)'")) == "true" })
+            }
+            check("\(site.rawValue)_layout_dimensions_unchanged", (await js(model.webView, "JSON.stringify(Array.from(document.querySelectorAll('#panel,input,select,button')).map(e=>{const r=e.getBoundingClientRect();return [r.x,r.y,r.width,r.height]}))")) == geometry)
+            check("\(site.rawValue)_isolated_api_hidden_from_page", (await js(model.webView, "typeof globalThis.__gtiitAppearance")) == "undefined")
+            settings.originalColorSites.remove(site)
+            _ = await wait { (await self.js(model.webView, darkBackground)) == "true" }
+            model.webView.overrideUserInterfaceStyle = .light
+            check("\(site.rawValue)_light_mode_restores_original", await wait { (await self.js(model.webView, "getComputedStyle(document.body).backgroundColor==='rgb(255, 255, 255)'")) == "true" })
+            _ = await model.prepareForDataClear(); model.releaseDataStoreView()
+        }
+        let externalRouter = TestRouter()
+        let excluded = BrowserModel(site: .moodle, router: externalRouter)
+        excluded.webView.stopLoading()
+        excluded.webView.frame = window!.bounds
+        window!.rootViewController!.view.addSubview(excluded.webView)
+        excluded.webView.overrideUserInterfaceStyle = .dark
+        excluded.webView.loadHTMLString("<title>External auth fixture</title><style>body{background:white;color:black}</style><p>No injected theme</p>", baseURL: URL(string: "https://login.microsoftonline.com/"))
+        _ = await wait { excluded.webView.title == "External auth fixture" && !excluded.isLoading }
+        check("external_auth_page_not_modified", (await clientJS(excluded.webView, "typeof globalThis.__gtiitAppearance")) == "undefined")
+        _ = await excluded.prepareForDataClear(); excluded.releaseDataStoreView()
+        defaults.removePersistentDomain(forName: suite)
     }
 
     private func verifyPreviewAndLocations(_ app: AppModel) async {

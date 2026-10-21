@@ -16,7 +16,9 @@ import UIKit
         settings.startupTab = .me
         settings.appearance = ProcessInfo.processInfo.environment["UI_REVIEW_DARK"] == "1" ? .dark : .light
         _settings = StateObject(wrappedValue: settings)
-        _app = StateObject(wrappedValue: AppModel(settings: settings))
+        let model = AppModel(settings: settings)
+        if let raw = ProcessInfo.processInfo.environment["UI_REVIEW_SITE"], let site = SiteID(rawValue: raw) { model.openSite(site) }
+        _app = StateObject(wrappedValue: model)
         let lock = AppLockController(authenticator: PreviewUnavailableAuthenticator())
         lock.lock()
         _previewLock = StateObject(wrappedValue: lock)

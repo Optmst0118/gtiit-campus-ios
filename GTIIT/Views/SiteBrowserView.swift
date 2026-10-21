@@ -11,6 +11,7 @@ struct SiteBrowserView: View {
 }
 
 private struct BrowserChrome: View {
+    @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var app: AppModel
     @ObservedObject var model: BrowserModel
 
@@ -89,6 +90,14 @@ private struct BrowserChrome: View {
             } label: {
                 Label("刷新", systemImage: "arrow.clockwise")
             }
+
+            Toggle("本站网页暗色适配", isOn: Binding(
+                get: { !settings.originalColorSites.contains(model.site) },
+                set: { enabled in
+                    if enabled { settings.originalColorSites.remove(model.site) }
+                    else { settings.originalColorSites.insert(model.site) }
+                }))
+                .disabled(!settings.webDarkMode)
 
             Button { app.showDownloads = true } label: {
                 Label("下载", systemImage: "arrow.down.circle")

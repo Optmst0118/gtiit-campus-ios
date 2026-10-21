@@ -103,6 +103,311 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "appearance_engine_bundled"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "appearance_exact_school_hosts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "pdf_button_larger_and_concentric_portrait"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "pdf_button_concentric_landscape"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "web_dark_default_enabled"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "per_site_original_colors_persist"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_dark_fixture_loaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_dark_background"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_page_prototypes_untouched"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_form_values_and_validation_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_no_media_or_page_inversion"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_transparent_brand_logo_has_readable_backing"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_availability_color_meaning_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_checkbox_and_dialog_work"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_dynamic_style_adapts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_live_disable_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_layout_dimensions_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_isolated_api_hidden_from_page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_light_mode_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_dark_fixture_loaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_dark_background"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_page_prototypes_untouched"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_form_values_and_validation_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_no_media_or_page_inversion"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_transparent_brand_logo_has_readable_backing"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_availability_color_meaning_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_checkbox_and_dialog_work"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_dynamic_style_adapts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "same_origin_iframe_adapts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_live_disable_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "existing_iframe_live_disable"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_layout_dimensions_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_isolated_api_hidden_from_page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_light_mode_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_dark_fixture_loaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_dark_background"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_page_prototypes_untouched"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_form_values_and_validation_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_no_media_or_page_inversion"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_transparent_brand_logo_has_readable_backing"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_availability_color_meaning_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_checkbox_and_dialog_work"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_dynamic_style_adapts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_live_disable_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_layout_dimensions_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_isolated_api_hidden_from_page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_light_mode_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_dark_fixture_loaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_dark_background"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_page_prototypes_untouched"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_form_values_and_validation_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_no_media_or_page_inversion"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_transparent_brand_logo_has_readable_backing"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_availability_color_meaning_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_checkbox_and_dialog_work"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_dynamic_style_adapts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_live_disable_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_layout_dimensions_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_isolated_api_hidden_from_page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_light_mode_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "external_auth_page_not_modified"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "real_main_frame_available"
     },
     {
@@ -231,7 +536,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 4DBBB2BB-44AE-498D-9CA9-5C4D10EF2794, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-21 14:46:16 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 19B1F385-8271-4610-AB77-33086E6B999D, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-21 16:03:37 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -506,7 +811,7 @@
       "test" : "clear_removes_actual_cached_response"
     },
     {
-      "detail" : "Optional({\"review\":null,\"timer\":null,\"cookies\":\"\"})",
+      "detail" : "{\"review\":null,\"timer\":null,\"cookies\":\"\"}",
       "passed" : true,
       "test" : "cleared_origin_storage_is_empty"
     },
@@ -612,7 +917,7 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-21T14:46:44Z",
+  "date" : "2026-10-21T16:04:08Z",
   "passed" : true,
-  "runID" : "5d9f4679-2281-4c9f-a1b1-1b0d540427b3"
+  "runID" : "066c152d-168c-48d6-b530-3351aa247a22"
 }

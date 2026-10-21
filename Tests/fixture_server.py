@@ -56,6 +56,12 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(b'<title>POST received</title><body>' + data + b'</body>')
     def do_GET(self):
         path = self.path.split('?')[0]
+        if path == '/dark-fixture':
+            content = b'''<!doctype html><html><head><title>Dark fixture</title>
+<style>html,body{background:#fff;color:#111;margin:0}body{padding:16px;font:16px sans-serif}.panel{background:#f5f5f5;color:#202020;padding:16px;width:260px;box-sizing:border-box}input,select,button{font:inherit;padding:8px;background:white;color:#111;border:1px solid #888}.reserved{background:#d80000;color:white}.available{background:#00a050;color:white}#qr{width:32px;height:32px}#dynamic{background:white;color:black}</style>
+</head><body><div id="panel" class="panel"><h2>Campus fixture</h2><form id="form" action="/echo" method="post"><label>Name <input id="name" name="name" value="synthetic" required></label><label>Password <input id="password" type="password" value="synthetic-password"></label><select id="select"><option>A</option><option>B</option></select><input id="check" type="checkbox"><button id="disabled" disabled>Disabled</button><button type="button" id="dialogButton" onclick="document.getElementById('dialog').showModal()">Dialog</button><dialog id="dialog">Native dialog<button type="button" onclick="this.closest('dialog').close()">Close</button></dialog></form><div class="reserved">Reserved</div><div class="available">Available</div><img id="brand-logo" alt="GTIIT logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3C/svg%3E"><img id="qr" alt="Synthetic QR" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath fill='white' d='M0 0h16v16H0z'/%3E%3Cpath d='M0 0h8v8H0zM8 8h8v8H8z'/%3E%3C/svg%3E"><canvas id="canvas" width="16" height="16"></canvas><div id="dynamic">Dynamic content</div></div><script>window.originalInsertRule=CSSStyleSheet.prototype.insertRule;window.originalDefine=customElements.define;window.fixtureClicks=0;document.getElementById('check').addEventListener('change',()=>window.fixtureClicks++);</script></body></html>'''
+            self.send_response(200); self.send_header('Content-Type', 'text/html'); self.send_header('Cache-Control', 'no-store')
+            self.send_header('Content-Length', str(len(content))); self.end_headers(); self.wfile.write(content); return
         if path.startswith('/preview-'):
             if path == '/preview-post':
                 METRICS['preview_gets'] += 1

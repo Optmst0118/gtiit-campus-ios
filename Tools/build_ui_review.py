@@ -2,6 +2,7 @@
 """Build an isolated visual-review app from the original product views."""
 from pathlib import Path
 import plistlib
+import shutil
 import subprocess
 import tempfile
 ROOT = Path(__file__).resolve().parent.parent
@@ -17,5 +18,6 @@ subprocess.run(['xcrun','swiftc','-sdk',sdk,'-target','arm64-apple-ios17.0-simul
     'NSFaceIDUsageDescription':'Visual review of local app-lock UI.',
     'NSAppTransportSecurity':{'NSAllowsArbitraryLoadsInWebContent':True}
 }))
+shutil.copytree(ROOT/'GTIIT/Resources/WebAppearance', folder/'WebAppearance')
 Path('/tmp/gtiit-ui-review-path').write_text(str(folder))
 print(folder)

@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import plistlib
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -37,6 +38,7 @@ def main():
         # Product ATS policy is unchanged and is read from GTIIT/Info.plist.
         'NSAppTransportSecurity': {'NSAllowsArbitraryLoads': True}
     }))
+    shutil.copytree(ROOT/'GTIIT/Resources/WebAppearance', app/'WebAppearance')
     server = subprocess.Popen([sys.executable, str(ROOT/'Tests/fixture_server.py')], cwd=ROOT)
     try:
         call(['xcrun','simctl','install',device,str(app)])

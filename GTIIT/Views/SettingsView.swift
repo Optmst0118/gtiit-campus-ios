@@ -151,6 +151,11 @@ private struct BrowsingSettingsView: View {
             } footer: {
                 Text("只在本机记住四站内不含查询参数的普通 HTTPS 地址；认证和表单页面不保存。关闭后删除已记住的地址。编辑内容与滚动位置不跨启动保存。")
             }
+            Section {
+                Toggle("网页暗色适配", isOn: $settings.webDarkMode)
+            } footer: {
+                Text("随 App 外观切换，仅调整四站的网页配色。图片与二维码保留原色，登录和表单仍由学校网页处理。各站更多菜单可单独恢复原色。")
+            }
         }.navigationTitle("网页浏览").navigationBarTitleDisplayMode(.inline)
     }
 }
