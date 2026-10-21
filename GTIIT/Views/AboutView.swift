@@ -89,6 +89,7 @@ private struct AboutDetailsView: View {
                 bullet("square.grid.2x2", "用底部五个标签承载班车、门户、Moodle、预约与我的。", color: Theme.accent)
                 bullet("bus", "班车按提供的时刻表计算计划发车倒计时，不是实时到站信息。", color: Theme.orange)
                 bullet("safari", "每个标签加载对应官方网页，页面布局、登录和业务操作都不改造。", color: Theme.accent)
+                bullet("bolt", "冷启动并行预加载四站，恢复有效会话；密码、验证码及二次验证由你在学校页面完成。", color: Theme.accent)
                 bullet("arrow.triangle.branch", "主动点击普通跨站链接时切换标签；表单、登录与新窗口保留原认证上下文。", color: Theme.accent)
                 bullet("lock.shield", "四个站点各自持久保存网页会话，可单独清除，也可用面容 ID 遮挡。", color: Theme.accent)
             }

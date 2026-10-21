@@ -70,6 +70,9 @@ enum DownloadRetention: String, SettingChoice {
 
 @MainActor final class AppSettings: ObservableObject {
     private let defaults: UserDefaults
+    @Published var preloadSitesOnLaunch: Bool {
+        didSet { defaults.set(preloadSitesOnLaunch, forKey: "settings.preloadSitesOnLaunch") }
+    }
     @Published var shuttleTeachingWeek: Bool {
         didSet { defaults.set(shuttleTeachingWeek, forKey: "settings.shuttleTeachingWeek") }
     }
@@ -109,6 +112,7 @@ enum DownloadRetention: String, SettingChoice {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        preloadSitesOnLaunch = defaults.object(forKey: "settings.preloadSitesOnLaunch") as? Bool ?? true
         shuttleTeachingWeek = defaults.object(forKey: "settings.shuttleTeachingWeek") as? Bool ?? true
         hasSeenWelcome = defaults.bool(forKey: "settings.hasSeenWelcome")
         biometricLockEnabled = defaults.bool(forKey: "settings.biometricLock")

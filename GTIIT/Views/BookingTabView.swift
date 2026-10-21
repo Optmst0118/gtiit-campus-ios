@@ -36,12 +36,6 @@ struct BookingTabView: View {
                 }.pickerStyle(.segmented)
             }
 
-            Text(app.bookingSegment.site.oneLineBoundary)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-                .minimumScaleFactor(0.85)
-                .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 12)
         .padding(.top, 6)

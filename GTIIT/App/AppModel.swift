@@ -17,12 +17,14 @@ final class AppModel: ObservableObject {
     @Published private(set) var storageStates: [SiteID: Bool] = [:]
 
     let lock = AppLockController()
+    let launch = LaunchPreparation()
     let downloads = DownloadCoordinator()
     let privacyShield = PrivacyShieldController()
     let settings: AppSettings
     @Published private(set) var isClearingData = false
     @Published private(set) var storageSummaries: [SiteID: SiteStorageSummary] = [:]
     private var lockSubscription: AnyCancellable?
+    private var launchSubscription: AnyCancellable?
 
     private var browsers: [SiteID: BrowserModel] = [:]
     private var toastTask: Task<Void, Never>?
@@ -36,6 +38,18 @@ final class AppModel: ObservableObject {
         downloads.start(retention: settings.downloadRetention)
         // 下载的进度、成功与失败均由唯一的下载面板呈现，不再另叠 Toast。
         lockSubscription = lock.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
+        launchSubscription = launch.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
+        if settings.biometricLockEnabled { lock.lock() }
+    }
+
+    func prepareLaunchIfAllowed() {
+        guard settings.hasSeenWelcome, !showWelcome, !lock.isLocked, lock.isActive else { return }
+        guard settings.preloadSitesOnLaunch else { launch.skip(); return }
+        guard !launch.hasStarted, !launch.didFinish else { return }
+        launch.start(models: SiteID.allCases.map { browser(for: $0) }, canRestoreSession: { [weak self] in
+            guard let self else { return false }
+            return !self.lock.isLocked && self.lock.isActive && !self.isClearingData
+        })
     }
 
     // MARK: - 网页内核

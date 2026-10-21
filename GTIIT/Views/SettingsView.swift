@@ -91,10 +91,11 @@ private struct GeneralSettingsView: View {
                 SettingsChoicePicker(
                     "默认预约分类", selection: $settings.defaultBooking, choices: BookingSegment.allCases,
                     title: { $0.title })
+                Toggle("启动时预加载网站", isOn: $settings.preloadSitesOnLaunch)
             } header: {
                 Text("启动")
             } footer: {
-                Text("下次启动 App 时使用。首次使用仍会显示启动说明。")
+                Text("下次启动时使用。预加载会并行准备四站并恢复有效会话，最多等待 10 秒；首次使用仍先显示启动说明。")
             }
             Section {
                 Button("重新查看启动说明") { app.showWelcome = true }

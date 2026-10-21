@@ -1,8 +1,10 @@
-# 架构说明 · 1.2
+# 架构说明 · 1.3
 
 ## 应用与界面
 
-`GTIITApp` 创建共享的 `AppSettings` 和 `AppModel`。设置保存在本机 UserDefaults；外观即时生效，启动标签和默认预约分类在下次启动使用。`RootTabView` 首次进入标签时才创建网页，首次引导完成前不创建网页内核。
+`GTIITApp` 创建共享的 `AppSettings` 和 `AppModel`。设置保存在本机 UserDefaults；外观即时生效，启动标签和默认预约分类在下次启动使用。首次引导完成并通过启用的隐私锁后，`LaunchPreparation` 并行准备四站，`LaunchPreloadView` 为实际 WKWebView 提供布局和窗口。进入标签时复用同一 BrowserModel 与 WKWebView。独立 10 秒截止任务与“直接进入”避免等待阻塞；关闭预加载时保留原有按需创建行为。首次引导完成前不预加载。
+
+每进程只执行一次预加载，不清理 Cookie 或缓存。普通登录重定向由网站处理；Moodle 只在官方登录页尝试一次既有 HTTPS SAML 入口。可见密码／验证码表单或认证地址显示“需要登录”；页面就绪不等于认证成功。探测仅读取链接和字段可见性，不读取账号、密码、Cookie 或表单值。
 
 原生界面采用 SwiftUI NavigationStack、List、Form、语义字体和自适应系统颜色。“我的”提供常用入口及设置齿轮；SettingsView 将通用、隐私、浏览、站点、存储、下载、帮助和关于分别展开。辅助功能字号下，SettingsChoicePicker 使用可换行的独立选项列表，避免菜单当前值被截短。
 

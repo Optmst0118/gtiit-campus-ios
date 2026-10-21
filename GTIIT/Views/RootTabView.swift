@@ -6,6 +6,17 @@ struct RootTabView: View {
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
+        ZStack {
+            if settings.hasSeenWelcome && settings.preloadSitesOnLaunch && !app.launch.didFinish {
+                LaunchPreloadView(preparation: app.launch)
+            } else {
+                tabs
+            }
+        }
+        .modifier(RootLifecycle(app: app, settings: settings))
+    }
+
+    private var tabs: some View {
         TabView(selection: $app.selectedTab) {
             ForEach(AppTab.allCases) { tab in
                 tabContent(for: tab)
@@ -15,7 +26,16 @@ struct RootTabView: View {
                     .tag(tab)
             }
         }
-        .tint(Theme.accent)
+    }
+}
+
+/// 放在启动页与主界面外层，切换界面不会重复显示引导、重置锁或启动网络请求。
+private struct RootLifecycle: ViewModifier {
+    @ObservedObject var app: AppModel
+    @ObservedObject var settings: AppSettings
+    @Environment(\.scenePhase) private var scenePhase
+    func body(content: Content) -> some View {
+        content.tint(Theme.accent)
         .accessibilityHidden(app.lock.isLocked)
         .allowsHitTesting(!app.lock.isLocked && !app.isClearingData)
         .onChange(of: app.selectedTab) { _, newValue in
@@ -64,10 +84,11 @@ struct RootTabView: View {
                 .environmentObject(app)
         }
         .task {
-            await WebDataStoreRegistry.shared.cleanupRetiredStores()
             #if DEBUG
                 applyDebugLaunchOverrides()
             #endif
+            app.prepareLaunchIfAllowed()
+            await WebDataStoreRegistry.shared.cleanupRetiredStores()
         }
         .onAppear {
             if !settings.hasSeenWelcome {
@@ -79,10 +100,14 @@ struct RootTabView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 app.lock.setActive(settings: settings)
+                app.prepareLaunchIfAllowed()
             } else {
                 app.lock.setInactive(settings: settings)
             }
         }
+        .onChange(of: app.lock.isLocked) { _, locked in if !locked { app.prepareLaunchIfAllowed() } }
+        .onChange(of: settings.hasSeenWelcome) { _, _ in app.prepareLaunchIfAllowed() }
+        .onChange(of: app.showWelcome) { _, shown in if !shown { app.prepareLaunchIfAllowed() } }
     }
 
     #if DEBUG
@@ -94,6 +119,7 @@ struct RootTabView: View {
                 settings.markWelcomeSeen()
                 app.showWelcome = false
             }
+            if environment["GTIIT_SKIP_PRELOAD"] == "1" { app.launch.skip() }
             if let raw = environment["GTIIT_TAB"], let tab = AppTab(rawValue: raw) {
                 app.select(tab: tab)
             }
@@ -105,10 +131,11 @@ struct RootTabView: View {
         }
     #endif
 
-    /// 首次进入某个 Tab 时才创建网页内核，避免冷启动同时打四个站点；
-    /// 确认首次启动说明之前不创建任何 WebView（规格 F.5）。
-    @ViewBuilder
-    private func tabContent(for tab: AppTab) -> some View {
+}
+
+extension RootTabView {
+    /// 启动预加载完成后复用同一批内核；未查看的标签仍延迟创建 SwiftUI 宿主。
+    @ViewBuilder fileprivate func tabContent(for tab: AppTab) -> some View {
         if app.visitedTabs.contains(tab), settings.hasSeenWelcome {
             switch tab {
             case .shuttle:

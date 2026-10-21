@@ -152,6 +152,7 @@ private final class RetiredViewReference {
         check("reject_auth_parameters_and_wrong_origin", settings.initialURL(for: .portal) == ordinary)
         settings.restoreLastPage = false
         check("disable_restore_removes_locations", settings.initialURL(for: .portal) == SiteID.portal.homeURL)
+        await verifyLaunchPreparation()
         let capture = FrameCapture()
         let frameWebView = WKWebView()
         frameWebView.navigationDelegate = capture
@@ -510,6 +511,65 @@ private final class RetiredViewReference {
         // 大块控制台 JSON 会阻塞部分 simctl --console 版本；证据已写入文件。
         print("Regression complete:", results.count, "checks; passed:", results.allSatisfy { $0["passed"] as? Bool == true })
         exit(results.allSatisfy { $0["passed"] as? Bool == true } ? 0 : 1)
+    }
+
+    private func verifyLaunchPreparation() async {
+        let defaults = UserDefaults(suiteName: "regression.launch")!
+        defaults.removePersistentDomain(forName: "regression.launch")
+        let preferences = AppSettings(defaults: defaults)
+        let guarded = AppModel(settings: preferences)
+        guarded.prepareLaunchIfAllowed()
+        check("preload_waits_for_welcome", !guarded.launch.hasStarted && guarded.launch.models.isEmpty)
+        preferences.hasSeenWelcome = true
+        guarded.lock.lock()
+        guarded.prepareLaunchIfAllowed()
+        check("preload_waits_for_unlock", !guarded.launch.hasStarted && guarded.launch.models.isEmpty)
+        preferences.preloadSitesOnLaunch = false
+        let disabled = AppModel(settings: preferences)
+        disabled.prepareLaunchIfAllowed()
+        check("preload_setting_skips_network", disabled.launch.didFinish && disabled.launch.models.isEmpty)
+        check("preload_setting_persists", !AppSettings(defaults: defaults).preloadSitesOnLaunch)
+        check("preload_sso_preserves_school_link", LaunchPreparation.allowedMoodleSSO("https://moodle.gtiit.edu.cn/moodle/auth/saml2/login.php?wants&idp=fixture")?.query?.contains("idp=fixture") == true)
+        check("preload_sso_rejects_other_origin", LaunchPreparation.allowedMoodleSSO("https://moodle.gtiit.edu.cn.example.com/moodle/auth/saml2/login.php") == nil)
+        check("preload_sso_rejects_cleartext_or_action", LaunchPreparation.allowedMoodleSSO("http://moodle.gtiit.edu.cn/moodle/auth/saml2/login.php") == nil && LaunchPreparation.allowedMoodleSSO("https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php") == nil)
+
+        let router = TestRouter()
+        let models = SiteID.allCases.map { BrowserModel(site: $0, router: router) }
+        for model in models {
+            model.webView.stopLoading()
+            model.webView.frame = window!.bounds
+            window!.rootViewController!.view.addSubview(model.webView)
+            model.webView.loadHTMLString(model.site == .moodle ? "<title>Login</title><input type='password'>" : "<title>Ready</title><p>ready</p>", baseURL: nil)
+        }
+        check("preload_real_pages_loaded", await wait { models.allSatisfy { $0.hasLoadedOnce && !$0.isLoading && $0.webView.title == ($0.site == .moodle ? "Login" : "Ready") } })
+        let identities = models.map { ObjectIdentifier($0.webView) }
+        let preparation = LaunchPreparation()
+        preparation.start(models: models, timeout: 4)
+        check("preload_completes_all_four", await wait(5) { preparation.didFinish && preparation.settledCount == 4 })
+        check("preload_marks_login_without_claiming_success", preparation.states[.moodle] == .needsLogin, "\(String(describing: preparation.states[.moodle]))")
+        check("preload_other_pages_ready", models.filter { $0.site != .moodle }.allSatisfy { preparation.states[$0.site] == .ready })
+        check("preload_reuses_exact_webviews", identities == preparation.models.map { ObjectIdentifier($0.webView) })
+        preparation.start(models: [], timeout: 0)
+        check("preload_only_once_per_process", preparation.models.count == 4 && preparation.didFinish)
+        for model in models { _ = await model.prepareForDataClear(); model.releaseDataStoreView() }
+
+        let slow = BrowserModel(site: .sports, router: router)
+        slow.webView.stopLoading()
+        slow.webView.frame = window!.bounds
+        window!.rootViewController!.view.addSubview(slow.webView)
+        slow.load(base.appendingPathComponent("slow-page"))
+        _ = await wait { slow.isLoading }
+        let deadline = LaunchPreparation()
+        let began = Date()
+        deadline.start(models: [slow], timeout: 0.2)
+        check("preload_deadline_does_not_block_app", await wait(1) { deadline.didFinish } && Date().timeIntervalSince(began) < 1)
+        check("preload_timeout_defers_pending_page", deadline.states[.sports] == .deferred)
+        let skip = LaunchPreparation()
+        skip.start(models: [slow])
+        skip.skip()
+        check("preload_skip_keeps_navigation_running", skip.didFinish && slow.isLoading)
+        _ = await slow.prepareForDataClear()
+        slow.releaseDataStoreView()
     }
 }
 

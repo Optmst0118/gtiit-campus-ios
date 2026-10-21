@@ -30,6 +30,14 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(b'<title>POST received</title><body>' + data + b'</body>')
     def do_GET(self):
         path = self.path.split('?')[0]
+        if path == '/slow-page':
+            time.sleep(2)
+            content = b'<title>Slow fixture</title><p>ready</p>'
+            self.send_response(200); self.send_header('Content-Type', 'text/html')
+            self.send_header('Content-Length', str(len(content))); self.end_headers()
+            try: self.wfile.write(content)
+            except (BrokenPipeError, ConnectionResetError): pass
+            return
         if path == '/post-pdf':
             METRICS['pdf_gets'] += 1
             self.send_response(405); self.end_headers(); return

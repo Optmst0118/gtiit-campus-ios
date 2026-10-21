@@ -23,6 +23,86 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "preload_waits_for_welcome"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_waits_for_unlock"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_setting_skips_network"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_setting_persists"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_sso_preserves_school_link"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_sso_rejects_other_origin"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_sso_rejects_cleartext_or_action"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_real_pages_loaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_completes_all_four"
+    },
+    {
+      "detail" : "Optional(Regression.SitePreparationState.needsLogin)",
+      "passed" : true,
+      "test" : "preload_marks_login_without_claiming_success"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_other_pages_ready"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_reuses_exact_webviews"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_only_once_per_process"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_deadline_does_not_block_app"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_timeout_defers_pending_page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_skip_keeps_navigation_running"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "real_main_frame_available"
     },
     {
@@ -151,7 +231,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 666067D9-AB66-48FA-8478-5BB4F6D60FC4, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-21 13:20:07 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 2B078DC4-5CE5-424A-88B8-8AFACBA3A1F0, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-21 13:45:04 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -367,7 +447,7 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-21T13:20:20Z",
+  "date" : "2026-10-21T13:45:16Z",
   "passed" : true,
-  "runID" : "c453fa7d-27a1-498c-819c-6ee6510e2d78"
+  "runID" : "f3511461-3329-431e-b93c-64008f0e69f0"
 }

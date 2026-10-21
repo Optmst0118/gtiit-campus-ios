@@ -210,7 +210,7 @@ def build_project() -> str:
     target_settings = team_line + """\t\t\t\tASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 \t\t\t\tASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 \t\t\t\tCODE_SIGN_STYLE = Automatic;
-\t\t\t\tCURRENT_PROJECT_VERSION = 6;
+\t\t\t\tCURRENT_PROJECT_VERSION = 7;
 \t\t\t\tENABLE_PREVIEWS = YES;
 \t\t\t\tGENERATE_INFOPLIST_FILE = NO;
 \t\t\t\tINFOPLIST_FILE = %s/Info.plist;
@@ -219,7 +219,7 @@ def build_project() -> str:
 \t\t\t\t\t"$(inherited)",
 \t\t\t\t\t"@executable_path/Frameworks",
 \t\t\t\t);
-\t\t\t\tMARKETING_VERSION = 1.2;
+\t\t\t\tMARKETING_VERSION = 1.3;
 \t\t\t\tPRODUCT_BUNDLE_IDENTIFIER = "%s";
 \t\t\t\tPRODUCT_NAME = "$(TARGET_NAME)";
 \t\t\t\tSWIFT_EMIT_LOC_STRINGS = YES;

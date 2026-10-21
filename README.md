@@ -1,4 +1,4 @@
-# GTIIT 校园助手 · iOS 1.2 (6)
+# GTIIT 校园助手 · iOS 1.3 (7)
 
 SwiftUI + WKWebView 的非官方校园客户端，最低 iOS 17。原生班车倒计时与五个标签入口；门户、Moodle、练习房/讨论室及体育业务由官方网页提供。最新设计看板与图标源文件见 [设计参考](docs/design/DESIGN.md)。
 
@@ -16,6 +16,9 @@ xcodebuild -project GTIIT.xcodeproj -scheme GTIIT -configuration Debug \
 新增源文件后运行工程生成器。生成器从 `DEVELOPMENT_TEAM` 环境变量或本机 `Tools/signing.env` 读取团队配置。
 
 ## 本轮改进
+
+- 冷启动先显示预加载界面，四站并行准备并复用同一批网页内核。恢复有效会话；Moodle 尝试已有 Office 365 单点登录入口，密码与二次验证仍由用户完成。最多等待 10 秒，可直接进入；通用设置可关闭。
+- 删除预约页两个分类顶部的原生免责声明。
 
 - 最左侧新增班车：南→北、北→南双栏，下一班、倒计时、随后班次和完整表。58 个车次来自用户提供的 2026-10-12 时刻表；教学周手动确认，倒计时是计划发车而非实时到站。
 - 顶栏移除左右箭头和域名，只显示可点击回主页的标题与“更多”。刷新仅放在“更多”；前进后退仍可从更多访问。
@@ -43,7 +46,7 @@ python3 Tools/run_regression.py <测试模拟器UDID>
 python3 Tools/verify_builds.py
 ```
 
-1.2 验收包含真实 WebKit 集成回归与独立班车检查，机器结果位于 `docs/verification/`。1.1 的 56 项与三种构建记录保留为历史材料；最新交付说明为 `docs/RELEASE-1.2.md`。
+1.3 验收包含 89 项真实 WebKit／启动流程集成回归与 40 项独立班车检查，机器结果位于 `docs/verification/`。1.1 的 56 项与三种构建记录保留为历史材料；最新交付说明为 `docs/RELEASE-1.3.md`。
 
 脚本编译原产品源码，排除 `GTIITApp.swift` 并替换为测试入口。结果写入 `docs/verification/regression-results.json`。涵盖导航策略和真实 WebKit POST、blob、弹窗、下载、缓存/登录清理、保留期限、诊断以及锁定状态。
 

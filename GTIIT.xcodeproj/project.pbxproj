@@ -23,6 +23,7 @@
 		ED1275125F83C527E35E83C9 /* BrowserRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE0F6FADE74A2951106A4ED /* BrowserRouter.swift */; };
 		89C4820324FB117FB157BAD1 /* DocumentTeardown.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0DDFB65ED0B7414E58ADD4 /* DocumentTeardown.swift */; };
 		607CE0B1335D774C4A71183D /* DownloadCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F30D6D151A100C46A6C0AE8 /* DownloadCoordinator.swift */; };
+		FE696E0160EF2877CFDFD610 /* LaunchPreparation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3681D1B76590D940080E18E9 /* LaunchPreparation.swift */; };
 		2D227D5722A7043CD538FC3D /* LocalAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3355A38E3E2F1E7A1522EFA8 /* LocalAuthenticator.swift */; };
 		2BDDF352C1BE93B5F02434F0 /* NavigationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7406024295E4E0281ED1F4CA /* NavigationPolicy.swift */; };
 		2255BBF01A2D87BF634F92F6 /* NetworkDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */; };
@@ -32,6 +33,7 @@
 		BD2A8DE7BC76C89B398D2D94 /* BookingTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B6DFDA40F39218E6CB5B2 /* BookingTabView.swift */; };
 		1E3CCF1B90772377B896875F /* DownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71865DECF3411BC2686A995B /* DownloadsView.swift */; };
 		3F7E4CF2E4C5A389A1139D86 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89577AFC0E3F31DFE26AAFAD /* HelpView.swift */; };
+		ED89A1505462C4E57FD89C92 /* LaunchPreloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */; };
 		2083A20EED7A9DA069E3F650 /* LockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FAD011A1658F97414746F9 /* LockScreenView.swift */; };
 		42163D6FEAAEABE45B668B9F /* MyTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AC536C50EC4B48743196A7 /* MyTabView.swift */; };
 		9B5E893ADDF2C6FFE4F53584 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B32A814B9C6172E0E91CE6 /* RootTabView.swift */; };
@@ -66,6 +68,7 @@
 		4CE0F6FADE74A2951106A4ED /* BrowserRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserRouter.swift; sourceTree = "<group>"; };
 		AB0DDFB65ED0B7414E58ADD4 /* DocumentTeardown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentTeardown.swift; sourceTree = "<group>"; };
 		0F30D6D151A100C46A6C0AE8 /* DownloadCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadCoordinator.swift; sourceTree = "<group>"; };
+		3681D1B76590D940080E18E9 /* LaunchPreparation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchPreparation.swift; sourceTree = "<group>"; };
 		3355A38E3E2F1E7A1522EFA8 /* LocalAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAuthenticator.swift; sourceTree = "<group>"; };
 		7406024295E4E0281ED1F4CA /* NavigationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationPolicy.swift; sourceTree = "<group>"; };
 		41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkDiagnostics.swift; sourceTree = "<group>"; };
@@ -75,6 +78,7 @@
 		BD7B6DFDA40F39218E6CB5B2 /* BookingTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookingTabView.swift; sourceTree = "<group>"; };
 		71865DECF3411BC2686A995B /* DownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
 		89577AFC0E3F31DFE26AAFAD /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
+		B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchPreloadView.swift; sourceTree = "<group>"; };
 		91FAD011A1658F97414746F9 /* LockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenView.swift; sourceTree = "<group>"; };
 		70AC536C50EC4B48743196A7 /* MyTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTabView.swift; sourceTree = "<group>"; };
 		06B32A814B9C6172E0E91CE6 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
@@ -186,6 +190,7 @@
 				4CE0F6FADE74A2951106A4ED /* BrowserRouter.swift */,
 				AB0DDFB65ED0B7414E58ADD4 /* DocumentTeardown.swift */,
 				0F30D6D151A100C46A6C0AE8 /* DownloadCoordinator.swift */,
+				3681D1B76590D940080E18E9 /* LaunchPreparation.swift */,
 				3355A38E3E2F1E7A1522EFA8 /* LocalAuthenticator.swift */,
 				7406024295E4E0281ED1F4CA /* NavigationPolicy.swift */,
 				41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */,
@@ -202,6 +207,7 @@
 				BD7B6DFDA40F39218E6CB5B2 /* BookingTabView.swift */,
 				71865DECF3411BC2686A995B /* DownloadsView.swift */,
 				89577AFC0E3F31DFE26AAFAD /* HelpView.swift */,
+				B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */,
 				91FAD011A1658F97414746F9 /* LockScreenView.swift */,
 				70AC536C50EC4B48743196A7 /* MyTabView.swift */,
 				06B32A814B9C6172E0E91CE6 /* RootTabView.swift */,
@@ -313,6 +319,7 @@
 				ED1275125F83C527E35E83C9 /* in Sources */,
 				89C4820324FB117FB157BAD1 /* in Sources */,
 				607CE0B1335D774C4A71183D /* in Sources */,
+				FE696E0160EF2877CFDFD610 /* in Sources */,
 				2D227D5722A7043CD538FC3D /* in Sources */,
 				2BDDF352C1BE93B5F02434F0 /* in Sources */,
 				2255BBF01A2D87BF634F92F6 /* in Sources */,
@@ -322,6 +329,7 @@
 				BD2A8DE7BC76C89B398D2D94 /* in Sources */,
 				1E3CCF1B90772377B896875F /* in Sources */,
 				3F7E4CF2E4C5A389A1139D86 /* in Sources */,
+				ED89A1505462C4E57FD89C92 /* in Sources */,
 				2083A20EED7A9DA069E3F650 /* in Sources */,
 				42163D6FEAAEABE45B668B9F /* in Sources */,
 				9B5E893ADDF2C6FFE4F53584 /* in Sources */,
@@ -429,7 +437,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -438,7 +446,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -454,7 +462,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -463,7 +471,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
