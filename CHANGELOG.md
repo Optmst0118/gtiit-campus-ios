@@ -4,9 +4,46 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.11] - 2026-10-22
 
-### Added — local 1.6 (10), 2026-10-22
+### Fixed
+
+- Shortcut previews remain proportionally enlarged by 12% for the complete context-menu lifetime; the source and preview explicitly use matching continuous rounded silhouettes.
+- Download grid context-menu lift silhouettes include only the document thumbnail, excluding the filename and full grid cell. The coordinated large file preview remains available.
+- README, architecture, design notes, document index and changelog now describe all local changes through this version, including releases that had not yet reached the remote branch.
+
+## [1.10] - 2026-10-22
+
+### Added
+
+- Protected on-device Moodle summaries, 30-minute automatic refresh, current-term active-course selection and manual refresh. Moodle sign-out/data clearing removes the summary.
+- Persistent shortcut add/hide/restore controls in Settings → General, native share/remove context menus, document context previews, and subtle background blur/dim.
+- Settings → Timetable uses standard push navigation with local import, viewing and deletion inside.
+
+### Fixed
+
+- Shared WebKit host handoff/restoration on portal timetable import, iOS 26 obscured-inset handling for fixed/inner-scroll pages, and guarded read-only process recovery. No automatic form/POST replay.
+
+## [1.9] - 2026-10-22
+
+- One modal with portal → review navigation for timetable import; top-right blue checkmark saves, with explicit replacement confirmation.
+- Saturated blue shortcut gradients and consistent calendar symbol; blue/orange vertical fade backgrounds on shuttle direction cards.
+- Fixed missing settings dependency in the isolated review harness.
+
+## [1.8] - 2026-10-22
+
+- Web content extends beneath native tabs; dark canvases use the same #0E141C background as Me.
+- Separate timetable and Moodle cards, two-column shortcut grid, and bottom grouped Downloads/Settings/Help rows.
+- Campus Wi-Fi/aTrust recovery guidance for all four website error states.
+
+## [1.7] - 2026-10-22
+
+- Automatic portal timetable recognition followed by explicit confirmation; source-backed holidays and direction-specific shuttle timetable links.
+- Moodle upcoming items combine calendar events with per-course assignment pages to find deadlines missing from Timeline.
+
+## [1.6] - 2026-10-22
+
+### Added
 
 - Source-backed academic calendar in Me, with year selection, upcoming events, native month decorations, source PDF viewing and explicit unverified source dates.
 - User-initiated registered timetable extraction from the portal Enrollments page. Review validity dates before local protected storage; today/next-class card and weekly view include rooms. Verified calendar holidays and makeup weekdays are applied within the confirmed validity range.

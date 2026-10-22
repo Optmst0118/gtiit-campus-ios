@@ -2,6 +2,12 @@
 
 | 文档 | 内容 |
 | --- | --- |
+| [RELEASE-1.11.md](RELEASE-1.11.md) | 长按持续放大、圆角与文件轮廓修复；文档和 GitHub 同步 |
+| [RELEASE-1.10.md](RELEASE-1.10.md) | 当前学期日程缓存、网页宿主与底栏、入口管理 |
+| [RELEASE-1.9.md](RELEASE-1.9.md) | 课表导入层级、蓝色卡片与班车渐变 |
+| [RELEASE-1.8.md](RELEASE-1.8.md) | 网页底栏布局、暗色画布、我的页面与网络提示 |
+| [RELEASE-1.7.md](RELEASE-1.7.md) | 自动识别课表与 Moodle 日程 |
+| [RELEASE-1.6.md](RELEASE-1.6.md) | 校历、本地课表、语言与以龙 |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | 分层、会话隔离、跨站路由与关键决策 |
 | [RESEARCH-SPEC.md](RESEARCH-SPEC.md) | 四个校园站点的能力边界、信息架构与中文文案规格（2026-10-21 快照） |
 | [design/DESIGN.md](design/DESIGN.md) | 配色、图标、动效、设计参考与数据边界 |

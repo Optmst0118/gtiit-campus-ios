@@ -196,6 +196,9 @@ struct DownloadsView: View {
         .buttonStyle(.plain)
         .accessibilityLabel(item.filename)
         .accessibilityValue(detail(item))
+        // The interaction can start anywhere in the item, but its lifted source
+        // contains only the 72 × 88 document, never the caption or grid cell.
+        .contentShape(.contextMenuPreview, DownloadIconPreviewShape())
         .contextMenu { contextMenu(for: item) } preview: {
             if item.state == .completed, let url = center.fileURL(for: item) {
                 DownloadContextPreview(source: url, filename: item.filename)
@@ -352,5 +355,13 @@ private struct DownloadPeekController: UIViewControllerRepresentable {
         func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
             asset.url! as NSURL
         }
+    }
+}
+
+private struct DownloadIconPreviewShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        let width = min(72, rect.width), height = min(88, rect.height)
+        return RoundedRectangle(cornerRadius: 4, style: .continuous)
+            .path(in: CGRect(x: rect.midX - width / 2, y: rect.minY, width: width, height: height))
     }
 }

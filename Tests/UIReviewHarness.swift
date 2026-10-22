@@ -10,6 +10,9 @@ import UIKit
     init() {
         let defaults = UserDefaults(suiteName: "ui-review.preferences")!
         defaults.removePersistentDomain(forName: "ui-review.preferences")
+        if ProcessInfo.processInfo.environment["UI_REVIEW_DOWNLOAD_GRID"] == "1" {
+            UserDefaults.standard.set(true, forKey: "downloads.grid")
+        }
         let settings = AppSettings(defaults: defaults)
         settings.hasSeenWelcome = true
         settings.language = ProcessInfo.processInfo.environment["UI_REVIEW_ENGLISH"] == "1" ? .english : .chinese

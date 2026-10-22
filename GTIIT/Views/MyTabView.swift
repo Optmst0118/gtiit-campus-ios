@@ -43,10 +43,11 @@ struct MyTabView: View {
 
 /// Shared by the Me page and the isolated visual review host.
 struct CampusShortcutsSection: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
     @State private var managing = false
-    @State private var tileWidth: CGFloat = 170
+    @State private var tileSizes: [String: CGSize] = [:]
     private var shortcuts: [CampusShortcut] { CampusShortcut.all.filter { settings.shortcutIDs.contains($0.id) } }
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -57,12 +58,13 @@ struct CampusShortcutsSection: View {
                         .frame(maxWidth: .infinity, alignment: .leading).padding(18).cardBackground()
                 }.buttonStyle(CardPressStyle())
             }
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+            LazyVGrid(columns: dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())] : [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
                 ForEach(Array(shortcuts.enumerated()), id: \.element.id) { index, shortcut in
                     shortcutButton(shortcut, tone: index)
                         .background { GeometryReader { geometry in
-                            Color.clear.preference(key: ShortcutWidthKey.self, value: geometry.size.width)
+                            Color.clear.preference(key: ShortcutSizeKey.self, value: [shortcut.id: geometry.size])
                         } }
+                        .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 24, style: .continuous))
                         .contextMenu {
                             if let url = shortcut.link?.url {
                                 ShareLink(item: url) { Label(L10n.tr("分享"), systemImage: "square.and.arrow.up") }
@@ -72,16 +74,24 @@ struct CampusShortcutsSection: View {
                             }
                             Button(L10n.tr("管理常用入口"), systemImage: "slider.horizontal.3") { managing = true }
                         } preview: {
-                            // Keep the source card's exact dimensions; UIKit supplies
-                            // the small native lift instead of a wide replacement card.
+                            // Scale the complete source layout, including typography
+                            // and continuous corners, for the entire menu lifetime.
+                            let tileSize = tileSizes[shortcut.id] ?? CGSize(width: 170, height: 116)
                             CampusShortcutTile(title: shortcut.title, symbol: shortcut.symbol, tone: index)
-                                .frame(width: tileWidth)
+                                .frame(width: tileSize.width, height: tileSize.height)
+                                .scaleEffect(1.12)
+                                .frame(width: tileSize.width * 1.12, height: tileSize.height * 1.12)
+                                .clipShape(RoundedRectangle(cornerRadius: 24 * 1.12, style: .continuous))
+                                .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 24 * 1.12, style: .continuous))
                                 .onAppear { app.showContextMenu("shortcut." + shortcut.id) }
                                 .onDisappear { app.hideContextMenu("shortcut." + shortcut.id) }
                         }
                 }
             }.buttonStyle(.plain)
-                .onPreferenceChange(ShortcutWidthKey.self) { width in if width > 0 { tileWidth = width } }
+                .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 18 : 0)
+                .onPreferenceChange(ShortcutSizeKey.self) { sizes in
+                    tileSizes = sizes.filter { $0.value.width > 0 && $0.value.height > 0 }
+                }
 
                     VStack(spacing: 0) {
                         NavigationLink { DownloadsView(center: app.downloads) } label: {
@@ -196,7 +206,9 @@ private struct MyUtilityRow: View {
     }
 }
 
-private struct ShortcutWidthKey: PreferenceKey {
-    static var defaultValue: CGFloat { 0 }
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+private struct ShortcutSizeKey: PreferenceKey {
+    static var defaultValue: [String: CGSize] { [:] }
+    static func reduce(value: inout [String: CGSize], nextValue: () -> [String: CGSize]) {
+        value.merge(nextValue(), uniquingKeysWith: { _, newest in newest })
+    }
 }

@@ -1,4 +1,4 @@
-# 架构说明 · 1.4
+# 架构说明 · 1.11
 
 ## 应用与界面
 
@@ -6,7 +6,7 @@
 
 每进程只执行一次预加载，不清理 Cookie 或缓存。普通登录重定向由网站处理；Moodle 只在官方登录页尝试一次既有 HTTPS SAML 入口。可见密码／验证码表单或认证地址显示“需要登录”；页面就绪不等于认证成功。探测仅读取链接和字段可见性，不读取账号、密码、Cookie 或表单值。
 
-原生界面采用 SwiftUI NavigationStack、List、Form、语义字体和自适应系统颜色。“我的”提供常用入口及设置齿轮；SettingsView 将通用、隐私、浏览、站点、存储、下载、帮助和关于分别展开。辅助功能字号下，SettingsChoicePicker 使用可换行的独立选项列表，避免菜单当前值被截短。
+原生界面采用 SwiftUI NavigationStack、List、Form、语义字体和自适应系统颜色。设置中的“课表”与其他同级项使用相同的 push 导航，导入操作再进入独立的识别／核对流程。“我的”提供常用入口及设置齿轮；SettingsView 将通用、隐私、浏览、站点、存储、下载、帮助和关于分别展开。辅助功能字号下，SettingsChoicePicker 使用可换行的独立选项列表，避免菜单当前值被截短。
 
 ## 四站会话与清理
 
@@ -70,4 +70,24 @@ NetworkDiagnostics 使用 ephemeral URLSession，显式关闭 Cookie、URL 缓�
 
 Tests 和 Tools 提供独立测试入口，不进入产品 Sources。回归运行于独立测试 App 和可丢弃模拟器，覆盖真实 WebKit 行为、合成 Cookie 隔离、实际缓存命中/清理、下载及隐私状态。认证状态用可注入接口测试，生产入口固定使用系统认证。
 
-参考 Apple 官方设计与接口说明：[Settings](https://developer.apple.com/design/human-interface-guidelines/settings)、[Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility)、[WKUIDelegate 子窗口](https://developer.apple.com/documentation/webkit/wkuidelegate/webview(_:createwebviewwith:for:windowfeatures:))。最新验证范围与限制见 `RELEASE-1.2.md`；1.1 记录保留在 `IMPROVEMENTS-20261021.md`。
+参考 Apple 官方设计与接口说明：[Settings](https://developer.apple.com/design/human-interface-guidelines/settings)、[Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility)、[WKUIDelegate 子窗口](https://developer.apple.com/documentation/webkit/wkuidelegate/webview(_:createwebviewwith:for:windowfeatures:))。最新验证范围与限制见 `RELEASE-1.11.md`；1.1 记录保留在 `IMPROVEMENTS-20261021.md`。
+
+## 课表、校历与 Moodle 日程
+
+LocalTimetableStore 只在用户确认后保存正式选课快照；课程名、班组、星期、时间、教室与楼宇存入受文件保护且排除备份的 Application Support。AcademicCalendarStore 保留来源教学与调整数据供课表计算，月历呈现仅将经核实的实际放假日标红；原始 PDF 属于本机授权资源，不随公开仓库分发。
+
+MoodleUpcomingStore 使用 Moodle 当前网页会话，在同源脚本中读取日历与作业页，原生只接收清理过的名称、课程、时间、状态和安全链接。课程 API 请求 in-progress 分类，再排除明确的旧学期、未来／过期日期和不可见课程，当前学期来自校历学期开始日；未标学期但被 Moodle 判定活跃的课程仍可纳入。空结果不会回退全课程扫描，并发作业页请求上限为 2。
+
+摘要文件按学期标记，启用 complete file protection 并排除系统备份；匹配学期且未超过 7 天的摘要可在重启后恢复，显示项仍按当前时间过滤。自动刷新最短间隔 1800 秒，手动刷新可立即执行；后台／锁定取消进行中的任务，退出登录或清除 Moodle 数据同步删除摘要。缓存不包含密码、session key、成绩、正文或附件。
+
+## 网页宿主与透明底栏
+
+WebViewHostController 只在可见时挂载 BrowserModel 的 WKWebView。打开课表导入时，新宿主取得同一网页，旧宿主的后台 SwiftUI 更新不能抢回；释放时恢复到仍存在的原宿主。WebKit 的真实 UIScrollView 通过 setContentScrollView 注册给底栏。iOS 26+ 使用 obscuredContentInsets 同时协调布局视口、固定元素与内部滚动，网页视图本身仍延伸到窗口底部。
+
+进程回收后，仅对前台、未锁定、未编辑且无表单的普通 GET 页面限频恢复。编辑观察器只发送布尔值，不读取输入内容；POST、认证和一次性查询地址不自动重放。手动恢复不安全请求时返回站点首页。共享网页复用缺陷与原生进程崩溃是不同故障，诊断不能混为一谈。
+
+## 长按与文件来源轮廓
+
+无菜单的可点击卡片使用 CardPressStyle，按住微缩、松开恢复；有分享／移除动作的卡片由系统 contextMenu 管理。常用入口预览复用源卡片布局，宽、高、字体和连续圆角统一等比放大 1.12，整个菜单生命周期保持该比例，源轮廓与预览轮廓分别用 contextMenuPreview 指定。ContextMenuBackdrop 只为底层页面增加 1.6pt 模糊和 4% 黑色叠加，菜单仍由系统呈现；退出、锁定和背景切换清除对应状态。
+
+下载列表与网格保留独立的 Quick Look 大预览，用 File Coordinator 创建临时可读副本，其生命周期不依赖下载浮窗。网格的交互命中仍覆盖文件项，但 contextMenuPreview 的形状仅为顶部居中的 72×88pt 文档缩略图，不把标题或整格当作被抬起的文件。预览副本释放时清理，不生成新下载记录。
