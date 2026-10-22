@@ -14,7 +14,7 @@ import UIKit
         settings.hasSeenWelcome = true
         settings.language = ProcessInfo.processInfo.environment["UI_REVIEW_ENGLISH"] == "1" ? .english : .chinese
         settings.preloadSitesOnLaunch = false
-        settings.startupTab = .me
+        settings.startupTab = ProcessInfo.processInfo.environment["UI_REVIEW_SHUTTLE"] == "1" ? .shuttle : .me
         settings.appearance = ProcessInfo.processInfo.environment["UI_REVIEW_DARK"] == "1" ? .dark : .light
         _settings = StateObject(wrappedValue: settings)
         let model = AppModel(settings: settings)
@@ -60,7 +60,20 @@ import UIKit
     var body: some Scene {
         WindowGroup {
             Group {
-                if environment["UI_REVIEW_ERROR"] == "1" {
+                if environment["UI_REVIEW_SHORTCUTS"] == "1" {
+                    NavigationStack {
+                        ScrollView {
+                            CampusShortcutsSection().padding(.horizontal, 20).padding(.bottom, 20)
+                        }
+                        .background(Theme.pageBackground)
+                        .navigationTitle(L10n.tr("我的"))
+                        .navigationBarTitleDisplayMode(.inline)
+                    }.environmentObject(app).environmentObject(settings)
+                } else if environment["UI_REVIEW_IMPORT"] == "1" {
+                    TimetableImportView(initialDraft: app.timetable.snapshot).environmentObject(app).environmentObject(settings)
+                } else if environment["UI_REVIEW_IMPORT_START"] == "1" {
+                    TimetableImportView().environmentObject(app).environmentObject(settings)
+                } else if environment["UI_REVIEW_ERROR"] == "1" {
                     LoadErrorView(site: .portal, message: L10n.tr("连接超时。校园站点在校外可能需要较长时间，请稍后重试。"), onRetry: {}, onOpenSafari: {}, onOpenHome: {})
                 } else if environment["UI_REVIEW_CALENDAR"] == "1" {
                     NavigationStack { AcademicCalendarView() }

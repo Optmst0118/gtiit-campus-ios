@@ -4,13 +4,15 @@ struct SettingsView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
+    @State private var showTimetableImport = false
     var body: some View {
         let _ = nativeLocale.identifier
 
         List {
             Section {
                 NavigationLink { LanguageSettingsView() } label: { SettingsLabel(L10n.tr("语言"), symbol: "globe") }
-                NavigationLink { TimetableImportView() } label: { SettingsLabel(L10n.tr("提取课表到本地"), symbol: "calendar.badge.plus") }
+                Button { showTimetableImport = true } label: { SettingsLabel(L10n.tr("提取课表到本地"), symbol: "calendar.badge.plus") }
+                    .foregroundStyle(.primary)
                 if settings.yilongUnlocked {
                     NavigationLink { YilongSettingsView() } label: { SettingsLabel(L10n.tr("以龙"), symbol: "sparkles") }
                 }
@@ -65,6 +67,7 @@ struct SettingsView: View {
         .scrollContentBackground(.hidden)
         .background(Theme.pageBackground)
         .navigationTitle(L10n.tr("设置"))
+        .sheet(isPresented: $showTimetableImport) { TimetableImportView() }
         .navigationBarTitleDisplayMode(.large)
     }
 }

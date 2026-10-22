@@ -550,5 +550,17 @@
   "在 App Store 查看 aTrust": "View aTrust on the App Store",
   "若仍无法访问，可能是站点维护、登录失效或证书问题，请按上方错误信息处理。": "If access still fails, the site may be under maintenance, your session may have expired, or a certificate may be invalid. Follow the error shown above.",
   "请手动打开 aTrust": "Open aTrust manually",
-  "网站返回 HTTP %@，请检查校园网络或稍后重试。": "The site returned HTTP %@. Check your campus connection or try again later."
+  "网站返回 HTTP %@，请检查校园网络或稍后重试。": "The site returned HTTP %@. Check your campus connection or try again later.",
+  "识别门户课表": "Read portal timetable",
+  "核对课程并保存": "Review classes and save",
+  "使用门户现有登录，识别后进入核对页。只有点击右上角蓝色勾后才保存。": "Use your existing portal session, then review the results. Nothing is saved until you tap the blue checkmark at the top right.",
+  "若登录已过期，请先在门户完成登录，识别会自动继续。": "If your session has expired, sign in to the portal. Reading will resume automatically.",
+  "可调整学期，然后重新识别课表": "You can change the semester and read the timetable again.",
+  "核对": "Review",
+  "门户课表": "Portal timetable",
+  "重新识别": "Read again",
+  "已识别 %@ 项课程": "%@ classes found",
+  "核对无误后，点击右上角蓝色勾保存到本机。": "Review the information, then tap the blue checkmark at the top right to save locally.",
+  "核对课表": "Review timetable",
+  "返回": "Back"
 }

@@ -13,7 +13,7 @@ sources = sorted(str(p) for p in (ROOT/'GTIIT').rglob('*.swift') if p.name != 'G
 subprocess.run(['xcrun','swiftc','-sdk',sdk,'-target','arm64-apple-ios17.0-simulator','-DDEBUG','-parse-as-library',*sources,str(ROOT/'Tests/UIReviewHarness.swift'),'-o',str(folder/'UIReview')],check=True)
 (folder/'Info.plist').write_bytes(plistlib.dumps({
     'CFBundleIdentifier':'local.gtiit.uireview','CFBundleExecutable':'UIReview','CFBundleName':'UIReview','CFBundlePackageType':'APPL',
-    'CFBundleVersion':'12','CFBundleShortVersionString':'1.8','UIDeviceFamily':[1,2],'LSRequiresIPhoneOS':True,'UILaunchScreen':{},
+    'CFBundleVersion':'13','CFBundleShortVersionString':'1.9','UIDeviceFamily':[1,2],'LSRequiresIPhoneOS':True,'UILaunchScreen':{},
     'UIApplicationSceneManifest':{'UIApplicationSupportsMultipleScenes':False},'UISupportedInterfaceOrientations':['UIInterfaceOrientationPortrait','UIInterfaceOrientationLandscapeLeft','UIInterfaceOrientationLandscapeRight'],
     'LSApplicationQueriesSchemes':['atrust'],
     'NSFaceIDUsageDescription':'Visual review of local app-lock UI.',

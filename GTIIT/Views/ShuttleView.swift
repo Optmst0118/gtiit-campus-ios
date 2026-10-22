@@ -97,6 +97,7 @@ private struct DepartureColumn: View {
     let now: Date
     let departures: [ShuttleDeparture]
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var scheme
     private var color: Color { direction == .southToNorth ? Theme.accent : Theme.orange }
 
     var body: some View {
@@ -157,9 +158,17 @@ private struct DepartureColumn: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 22))
-        .overlay(alignment: .top) {
-            Capsule().fill(color).frame(width: 28, height: 3)
+        .background {
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Theme.cardBackground)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .fill(LinearGradient(stops: [
+                            .init(color: color.opacity(scheme == .dark ? 0.26 : 0.18), location: 0),
+                            .init(color: color.opacity(scheme == .dark ? 0.08 : 0.05), location: 0.48),
+                            .init(color: color.opacity(0), location: 1)
+                        ], startPoint: .top, endPoint: .bottom))
+                }
         }
     }
 }

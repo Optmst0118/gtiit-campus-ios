@@ -1,0 +1,19 @@
+{
+  "version": "1.9",
+  "build": "13",
+  "regressionChecks": 250,
+  "regressionPassed": true,
+  "releaseBuild": "succeeded",
+  "installation": "success",
+  "launch": "success",
+  "installedVersionConfirmed": true,
+  "transport": "localNetwork",
+  "sources": {
+    "GTIIT/Views/LocalTimetableView.swift": "b02721a858e27bf34f8ecbf6914d4c4c0edaeb6a8e53b6d1a8a8071df9b9eab2",
+    "GTIIT/Views/MyTabView.swift": "f19cc88a8a85f0dfe46ba3c6db2c9a4930ad26c7aa36e309150a2cbd55ac83bc",
+    "GTIIT/Views/SettingsView.swift": "a6966b217ac0bad1404b838a2233faad85a7c284ef7618ed723a3671411a1752",
+    "GTIIT/Views/ShuttleView.swift": "431880089687aba3636033f69256f613452dcf3911b4ef049225e5d961bc046d",
+    "GTIIT/Resources/CampusData/native-en.json": "39bbad4a948fa66f8df11baf8c0b7b5786b83fbde99e78992cf6aec695579ba9",
+    "GTIIT.xcodeproj/project.pbxproj": "24226d12bbac4bf2644faac6ac08f9cc386151f3fbba109dc0329e46bb860946"
+  }
+}
