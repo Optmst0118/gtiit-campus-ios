@@ -42,7 +42,10 @@
     "realPhoneExtractionVerified": false,
     "storedRealStudentDataInRepository": false,
     "weeklyRoomWrappingVerified": true,
-    "largestAccessibilityTypeVerified": true
+    "largestAccessibilityTypeVerified": true,
+    "realPhoneSavedTimetableObserved": true,
+    "realPhoneTodayNextClassAndRoomVisible": true,
+    "realPhoneVerificationNote": "Observed the user-imported real local timetable on the iPhone after successful app launch; today, next class, times and rooms were visible. Import was not repeated or overwritten. Full physical weekly/import interaction was not automated."
   },
   "yilong": {
     "sixTapUIVerified": true,
@@ -59,8 +62,7 @@
     "transport": "localNetwork",
     "model": "iPhone Air",
     "wireless": true,
-    "launchVerified": false,
-    "launchBlocker": "Device locked; user unlock requested"
+    "launchVerified": true
   },
   "sourceSHA256": {
     "App/AppLockController.swift": "371f19b123420ce9504d9e9677fdaaa1adbf141ce3e8f0025cb309fcef8b4e2c",
