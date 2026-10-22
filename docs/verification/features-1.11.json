@@ -17,8 +17,11 @@
     "docs/design/features-1.11/shortcut-menu-sustained.png"
   ],
   "installation": "success: overlay update, existing app container retained",
-  "installedVersionConfirmed": "1.11",
-  "launch": "pending_unlock",
+  "installedVersionConfirmed": {
+    "version": "1.11",
+    "build": "15"
+  },
+  "launch": "not_verified: iPhone locked; remote launch denied by iOS, unlock requested",
   "limitations": [
     "No new full authenticated campus-site regression; prior 1.10 network and intermittent web-process limits remain.",
     "Installation preserves the container; no claim that all user records were individually inspected."
@@ -26,7 +29,15 @@
   "github": {
     "repository": "Optmst0118/gtiit-campus-ios",
     "remoteBaseBeforeRelease": "79d3f88afe5566ac55773be462142571e7dbda1b",
-    "method": "normal main push, preserving all seven preceding local commits and version checkpoints"
+    "method": "normal main push, preserving all seven preceding local commits and version checkpoints",
+    "sourceCommit": "3a44f675b46a1c680355ec520c8ebf07447670d8",
+    "remoteHeadMatchedSourceCommit": true,
+    "pendingLocalCommitsAtSourceVerification": 0,
+    "historicalCheckpointsPushed": true,
+    "sourceCI": {
+      "conclusion": "success",
+      "url": "https://github.com/Optmst0118/gtiit-campus-ios/actions/runs/39804884244"
+    }
   },
   "sources": {
     "GTIIT/App/AppLockController.swift": "371f19b123420ce9504d9e9677fdaaa1adbf141ce3e8f0025cb309fcef8b4e2c",
@@ -85,5 +96,6 @@
     "GTIIT/Views/SiteInfoView.swift": "d83a1a101a504f2fdce2415951521b87981db764f39442f8db1941da1b617fd1",
     "GTIIT/Views/WelcomeView.swift": "27c10a864109b9700f17230b975112dc03ca865c910b4e6be61c28266eadee97",
     "GTIIT/Views/YilongView.swift": "82f6e46c00479ad414000114d662282f477fece9e1b06f231cbd5ad9c11e06d5"
-  }
+  },
+  "transport": "localNetwork"
 }
