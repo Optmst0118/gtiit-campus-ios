@@ -53,6 +53,7 @@ struct DownloadsView: View {
                                 } label: {
                                     Label(L10n.tr("删除"), systemImage: "trash")
                                 }
+                                .tint(Color(uiColor: .systemRed))
                             }
                     }
                 }

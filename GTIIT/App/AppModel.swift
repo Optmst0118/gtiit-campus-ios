@@ -17,6 +17,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var storageStates: [SiteID: Bool] = [:]
 
     let timetable = LocalTimetableStore()
+    let upcoming = MoodleUpcomingStore()
     let yilong = YilongController()
     let lock = AppLockController()
     let launch = LaunchPreparation()
@@ -42,7 +43,13 @@ final class AppModel: ObservableObject {
         downloads.presentController = { [weak self] controller in self?.browserPresent(viewController: controller) ?? false }
         downloads.onMessage = { [weak self] message in self?.toast(message) }
         // 下载的进度、成功与失败均由唯一的下载面板呈现，不再另叠 Toast。
-        lockSubscription = lock.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
+        lockSubscription = lock.objectWillChange.sink { [weak self] _ in
+            self?.objectWillChange.send()
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                if self.lock.isLocked || !self.lock.isActive { self.upcoming.cancel() }
+            }
+        }
         launchSubscription = launch.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
         appearanceSubscription = settings.$webDarkMode.combineLatest(settings.$originalColorSites).sink { [weak self] enabled, original in
             guard let self else { return }
@@ -137,6 +144,7 @@ final class AppModel: ObservableObject {
         guard !isClearingData else { return }
         isClearingData = true
         defer { isClearingData = false }
+        if site == .moodle { upcoming.cancel(clear: true) }
         downloads.invalidateSession(for: site)
         if let browser = browsers[site], !(await browser.prepareForDataClear()) {
             browser.finishDataClear(dataCleared: false)
@@ -158,6 +166,7 @@ final class AppModel: ObservableObject {
         guard !isClearingData else { return }
         isClearingData = true
         defer { isClearingData = false }
+        upcoming.cancel(clear: true)
         var prepared: [BrowserModel] = []
         for site in SiteID.allCases {
             downloads.invalidateSession(for: site)
@@ -202,7 +211,13 @@ extension AppModel: BrowserRouter {
     var browserDownloadCenter: DownloadCoordinator? { downloads }
     var externalLinkMode: ExternalLinkMode { settings.externalLinks }
     func browserInitialURL(for site: SiteID) -> URL { settings.initialURL(for: site) }
-    func browserDidFinish(url: URL, site: SiteID) { settings.remember(url, for: site) }
+    func browserDidFinish(url: URL, site: SiteID) {
+        settings.remember(url, for: site)
+        if site == .moodle {
+            if url.path.contains("/login/") || url.path.contains("/auth/") { upcoming.cancel(clear: true) }
+            else if url.path.contains("/mod/assign/") || url.path.contains("/mod/quiz/") { upcoming.invalidate() }
+        }
+    }
     func browserClearData(for site: SiteID) async { await clearData(for: site) }
     func browserDownload(_ download: WKDownload, webView: WKWebView, site: SiteID) {
         if site == .moodle { downloads.receiveForPreview(download, webView: webView, site: site) }

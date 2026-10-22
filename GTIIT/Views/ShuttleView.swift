@@ -4,7 +4,7 @@ struct ShuttleView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var settings: AppSettings
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var showTimetable = false
+    @State private var timetableDirection: ShuttleDirection?
     @State private var appeared = false
 
     var body: some View {
@@ -31,11 +31,17 @@ struct ShuttleView: View {
 
                         HStack(alignment: .top, spacing: 12) {
                             ForEach(ShuttleDirection.allCases) { direction in
-                                DepartureColumn(
-                                    direction: direction, now: context.date,
-                                    departures: ShuttleSchedule.upcoming(direction, after: context.date,
-                                        teachingWeek: settings.shuttleTeachingWeek))
-                                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                                Button {
+                                    timetableDirection = direction
+                                } label: {
+                                    DepartureColumn(
+                                        direction: direction, now: context.date,
+                                        departures: ShuttleSchedule.upcoming(direction, after: context.date,
+                                            teachingWeek: settings.shuttleTeachingWeek))
+                                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                                        .contentShape(Rectangle())
+                                }.buttonStyle(.plain)
+                                    .accessibilityHint(L10n.tr("查看此方向完整时刻表"))
                             }
                         }
                         .opacity(appeared ? 1 : 0)
@@ -53,7 +59,7 @@ struct ShuttleView: View {
                                 .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                         }.padding(18).cardBackground()
 
-                        Button { showTimetable = true } label: {
+                        Button { timetableDirection = .southToNorth } label: {
                             HStack {
                                 Label(L10n.tr("完整时刻表"), systemImage: "clock")
                                 Spacer()
@@ -73,7 +79,7 @@ struct ShuttleView: View {
                 }.background(Theme.pageBackground)
             }
             .toolbar(.hidden, for: .navigationBar)
-            .sheet(isPresented: $showTimetable) { ShuttleTimetableView() }
+            .sheet(item: $timetableDirection) { direction in ShuttleTimetableView(initialDirection: direction) }
             .onAppear {
                 withAnimation(reduceMotion ? nil : .easeOut(duration: 0.35)) { appeared = true }
             }
@@ -161,7 +167,10 @@ private struct DepartureColumn: View {
 private struct ShuttleTimetableView: View {
     @Environment(\.locale) private var nativeLocale
     @Environment(\.dismiss) private var dismiss
-    @State private var direction = ShuttleDirection.southToNorth
+    @State private var direction: ShuttleDirection
+    init(initialDirection: ShuttleDirection = .southToNorth) {
+        _direction = State(initialValue: initialDirection)
+    }
     var body: some View {
         let _ = nativeLocale.identifier
 

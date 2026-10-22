@@ -568,6 +568,61 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "upcoming_fixture_ready"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_reads_all_course_pages_and_pagination"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_assignment_missing_from_timeline_found"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_chinese_date_and_submitted_status"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_calendar_open_and_dedup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_unsafe_links_rejected"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_read_only_requests"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_submitted_not_in_todo"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_failed_course_reports_partial_retains_other_course"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_login_required_no_data"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_url_rejects_actions_and_other_hosts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "real_main_frame_available"
     },
     {
@@ -696,7 +751,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: E509FDD8-3B78-45A6-BEFD-711A65B6F812, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-21 19:58:19 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 72AD8126-8ECB-494A-BE03-0C52781181A7, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-22 08:12:22 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1077,7 +1132,7 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-21T19:58:48Z",
+  "date" : "2026-10-22T08:12:50Z",
   "passed" : true,
-  "runID" : "7b902704-cde3-49e9-9aa9-656d223634f3"
+  "runID" : "1f8297f9-2664-4fe8-b6d8-cae5af1bac9c"
 }

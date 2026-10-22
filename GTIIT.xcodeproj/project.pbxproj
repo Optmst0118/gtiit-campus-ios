@@ -19,6 +19,7 @@
 		9217C6142B1B1C48DD899C74 /* AcademicCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70001F4B259CB71FCF94AF9D /* AcademicCalendar.swift */; };
 		9AEED1708E52FB5AE2F07F4A /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBFEBCC56CC9922AAC86A6B /* AppTab.swift */; };
 		CE84FE883830373710DAE7AD /* LocalTimetable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C721B8B8578DC35894C507B4 /* LocalTimetable.swift */; };
+		00A0412836FBB0AED1BFA912 /* MoodleUpcoming.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1828DA55DFC0FFAE064E5983 /* MoodleUpcoming.swift */; };
 		16C92FA2CA5B121DDDF1CBE3 /* QuickLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59CDAAE096BF94BDD5ABD6EE /* QuickLink.swift */; };
 		ADA172965216773CFED3F029 /* ShuttleSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EF269BFC34E0530BC48D95 /* ShuttleSchedule.swift */; };
 		F5D9D663F4D2123943FCEE49 /* SiteID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B456582ADF2A287683AE3D6A /* SiteID.swift */; };
@@ -29,6 +30,7 @@
 		3DDF1F474B2B43A1D5B1BEF6 /* DownloadLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA83B1947F848E5B025DEE92 /* DownloadLocation.swift */; };
 		FE696E0160EF2877CFDFD610 /* LaunchPreparation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3681D1B76590D940080E18E9 /* LaunchPreparation.swift */; };
 		2D227D5722A7043CD538FC3D /* LocalAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3355A38E3E2F1E7A1522EFA8 /* LocalAuthenticator.swift */; };
+		2FDF153A8B559EA6B70E0E19 /* MoodleUpcomingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C139428903A01429E7B6BC5 /* MoodleUpcomingStore.swift */; };
 		2BDDF352C1BE93B5F02434F0 /* NavigationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7406024295E4E0281ED1F4CA /* NavigationPolicy.swift */; };
 		2255BBF01A2D87BF634F92F6 /* NetworkDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */; };
 		C2B7887C08C2489429DB0DC5 /* PDFPreviewCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B75F42F72C62D34DF54409 /* PDFPreviewCoordinator.swift */; };
@@ -47,6 +49,7 @@
 		ED89A1505462C4E57FD89C92 /* LaunchPreloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */; };
 		2B91C1A0D8A5231E97879D2C /* LocalTimetableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FD7E3BAD835CC92FB8D4EB /* LocalTimetableView.swift */; };
 		2083A20EED7A9DA069E3F650 /* LockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FAD011A1658F97414746F9 /* LockScreenView.swift */; };
+		8F4F60D0316481A181D8DD14 /* MoodleUpcomingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF25BB537930B0F24C1B2873 /* MoodleUpcomingView.swift */; };
 		42163D6FEAAEABE45B668B9F /* MyTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AC536C50EC4B48743196A7 /* MyTabView.swift */; };
 		9B5E893ADDF2C6FFE4F53584 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B32A814B9C6172E0E91CE6 /* RootTabView.swift */; };
 		ED1AC996BD82FB03BDB65AA8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26C175066343BFC70B55756C /* SettingsView.swift */; };
@@ -78,6 +81,7 @@
 		70001F4B259CB71FCF94AF9D /* AcademicCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcademicCalendar.swift; sourceTree = "<group>"; };
 		ECBFEBCC56CC9922AAC86A6B /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTab.swift; sourceTree = "<group>"; };
 		C721B8B8578DC35894C507B4 /* LocalTimetable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalTimetable.swift; sourceTree = "<group>"; };
+		1828DA55DFC0FFAE064E5983 /* MoodleUpcoming.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodleUpcoming.swift; sourceTree = "<group>"; };
 		59CDAAE096BF94BDD5ABD6EE /* QuickLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLink.swift; sourceTree = "<group>"; };
 		51EF269BFC34E0530BC48D95 /* ShuttleSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleSchedule.swift; sourceTree = "<group>"; };
 		B456582ADF2A287683AE3D6A /* SiteID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteID.swift; sourceTree = "<group>"; };
@@ -88,6 +92,7 @@
 		BA83B1947F848E5B025DEE92 /* DownloadLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadLocation.swift; sourceTree = "<group>"; };
 		3681D1B76590D940080E18E9 /* LaunchPreparation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchPreparation.swift; sourceTree = "<group>"; };
 		3355A38E3E2F1E7A1522EFA8 /* LocalAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAuthenticator.swift; sourceTree = "<group>"; };
+		8C139428903A01429E7B6BC5 /* MoodleUpcomingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodleUpcomingStore.swift; sourceTree = "<group>"; };
 		7406024295E4E0281ED1F4CA /* NavigationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationPolicy.swift; sourceTree = "<group>"; };
 		41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkDiagnostics.swift; sourceTree = "<group>"; };
 		F0B75F42F72C62D34DF54409 /* PDFPreviewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFPreviewCoordinator.swift; sourceTree = "<group>"; };
@@ -106,6 +111,7 @@
 		B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchPreloadView.swift; sourceTree = "<group>"; };
 		17FD7E3BAD835CC92FB8D4EB /* LocalTimetableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalTimetableView.swift; sourceTree = "<group>"; };
 		91FAD011A1658F97414746F9 /* LockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenView.swift; sourceTree = "<group>"; };
+		BF25BB537930B0F24C1B2873 /* MoodleUpcomingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodleUpcomingView.swift; sourceTree = "<group>"; };
 		70AC536C50EC4B48743196A7 /* MyTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTabView.swift; sourceTree = "<group>"; };
 		06B32A814B9C6172E0E91CE6 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		26C175066343BFC70B55756C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -208,6 +214,7 @@
 				70001F4B259CB71FCF94AF9D /* AcademicCalendar.swift */,
 				ECBFEBCC56CC9922AAC86A6B /* AppTab.swift */,
 				C721B8B8578DC35894C507B4 /* LocalTimetable.swift */,
+				1828DA55DFC0FFAE064E5983 /* MoodleUpcoming.swift */,
 				59CDAAE096BF94BDD5ABD6EE /* QuickLink.swift */,
 				51EF269BFC34E0530BC48D95 /* ShuttleSchedule.swift */,
 				B456582ADF2A287683AE3D6A /* SiteID.swift */,
@@ -225,6 +232,7 @@
 				BA83B1947F848E5B025DEE92 /* DownloadLocation.swift */,
 				3681D1B76590D940080E18E9 /* LaunchPreparation.swift */,
 				3355A38E3E2F1E7A1522EFA8 /* LocalAuthenticator.swift */,
+				8C139428903A01429E7B6BC5 /* MoodleUpcomingStore.swift */,
 				7406024295E4E0281ED1F4CA /* NavigationPolicy.swift */,
 				41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */,
 				F0B75F42F72C62D34DF54409 /* PDFPreviewCoordinator.swift */,
@@ -250,6 +258,7 @@
 				B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */,
 				17FD7E3BAD835CC92FB8D4EB /* LocalTimetableView.swift */,
 				91FAD011A1658F97414746F9 /* LockScreenView.swift */,
+				BF25BB537930B0F24C1B2873 /* MoodleUpcomingView.swift */,
 				70AC536C50EC4B48743196A7 /* MyTabView.swift */,
 				06B32A814B9C6172E0E91CE6 /* RootTabView.swift */,
 				26C175066343BFC70B55756C /* SettingsView.swift */,
@@ -359,6 +368,7 @@
 				9217C6142B1B1C48DD899C74 /* in Sources */,
 				9AEED1708E52FB5AE2F07F4A /* in Sources */,
 				CE84FE883830373710DAE7AD /* in Sources */,
+				00A0412836FBB0AED1BFA912 /* in Sources */,
 				16C92FA2CA5B121DDDF1CBE3 /* in Sources */,
 				ADA172965216773CFED3F029 /* in Sources */,
 				F5D9D663F4D2123943FCEE49 /* in Sources */,
@@ -369,6 +379,7 @@
 				3DDF1F474B2B43A1D5B1BEF6 /* in Sources */,
 				FE696E0160EF2877CFDFD610 /* in Sources */,
 				2D227D5722A7043CD538FC3D /* in Sources */,
+				2FDF153A8B559EA6B70E0E19 /* in Sources */,
 				2BDDF352C1BE93B5F02434F0 /* in Sources */,
 				2255BBF01A2D87BF634F92F6 /* in Sources */,
 				C2B7887C08C2489429DB0DC5 /* in Sources */,
@@ -387,6 +398,7 @@
 				ED89A1505462C4E57FD89C92 /* in Sources */,
 				2B91C1A0D8A5231E97879D2C /* in Sources */,
 				2083A20EED7A9DA069E3F650 /* in Sources */,
+				8F4F60D0316481A181D8DD14 /* in Sources */,
 				42163D6FEAAEABE45B668B9F /* in Sources */,
 				9B5E893ADDF2C6FFE4F53584 /* in Sources */,
 				ED1AC996BD82FB03BDB65AA8 /* in Sources */,
@@ -494,7 +506,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -503,7 +515,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.6;
+				MARKETING_VERSION = 1.7;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -519,7 +531,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -528,7 +540,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.6;
+				MARKETING_VERSION = 1.7;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

@@ -93,11 +93,12 @@ private struct AboutDetailsView: View {
 
             Section(L10n.tr("数据与隐私")) {
                 PrivacyLine(title: L10n.tr("本地课表"), detail: L10n.tr("仅主动提取门户正式选课的课程、班组、时间与教室，确认后存于本机受文件保护的 Application Support，排除系统备份。不保存账号、成绩或网页原文，可在设置中删除。课表为离线快照，变更后需重新提取。"))
+                PrivacyLine(title: L10n.tr("Moodle 临近日程"), detail: L10n.tr("进入我的页面后，使用学习页面现有会话，只读核对 Moodle 日历及各课程作业的名称、开放与截止时间、提交状态。摘要仅在当前运行内存中使用；清除 Moodle 登录数据时同步清除，不保存作业正文、成绩或附件。"))
                 PrivacyLine(title: L10n.tr("网页数据"), detail: L10n.tr("Cookie、缓存与本地存储由 WebKit 保存在本机沙盒内，四个站点各用独立容器，可单独清除。"))
                 PrivacyLine(
                     title: L10n.tr("下载文件"),
                     detail: L10n.tr("Moodle PDF 先进入临时预览，点击下载后才保存。默认保存在本机 Documents/Downloads，可在下载管理更改新文件的保存位置。已有文件不迁移；外部文件夹不参与自动清理。临时预览关闭后清理，断点凭证只留在当前运行内存中。"))
-                PrivacyLine(title: L10n.tr("账号凭据"), detail: L10n.tr("由学校官方页面自行处理，App 代码不接触、不记录、不发送。"))
+                PrivacyLine(title: L10n.tr("账号凭据"), detail: L10n.tr("学校页面与 WebKit 持有登录会话。原生层不读取或保存账号密码、会话密钥；日程请求仅在学校同域网页会话内完成。"))
                 PrivacyLine(
                     title: L10n.tr("本机偏好"),
                     detail: L10n.tr("保存显示、启动、浏览、锁定及下载保留偏好、四站容器标识。开启恢复页面时，仅保存不含参数的站内普通地址，不保存表单、认证地址或账号密码。"))

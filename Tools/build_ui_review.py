@@ -13,7 +13,7 @@ sources = sorted(str(p) for p in (ROOT/'GTIIT').rglob('*.swift') if p.name != 'G
 subprocess.run(['xcrun','swiftc','-sdk',sdk,'-target','arm64-apple-ios17.0-simulator','-DDEBUG','-parse-as-library',*sources,str(ROOT/'Tests/UIReviewHarness.swift'),'-o',str(folder/'UIReview')],check=True)
 (folder/'Info.plist').write_bytes(plistlib.dumps({
     'CFBundleIdentifier':'local.gtiit.uireview','CFBundleExecutable':'UIReview','CFBundleName':'UIReview','CFBundlePackageType':'APPL',
-    'CFBundleVersion':'10','CFBundleShortVersionString':'1.6','UIDeviceFamily':[1,2],'LSRequiresIPhoneOS':True,'UILaunchScreen':{},
+    'CFBundleVersion':'11','CFBundleShortVersionString':'1.7','UIDeviceFamily':[1,2],'LSRequiresIPhoneOS':True,'UILaunchScreen':{},
     'UIApplicationSceneManifest':{'UIApplicationSupportsMultipleScenes':False},'UISupportedInterfaceOrientations':['UIInterfaceOrientationPortrait','UIInterfaceOrientationLandscapeLeft','UIInterfaceOrientationLandscapeRight'],
     'NSFaceIDUsageDescription':'Visual review of local app-lock UI.',
     'NSAppTransportSecurity':{'NSAllowsArbitraryLoadsInWebContent':True}

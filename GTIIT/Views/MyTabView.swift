@@ -10,8 +10,8 @@ struct MyTabView: View {
         NavigationStack {
             List {
                 Section {
-                    NavigationLink { LocalTimetableView(store: app.timetable) } label: { TodayTimetableCard(store: app.timetable) }
-                        .buttonStyle(.plain)
+                    LocalTimetableEntry(store: app.timetable)
+                    MoodleUpcomingEntry(store: app.upcoming)
                     NavigationLink { AcademicCalendarView() } label: { Label(L10n.tr("校历"), systemImage: "calendar.circle") }
                 }
                 Section(L10n.tr("常用入口")) {
@@ -71,6 +71,35 @@ struct MyTabView: View {
                 #if DEBUG
                     if ProcessInfo.processInfo.environment["GTIIT_SETTINGS"] == "1" { showSettings = true }
                 #endif
+            }
+        }
+    }
+}
+
+private struct LocalTimetableEntry: View {
+    @Environment(\.locale) private var nativeLocale
+    @ObservedObject var store: LocalTimetableStore
+    @State private var importing = false
+    var body: some View {
+        let _ = nativeLocale.identifier
+        Group {
+            if store.snapshot != nil {
+                NavigationLink { LocalTimetableView(store: store) } label: { TodayTimetableCard(store: store) }
+                    .buttonStyle(.plain)
+            } else {
+                VStack(alignment: .leading, spacing: 14) {
+                    TodayTimetableCard(store: store)
+                    Button { importing = true } label: {
+                        Label(L10n.tr("从门户导入课表"), systemImage: "square.and.arrow.down")
+                    }.buttonStyle(.borderedProminent).tint(Theme.accent)
+                }.padding(.vertical, 6)
+            }
+        }.sheet(isPresented: $importing) {
+            NavigationStack {
+                TimetableImportView(automatic: true)
+                    .toolbar { ToolbarItem(placement: .cancellationAction) {
+                        Button(L10n.tr("完成")) { importing = false }
+                    } }
             }
         }
     }

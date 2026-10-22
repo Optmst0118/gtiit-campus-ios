@@ -27,7 +27,7 @@ enum TimetableExtractor {
         }
         if (groups) break;
       }
-      if (!groups) throw new Error('SCHEDULE_NOT_READY');
+      if (!groups || groups.length > 500) throw new Error('SCHEDULE_NOT_READY');
       const result = [], seen = new Set();
       for (const g of groups.slice(0,500)) {
         if (g.enrolled !== true || g.isPreview || g.postPending || g.deletePending) continue;

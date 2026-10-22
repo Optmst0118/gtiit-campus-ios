@@ -158,6 +158,7 @@ private final class RetiredViewReference {
         await verifyLaunchPreparation()
         await verifyWebAppearance()
         await verifyCampusFeatures()
+        await verifyUpcomingReader()
         let capture = FrameCapture()
         let frameWebView = WKWebView()
         frameWebView.navigationDelegate = capture
@@ -896,6 +897,65 @@ extension RegressionApp {
         _ = await wait { web.url?.host == "login.microsoftonline.com" && !web.isLoading }
         do { _ = try await TimetableExtractor.extract(from: web); check("timetable_rejects_auth_origin", false) }
         catch { check("timetable_rejects_auth_origin", true) }
+        web.removeFromSuperview()
+    }
+}
+
+extension RegressionApp {
+    func verifyUpcomingReader() async {
+        let web = WKWebView(); keep.append(web)
+        window?.rootViewController?.view.addSubview(web)
+        let fixture = #"""
+        <html><head><title>Upcoming fixture</title></head><body><input id="guard" value="UNCHANGED"><script>
+        window.M={cfg:{wwwroot:'https://moodle.gtiit.edu.cn/moodle',sesskey:'SYNTHETIC_ONLY'}};
+        window.calls=[];window.testFail=false;
+        window.fetch=async function(url,options={}){
+          calls.push({url,method:options.method||'GET'});
+          let body=''; const u=new URL(url,location.href);
+          if(u.pathname.endsWith('service.php')){
+            const q=JSON.parse(options.body)[0];let data;
+            if(q.methodname.includes('enrolled_courses')){
+              data=q.args.offset===0?{courses:[{id:1,fullname:'Synthetic Robotics'}],nextoffset:100}:{courses:[{id:2,fullname:'Synthetic Physics'}],nextoffset:0};
+            }else data={events:[{name:'Open quiz',modulename:'quiz',eventtype:'open',timestart:1792620000,url:'https://moodle.gtiit.edu.cn/moodle/mod/quiz/view.php?id=77',course:{fullname:'Synthetic Physics'}},{name:'Unsafe',modulename:'assign',eventtype:'due',timestart:1792943940,url:'https://evil.test/moodle/mod/assign/view.php?id=3'}]};
+            body=JSON.stringify([{error:false,data}]);
+          }else if(u.pathname.endsWith('index.php')){
+            if(testFail&&u.searchParams.get('id')==='2')throw Error('UNAVAILABLE');
+            body='<a href="https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id='+u.searchParams.get('id')+'">Synthetic assignment '+u.searchParams.get('id')+'</a>';
+          }else{
+            const submitted=u.searchParams.get('id')==='2';
+            body='<div class="submissionstatustable"><table><tr><td>Submission status</td><td>'+(submitted?'Submitted for grading':'No attempt')+'</td></tr><tr><td>Due date</td><td>'+(submitted?'2026年10月25日 23:59':'Sunday, 25 October 2026, 11:59 PM')+'</td></tr></table></div>';
+          }
+          return {ok:true,url:u.href,text:async()=>body};
+        };
+        </script></body></html>
+        """#
+        web.loadHTMLString(fixture, baseURL: URL(string: "https://moodle.gtiit.edu.cn/moodle/my/")!)
+        check("upcoming_fixture_ready", await wait { web.title == "Upcoming fixture" && !web.isLoading })
+        do {
+            let script = try String(contentsOf: Bundle.main.url(forResource: "moodle-upcoming", withExtension: "js", subdirectory: "CampusData")!, encoding: .utf8)
+            func read() async throws -> MoodleUpcomingResult {
+                let raw = try await web.callAsyncJavaScript(script, arguments: ["now": 1792620000, "jobID": "fixture"], in: nil, contentWorld: .page)
+                return try JSONDecoder().decode(MoodleUpcomingResult.self, from: Data((raw as! String).utf8))
+            }
+            let result = try await read()
+            check("upcoming_reads_all_course_pages_and_pagination", result.courses == 2 && result.checked == 2 && result.failed == 0)
+            let robotics = result.items.first { $0.course == "Synthetic Robotics" }
+            check("upcoming_assignment_missing_from_timeline_found", robotics?.due == 1792943940 && robotics?.status == "notSubmitted" && robotics?.source == "assignment")
+            check("upcoming_chinese_date_and_submitted_status", result.items.first { $0.url.hasSuffix("id=2") }?.due == 1792943940 && result.items.first { $0.url.hasSuffix("id=2") }?.isSubmitted == true)
+            check("upcoming_calendar_open_and_dedup", result.items.filter { $0.kind == "quiz" }.count == 1 && result.items.count == 3)
+            check("upcoming_unsafe_links_rejected", result.items.allSatisfy { MoodleWork.safeURL($0.url) != nil })
+            let safeRequests = await js(web,"calls.every(c=>c.method==='GET'||new URL(c.url).pathname==='/moodle/lib/ajax/service.php')")
+            let guardValue = await js(web,"document.getElementById('guard').value")
+            check("upcoming_read_only_requests", safeRequests == "true" && guardValue == "UNCHANGED")
+            check("upcoming_submitted_not_in_todo", result.items.filter { $0.relevant(now: Date(timeIntervalSince1970: 1792620000)) }.count == 2)
+            _ = await js(web,"testFail=true")
+            let partial = try await read()
+            check("upcoming_failed_course_reports_partial_retains_other_course", partial.failed > 0 && partial.checked == 1 && partial.items.contains { $0.course == "Synthetic Robotics" })
+            _ = await js(web,"delete M.cfg.sesskey")
+            let loggedOut = try await read()
+            check("upcoming_login_required_no_data", loggedOut.loginRequired && loggedOut.items.isEmpty)
+        } catch { check("upcoming_reader", false, error.localizedDescription) }
+        check("upcoming_url_rejects_actions_and_other_hosts", MoodleWork.safeURL("https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=1&action=editsubmission") == nil && MoodleWork.safeURL("https://evil.test/moodle/mod/assign/view.php?id=1") == nil)
         web.removeFromSuperview()
     }
 }

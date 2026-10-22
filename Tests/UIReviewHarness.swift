@@ -25,6 +25,22 @@ import UIKit
             ] }
             try? model.timetable.save(TimetableSnapshot(semester: "Synthetic review semester", validFrom: "2026-10-12", validUntil: "2027-01-11", courses: classes))
         }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_EMPTY_TIMETABLE"] == "1" { try? model.timetable.clear() }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_MOODLE"] == "1" {
+            model.browser(for: .moodle).webView.loadHTMLString(#"""
+            <html><title>Synthetic Moodle</title><script>
+            window.M={cfg:{wwwroot:'https://moodle.gtiit.edu.cn/moodle',sesskey:'SYNTHETIC_ONLY'}};
+            window.fetch=async(url,options={})=>{
+              const u=new URL(url);let body='';
+              if(u.pathname.endsWith('service.php')){
+                const q=JSON.parse(options.body)[0];body=JSON.stringify([{error:false,data:q.methodname.includes('enrolled_courses')?{courses:[{id:1,fullname:'Introduction to Robotics'}],nextoffset:0}:{events:[]}}]);
+              }else if(u.pathname.endsWith('index.php'))body='<a href="https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=1">Homework 2</a>';
+              else body='<div class="submissionstatustable"><table><tr><td>Submission status</td><td>No attempt</td></tr><tr><td>Due date</td><td>Sunday, 25 October 2026, 11:59 PM</td></tr></table></div>';
+              return {ok:true,url:u.href,text:async()=>body};
+            };
+            </script></html>
+            """#, baseURL: URL(string: "https://moodle.gtiit.edu.cn/moodle/my/")!)
+        }
         if let raw = ProcessInfo.processInfo.environment["UI_REVIEW_SITE"], let site = SiteID(rawValue: raw) { model.openSite(site) }
         _app = StateObject(wrappedValue: model)
         let lock = AppLockController(authenticator: PreviewUnavailableAuthenticator())

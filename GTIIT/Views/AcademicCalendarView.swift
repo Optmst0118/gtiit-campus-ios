@@ -8,7 +8,7 @@ struct AcademicCalendarView: View {
     @State private var day = Date()
     @State private var showPast = false
     @State private var showPDF = false
-    private var events: [AcademicEvent] { AcademicCalendarStore.events.filter { $0.year == year } }
+    private var events: [AcademicEvent] { AcademicCalendarStore.events.filter { $0.year == year && $0.kind == "holiday" && $0.verified } }
     private var today: Date { CampusDate.calendar.startOfDay(for: Date()) }
     private var visible: [AcademicEvent] {
         if mode == 1 { return events.filter { $0.contains(day) || (!$0.verified && $0.start == CampusDate.key(day)) } }
@@ -61,7 +61,7 @@ struct AcademicCalendarView: View {
                 }
             }
             Section {
-                Label(L10n.tr("节日标注不等于停课；调课与假期分别显示。"), systemImage: "info.circle")
+                Label(L10n.tr("仅标注原校历中的国内假期与逾越节假期，红点表示放假。"), systemImage: "info.circle")
                     .font(.footnote).foregroundStyle(.secondary)
             }
         }
@@ -168,7 +168,7 @@ private struct AcademicMonthPicker: UIViewRepresentable {
                 (view.selectionBehavior as? UICalendarSelectionSingleDate)?.setSelected(CampusDate.calendar.dateComponents([.year, .month, .day], from: value.day), animated: false)
             }
             let dates = value.events.flatMap { event -> [DateComponents] in
-                guard let a = event.startDate, let b = event.endDate, event.verified else { return [] }
+                guard let a = event.startDate, let b = event.endDate, event.verified, event.kind == "holiday" else { return [] }
                 let count = min(60, CampusDate.calendar.dateComponents([.day], from: a, to: b).day ?? 0)
                 return (0...max(0,count)).compactMap { CampusDate.calendar.date(byAdding: .day, value: $0, to: a) }.map { CampusDate.calendar.dateComponents([.year, .month, .day], from: $0) }
             }
@@ -176,12 +176,12 @@ private struct AcademicMonthPicker: UIViewRepresentable {
         }
         func calendarView(_ calendarView: UICalendarView, decorationFor dateComponents: DateComponents) -> UICalendarView.Decoration? {
             guard let date = CampusDate.calendar.date(from: dateComponents) else { return nil }
-            let events = parent.events.filter { $0.contains(date) }
+            let events = parent.events.filter { $0.kind == "holiday" && $0.contains(date) }
             guard !events.isEmpty else { return nil }
             return .customView {
-                let label = UILabel(); label.text = String(repeating: "•", count: min(3, events.count))
+                let label = UILabel(); label.text = "•"
                 label.font = .systemFont(ofSize: 11, weight: .bold)
-                label.textColor = UIColor(events.contains { $0.kind == "adjustment" } ? Theme.orange : Theme.accent)
+                label.textColor = .systemRed
                 label.accessibilityLabel = events.map(\.title).joined(separator: ", ")
                 return label
             }

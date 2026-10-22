@@ -131,6 +131,7 @@ struct LocalTimetableView: View {
 }
 
 struct TimetableImportView: View {
+    var automatic = false
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @State private var draft: TimetableSnapshot?
@@ -142,19 +143,17 @@ struct TimetableImportView: View {
     @State private var showPortal = false
     @State private var confirmClear = false
     @State private var confirmReplace = false
+    @State private var started = false
+    @State private var recognitionStatus = "正在打开门户课表…"
     var body: some View {
         let _ = nativeLocale.identifier
 
         Form {
             Section {
-                Button(L10n.tr("打开门户周课表"), systemImage: "safari") {
-                    app.browser(for: .portal).load(URL(string: "https://students.gtiit.edu.cn/enrollments")!)
-                    showPortal = true
-                }
-                Button { Task { await extract() } } label: {
-                    HStack { Text(L10n.tr("提取当前门户课表")); Spacer(); if busy { ProgressView() } }
+                Button { beginImport() } label: {
+                    Label(L10n.tr("从门户导入课表"), systemImage: "square.and.arrow.down")
                 }.disabled(busy || app.lock.isLocked || app.isClearingData)
-            } footer: { Text(L10n.tr("在 App 内登录门户并打开 Enrollments，等待课程显示。仅在点击提取时读取正式选课的课程名称、时间和教室，核对后保存在本机，不上传。")) }
+            } footer: { Text(L10n.tr("自动打开门户课表并识别已选课程，核对后保存到本机。若登录已过期，请先在门户完成登录，识别会自动继续。")) }
             if let error { Section { Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(Theme.orange) } }
             if let draft {
                 Section(L10n.tr("核对适用日期")) {
@@ -183,13 +182,22 @@ struct TimetableImportView: View {
                 if app.timetable.snapshot != nil { Button(L10n.tr("删除本地课表"), role: .destructive) { confirmClear = true } }
             }
         }.navigationTitle(L10n.tr("提取课表到本地")).navigationBarTitleDisplayMode(.inline)
+        .task {
+            if automatic && !started { started = true; beginImport() }
+        }
         .sheet(isPresented: $showPortal) {
             NavigationStack {
-                SiteBrowserView(site: .portal).toolbar {
-                    ToolbarItem(placement: .confirmationAction) { Button(L10n.tr("提取此课表")) { showPortal = false; Task { await extract() } } }
-                    ToolbarItem(placement: .cancellationAction) { Button(L10n.tr("取消")) { showPortal = false } }
-                }
-            }
+                SiteBrowserView(site: .portal)
+                    .safeAreaInset(edge: .top) {
+                        HStack(spacing: 10) {
+                            ProgressView()
+                            Text(L10n.tr(recognitionStatus)).font(.footnote)
+                        }.frame(maxWidth: .infinity).padding(12).background(.regularMaterial)
+                    }
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) { Button(L10n.tr("取消")) { showPortal = false } }
+                    }
+            }.task { await recognizeAutomatically() }
         }
         .confirmationDialog(L10n.tr("替换现有本地课表？"), isPresented: $confirmReplace, titleVisibility: .visible) { Button(L10n.tr("替换课表")) { save() }; Button(L10n.tr("取消"), role: .cancel) {} }
         .confirmationDialog(L10n.tr("删除本机保存的课表？"), isPresented: $confirmClear, titleVisibility: .visible) {
@@ -197,22 +205,66 @@ struct TimetableImportView: View {
             Button(L10n.tr("取消"), role: .cancel) {}
         }
     }
-    private func extract() async {
-        guard !busy, !app.lock.isLocked, app.lock.isActive, !app.isClearingData else { return }
-        busy = true; error = nil; draft = nil; saved = false
+    private func beginImport() {
+        guard !app.lock.isLocked, app.lock.isActive, !app.isClearingData else { return }
+        error = nil; draft = nil; saved = false
+        recognitionStatus = "正在打开门户课表…"
+        app.browser(for: .portal).load(URL(string: "https://students.gtiit.edu.cn/enrollments")!)
+        showPortal = true
+    }
+    @MainActor private func recognizeAutomatically() async {
+        busy = true
         defer { busy = false }
-        do {
-            let result = try await TimetableExtractor.extract(from: app.browser(for: .portal).webView)
-            guard !app.lock.isLocked, app.lock.isActive, !app.isClearingData else { return }
-            let year = String(result.semester.prefix(4))
-            let season = result.semester.uppercased().contains("SPRING") ? "Spring" : result.semester.uppercased().contains("SUMMER") ? "Summer" : "Winter"
-            let events = AcademicCalendarStore.events.filter { $0.year.hasPrefix(year) }
-            let first = events.first { $0.en == (season + " semester begins") }
-            let last = events.first { $0.en == (season + " teaching ends") }
-            from = first?.startDate ?? Date()
-            until = last?.endDate ?? CampusDate.calendar.date(byAdding: .month, value: 4, to: from)!
-            draft = TimetableSnapshot(semester: result.semester, validFrom: CampusDate.key(from), validUntil: CampusDate.key(until), courses: result.courses.map(\.local))
-        } catch { self.error = TimetableExtractor.ExtractionError.changed.localizedDescription }
+        let browser = app.browser(for: .portal)
+        var previous: [String]?
+        var restoredEnrollments = false
+        for _ in 0..<240 {
+            guard !Task.isCancelled, showPortal else { return }
+            guard !app.lock.isLocked, app.lock.isActive, !app.isClearingData else {
+                showPortal = false
+                error = L10n.tr("导入已暂停，请返回前台后重新导入。")
+                return
+            }
+            // Some SSO callbacks land on Dashboard rather than the requested route.
+            // Resume only after the portal's own signed-in navigation is present.
+            if !restoredEnrollments, !browser.isLoading,
+               let url = browser.webView.url, url.host == "students.gtiit.edu.cn",
+               url.path == "/" || url.path.isEmpty,
+               (try? await browser.webView.evaluateJavaScript("!!document.querySelector('a[href=\"/enrollments\"]')")) as? Bool == true {
+                restoredEnrollments = true
+                browser.load(URL(string: "https://students.gtiit.edu.cn/enrollments")!)
+            }
+            if let result = try? await TimetableExtractor.extract(from: browser.webView) {
+                guard !Task.isCancelled, showPortal, !app.lock.isLocked, app.lock.isActive, !app.isClearingData else { return }
+                let signature = [result.semester] + result.courses.map {
+                    "\($0.code)|\($0.group)|\($0.weekday)|\($0.start)|\($0.end)|\($0.room)|\($0.building)|\($0.name)"
+                }.sorted()
+                if previous == signature && !browser.isLoading {
+                    apply(result)
+                    showPortal = false
+                    return
+                }
+                previous = signature
+                recognitionStatus = "正在核对课程与教室…"
+            } else {
+                previous = nil
+                recognitionStatus = "正在等待课表；如有提示，请完成门户登录"
+            }
+            do { try await Task.sleep(for: .seconds(1)) } catch { return }
+        }
+        guard !Task.isCancelled else { return }
+        error = L10n.tr("暂未识别到完整课表。请确认已登录并有正式选课，然后重新导入。")
+        showPortal = false
+    }
+    private func apply(_ result: TimetableExtractor.Result) {
+        let year = String(result.semester.prefix(4))
+        let season = result.semester.uppercased().contains("SPRING") ? "Spring" : result.semester.uppercased().contains("SUMMER") ? "Summer" : "Winter"
+        let events = AcademicCalendarStore.events.filter { $0.year.hasPrefix(year) }
+        let first = events.first { $0.en == (season + " semester begins") }
+        let last = events.first { $0.en == (season + " teaching ends") }
+        from = first?.startDate ?? Date()
+        until = last?.endDate ?? CampusDate.calendar.date(byAdding: .month, value: 4, to: from)!
+        draft = TimetableSnapshot(semester: result.semester, validFrom: CampusDate.key(from), validUntil: CampusDate.key(until), courses: result.courses.map(\.local))
     }
     private func save() {
         guard var value = draft, !app.lock.isLocked, app.lock.isActive else { return }
