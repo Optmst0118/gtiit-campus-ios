@@ -21,7 +21,7 @@
     "version": "1.11",
     "build": "15"
   },
-  "launch": "not_verified: iPhone locked; remote launch denied by iOS, unlock requested",
+  "launch": "confirmed: remote launch succeeded after unlock; same app process survived two observations more than 10 seconds apart",
   "limitations": [
     "No new full authenticated campus-site regression; prior 1.10 network and intermittent web-process limits remain.",
     "Installation preserves the container; no claim that all user records were individually inspected."
