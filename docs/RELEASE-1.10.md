@@ -23,3 +23,5 @@ Device crash-log inventory did not contain a GTIIT native crash report. The insp
 Signed Release build succeeded. Installation over the existing app via local-network transport succeeded; the phone inventory confirmed 1.10 (14). No uninstall or data-container reset was performed. Automatic launch was initially denied because the phone was locked.
 
 References: [Apple WKWebView obscuredContentInsets](https://developer.apple.com/documentation/webkit/wkwebview/obscuredcontentinsets), [WebKit: Safari 26 APIs](https://webkit.org/blog/17333/webkit-features-in-safari-26-0/), and the installed UIKit/WebKit SDK declarations.
+
+Follow-up: after the user opened the app on the unlocked phone, the same GTIIT process was observed in two snapshots more than ten seconds apart. This confirms startup survival, not a complete real-account website regression.

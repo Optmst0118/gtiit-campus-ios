@@ -6,7 +6,7 @@
   "regressionScope": "core changes; final menu blur/dim separately visually verified",
   "releaseBuild": "succeeded",
   "installation": "success",
-  "launch": "blocked_device_locked",
+  "launch": "confirmed_running_after_user_opened",
   "installedVersionConfirmed": true,
   "transport": "localNetwork",
   "sources": {
@@ -69,5 +69,6 @@
     "GTIIT/Resources/CampusData/moodle-upcoming.js": "047595ce192f4ce5a6a35c249d9dd53d708fa1e5f8378c0b7713ff5b5f261bbd",
     "GTIIT/Resources/CampusData/native-en.json": "1ae9d881a473dc8bed16ba8299e744a0b42544556a682b22af9e7e6e3a1d4b04",
     "GTIIT.xcodeproj/project.pbxproj": "751bfa58e05e55d9410bc9124c9028be226c4cc122586232d7e8900bf4457d81"
-  }
+  },
+  "launchVerification": "same device process observed twice more than ten seconds apart"
 }
