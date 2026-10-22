@@ -44,7 +44,7 @@ struct LoadingPlaceholderView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(uiColor: .systemBackground))
+        .background(Theme.pageBackground)
     }
 }
 
@@ -56,6 +56,9 @@ struct LoadErrorView: View {
     let onRetry: () -> Void
     let onOpenSafari: () -> Void
     let onOpenHome: () -> Void
+    @State private var canOpenATrust = CampusNetworkAccess.canOpenClient
+    @State private var showATrustHelp = false
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         let _ = nativeLocale.identifier
@@ -98,8 +101,21 @@ struct LoadErrorView: View {
                 .padding(.top, 4)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Label(L10n.tr("校园站点通常需要校内网络；校外访问可能需要学校认可的接入方式。"), systemImage: "info.circle")
-                    Label(L10n.tr("App 不会绕过证书校验，也不会替你输入账号。"), systemImage: "lock.shield")
+                    Label(L10n.tr("校园网络访问"), systemImage: "network").font(.subheadline.weight(.semibold)).foregroundStyle(.primary)
+                    Text(L10n.tr("请连接校内无线网络，或在 aTrust 中连接学校对应的校园 VPN，再返回此处重试。"))
+                        .fixedSize(horizontal: false, vertical: true)
+                    if canOpenATrust {
+                        Button(L10n.tr("打开 aTrust"), systemImage: "arrow.up.forward.app") {
+                            CampusNetworkAccess.openClient { success in if !success { showATrustHelp = true } }
+                        }.buttonStyle(.bordered).padding(.top, 6)
+                    } else {
+                        Text(L10n.tr("请从主屏幕打开 aTrust 并连接校园 VPN。"))
+                        Button(L10n.tr("在 App Store 查看 aTrust"), systemImage: "arrow.up.right") {
+                            openURL(CampusNetworkAccess.storeURL)
+                        }.buttonStyle(.borderless).padding(.top, 6)
+                    }
+                    Text(L10n.tr("若仍无法访问，可能是站点维护、登录失效或证书问题，请按上方错误信息处理。"))
+                        .padding(.top, 4)
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -111,7 +127,13 @@ struct LoadErrorView: View {
             .padding(.horizontal, 22)
             .padding(.bottom, 40)
         }
-        .background(Color(uiColor: .systemBackground))
+        .background(Theme.pageBackground)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            canOpenATrust = CampusNetworkAccess.canOpenClient
+        }
+        .alert(L10n.tr("请手动打开 aTrust"), isPresented: $showATrustHelp) {
+            Button(L10n.tr("好"), role: .cancel) {}
+        } message: { Text(L10n.tr("请从主屏幕打开 aTrust 并连接校园 VPN。")) }
     }
 }
 

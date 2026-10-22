@@ -66,8 +66,8 @@ final class BrowserModel: NSObject, ObservableObject {
     private func configureWebView() {
         WebAppearance.install(on: webView.configuration, enabled: router?.browserWebDarkModeEnabled(for: site) ?? true)
         webView.isOpaque = false
-        webView.backgroundColor = .systemBackground
-        webView.scrollView.backgroundColor = .systemBackground
+        webView.backgroundColor = Theme.pageUIColor
+        webView.scrollView.backgroundColor = Theme.pageUIColor
         webView.navigationDelegate = self
         webView.uiDelegate = self
         webView.allowsBackForwardNavigationGestures = true
@@ -290,16 +290,31 @@ final class BrowserModel: NSObject, ObservableObject {
 
     // MARK: - 错误文案
 
-    private func handleNavigationError(_ error: Error) {
-        isLoading = false
-        webView.scrollView.refreshControl?.endRefreshing()
-
-        let nsError = error as NSError
-        if NavigationPolicy.isExpectedInterruption(nsError) {
-            errorText = nil
-            return
+    private func popupController(for webView: WKWebView) -> PopupBrowserController? {
+        (popupControllers[ObjectIdentifier(webView)] as? UINavigationController)?.viewControllers.first as? PopupBrowserController
+    }
+    private func showLoadFailure(_ message: String, in failedView: WKWebView) {
+        if failedView === webView {
+            isLoading = false
+            errorText = message
+            failedView.scrollView.refreshControl?.endRefreshing()
+        } else {
+            popupController(for: failedView)?.showFailure(site: site, message: message,
+                openSafari: { [weak self, weak failedView] in
+                    guard let self else { return }
+                    self.router?.browserOpenExternal(url: failedView?.url ?? self.site.homeURL)
+                })
         }
-        errorText = Self.friendlyMessage(for: nsError, site: site)
+    }
+    private func handleNavigationError(_ error: Error, in failedView: WKWebView) {
+        if failedView === webView {
+            isLoading = false
+            failedView.scrollView.refreshControl?.endRefreshing()
+        }
+        // A deliberate policy cancellation must not erase an HTTP error already shown.
+        let nsError = error as NSError
+        guard !NavigationPolicy.isExpectedInterruption(nsError) else { return }
+        showLoadFailure(Self.friendlyMessage(for: nsError, site: site), in: failedView)
     }
 
     static func friendlyMessage(for error: NSError, site: SiteID) -> String {
@@ -328,7 +343,7 @@ final class BrowserModel: NSObject, ObservableObject {
 extension BrowserModel: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         router?.browserDownloadCenter?.dismissCompletedPresentation()
-        guard webView === self.webView else { return }
+        guard webView === self.webView else { popupController(for: webView)?.dismissFailure(); return }
         isLoading = true
         errorText = nil
     }
@@ -350,22 +365,17 @@ extension BrowserModel: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        if webView === self.webView { handleNavigationError(error) }
+        handleNavigationError(error, in: webView)
     }
 
     func webView(
         _ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error
     ) {
-        if webView === self.webView { handleNavigationError(error) }
+        handleNavigationError(error, in: webView)
     }
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-        guard webView === self.webView else {
-            closePopup(webView)
-            return
-        }
-        isLoading = false
-        errorText = L10n.tr("页面进程已被系统回收。请重新载入；尚未提交的内容可能需要重新填写。")
+        showLoadFailure(L10n.tr("页面进程已被系统回收。请重新载入；尚未提交的内容可能需要重新填写。"), in: webView)
     }
 
     func webView(
@@ -442,6 +452,11 @@ extension BrowserModel: WKNavigationDelegate {
         decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void
     ) {
         let response = navigationResponse.response as? HTTPURLResponse
+        if navigationResponse.isForMainFrame, let status = response?.statusCode, status >= 400 {
+            showLoadFailure(L10n.format("网站返回 HTTP %@，请检查校园网络或稍后重试。", String(status)), in: webView)
+            decisionHandler(.cancel)
+            return
+        }
         let disposition = response?.value(forHTTPHeaderField: "Content-Disposition")?.lowercased() ?? ""
         let isPDF = navigationResponse.response.mimeType?.lowercased() == "application/pdf"
         // 使用当前响应直接下载，保留 POST、一次性链接、Cookie 及 blob 的原始内容；不额外发 GET。
@@ -491,6 +506,9 @@ extension BrowserModel: WKUIDelegate {
             WKUserScript(source: Self.viewportLockScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
         let popup = WKWebView(frame: .zero, configuration: configuration)
         Self.restrictScrolling(popup)
+        popup.isOpaque = false
+        popup.backgroundColor = Theme.pageUIColor
+        popup.scrollView.backgroundColor = Theme.pageUIColor
         WebAppearance.install(on: configuration, enabled: router?.browserWebDarkModeEnabled(for: site) ?? true)
         popup.navigationDelegate = self
         popup.uiDelegate = self

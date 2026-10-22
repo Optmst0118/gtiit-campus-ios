@@ -33,7 +33,8 @@ def main():
         'CFBundleIdentifier': BUNDLE, 'CFBundleExecutable': 'Regression', 'CFBundleName': 'Regression',
         'CFBundlePackageType': 'APPL', 'CFBundleVersion': '1', 'CFBundleShortVersionString': '1',
         'LSRequiresIPhoneOS': True, 'UIDeviceFamily': [1,2], 'UILaunchScreen': {}, 'UIApplicationSceneManifest': {'UIApplicationSupportsMultipleScenes': False},
-        'NSFaceIDUsageDescription': 'Validate local app-lock behavior in the disposable simulator.',
+        'LSApplicationQueriesSchemes':['atrust'],
+    'NSFaceIDUsageDescription': 'Validate local app-lock behavior in the disposable simulator.',
         # Test bundle only: WKDownload needs HTTP access to the loopback fixtures too.
         # Product ATS policy is unchanged and is read from GTIIT/Info.plist.
         'NSAppTransportSecurity': {'NSAllowsArbitraryLoads': True}

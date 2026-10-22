@@ -181,7 +181,7 @@
     };
     const theme = {
         mode: 1, brightness: 100, contrast: 100, sepia: 0,
-        darkSchemeBackgroundColor: '#17191c', darkSchemeTextColor: '#e9edf2',
+        darkSchemeBackgroundColor: 'GTIIT_DARK_CANVAS', darkSchemeTextColor: '#e9edf2',
         fontFamily: '', useFont: false, textStroke: 0, styleSystemControls: true
     };
     // Only stylesheets already used by the document, or their CSS imports. Never fetch images/documents.
@@ -208,6 +208,15 @@
             frame.contentWindow?.postMessage({type: 'gtiit-web-appearance', enabled}, '*');
         }
     };
+    // Keep the page canvas consistent with native Me, while preserving elevated
+    // cards, booking status colors, media, authentication and original-color opt-out.
+    const canvasSelectors = ['html', 'body', '#root', '#app'];
+    if (pageHost === 'students.gtiit.edu.cn') canvasSelectors.push('.app-bg');
+    if (pageHost === 'moodle.gtiit.edu.cn') canvasSelectors.push('#page', '#page-wrapper', '#page-content');
+    if (pageHost === 'roombooking.gtiit.edu.cn') canvasSelectors.push('#page', '#page-wrapper');
+    if (pageHost === 'gtiit.mike-x.com') canvasSelectors.push('.main', '.page-package', '.page-group', '.page', '.page > .content');
+    // Dark Reader's final override is deliberately not color-transformed again.
+    fixes.css = canvasSelectors.join(',') + '{background-color:GTIIT_DARK_CANVAS !important;background-image:none !important;}';
     const apply = () => {
         try {
             const pdf = (document.contentType || '').toLowerCase().includes('pdf');

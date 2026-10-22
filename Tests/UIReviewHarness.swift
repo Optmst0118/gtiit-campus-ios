@@ -42,6 +42,16 @@ import UIKit
             """#, baseURL: URL(string: "https://moodle.gtiit.edu.cn/moodle/my/")!)
         }
         if let raw = ProcessInfo.processInfo.environment["UI_REVIEW_SITE"], let site = SiteID(rawValue: raw) { model.openSite(site) }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_WEB_FIXTURE"] == "1" {
+            let site = SiteID(rawValue: ProcessInfo.processInfo.environment["UI_REVIEW_SITE"] ?? "portal") ?? .portal
+            model.openSite(site)
+            let rows = (1...28).map { "<div class='row'>Campus item \($0)<span>Course · Room · 09:00</span></div>" }.joined()
+            model.browser(for: site).webView.loadHTMLString("""
+                <html><head><title>Campus content</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>
+                body{margin:0;background:white;color:#161e28;font:17px -apple-system}h1{padding:20px 20px 0;font-size:30px}.row{padding:20px;border-bottom:1px solid #ddd;background:#eef7ff}.row:nth-child(2n){background:#d5eaff}.row span{display:block;font-size:13px;padding-top:6px}#tail{margin:20px;padding:16px;border:0;border-radius:12px;background:#0675bc;color:white}
+                </style></head><body><h1>Campus content</h1>\(rows)<button id="tail">Last page action</button></body></html>
+                """, baseURL: site.homeURL)
+        }
         _app = StateObject(wrappedValue: model)
         let lock = AppLockController(authenticator: PreviewUnavailableAuthenticator())
         lock.lock()
@@ -50,7 +60,9 @@ import UIKit
     var body: some Scene {
         WindowGroup {
             Group {
-                if environment["UI_REVIEW_CALENDAR"] == "1" {
+                if environment["UI_REVIEW_ERROR"] == "1" {
+                    LoadErrorView(site: .portal, message: L10n.tr("连接超时。校园站点在校外可能需要较长时间，请稍后重试。"), onRetry: {}, onOpenSafari: {}, onOpenHome: {})
+                } else if environment["UI_REVIEW_CALENDAR"] == "1" {
                     NavigationStack { AcademicCalendarView() }
                 } else if environment["UI_REVIEW_WEEK"] == "1" {
                     NavigationStack { LocalTimetableView(store: app.timetable).environmentObject(app) }

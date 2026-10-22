@@ -9,6 +9,7 @@ import SwiftUI
     private var titleObservation: NSKeyValueObservation?
     private let downloads: DownloadCoordinator?
     private let downloadPresenterID = UUID()
+    private var failureController: UIViewController?
     init(webView: WKWebView, downloads: DownloadCoordinator? = nil) {
         self.webView = webView
         self.downloads = downloads
@@ -25,7 +26,7 @@ import SwiftUI
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = Theme.pageUIColor
         webView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(webView)
         NSLayoutConstraint.activate([
@@ -54,6 +55,29 @@ import SwiftUI
             ])
             panel.didMove(toParent: self)
         }
+    }
+    func showFailure(site: SiteID, message: String, openSafari: @escaping () -> Void) {
+        loadViewIfNeeded(); dismissFailure()
+        let content = LoadErrorView(site: site, message: message,
+            onRetry: { [weak self] in self?.dismissFailure(); self?.webView.reload() },
+            onOpenSafari: openSafari,
+            onOpenHome: { [weak self] in self?.dismissFailure(); self?.webView.load(URLRequest(url: site.homeURL)) })
+            .environment(\.locale, L10n.locale)
+        let controller = UIHostingController(rootView: content)
+        addChild(controller); controller.view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(controller.view)
+        NSLayoutConstraint.activate([
+            controller.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            controller.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            controller.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            controller.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        controller.didMove(toParent: self); failureController = controller
+    }
+    func dismissFailure() {
+        failureController?.willMove(toParent: nil)
+        failureController?.view.removeFromSuperview()
+        failureController?.removeFromParent(); failureController = nil
     }
     @objc private func close() { onClose?() }
 }

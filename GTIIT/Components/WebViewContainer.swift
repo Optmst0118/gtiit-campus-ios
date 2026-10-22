@@ -1,10 +1,10 @@
 import SwiftUI
 import WebKit
 
-/// WebView 的稳定宿主：SwiftUI 只管理这一层容器，
-/// WKWebView 在容器内被重新挂载，避免同一 UIView 跨 representable 复用导致白屏。
+/// A stable UIKit host lets the system tab bar track the real WebKit scroll view.
+/// Content extends under the bar; UIKit adjusts its scrollable end above controls.
 final class WebViewHostView: UIView {
-    private weak var hosted: WKWebView?
+    private(set) weak var hosted: WKWebView?
 
     func host(_ webView: WKWebView) {
         guard hosted !== webView else { return }
@@ -22,19 +22,25 @@ final class WebViewHostView: UIView {
     }
 }
 
-/// 把 BrowserModel 里长期持有的 WKWebView 挂进 SwiftUI 层级。
-/// 切换 Tab / 分段只做重新挂载，不重建 WebView，滚动位置与页面状态都保留。
-struct WebViewContainer: UIViewRepresentable {
-    let model: BrowserModel
-
-    func makeUIView(context: Context) -> WebViewHostView {
-        let container = WebViewHostView()
-        container.backgroundColor = .clear
-        container.host(model.webView)
-        return container
+final class WebViewHostController: UIViewController {
+    private let host = WebViewHostView()
+    override func loadView() { host.backgroundColor = Theme.pageUIColor; view = host }
+    func display(_ webView: WKWebView) {
+        loadViewIfNeeded()
+        host.host(webView)
+        setContentScrollView(webView.scrollView, for: .bottom)
     }
+}
 
-    func updateUIView(_ uiView: WebViewHostView, context: Context) {
-        uiView.host(model.webView)
+/// Reuses BrowserModel's existing WKWebView, retaining login, scroll and forms.
+struct WebViewContainer: UIViewControllerRepresentable {
+    let model: BrowserModel
+    func makeUIViewController(context: Context) -> WebViewHostController {
+        let controller = WebViewHostController()
+        controller.display(model.webView)
+        return controller
+    }
+    func updateUIViewController(_ controller: WebViewHostController, context: Context) {
+        controller.display(model.webView)
     }
 }

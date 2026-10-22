@@ -1,3 +1,4 @@
+import SwiftUI
 import Combine
 import CoreFoundation
 import PDFKit
@@ -159,6 +160,7 @@ private final class RetiredViewReference {
         await verifyWebAppearance()
         await verifyCampusFeatures()
         await verifyUpcomingReader()
+        await verifyGlassWebLayout()
         let capture = FrameCapture()
         let frameWebView = WKWebView()
         frameWebView.navigationDelegate = capture
@@ -559,6 +561,7 @@ private final class RetiredViewReference {
             check("\(site.rawValue)_dark_fixture_loaded", loaded)
             let dark = await wait { (await self.js(model.webView, darkBackground)) == "true" }
             check("\(site.rawValue)_dark_background", dark)
+            check("\(site.rawValue)_canvas_matches_native_me", await wait { await self.js(model.webView, "getComputedStyle(document.body).backgroundColor==='rgb(14, 20, 28)' && getComputedStyle(document.documentElement).backgroundColor==='rgb(14, 20, 28)'") == "true" })
             check("\(site.rawValue)_page_prototypes_untouched", (await js(model.webView, "window.originalInsertRule===CSSStyleSheet.prototype.insertRule && window.originalDefine===customElements.define")) == "true")
             let geometry = await js(model.webView, "JSON.stringify(Array.from(document.querySelectorAll('#panel,input,select,button')).map(e=>{const r=e.getBoundingClientRect();return [r.x,r.y,r.width,r.height]}))")
             let functional = await js(model.webView, "document.getElementById('name').value==='synthetic' && document.getElementById('password').value==='synthetic-password' && document.getElementById('form').checkValidity() && document.getElementById('disabled').disabled")
@@ -957,5 +960,53 @@ extension RegressionApp {
         } catch { check("upcoming_reader", false, error.localizedDescription) }
         check("upcoming_url_rejects_actions_and_other_hosts", MoodleWork.safeURL("https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=1&action=editsubmission") == nil && MoodleWork.safeURL("https://evil.test/moodle/mod/assign/view.php?id=1") == nil)
         web.removeFromSuperview()
+    }
+}
+
+extension RegressionApp {
+    func verifyGlassWebLayout() async {
+        let suite = "regression.glass." + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.removePersistentDomain(forName: suite)
+        let settings = AppSettings(defaults: defaults)
+        settings.hasSeenWelcome = true; settings.preloadSitesOnLaunch = false; settings.startupTab = .portal
+        let app = AppModel(settings: settings)
+        let original = window!.rootViewController
+        let host = UIHostingController(rootView: RootTabView().environmentObject(app).environmentObject(settings))
+        window!.rootViewController = host; window!.makeKeyAndVisible()
+        func tabBar(in view: UIView) -> UITabBar? {
+            if let bar = view as? UITabBar { return bar }
+            for child in view.subviews { if let bar = tabBar(in: child) { return bar } }
+            return nil
+        }
+        for site in SiteID.allCases {
+            let browser = app.browser(for: site)
+            app.openSite(site)
+            browser.webView.loadHTMLString("<title>Glass fixture</title><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{margin:0}#content{height:1800px}button{height:50px}</style><div id='content'>Synthetic long content</div><button id='tail'>Last action</button>", baseURL: site.homeURL)
+            let ready = await wait { browser.webView.window != nil && browser.webView.title == "Glass fixture" && !browser.webView.isLoading && tabBar(in: host.view) != nil }
+            check("\(site.rawValue)_glass_host_ready", ready)
+            guard ready, let bar = tabBar(in: host.view) else { continue }
+            host.view.layoutIfNeeded()
+            let web = browser.webView, frame = web.convert(web.bounds, to: window), barFrame = bar.convert(bar.bounds, to: window)
+            check("\(site.rawValue)_web_extends_under_tab_bar", frame.maxY >= barFrame.maxY - 1 && frame.maxY >= window!.bounds.maxY - 1, "web=\(frame), tab=\(barFrame)")
+            let scroll = web.scrollView
+            _ = await wait { scroll.contentSize.height > 1800 && web.bounds.height > 0 }
+            let y = max(-scroll.adjustedContentInset.top, scroll.contentSize.height - scroll.bounds.height + scroll.adjustedContentInset.bottom)
+            scroll.setContentOffset(CGPoint(x: 0, y: y), animated: false)
+            try? await Task.sleep(for: .milliseconds(300))
+            let bottom = Double(await js(web, "document.getElementById('tail').getBoundingClientRect().bottom")) ?? .infinity
+            check("\(site.rawValue)_last_action_scrolls_above_bar", frame.minY + bottom <= barFrame.minY + 1, "tail=\(frame.minY + bottom), bar=\(barFrame.minY), inset=\(scroll.adjustedContentInset.bottom)")
+            // Every site's transport errors share the VPN-capable error view.
+            browser.webView(web, didFailProvisionalNavigation: nil, withError: NSError(domain: NSURLErrorDomain, code: NSURLErrorCannotConnectToHost))
+            check("\(site.rawValue)_network_error_available", browser.errorText != nil)
+            browser.load(base.appendingPathComponent("status-503"))
+            check("\(site.rawValue)_http_error_available", await wait { browser.errorText?.contains("503") == true })
+        }
+        window!.rootViewController = original; window!.makeKeyAndVisible()
+        for site in SiteID.allCases {
+            let browser = app.browser(for: site)
+            _ = await browser.prepareForDataClear(); browser.releaseDataStoreView()
+        }
+        defaults.removePersistentDomain(forName: suite)
     }
 }

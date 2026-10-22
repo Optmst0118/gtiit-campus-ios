@@ -27,7 +27,7 @@ private struct BrowserChrome: View {
             ProgressBarView(progress: model.progress, isActive: model.isLoading)
             content
         }
-        .background(Color(uiColor: .systemBackground))
+        .background(Theme.pageBackground)
     }
 
     // MARK: - 顶部铬
@@ -102,6 +102,7 @@ private struct BrowserChrome: View {
     private var content: some View {
         ZStack {
             WebViewContainer(model: model)
+                .ignoresSafeArea(.container, edges: .bottom)
 
             if model.needsReloadAfterClear {
                 ContentUnavailableView {
@@ -110,7 +111,7 @@ private struct BrowserChrome: View {
                     Text(L10n.tr("本站的登录与浏览历史已移除。重新打开网站后可登录。"))
                 } actions: {
                     Button(L10n.tr("重新打开网站")) { model.loadHome() }.buttonStyle(.borderedProminent)
-                }.background(Color(uiColor: .systemBackground))
+                }.background(Theme.pageBackground)
             } else if let error = model.errorText {
                 LoadErrorView(
                     site: model.site,

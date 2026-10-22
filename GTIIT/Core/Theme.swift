@@ -16,11 +16,13 @@ enum Theme {
 
     static let corner: CGFloat = 18
 
-    static let pageBackground = Color(uiColor: UIColor { traits in
+    static let darkCanvasHex = "#0e141c"
+    static let pageUIColor = UIColor { traits in
         traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.055, green: 0.08, blue: 0.11, alpha: 1)
+            ? UIColor(red: 14/255.0, green: 20/255.0, blue: 28/255.0, alpha: 1)
             : UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1)
-    })
+    }
+    static let pageBackground = Color(uiColor: pageUIColor)
     static let cardBackground = Color(uiColor: .secondarySystemGroupedBackground)
 
     static let headerHeight: CGFloat = 46

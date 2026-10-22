@@ -56,6 +56,8 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(b'<title>POST received</title><body>' + data + b'</body>')
     def do_GET(self):
         path = self.path.split('?')[0]
+        if path == '/status-503':
+            self.send_response(503); self.send_header('Content-Type', 'text/html'); self.end_headers(); self.wfile.write(b'<title>Unavailable</title>Maintenance'); return
         if path == '/dark-fixture':
             content = b'''<!doctype html><html><head><title>Dark fixture</title>
 <style>html,body{background:#fff;color:#111;margin:0}body{padding:16px;font:16px sans-serif}.panel{background:#f5f5f5;color:#202020;padding:16px;width:260px;box-sizing:border-box}input,select,button{font:inherit;padding:8px;background:white;color:#111;border:1px solid #888}.reserved{background:#d80000;color:white}.available{background:#00a050;color:white}#qr{width:32px;height:32px}#dynamic{background:white;color:black}</style>

@@ -29,6 +29,7 @@ import WebKit
             let json = String(data: data, encoding: .utf8),
             let cleanupJSON = String(data: cleanupData, encoding: .utf8) else { return "" }
         let body = adapter.replacingOccurrences(of: "GTIIT_INITIAL_ENABLED", with: enabled ? "true" : "false")
+            .replacingOccurrences(of: "GTIIT_DARK_CANVAS", with: Theme.darkCanvasHex)
             .replacingOccurrences(of: "GTIIT_ALLOWED_HOSTS", with: json)
             .replacingOccurrences(of: "GTIIT_CLEANUP_HOSTS", with: cleanupJSON)
         return marker + """

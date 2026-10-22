@@ -542,5 +542,13 @@
   "请在 Moodle 核对提交状态": "Check submission status on Moodle",
   "进入我的页面后，使用学习页面现有会话，只读核对 Moodle 日历及各课程作业的名称、开放与截止时间、提交状态。摘要仅在当前运行内存中使用；清除 Moodle 登录数据时同步清除，不保存作业正文、成绩或附件。": "On the Me tab, the existing Learning session reads Moodle calendars and assignment names, opening times, deadlines and submission status. Summaries remain in memory and are cleared with Moodle login data. Assignment contents, grades and attachments are not stored.",
   "学校页面与 WebKit 持有登录会话。原生层不读取或保存账号密码、会话密钥；日程请求仅在学校同域网页会话内完成。": "The school pages and WebKit hold the login session. The native layer does not read or store passwords or session keys. Schedule requests stay within the school’s same-origin web session.",
-  "导入已暂停，请返回前台后重新导入。": "Import paused. Return to the app and import again."
+  "导入已暂停，请返回前台后重新导入。": "Import paused. Return to the app and import again.",
+  "校园网络访问": "Campus network access",
+  "请连接校内无线网络，或在 aTrust 中连接学校对应的校园 VPN，再返回此处重试。": "Connect to campus Wi-Fi, or connect to the school’s campus VPN in aTrust, then return here and retry.",
+  "打开 aTrust": "Open aTrust",
+  "请从主屏幕打开 aTrust 并连接校园 VPN。": "Open aTrust from your Home Screen and connect to the campus VPN.",
+  "在 App Store 查看 aTrust": "View aTrust on the App Store",
+  "若仍无法访问，可能是站点维护、登录失效或证书问题，请按上方错误信息处理。": "If access still fails, the site may be under maintenance, your session may have expired, or a certificate may be invalid. Follow the error shown above.",
+  "请手动打开 aTrust": "Open aTrust manually",
+  "网站返回 HTTP %@，请检查校园网络或稍后重试。": "The site returned HTTP %@. Check your campus connection or try again later."
 }
