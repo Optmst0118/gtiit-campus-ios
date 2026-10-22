@@ -16,6 +16,10 @@ final class AppModel: ObservableObject {
     @Published var showDownloads = false
     @Published private(set) var storageStates: [SiteID: Bool] = [:]
 
+    @Published private(set) var contextMenuSource: String?
+    func showContextMenu(_ source: String) { contextMenuSource = source }
+    func hideContextMenu(_ source: String) { if contextMenuSource == source { contextMenuSource = nil } }
+
     let timetable = LocalTimetableStore()
     let upcoming = MoodleUpcomingStore()
     let yilong = YilongController()
@@ -47,7 +51,7 @@ final class AppModel: ObservableObject {
             self?.objectWillChange.send()
             Task { @MainActor [weak self] in
                 guard let self else { return }
-                if self.lock.isLocked || !self.lock.isActive { self.upcoming.cancel() }
+                if self.lock.isLocked || !self.lock.isActive { self.upcoming.cancel(); self.contextMenuSource = nil }
             }
         }
         launchSubscription = launch.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
@@ -211,11 +215,12 @@ extension AppModel: BrowserRouter {
     var browserDownloadCenter: DownloadCoordinator? { downloads }
     var externalLinkMode: ExternalLinkMode { settings.externalLinks }
     func browserInitialURL(for site: SiteID) -> URL { settings.initialURL(for: site) }
+    var browserMayRecoverDocument: Bool { !lock.isLocked && lock.isActive && !isClearingData }
     func browserDidFinish(url: URL, site: SiteID) {
         settings.remember(url, for: site)
         if site == .moodle {
             if url.path.contains("/login/") || url.path.contains("/auth/") { upcoming.cancel(clear: true) }
-            else if url.path.contains("/mod/assign/") || url.path.contains("/mod/quiz/") { upcoming.invalidate() }
+
         }
     }
     func browserClearData(for site: SiteID) async { await clearData(for: site) }

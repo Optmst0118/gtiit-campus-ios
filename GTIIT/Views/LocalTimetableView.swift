@@ -130,6 +130,41 @@ struct LocalTimetableView: View {
     }
 }
 
+/// Settings uses the same push navigation as its other peers. Only the import
+/// operation opens a dedicated flow; local management remains in this hierarchy.
+struct TimetableSettingsView: View {
+    @EnvironmentObject private var app: AppModel
+    @Environment(\.locale) private var nativeLocale
+    @State private var importing = false
+    @State private var clear = false
+    @State private var error: String?
+    var body: some View {
+        let _ = nativeLocale.identifier
+        Form {
+            Section {
+                Button { importing = true } label: {
+                    Label(L10n.tr("提取课表到本地"), systemImage: "square.and.arrow.down")
+                }
+            } footer: { Text(L10n.tr("使用门户现有登录，识别后进入核对页。只有点击右上角蓝色勾后才保存。")) }
+            if app.timetable.snapshot != nil {
+                Section {
+                    NavigationLink(L10n.tr("查看本地课表")) { LocalTimetableView(store: app.timetable) }
+                    Button(L10n.tr("删除本地课表"), role: .destructive) { clear = true }
+                }
+            }
+            if let error { Text(error).foregroundStyle(Theme.orange) }
+        }
+        .scrollContentBackground(.hidden).background(Theme.pageBackground)
+        .navigationTitle(L10n.tr("课表")).navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $importing) { TimetableImportView(automatic: true) }
+        .confirmationDialog(L10n.tr("删除本机保存的课表？"), isPresented: $clear, titleVisibility: .visible) {
+            Button(L10n.tr("删除课表"), role: .destructive) {
+                do { try app.timetable.clear() } catch { self.error = L10n.tr("删除失败，请重试。") }
+            }
+        }
+    }
+}
+
 struct TimetableImportView: View {
     private enum Step: Hashable { case portal, review }
     private let automatic: Bool

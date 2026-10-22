@@ -1,4 +1,5 @@
 import PDFKit
+import QuickLook
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -168,7 +169,13 @@ struct DownloadsView: View {
         .buttonStyle(.plain)
         .accessibilityLabel(item.filename)
         .accessibilityValue(detail(item))
-        .contextMenu { contextMenu(for: item) }
+        .contextMenu { contextMenu(for: item) } preview: {
+            if item.state == .completed, let url = center.fileURL(for: item) {
+                DownloadContextPreview(source: url, filename: item.filename)
+                    .onAppear { app.showContextMenu("download." + item.id.uuidString) }
+                    .onDisappear { app.hideContextMenu("download." + item.id.uuidString) }
+            }
+        }
     }
 
     private func fileCell(_ item: DownloadItem) -> some View {
@@ -189,7 +196,13 @@ struct DownloadsView: View {
         .buttonStyle(.plain)
         .accessibilityLabel(item.filename)
         .accessibilityValue(detail(item))
-        .contextMenu { contextMenu(for: item) }
+        .contextMenu { contextMenu(for: item) } preview: {
+            if item.state == .completed, let url = center.fileURL(for: item) {
+                DownloadContextPreview(source: url, filename: item.filename)
+                    .onAppear { app.showContextMenu("download." + item.id.uuidString) }
+                    .onDisappear { app.hideContextMenu("download." + item.id.uuidString) }
+            }
+        }
     }
 
     @ViewBuilder
@@ -281,6 +294,63 @@ private struct DownloadFolderPicker: UIViewControllerRepresentable {
         init(picked: @escaping (URL) -> Void) { self.picked = picked }
         func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
             if let url = urls.first { picked(url) }
+        }
+    }
+}
+
+/// Context-menu previews use an independent coordinated copy. Their lifetime is
+/// owned by the system preview, and cannot dismiss the normal document viewer.
+private struct DownloadContextPreview: View {
+    let source: URL
+    let filename: String
+    @StateObject private var asset = DownloadPeekAsset()
+    var body: some View {
+        Group {
+            if asset.url != nil { DownloadPeekController(asset: asset) }
+            else {
+                VStack(spacing: 16) {
+                    if asset.failed { Image(systemName: "doc.text.magnifyingglass").font(.largeTitle) }
+                    else { ProgressView() }
+                    Text(filename).font(.headline).multilineTextAlignment(.center).lineLimit(3)
+                    if asset.failed { Text(L10n.tr("轻点文件可重新尝试预览")).font(.caption).foregroundStyle(.secondary) }
+                }.padding(24)
+            }
+        }
+        .frame(width: 300, height: 420)
+        .background(Theme.cardBackground)
+        .task(id: source) { await asset.load(source) }
+    }
+}
+@MainActor private final class DownloadPeekAsset: ObservableObject {
+    @Published private(set) var url: URL?
+    @Published private(set) var failed = false
+    private let folder = FileManager.default.temporaryDirectory.appendingPathComponent("file-peek-" + UUID().uuidString)
+    func load(_ source: URL) async {
+        guard url == nil else { return }
+        do {
+            let folder = folder
+            let copy = try await Task.detached(priority: .userInitiated) { try DownloadFileAccess.readableCopy(source, to: folder) }.value
+            guard !Task.isCancelled else { try? FileManager.default.removeItem(at: folder); return }
+            url = copy
+        } catch { failed = true }
+    }
+    deinit { try? FileManager.default.removeItem(at: folder) }
+}
+private struct DownloadPeekController: UIViewControllerRepresentable {
+    let asset: DownloadPeekAsset
+    func makeCoordinator() -> Coordinator { Coordinator(asset: asset) }
+    func makeUIViewController(context: Context) -> QLPreviewController {
+        let controller = QLPreviewController()
+        controller.dataSource = context.coordinator
+        return controller
+    }
+    func updateUIViewController(_ controller: QLPreviewController, context: Context) {}
+    final class Coordinator: NSObject, QLPreviewControllerDataSource {
+        let asset: DownloadPeekAsset
+        init(asset: DownloadPeekAsset) { self.asset = asset }
+        func numberOfPreviewItems(in controller: QLPreviewController) -> Int { asset.url == nil ? 0 : 1 }
+        func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+            asset.url! as NSURL
         }
     }
 }

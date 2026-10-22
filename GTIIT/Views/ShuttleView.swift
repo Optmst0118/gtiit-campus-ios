@@ -40,7 +40,7 @@ struct ShuttleView: View {
                                             teachingWeek: settings.shuttleTeachingWeek))
                                         .frame(maxWidth: .infinity, alignment: .topLeading)
                                         .contentShape(Rectangle())
-                                }.buttonStyle(.plain)
+                                }.buttonStyle(CardPressStyle())
                                     .accessibilityHint(L10n.tr("查看此方向完整时刻表"))
                             }
                         }
@@ -65,7 +65,7 @@ struct ShuttleView: View {
                                 Spacer()
                                 Image(systemName: "arrow.up.right").font(.subheadline)
                             }.font(.subheadline.weight(.semibold)).frame(minHeight: 44)
-                        }.buttonStyle(.plain).foregroundStyle(Theme.accent)
+                        }.buttonStyle(CardPressStyle()).foregroundStyle(Theme.accent)
 
                         VStack(alignment: .leading, spacing: 10) {
                             Label(L10n.tr("19:30 后，南校区 9 号门关闭"), systemImage: "door.left.hand.closed")

@@ -76,6 +76,9 @@ enum DownloadRetention: String, SettingChoice {
         didSet { defaults.set(yilongUnlocked, forKey: "settings.yilongUnlocked") }
     }
     private let defaults: UserDefaults
+    @Published var shortcutIDs: Set<String> {
+        didSet { defaults.set(shortcutIDs.sorted(), forKey: "settings.shortcutIDs") }
+    }
     @Published var webDarkMode: Bool {
         didSet { defaults.set(webDarkMode, forKey: "settings.webDarkMode") }
     }
@@ -125,6 +128,7 @@ enum DownloadRetention: String, SettingChoice {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        shortcutIDs = defaults.stringArray(forKey: "settings.shortcutIDs").map(Set.init) ?? CampusShortcut.defaults
         language = AppLanguage(rawValue: defaults.string(forKey: "settings.language") ?? "") ?? .chinese
         yilongUnlocked = defaults.bool(forKey: "settings.yilongUnlocked")
         webDarkMode = defaults.object(forKey: "settings.webDarkMode") as? Bool ?? true

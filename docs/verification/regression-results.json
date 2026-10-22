@@ -593,7 +593,52 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "upcoming_reads_all_course_pages_and_pagination"
+      "test" : "upcoming_reads_active_course_pages_and_pagination"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_skips_old_terms_future_and_hidden_courses"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_requests_only_inprogress_classification"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_summary_survives_store_restart"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_cache_excluded_from_backup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_recent_cache_does_not_trigger_scan"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_clear_removes_persistent_summary"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shortcut_default_entries_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shortcut_changes_survive_restart"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shortcut_empty_selection_is_preserved"
     },
     {
       "detail" : "",
@@ -633,6 +678,11 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "upcoming_empty_active_set_never_falls_back_to_all_courses"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "upcoming_login_required_no_data"
     },
     {
@@ -654,6 +704,16 @@
       "detail" : "tail=791.0, bar=791.0, inset=83.0",
       "passed" : true,
       "test" : "portal_last_action_scrolls_above_bar"
+    },
+    {
+      "detail" : "fixed=791.0, bar=791.0",
+      "passed" : true,
+      "test" : "portal_inner_scroll_fixed_action_above_glass"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_webkit_obscured_insets_match_toolbar"
     },
     {
       "detail" : "",
@@ -739,6 +799,16 @@
       "detail" : "",
       "passed" : true,
       "test" : "sports_http_error_available"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shared_webview_background_updates_do_not_steal_modal"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shared_webview_restored_after_modal_release"
     },
     {
       "detail" : "",
@@ -871,7 +941,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 2C1453C1-93CD-46EA-ACD0-714C405BFEC0, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-22 12:21:52 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: CCC4AB99-6E0A-4244-A08E-7F664806D67A, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-22 13:21:35 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1252,7 +1322,7 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-22T12:22:19Z",
+  "date" : "2026-10-22T13:22:03Z",
   "passed" : true,
-  "runID" : "109788c3-c8b6-4f40-85e0-bd9c7443476f"
+  "runID" : "0289f319-2114-4610-a5d0-5136862eefb8"
 }

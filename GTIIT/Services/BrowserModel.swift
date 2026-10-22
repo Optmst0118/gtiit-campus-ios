@@ -32,6 +32,11 @@ final class BrowserModel: NSObject, ObservableObject {
     private var popupControllers: [ObjectIdentifier: UIViewController] = [:]
     private var mayRememberLocation = true
     private var isResetting = false
+    private var processTerminated = false
+    private var canRecoverReadOnlyDocument = false
+    private var documentEdited = false
+    private var lastAutomaticRecovery: Date?
+    private var navigationGeneration = UUID()
 
     init(site: SiteID, router: BrowserRouter) {
         self.site = site
@@ -70,6 +75,20 @@ final class BrowserModel: NSObject, ObservableObject {
         webView.scrollView.backgroundColor = Theme.pageUIColor
         webView.navigationDelegate = self
         webView.uiDelegate = self
+        let edits = BrowserEditObserver(owner: self)
+        webView.configuration.userContentController.add(edits, contentWorld: .defaultClient, name: "gtiitDocumentEdited")
+        webView.configuration.userContentController.addUserScript(WKUserScript(source: """
+            (() => {
+                let reported = false;
+                const edited = event => {
+                    if (!event.isTrusted || reported) return;
+                    reported = true;
+                    window.webkit.messageHandlers.gtiitDocumentEdited.postMessage(true);
+                };
+                document.addEventListener('input', edited, true);
+                document.addEventListener('change', edited, true);
+            })();
+            """, injectionTime: .atDocumentStart, forMainFrameOnly: false, in: .defaultClient))
         webView.allowsBackForwardNavigationGestures = true
         webView.allowsLinkPreview = true
         webView.scrollView.contentInsetAdjustmentBehavior = .automatic
@@ -193,6 +212,13 @@ final class BrowserModel: NSObject, ObservableObject {
     }
 
     func reload() {
+        if processTerminated {
+            processTerminated = false
+            // Do not replay a POST, one-time link or form submission after a crash.
+            if mayRememberLocation, let url = currentURL, AppSettings.restorable(url, site: site) { load(url) }
+            else { loadHome() }
+            return
+        }
         errorText = nil
         if webView.url == nil { loadHome() } else { webView.reload() }
     }
@@ -346,6 +372,9 @@ extension BrowserModel: WKNavigationDelegate {
         guard webView === self.webView else { popupController(for: webView)?.dismissFailure(); return }
         isLoading = true
         errorText = nil
+        navigationGeneration = UUID()
+        documentEdited = false
+        canRecoverReadOnlyDocument = false
     }
 
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
@@ -358,6 +387,12 @@ extension BrowserModel: WKNavigationDelegate {
         guard webView === self.webView else { return }
         isLoading = false
         hasLoadedOnce = true
+        processTerminated = false
+        let generation = navigationGeneration
+        webView.evaluateJavaScript("!document.querySelector('form,input:not([type=hidden]),textarea,select,[contenteditable=true]')", in: nil, in: .defaultClient) { [weak self] result in
+            guard let self, self.navigationGeneration == generation else { return }
+            if case .success(let value) = result { self.canRecoverReadOnlyDocument = value as? Bool == true && !self.documentEdited }
+        }
         if webView === self.webView, mayRememberLocation, let url = webView.url {
             router?.browserDidFinish(url: url, site: site)
         }
@@ -375,7 +410,22 @@ extension BrowserModel: WKNavigationDelegate {
     }
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        guard !isResetting else { return }
+        if webView === self.webView { processTerminated = true }
         showLoadFailure(L10n.tr("页面进程已被系统回收。请重新载入；尚未提交的内容可能需要重新填写。"), in: webView)
+        recoverReadOnlyDocumentIfNeeded()
+    }
+
+    func documentWasEdited() { documentEdited = true; canRecoverReadOnlyDocument = false }
+
+    func recoverReadOnlyDocumentIfNeeded() {
+        guard processTerminated, canRecoverReadOnlyDocument, !isResetting,
+              router?.browserMayRecoverDocument == true,
+              UIApplication.shared.applicationState == .active, webView.window != nil,
+              lastAutomaticRecovery.map({ Date().timeIntervalSince($0) >= 60 }) != false,
+              mayRememberLocation, let url = currentURL, AppSettings.restorable(url, site: site) else { return }
+        lastAutomaticRecovery = Date()
+        reload()
     }
 
     func webView(
@@ -607,5 +657,15 @@ extension BrowserModel: WKUIDelegate {
     private func present(_ controller: UIViewController) -> Bool {
         guard let router else { return false }
         return router.browserPresent(viewController: controller)
+    }
+}
+
+/// A boolean interaction signal only; never receives input values or page HTML.
+@MainActor private final class BrowserEditObserver: NSObject, WKScriptMessageHandler {
+    private weak var owner: BrowserModel?
+    init(owner: BrowserModel) { self.owner = owner }
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard message.name == "gtiitDocumentEdited", message.body as? Bool == true else { return }
+        owner?.documentWasEdited()
     }
 }

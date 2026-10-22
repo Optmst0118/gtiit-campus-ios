@@ -11,9 +11,7 @@ struct MyTabView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     LocalTimetableEntry(store: app.timetable)
-                        .padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
                     MoodleUpcomingEntry(store: app.upcoming)
-                        .padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
 
                     CampusShortcutsSection()
                 }
@@ -46,22 +44,44 @@ struct MyTabView: View {
 /// Shared by the Me page and the isolated visual review host.
 struct CampusShortcutsSection: View {
     @EnvironmentObject private var app: AppModel
+    @EnvironmentObject private var settings: AppSettings
+    @State private var managing = false
+    @State private var tileWidth: CGFloat = 170
+    private var shortcuts: [CampusShortcut] { CampusShortcut.all.filter { settings.shortcutIDs.contains($0.id) } }
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-                    Text(L10n.tr("常用入口")).font(.headline).padding(.top, 12).padding(.horizontal, 2)
-                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                        NavigationLink { AcademicCalendarView() } label: {
-                            CampusShortcutTile(title: L10n.tr("校历"), symbol: "calendar", tone: 0)
-                        }
-                        Button { app.select(tab: .shuttle) } label: {
-                            CampusShortcutTile(title: L10n.tr("校园班车"), symbol: "bus.fill", tone: 1)
-                        }
-                        ForEach(Array(QuickLinkCatalog.highlights.enumerated()), id: \.element.id) { index, link in
-                            Button { app.open(link) } label: {
-                                CampusShortcutTile(title: link.title, symbol: link.symbol, tone: index + 2)
+            Text(L10n.tr("常用入口")).font(.headline).padding(.top, 12).padding(.horizontal, 2)
+            if shortcuts.isEmpty {
+                NavigationLink { ShortcutSettingsView() } label: {
+                    Label(L10n.tr("添加常用入口"), systemImage: "plus.circle")
+                        .frame(maxWidth: .infinity, alignment: .leading).padding(18).cardBackground()
+                }.buttonStyle(CardPressStyle())
+            }
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+                ForEach(Array(shortcuts.enumerated()), id: \.element.id) { index, shortcut in
+                    shortcutButton(shortcut, tone: index)
+                        .background { GeometryReader { geometry in
+                            Color.clear.preference(key: ShortcutWidthKey.self, value: geometry.size.width)
+                        } }
+                        .contextMenu {
+                            if let url = shortcut.link?.url {
+                                ShareLink(item: url) { Label(L10n.tr("分享"), systemImage: "square.and.arrow.up") }
                             }
+                            Button(L10n.tr("从常用入口移除"), systemImage: "minus.circle", role: .destructive) {
+                                settings.shortcutIDs.remove(shortcut.id)
+                            }
+                            Button(L10n.tr("管理常用入口"), systemImage: "slider.horizontal.3") { managing = true }
+                        } preview: {
+                            // Keep the source card's exact dimensions; UIKit supplies
+                            // the small native lift instead of a wide replacement card.
+                            CampusShortcutTile(title: shortcut.title, symbol: shortcut.symbol, tone: index)
+                                .frame(width: tileWidth)
+                                .onAppear { app.showContextMenu("shortcut." + shortcut.id) }
+                                .onDisappear { app.hideContextMenu("shortcut." + shortcut.id) }
                         }
-                    }.buttonStyle(.plain)
+                }
+            }.buttonStyle(.plain)
+                .onPreferenceChange(ShortcutWidthKey.self) { width in if width > 0 { tileWidth = width } }
 
                     VStack(spacing: 0) {
                         NavigationLink { DownloadsView(center: app.downloads) } label: {
@@ -75,9 +95,21 @@ struct CampusShortcutsSection: View {
                         NavigationLink { HelpView() } label: {
                             MyUtilityRow(title: L10n.tr("帮助与诊断"), symbol: "questionmark.circle")
                         }
-                    }.buttonStyle(.plain).cardBackground().padding(.top, 8)
+                    }.buttonStyle(CardPressStyle()).cardBackground().padding(.top, 8)
+        }.navigationDestination(isPresented: $managing) { ShortcutSettingsView() }
+    }
+    @ViewBuilder private func shortcutButton(_ shortcut: CampusShortcut, tone: Int) -> some View {
+        if shortcut.id == "native.calendar" {
+            NavigationLink { AcademicCalendarView() } label: {
+                CampusShortcutTile(title: shortcut.title, symbol: shortcut.symbol, tone: tone)
+            }
+        } else {
+            Button {
+                if let link = shortcut.link { app.open(link) } else { app.select(tab: .shuttle) }
+            } label: { CampusShortcutTile(title: shortcut.title, symbol: shortcut.symbol, tone: tone) }
         }
     }
+
 }
 
 private struct LocalTimetableEntry: View {
@@ -88,15 +120,18 @@ private struct LocalTimetableEntry: View {
         let _ = nativeLocale.identifier
         Group {
             if store.snapshot != nil {
-                NavigationLink { LocalTimetableView(store: store) } label: { TodayTimetableCard(store: store) }
-                    .buttonStyle(.plain)
+                NavigationLink { LocalTimetableView(store: store) } label: {
+                    TodayTimetableCard(store: store)
+                        .padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
+                }
+                    .buttonStyle(CardPressStyle())
             } else {
                 VStack(alignment: .leading, spacing: 14) {
                     TodayTimetableCard(store: store)
                     Button { importing = true } label: {
                         Label(L10n.tr("从门户导入课表"), systemImage: "square.and.arrow.down")
                     }.buttonStyle(.borderedProminent).tint(Theme.accent)
-                }.padding(.vertical, 6)
+                }.padding(.vertical, 6).padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
             }
         }.sheet(isPresented: $importing) { TimetableImportView(automatic: true) }
     }
@@ -159,4 +194,9 @@ private struct MyUtilityRow: View {
         }.font(.body).frame(minHeight: 50).padding(.horizontal, 16).padding(.vertical, 2)
             .contentShape(Rectangle())
     }
+}
+
+private struct ShortcutWidthKey: PreferenceKey {
+    static var defaultValue: CGFloat { 0 }
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
 }

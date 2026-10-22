@@ -4,15 +4,13 @@ struct SettingsView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
-    @State private var showTimetableImport = false
     var body: some View {
         let _ = nativeLocale.identifier
 
         List {
             Section {
                 NavigationLink { LanguageSettingsView() } label: { SettingsLabel(L10n.tr("语言"), symbol: "globe") }
-                Button { showTimetableImport = true } label: { SettingsLabel(L10n.tr("提取课表到本地"), symbol: "calendar.badge.plus") }
-                    .foregroundStyle(.primary)
+                NavigationLink { TimetableSettingsView() } label: { SettingsLabel(L10n.tr("课表"), symbol: "calendar.badge.plus") }
                 if settings.yilongUnlocked {
                     NavigationLink { YilongSettingsView() } label: { SettingsLabel(L10n.tr("以龙"), symbol: "sparkles") }
                 }
@@ -67,7 +65,6 @@ struct SettingsView: View {
         .scrollContentBackground(.hidden)
         .background(Theme.pageBackground)
         .navigationTitle(L10n.tr("设置"))
-        .sheet(isPresented: $showTimetableImport) { TimetableImportView() }
         .navigationBarTitleDisplayMode(.large)
     }
 }
@@ -113,6 +110,11 @@ private struct GeneralSettingsView: View {
                 Text(L10n.tr("启动"))
             } footer: {
                 Text(L10n.tr("下次启动时使用。预加载会并行准备四站并恢复有效会话，最多等待 10 秒；首次使用仍先显示启动说明。"))
+            }
+            Section {
+                NavigationLink { ShortcutSettingsView() } label: {
+                    SettingsLabel(L10n.tr("管理常用入口"), symbol: "square.grid.2x2")
+                }
             }
             Section {
                 Button(L10n.tr("重新查看启动说明")) { app.showWelcome = true }
@@ -329,5 +331,24 @@ struct StorageSettingsView: View {
                             ? L10n.tr("停止下载并删除 GTIIT/Downloads 内的文件。已另存到其他位置的副本不受影响。")
                             : L10n.tr("四站需要重新登录，未提交的内容会丢失。已完成的下载文件和 Safari 数据不受影响。"))
             }
+    }
+}
+
+struct ShortcutSettingsView: View {
+    @EnvironmentObject private var settings: AppSettings
+    @Environment(\.locale) private var nativeLocale
+    var body: some View {
+        let _ = nativeLocale.identifier
+        Form {
+            Section {
+                ForEach(CampusShortcut.all) { item in
+                    Toggle(isOn: Binding(get: { settings.shortcutIDs.contains(item.id) }, set: { enabled in
+                        if enabled { settings.shortcutIDs.insert(item.id) } else { settings.shortcutIDs.remove(item.id) }
+                    })) { SettingsLabel(item.title, symbol: item.symbol) }
+                }
+            } footer: { Text(L10n.tr("开启以添加到我的页面；关闭仅移除快捷入口，不影响网站和数据。")) }
+            Section { Button(L10n.tr("恢复默认入口")) { settings.shortcutIDs = CampusShortcut.defaults } }
+        }.navigationTitle(L10n.tr("管理常用入口")).navigationBarTitleDisplayMode(.inline)
+            .scrollContentBackground(.hidden).background(Theme.pageBackground)
     }
 }

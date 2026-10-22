@@ -911,14 +911,18 @@ extension RegressionApp {
         let fixture = #"""
         <html><head><title>Upcoming fixture</title></head><body><input id="guard" value="UNCHANGED"><script>
         window.M={cfg:{wwwroot:'https://moodle.gtiit.edu.cn/moodle',sesskey:'SYNTHETIC_ONLY'}};
-        window.calls=[];window.testFail=false;
+        window.calls=[];window.testFail=false;window.classifications=[];window.noActive=false;
         window.fetch=async function(url,options={}){
           calls.push({url,method:options.method||'GET'});
           let body=''; const u=new URL(url,location.href);
           if(u.pathname.endsWith('service.php')){
             const q=JSON.parse(options.body)[0];let data;
             if(q.methodname.includes('enrolled_courses')){
-              data=q.args.offset===0?{courses:[{id:1,fullname:'Synthetic Robotics'}],nextoffset:100}:{courses:[{id:2,fullname:'Synthetic Physics'}],nextoffset:0};
+              classifications.push(q.args.classification);
+              data=noActive?{courses:[],nextoffset:0}:q.args.offset===0?{courses:[{id:1,fullname:'Synthetic Robotics',shortname:'2026Winter_Robotics'},
+                {id:9,fullname:'2025Winter Old Course'},{id:10,fullname:'2026Spring Old Course'},
+                {id:11,fullname:'2026Winter Future Course',startdate:1792706400},
+                {id:12,fullname:'2026Winter Hidden Course',visible:false}],nextoffset:100}:{courses:[{id:2,fullname:'Synthetic Physics',shortname:'2026Winter_Physics'}],nextoffset:0};
             }else data={events:[{name:'Open quiz',modulename:'quiz',eventtype:'open',timestart:1792620000,url:'https://moodle.gtiit.edu.cn/moodle/mod/quiz/view.php?id=77',course:{fullname:'Synthetic Physics'}},{name:'Unsafe',modulename:'assign',eventtype:'due',timestart:1792943940,url:'https://evil.test/moodle/mod/assign/view.php?id=3'}]};
             body=JSON.stringify([{error:false,data}]);
           }else if(u.pathname.endsWith('index.php')){
@@ -941,7 +945,41 @@ extension RegressionApp {
                 return try JSONDecoder().decode(MoodleUpcomingResult.self, from: Data((raw as! String).utf8))
             }
             let result = try await read()
-            check("upcoming_reads_all_course_pages_and_pagination", result.courses == 2 && result.checked == 2 && result.failed == 0)
+            check("upcoming_reads_active_course_pages_and_pagination", result.courses == 2 && result.checked == 2 && result.failed == 0)
+            check("upcoming_skips_old_terms_future_and_hidden_courses", await js(web, "calls.filter(c=>new URL(c.url).pathname.endsWith('index.php')).every(c=>['1','2'].includes(new URL(c.url).searchParams.get('id')))") == "true")
+            check("upcoming_requests_only_inprogress_classification", await js(web, "classifications.length===2&&classifications.every(c=>c==='inprogress')") == "true")
+            let folder = FileManager.default.temporaryDirectory.appendingPathComponent("upcoming-cache-" + UUID().uuidString)
+            defer { try? FileManager.default.removeItem(at: folder) }
+            let cache = MoodleUpcomingStore(directory: folder)
+            cache.accept(result)
+            let restored = MoodleUpcomingStore(directory: folder)
+            check("upcoming_summary_survives_store_restart", restored.items.count == 3 && restored.checked == 2 && restored.updatedAt != nil)
+            let cachedFile = folder.appendingPathComponent("summary.json")
+            #if !targetEnvironment(simulator)
+            let protected = (try? FileManager.default.attributesOfItem(atPath: cachedFile.path)[.protectionKey]) as? String
+            #endif
+            let excluded = (try? folder.resourceValues(forKeys: [.isExcludedFromBackupKey]))?.isExcludedFromBackup
+            #if targetEnvironment(simulator)
+            // Simulator does not expose iOS Data Protection file attributes.
+            check("upcoming_cache_excluded_from_backup", excluded == true)
+            #else
+            check("upcoming_cache_protected_and_excluded_from_backup", protected == FileProtectionType.complete.rawValue && excluded == true)
+            #endif
+            let cachedRouter = TestRouter()
+            let cachedBrowser = BrowserModel(site: .moodle, router: cachedRouter)
+            restored.refresh(browser: cachedBrowser, allowed: { true })
+            check("upcoming_recent_cache_does_not_trigger_scan", !restored.refreshing && restored.items.count == 3 && MoodleUpcomingStore.refreshInterval == 1800)
+            restored.cancel(clear: true)
+            check("upcoming_clear_removes_persistent_summary", !FileManager.default.fileExists(atPath: cachedFile.path) && MoodleUpcomingStore(directory: folder).items.isEmpty)
+            let suite = "regression.shortcuts." + UUID().uuidString
+            let prefs = UserDefaults(suiteName: suite)!
+            defer { prefs.removePersistentDomain(forName: suite) }
+            let choices = AppSettings(defaults: prefs)
+            check("shortcut_default_entries_preserved", choices.shortcutIDs == CampusShortcut.defaults)
+            choices.shortcutIDs.remove("native.calendar"); choices.shortcutIDs.insert("portal.apps")
+            check("shortcut_changes_survive_restart", !AppSettings(defaults: prefs).shortcutIDs.contains("native.calendar") && AppSettings(defaults: prefs).shortcutIDs.contains("portal.apps"))
+            choices.shortcutIDs = []
+            check("shortcut_empty_selection_is_preserved", AppSettings(defaults: prefs).shortcutIDs.isEmpty)
             let robotics = result.items.first { $0.course == "Synthetic Robotics" }
             check("upcoming_assignment_missing_from_timeline_found", robotics?.due == 1792943940 && robotics?.status == "notSubmitted" && robotics?.source == "assignment")
             check("upcoming_chinese_date_and_submitted_status", result.items.first { $0.url.hasSuffix("id=2") }?.due == 1792943940 && result.items.first { $0.url.hasSuffix("id=2") }?.isSubmitted == true)
@@ -954,6 +992,10 @@ extension RegressionApp {
             _ = await js(web,"testFail=true")
             let partial = try await read()
             check("upcoming_failed_course_reports_partial_retains_other_course", partial.failed > 0 && partial.checked == 1 && partial.items.contains { $0.course == "Synthetic Robotics" })
+            _ = await js(web,"noActive=true;calls=[]")
+            let empty = try await read()
+            let noAssignmentRequests = await js(web,"calls.every(c=>!new URL(c.url).pathname.endsWith('index.php'))")
+            check("upcoming_empty_active_set_never_falls_back_to_all_courses", empty.courses == 0 && empty.checked == 0 && noAssignmentRequests == "true")
             _ = await js(web,"delete M.cfg.sesskey")
             let loggedOut = try await read()
             check("upcoming_login_required_no_data", loggedOut.loginRequired && loggedOut.items.isEmpty)
@@ -996,12 +1038,36 @@ extension RegressionApp {
             try? await Task.sleep(for: .milliseconds(300))
             let bottom = Double(await js(web, "document.getElementById('tail').getBoundingClientRect().bottom")) ?? .infinity
             check("\(site.rawValue)_last_action_scrolls_above_bar", frame.minY + bottom <= barFrame.minY + 1, "tail=\(frame.minY + bottom), bar=\(barFrame.minY), inset=\(scroll.adjustedContentInset.bottom)")
+            if site == .portal {
+                web.loadHTMLString("<title>Nested glass fixture</title><meta name='viewport' content='width=device-width,initial-scale=1'><style>html,body{margin:0;height:100%;overflow:hidden}main{position:fixed;inset:0;overflow-y:auto;background:linear-gradient(#318fe8,#f2a04e)}section{height:1800px}#fixed{position:fixed;bottom:0;left:10px;height:44px}</style><main><section>Inner scrolling content</section></main><button id='fixed'>Fixed page action</button>", baseURL: site.homeURL)
+                let nestedReady = await wait { web.title == "Nested glass fixture" && !web.isLoading }
+                host.view.layoutIfNeeded()
+                try? await Task.sleep(for: .milliseconds(300))
+                let fixedBottom = Double(await js(web, "document.getElementById('fixed').getBoundingClientRect().bottom")) ?? .infinity
+                check("portal_inner_scroll_fixed_action_above_glass", nestedReady && frame.minY + fixedBottom <= barFrame.minY + 1, "fixed=\(frame.minY+fixedBottom), bar=\(barFrame.minY)")
+                if #available(iOS 26.0, *) {
+                    check("portal_webkit_obscured_insets_match_toolbar", web.obscuredContentInsets.bottom > 0 && web.obscuredContentInsets.bottom <= barFrame.height + 1)
+                }
+            }
             // Every site's transport errors share the VPN-capable error view.
             browser.webView(web, didFailProvisionalNavigation: nil, withError: NSError(domain: NSURLErrorDomain, code: NSURLErrorCannotConnectToHost))
             check("\(site.rawValue)_network_error_available", browser.errorText != nil)
             browser.load(base.appendingPathComponent("status-503"))
             check("\(site.rawValue)_http_error_available", await wait { browser.errorText?.contains("503") == true })
         }
+        let shared = app.browser(for: .portal).webView
+        let first = WebViewHostController(); first.display(shared)
+        window!.rootViewController = first; window!.makeKeyAndVisible()
+        let firstHost = shared.superview
+        let second = WebViewHostController(); second.display(shared)
+        first.present(second, animated: false)
+        _ = await wait { shared.superview !== firstHost }
+        first.display(shared)
+        check("shared_webview_background_updates_do_not_steal_modal", shared.superview !== firstHost)
+        second.release()
+        check("shared_webview_restored_after_modal_release", shared.superview === firstHost)
+        second.dismiss(animated: false)
+        first.release()
         window!.rootViewController = original; window!.makeKeyAndVisible()
         for site in SiteID.allCases {
             let browser = app.browser(for: site)

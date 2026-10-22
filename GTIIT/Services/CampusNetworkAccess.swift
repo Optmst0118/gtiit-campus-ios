@@ -6,7 +6,7 @@ import UIKit
     static let clientURL = URL(string: "atrust://")!
     static let storeURL = URL(string: "https://apps.apple.com/app/id1536711104")!
     static var canOpenClient: Bool { UIApplication.shared.canOpenURL(clientURL) }
-    static func openClient(completion: @escaping (Bool) -> Void) {
+    static func openClient(completion: @escaping @MainActor @Sendable (Bool) -> Void) {
         guard canOpenClient else { completion(false); return }
         UIApplication.shared.open(clientURL, options: [:], completionHandler: completion)
     }

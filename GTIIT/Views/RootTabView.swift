@@ -16,6 +16,7 @@ struct RootTabView: View {
                 tabs
             }
         }
+        .modifier(ContextMenuBackdrop(active: app.contextMenuSource != nil))
         .overlay { YilongOverlay(controller: app.yilong).allowsHitTesting(!app.lock.isLocked) }
         .modifier(RootLifecycle(app: app, settings: settings))
     }
@@ -71,7 +72,7 @@ private struct RootLifecycle: ViewModifier {
                             Button(L10n.tr("完成")) { app.showDownloads = false }
                         }
                     }
-            }
+            }.modifier(ContextMenuBackdrop(active: app.contextMenuSource != nil))
         }
         .background(
             SceneWindowReader { scene in

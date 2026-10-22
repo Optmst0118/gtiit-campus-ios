@@ -4,12 +4,17 @@ import SwiftUI
 struct SiteBrowserView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
+    @Environment(\.scenePhase) private var phase
     let site: SiteID
 
     var body: some View {
         let _ = nativeLocale.identifier
 
         BrowserChrome(model: app.browser(for: site))
+            .onAppear { app.browser(for: site).recoverReadOnlyDocumentIfNeeded() }
+            .onChange(of: phase) { _, value in
+                if value == .active && !app.lock.isLocked { app.browser(for: site).recoverReadOnlyDocumentIfNeeded() }
+            }
     }
 }
 

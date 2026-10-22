@@ -562,5 +562,14 @@
   "已识别 %@ 项课程": "%@ classes found",
   "核对无误后，点击右上角蓝色勾保存到本机。": "Review the information, then tap the blue checkmark at the top right to save locally.",
   "核对课表": "Review timetable",
-  "返回": "Back"
+  "返回": "Back",
+  "课表": "Timetable",
+  "管理常用入口": "Manage Shortcuts",
+  "从常用入口移除": "Remove from Shortcuts",
+  "添加常用入口": "Add Shortcuts",
+  "开启以添加到我的页面；关闭仅移除快捷入口，不影响网站和数据。": "Enable to add to Me. Disabling removes only the shortcut; websites and data are unchanged.",
+  "恢复默认入口": "Restore Default Shortcuts",
+  "轻点文件可重新尝试预览": "Tap the file to try previewing again",
+  "使用学习页面现有会话，只读核对当前学期活跃课程的作业名称、开放与截止时间、提交状态。摘要受文件保护缓存在本机并排除系统备份，自动更新间隔为 30 分钟，也可手动刷新。退出登录或清除 Moodle 网页数据时同步清除；不保存作业正文、成绩、附件或会话密钥。": "Using the existing Moodle session, checks assignment titles, opening and due dates, and submission status in active courses for the current term. Summaries are cached locally with file protection and excluded from backups. Automatic updates run every 30 minutes; manual refresh remains available. Signing out or clearing Moodle website data also clears the cache. Assignment content, grades, attachments, and session keys are not stored.",
+  "自动每 30 分钟更新，也可手动刷新。": "Updates automatically every 30 minutes. You can also refresh manually."
 }

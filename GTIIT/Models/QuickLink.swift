@@ -83,3 +83,18 @@ enum QuickLinkCatalog {
         all.first { $0.id == id }
     }
 }
+struct CampusShortcut: Identifiable {
+    let id: String
+    let title: String
+    let symbol: String
+    let link: QuickLink?
+    static var all: [CampusShortcut] {
+        let links = QuickLinkCatalog.highlights + QuickLinkCatalog.all.filter { item in
+            !QuickLinkCatalog.highlights.contains(where: { $0.id == item.id })
+        }
+        return [CampusShortcut(id: "native.calendar", title: L10n.tr("校历"), symbol: "calendar", link: nil),
+                CampusShortcut(id: "native.shuttle", title: L10n.tr("校园班车"), symbol: "bus.fill", link: nil)]
+            + links.map { CampusShortcut(id: $0.id, title: $0.title, symbol: $0.symbol, link: $0) }
+    }
+    static var defaults: Set<String> { Set(["native.calendar", "native.shuttle"] + QuickLinkCatalog.highlights.map(\.id)) }
+}

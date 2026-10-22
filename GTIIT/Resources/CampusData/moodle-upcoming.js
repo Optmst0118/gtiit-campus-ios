@@ -49,6 +49,21 @@ const parseDate = value => {
  const n=Date.UTC(y,mo-1,d,h-8,mi)/1000, c=new Date(n*1000+8*3600000);
  return c.getUTCFullYear()===y&&c.getUTCMonth()===mo-1&&c.getUTCDate()===d?n:null;
 };
+// Moodle supplies in-progress courses. Explicit semester labels and dates further
+// exclude old courses whose Moodle end date was never maintained by the teacher.
+const campusNow = new Date(now*1000 + 8*3600000);
+const month = campusNow.getUTCMonth()+1;
+const year = typeof termYear === 'number' ? termYear : campusNow.getUTCFullYear()-(month<3?1:0);
+const season = typeof termSeason === 'string' ? termSeason.toLowerCase() : (month<3||month>=10?'winter':month<7?'spring':'summer');
+const currentCourse = c => {
+ const label=clean([c.fullname,c.shortname,c.coursecategory].join(' ')).toLowerCase();
+ const terms=[...label.matchAll(/(20\d{2})[\s_/-]*(winter|spring|summer|autumn|fall)/g),
+                ...label.matchAll(/(winter|spring|summer|autumn|fall)[\s_/-]*(20\d{2})/g)].map(m=>({year:+(/20\d{2}/.test(m[1])?m[1]:m[2]),season:(/20\d{2}/.test(m[1])?m[2]:m[1]).replace(/autumn|fall/,'winter')}));
+ if(terms.length && !terms.some(t=>t.year===year&&t.season===season))return false;
+ if(c.visible===false||c.visible===0)return false;
+ if(Number(c.startdate)>now || (Number(c.enddate)>0 && Number(c.enddate)<now))return false;
+ return true;
+};
 const map=new Map();let failed=0,checked=0,courseCount=0,courses=[];
 const merge = item => {
  if(!item.url || !item.name)return;
@@ -63,22 +78,23 @@ try {
   ['core_calendar_get_calendar_upcoming_view',{}]
  ]) {try {const data=await rpc(method,args);if((data.events||[]).length>=50)failed++;for(const e of data.events||[]){
    const kind=e.modulename;if(!['assign','quiz'].includes(kind))continue;
+   if(e.course && !currentCourse(e.course))continue;
    const url=safeURL(e.url,kind);const type=String(e.eventtype||'');
    if(!['open','due','close'].includes(type))continue;
-   merge({url,name:clean(e.name),course:clean(e.course?.fullname),due:type==='open'?null:Number(e.timestart)||null,opened:type==='open'?Number(e.timestart)||null:null,status:'unknown',source:'calendar',kind});
+   merge({url,name:clean(e.name),course:clean(e.course?.fullname),courseID:Number(e.course?.id)||null,due:type==='open'?null:Number(e.timestart)||null,opened:type==='open'?Number(e.timestart)||null:null,status:'unknown',source:'calendar',kind});
  }}catch {failed++;}}
  let offset=0;
  for(let page=0;page<5;page++){
-  const data=await rpc('core_course_get_enrolled_courses_by_timeline_classification',{classification:'all',limit:100,offset,sort:'fullname'});
+  const data=await rpc('core_course_get_enrolled_courses_by_timeline_classification',{classification:'inprogress',limit:100,offset,sort:'fullname'});
   if(!Array.isArray(data.courses))throw Error('COURSES_UNAVAILABLE');
-  courses.push(...data.courses.map(c=>({id:Number(c.id),name:clean(c.fullname)})).filter(c=>Number.isSafeInteger(c.id)&&c.id>0));
+  courses.push(...data.courses.filter(currentCourse).map(c=>({id:Number(c.id),name:clean(c.fullname)})).filter(c=>Number.isSafeInteger(c.id)&&c.id>0));
   if(!data.courses.length || !data.nextoffset || data.nextoffset<=offset)break;
   offset=data.nextoffset;if(page===4)failed++;
  }
  courses=[...new Map(courses.map(c=>[c.id,c])).values()];courseCount=courses.length;
  if(courses.length>100){failed+=courses.length-100;courses=courses.slice(0,100);}
  const assignments=new Map();
- const pool=async(values,work)=>{let i=0;await Promise.all(Array.from({length:3},async()=>{while(i<values.length&&!signal.aborted){const v=values[i++];try{await work(v);}catch{failed++;}}}));};
+ const pool=async(values,work)=>{let i=0;await Promise.all(Array.from({length:2},async()=>{while(i<values.length&&!signal.aborted){const v=values[i++];try{await work(v);}catch{failed++;}}}));};
  await pool(courses,async(c)=>{
    const doc=await html(base.origin+'/moodle/mod/assign/index.php?id='+c.id);
    // Index includes assignments from every section, including collapsed sections.
@@ -109,5 +125,6 @@ try {
    merge({...a,due,opened,status,source:'assignment',kind:'assign'});
  });
  if(signal.aborted)throw Error('CANCELLED');
- return JSON.stringify({loginRequired:false,items:[...map.values()].filter(x=>(x.due>=start&&x.due<=end)||(x.opened>=start&&x.opened<=end)),courses:courseCount,checked,failed});
+ const activeIDs=new Set(courses.map(c=>c.id));
+ return JSON.stringify({loginRequired:false,items:[...map.values()].filter(x=>(!x.courseID||activeIDs.has(x.courseID))&&((x.due>=start&&x.due<=end)||(x.opened>=start&&x.opened<=end))).map(({courseID,...item})=>item),courses:courseCount,checked,failed});
 } finally {clearTimeout(deadline);if(window.__gtiitUpcomingJob===controller)delete window.__gtiitUpcomingJob;}

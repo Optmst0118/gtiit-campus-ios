@@ -2,6 +2,7 @@ import UIKit
 import WebKit
 
 @MainActor protocol BrowserRouter: AnyObject {
+    var browserMayRecoverDocument: Bool { get }
     var browserDownloadCenter: DownloadCoordinator? { get }
     func browserWebDarkModeEnabled(for site: SiteID) -> Bool
     var externalLinkMode: ExternalLinkMode { get }
@@ -18,6 +19,7 @@ import WebKit
 }
 
 extension BrowserRouter {
+    var browserMayRecoverDocument: Bool { true }
     func browserWebDarkModeEnabled(for site: SiteID) -> Bool { true }
     var browserDownloadCenter: DownloadCoordinator? { nil }
 }

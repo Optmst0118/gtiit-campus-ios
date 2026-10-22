@@ -26,8 +26,14 @@ struct MoodleUpcomingEntry: View {
                 }
                 if store.partial { Label(L10n.tr("部分更新，仍有课程未能核对"), systemImage: "exclamationmark.circle").font(.caption).foregroundStyle(Theme.orange) }
             }.padding(.vertical, 8)
-        }.buttonStyle(.plain)
-        .onAppear { refresh() }
+                .padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
+        }.buttonStyle(CardPressStyle())
+        .task {
+            while !Task.isCancelled {
+                refresh()
+                do { try await Task.sleep(for: .seconds(MoodleUpcomingStore.refreshInterval)) } catch { return }
+            }
+        }
         .onChange(of: phase) { _, value in if value != .active { store.cancel() } else { refresh() } }
     }
     private func refresh() {
@@ -52,6 +58,7 @@ struct MoodleUpcomingView: View {
                 } else if store.error {
                     Label(L10n.tr("更新失败，请确认学习页面已登录后重试。"), systemImage: "exclamationmark.triangle").foregroundStyle(Theme.orange)
                 }
+                Text(L10n.tr("自动每 30 分钟更新，也可手动刷新。")).font(.caption).foregroundStyle(.secondary)
                 if let date = store.updatedAt {
                     LabeledContent(L10n.tr(store.partial ? "部分更新" : "最近更新"), value: date.formatted(date: .abbreviated, time: .shortened))
                         .font(.caption).foregroundStyle(.secondary)
@@ -76,7 +83,7 @@ struct MoodleUpcomingView: View {
                             Spacer(minLength: 0)
                             Image(systemName: "arrow.up.right").font(.caption).foregroundStyle(.tertiary)
                         }.padding(.vertical, 6)
-                    }.buttonStyle(.plain)
+                    }.buttonStyle(CardPressStyle())
                 }
             } header: { Text(L10n.tr("即将截止与最近开放")) } footer: {
                 Text(L10n.tr("结合 Moodle 日历与各课程作业页面。时间为北京时间；未识别的提交状态需在 Moodle 核对，课程临时变更以原页面为准。"))

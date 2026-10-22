@@ -93,7 +93,7 @@ private struct AboutDetailsView: View {
 
             Section(L10n.tr("数据与隐私")) {
                 PrivacyLine(title: L10n.tr("本地课表"), detail: L10n.tr("仅主动提取门户正式选课的课程、班组、时间与教室，确认后存于本机受文件保护的 Application Support，排除系统备份。不保存账号、成绩或网页原文，可在设置中删除。课表为离线快照，变更后需重新提取。"))
-                PrivacyLine(title: L10n.tr("Moodle 临近日程"), detail: L10n.tr("进入我的页面后，使用学习页面现有会话，只读核对 Moodle 日历及各课程作业的名称、开放与截止时间、提交状态。摘要仅在当前运行内存中使用；清除 Moodle 登录数据时同步清除，不保存作业正文、成绩或附件。"))
+                PrivacyLine(title: L10n.tr("Moodle 临近日程"), detail: L10n.tr("使用学习页面现有会话，只读核对当前学期活跃课程的作业名称、开放与截止时间、提交状态。摘要受文件保护缓存在本机并排除系统备份，自动更新间隔为 30 分钟，也可手动刷新。退出登录或清除 Moodle 网页数据时同步清除；不保存作业正文、成绩、附件或会话密钥。"))
                 PrivacyLine(title: L10n.tr("网页数据"), detail: L10n.tr("Cookie、缓存与本地存储由 WebKit 保存在本机沙盒内，四个站点各用独立容器，可单独清除。"))
                 PrivacyLine(
                     title: L10n.tr("下载文件"),

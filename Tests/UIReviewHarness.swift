@@ -69,6 +69,10 @@ import UIKit
                         .navigationTitle(L10n.tr("我的"))
                         .navigationBarTitleDisplayMode(.inline)
                     }.environmentObject(app).environmentObject(settings)
+                } else if environment["UI_REVIEW_TIMETABLE_SETTINGS"] == "1" {
+                    NavigationStack { TimetableSettingsView() }.environmentObject(app).environmentObject(settings)
+                } else if environment["UI_REVIEW_SHORTCUT_SETTINGS"] == "1" {
+                    NavigationStack { ShortcutSettingsView() }.environmentObject(app).environmentObject(settings)
                 } else if environment["UI_REVIEW_IMPORT"] == "1" {
                     TimetableImportView(initialDraft: app.timetable.snapshot).environmentObject(app).environmentObject(settings)
                 } else if environment["UI_REVIEW_IMPORT_START"] == "1" {
@@ -120,6 +124,7 @@ import UIKit
                     RootTabView().environmentObject(app).environmentObject(settings)
                 }
             }
+            .modifier(ContextMenuBackdrop(active: app.contextMenuSource != nil && (environment["UI_REVIEW_SHORTCUTS"] == "1" || environment["UI_REVIEW_DOWNLOADS"] == "1")))
             .environment(\.locale, Locale(identifier: settings.language.rawValue))
             .tint(Theme.accent)
             .preferredColorScheme(settings.appearance.colorScheme)
