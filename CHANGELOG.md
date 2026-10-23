@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.23] - 2026-10-23
+
+### Changed
+
+- Course detail pages now use only the inline navigation title; the large-title mode is removed to eliminate the entry jump between title styles.
+
 ## [2.0.0-alpha.22] - 2026-10-23
 
 ### Fixed

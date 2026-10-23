@@ -710,7 +710,7 @@ struct MoodleCoursePageView: View {
     let url: URL
 
     var body: some View {
-        WebViewContainer(model: app.browser(for: .moodle), startsLargeTitle: true)
+        WebViewContainer(model: app.browser(for: .moodle))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onAppear {
                     let browser = app.browser(for: .moodle)
