@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.5] - 2026-10-23
+
+### Changed
+
+- Removed the Teaching classrooms and Meeting/multipurpose room categories from the native room directory; they were not usable for the intended student bookings. Practice rooms, Student Hub, main-campus discussion rooms, Student-Centre discussion rooms and activity rooms remain.
+
 ## [2.0.0-alpha.4] - 2026-10-23
 
 ### Changed

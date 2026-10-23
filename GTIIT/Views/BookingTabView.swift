@@ -612,39 +612,6 @@ enum BookingDirectory {
                 room(140, "SC E1-205", L10n.tr("小组讨论"))
             ]),
         RoomCategory(
-            id: "teaching", title: L10n.tr("教学教室"), subtitle: L10n.tr("E101–E511 教学空间"), symbol: "door.left.hand.open",
-            rooms: [
-                room(48, "E101", L10n.tr("教学教室")), room(29, "E201", L10n.tr("教学教室")),
-                room(30, "E206", L10n.tr("教学教室")), room(31, "E207", L10n.tr("教学教室")),
-                room(32, "E208", L10n.tr("教学教室")), room(33, "E209", L10n.tr("教学教室")),
-                room(34, "E210", L10n.tr("教学教室")), room(35, "E211", L10n.tr("教学教室")),
-                room(36, "E301", L10n.tr("教学教室")), room(37, "E302", L10n.tr("教学教室")),
-                room(38, "E303", L10n.tr("教学教室")), room(39, "E308", L10n.tr("教学教室")),
-                room(40, "E309", L10n.tr("教学教室")), room(41, "E310", L10n.tr("教学教室")),
-                room(42, "E311", L10n.tr("教学教室")), room(49, "E401", L10n.tr("教学教室")),
-                room(50, "E402", L10n.tr("教学教室")), room(52, "E403", L10n.tr("教学教室")),
-                room(53, "E408", L10n.tr("教学教室")), room(54, "E409", L10n.tr("教学教室")),
-                room(55, "E410", L10n.tr("教学教室")), room(56, "E411", L10n.tr("教学教室")),
-                room(57, "E501", L10n.tr("教学教室")), room(58, "E502", L10n.tr("教学教室")),
-                room(59, "E503", L10n.tr("教学教室")), room(60, "E508", L10n.tr("教学教室")),
-                room(61, "E509", L10n.tr("教学教室")), room(62, "E510", L10n.tr("教学教室")),
-                room(63, "E511", L10n.tr("教学教室"))
-            ]),
-        RoomCategory(
-            id: "meeting", title: L10n.tr("会议室与多功能空间"), subtitle: L10n.tr("会议、面试与活动空间"), symbol: "person.2.wave.2.fill",
-            rooms: [
-                room(19, "A218", L10n.tr("会议室")), room(22, "A320", L10n.tr("会议室")),
-                room(8, "A321", L10n.tr("会议室")), room(9, "A416", L10n.tr("会议室")),
-                room(3, "A528-VC", L10n.tr("视频会议室")), room(2, "A530-VC", L10n.tr("视频会议室")),
-                room(43, "Auditorium", L10n.tr("礼堂")), room(5, "E103", L10n.tr("会议室")),
-                room(11, "E203", L10n.tr("会议室")), room(12, "E205", L10n.tr("会议室")),
-                room(13, "E305", L10n.tr("会议室")), room(21, "E307", L10n.tr("会议室")),
-                room(14, "E405", L10n.tr("会议室")), room(15, "E407", L10n.tr("会议室")),
-                room(16, "E505", L10n.tr("会议室")), room(17, "E507", L10n.tr("会议室")),
-                room(44, "Innovation Center", L10n.tr("创新中心")), room(10, "M106-VC", L10n.tr("视频会议室")),
-                room(18, "M301", L10n.tr("会议室"))
-            ]),
-        RoomCategory(
             id: "activity", title: L10n.tr("学生活动室"), subtitle: L10n.tr("社团与学生活动空间"), symbol: "party.popper.fill",
             rooms: [
                 room(81, "D5-101-3", L10n.tr("活动室")),
