@@ -29,15 +29,48 @@ private struct BrowserChrome: View {
         let _ = nativeLocale.identifier
 
         VStack(spacing: 0) {
-            if model.site == .rooms || model.site == .sports { BookingSitePicker() }
             ProgressBarView(progress: model.progress, isActive: model.isLoading)
             content
         }
         .background(Theme.pageBackground)
         .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle(model.site.nativeTitle)
-        .navigationBarTitleDisplayMode(.large)
-        .toolbar { ToolbarItem(placement: .topBarTrailing) { menu } }
+        // Moodle's own sticky menu bar fights a collapsing large title. Keep the
+        // native bar fixed and compact above that page instead.
+        .navigationBarTitleDisplayMode(model.site == .moodle ? .inline : .large)
+        .toolbar {
+            if model.site == .rooms || model.site == .sports {
+                ToolbarItem(placement: .topBarLeading) { bookingPicker }
+            }
+            ToolbarItem(placement: .topBarTrailing) { menu }
+        }
+    }
+
+    // MARK: - 预约场所切换（导航栏左侧，系统 Liquid Glass）
+
+    private var bookingPicker: some View {
+        Menu {
+            Picker(L10n.tr("预约场所"), selection: $app.bookingSegment) {
+                ForEach(BookingSegment.allCases) { segment in
+                    Label(segment.title, systemImage: segment == .rooms ? "door.left.hand.open" : "sportscourt")
+                        .tag(segment)
+                }
+            }
+        } label: {
+            HStack(spacing: 5) {
+                Image(systemName: app.bookingSegment == .rooms ? "door.left.hand.open" : "sportscourt")
+                    .font(.system(size: 15, weight: .medium))
+                Text(app.bookingSegment == .rooms ? L10n.tr("练习房") : L10n.tr("体育场馆"))
+                    .font(.subheadline.weight(.medium))
+                    .lineLimit(1)
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.system(size: 10, weight: .semibold))
+            }
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .accessibilityLabel(L10n.tr("切换预约场所"))
+        .menuOrder(.fixed)
     }
 
     // MARK: - 更多菜单（原生 Menu，iOS 26 使用系统 Liquid Glass）

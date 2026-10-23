@@ -36,7 +36,11 @@
         'nav[aria-label="Checklist steps"]{bottom:var(--gtiit-bottom-obstruction,env(safe-area-inset-bottom)) !important}',
         'main{scroll-padding-bottom:var(--gtiit-bottom-obstruction,env(safe-area-inset-bottom));padding-bottom:calc(.75rem + var(--gtiit-bottom-obstruction,env(safe-area-inset-bottom))) !important}',
         '.bg-gradient-to-b,.bg-gradient-to-t,.bg-gradient-to-r{background-image:none !important}',
-        '.from-white,.from-gray-50{--tw-gradient-from:transparent !important}'
+        '.from-white,.from-gray-50{--tw-gradient-from:transparent !important}',
+        // Privacy cards: blurred until the student taps them.
+        '.gtiit-private-card{filter:blur(11px) !important;transition:filter .18s ease;cursor:pointer;',
+        '-webkit-user-select:none;user-select:none}',
+        '.gtiit-private-card.gtiit-private-revealed{filter:none !important}'
     ].join('') : '';
 
     // Booked：登录页顶部只剩空的品牌条时直接收起。
@@ -146,11 +150,60 @@
         }
     };
 
+    // 学生门户首页的 GPA / 成功率 / 学分 / 排名卡片：默认高斯模糊，点按显示。
+    const PORTAL_PRIVATE_LABELS = [
+        /overall\s*gpa/i,
+        /success\s*rate/i,
+        /accumulated\s*credits/i,
+        /cohort\s*rank/i
+    ];
+    const markPortalPrivateCards = () => {
+        if (pageHost !== 'students.gtiit.edu.cn' || !document.body) return;
+        for (const pattern of PORTAL_PRIVATE_LABELS) {
+            const label = Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,p,span,div'))
+                .find((element) => {
+                    if (element.children.length > 2) return false;
+                    if (element.closest('.gtiit-private-card')) return false;
+                    const text = (element.textContent || '').trim();
+                    return text.length > 0 && text.length <= 60 && pattern.test(text);
+                });
+            if (!label) continue;
+            let card = null;
+            let node = label;
+            for (let depth = 0; depth < 6 && node.parentElement && node.parentElement !== document.body; depth += 1) {
+                const parent = node.parentElement;
+                const rect = parent.getBoundingClientRect();
+                const style = getComputedStyle(parent);
+                const radius = parseFloat(style.borderTopLeftRadius) || 0;
+                if (rect.width > 120 && rect.height > 70 &&
+                    (radius >= 8 || style.boxShadow !== 'none' || /card|stat|metric|tile/i.test(parent.className))) {
+                    card = parent;
+                    break;
+                }
+                if ((parent.textContent || '').trim().length > 500) break;
+                node = parent;
+            }
+            if (!card || card.dataset.gtiitPrivate) continue;
+            card.dataset.gtiitPrivate = '1';
+            card.classList.add('gtiit-private-card');
+            card.setAttribute('role', 'button');
+            card.setAttribute('aria-label', '点击显示数据');
+            card.addEventListener('click', (event) => {
+                if (card.classList.contains('gtiit-private-revealed')) return;
+                event.preventDefault();
+                event.stopPropagation();
+                card.classList.add('gtiit-private-revealed');
+            }, true);
+        }
+    };
+
+
     const runCleanup = () => {
         hideBrandingImages();
         hideCreditBlocks();
         hideBookedLoginHeader();
         hideMoodleOverviewFilters();
+        markPortalPrivateCards();
     };
 
     const scheduleCleanup = () => {

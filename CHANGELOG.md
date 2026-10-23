@@ -12,6 +12,9 @@ All notable changes to this project are documented here. The format follows
 - Returning a wrapped site to the top now re-expands the large left-aligned title again, including when scrolling back, reopening home or re-tapping the current tab. The large/compact transition keeps the native animation, with an iOS 26 guard for the scroll-edge appearance slot.
 - The booking navigation titles are now **GTIIT Room Booking** and **GTIIT Sports Center**.
 - Re-tapping the currently selected tab returns wrapped sites to their home URL (and animates the title back); Shuttle and My scroll to the top. Tapping a different tab keeps normal switching.
+- Booking's room/sports switch moved from the page content to a Liquid Glass menu button at the leading edge of the navigation bar, so it no longer overlaps the wrapped page.
+- Moodle keeps a fixed compact native title bar above the page, preventing its own sticky menu bar from colliding with a collapsing large title.
+- Student portal's Overall GPA, success rate, accumulated credits and cohort rank cards are blurred by default and reveal on tap.
 
 ## [1.13] - 2026-10-23
 
