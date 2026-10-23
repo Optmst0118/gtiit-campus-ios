@@ -342,20 +342,15 @@ struct MoodleHomeView: View {
     private var otherCoursesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             sectionTitle(L10n.tr("其他课程"), symbol: "square.grid.2x2.fill")
-            ForEach(otherCategoryGroups) { group in
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(group.id).font(.caption.weight(.semibold)).foregroundStyle(Theme.orange).padding(.leading, 2)
-                    LazyVGrid(columns: columns, spacing: 12) {
-                        ForEach(group.courses) { course in
-                            Button {
-                                if let url = course.url {
-                                    open(MoodleDestination(title: course.name, url: url, kind: .course))
-                                }
-                            } label: {
-                                courseCard(course)
-                            }.buttonStyle(CardPressStyle())
+            LazyVGrid(columns: columns, spacing: 12) {
+                ForEach(otherCourses.sorted { $0.name < $1.name }) { course in
+                    Button {
+                        if let url = course.url {
+                            open(MoodleDestination(title: course.name, url: url, kind: .course))
                         }
-                    }
+                    } label: {
+                        courseCard(course)
+                    }.buttonStyle(CardPressStyle())
                 }
             }
         }
@@ -694,16 +689,7 @@ struct MoodleCoursePageView: View {
     let url: URL
 
     var body: some View {
-        VStack(spacing: 0) {
-            Text(title)
-                .font(.system(.title2, design: .rounded, weight: .bold))
-                .multilineTextAlignment(.leading)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
-                .padding(.bottom, 8)
-
-            WebViewContainer(model: app.browser(for: .moodle))
+        WebViewContainer(model: app.browser(for: .moodle))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onAppear {
                     let browser = app.browser(for: .moodle)
@@ -718,10 +704,8 @@ struct MoodleCoursePageView: View {
                     browser.webView.allowsBackForwardNavigationGestures = true
                     WebAppearance.setMoodleCourseChrome(hidden: false, on: browser.webView)
                 }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Theme.pageBackground)
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
+                .background(Theme.pageBackground)
+                .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.large)
     }
 }

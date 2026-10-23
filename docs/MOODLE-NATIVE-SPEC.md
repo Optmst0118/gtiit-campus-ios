@@ -206,3 +206,10 @@ Moodle Tab
 - 注入 CSS 隐藏 Moodle navbar、drawer、breadcrumb、page header/footer 等站点 chrome；课程内容区保留。
 - 页面使用 NavigationStack push，关闭 WKWebView 的 back/forward 手势，边缘滑动返回上一级原生页面，而不是网页历史。
 - 名称下方的实际课程内容仍来自学校官方 Moodle 页面。
+
+
+## 15. 其他课程与课程标题（alpha.19）
+
+- “其他课程”不再按 category 显示小标题，所有未匹配课表的当前学期课程放在同一个大模块里。
+- 课程详情页使用系统 large navigation title：顶部靠左大标题，滚动课程内容时自动折叠为居中 inline 标题。
+- 课程详情仍隐藏 Moodle 网页 chrome，页面级返回使用原生导航栈。

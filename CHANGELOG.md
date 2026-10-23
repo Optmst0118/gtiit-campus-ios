@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.19] - 2026-10-23
+
+### Changed
+
+- “其他课程” is now one flat course module without per-category subtitles.
+- Course detail pages use the native large navigation title: large and left-aligned at the top, collapsing to the centered inline title while the course content scrolls.
+
 ## [2.0.0-alpha.18] - 2026-10-23
 
 ### Changed
