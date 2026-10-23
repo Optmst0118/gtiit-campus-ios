@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 struct RootTabView: View {
     @Environment(\.locale) private var nativeLocale
@@ -104,6 +105,7 @@ private struct RootLifecycle: ViewModifier {
                 .environmentObject(app)
         }
         .task {
+            LocalDiagnostics.shared.firstViewReady()
             #if DEBUG
                 applyDebugLaunchOverrides()
             #endif
@@ -120,6 +122,7 @@ private struct RootLifecycle: ViewModifier {
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
+                Haptics.prepare()
                 syncShuttleSystemState()
                 app.lock.setActive(settings: settings)
                 app.prepareLaunchIfAllowed()
@@ -145,6 +148,7 @@ private struct RootLifecycle: ViewModifier {
     }
 
     private func syncShuttleSystemState() {
+        WidgetCenter.shared.reloadTimelines(ofKind: "ShuttleHomeWidget")
         Task {
             await ShuttleLiveActivityController.shared.reconcile(direction: settings.favoriteShuttleDirection, teachingWeek: settings.shuttleTeachingWeek)
             await ShuttleNotificationCenter.shared.reconcile(teachingWeek: settings.shuttleTeachingWeek)

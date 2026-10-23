@@ -2,6 +2,7 @@
 
 | 文档 | 内容 |
 | --- | --- |
+| [RELEASE-2.0.0-alpha.36.md](RELEASE-2.0.0-alpha.36.md) | 卡片点击修复、统一路由、PDF 反馈、缓存与系统入口 |
 | [RELEASE-1.11.md](RELEASE-1.11.md) | 长按持续放大、圆角与文件轮廓修复；文档和 GitHub 同步 |
 | [RELEASE-1.10.md](RELEASE-1.10.md) | 当前学期日程缓存、网页宿主与底栏、入口管理 |
 | [RELEASE-1.9.md](RELEASE-1.9.md) | 课表导入层级、蓝色卡片与班车渐变 |

@@ -34,7 +34,8 @@ final class BrowserModel: NSObject, ObservableObject {
     private var isResetting = false
     private var processTerminated = false
     private var canRecoverReadOnlyDocument = false
-    private var documentEdited = false
+    @Published private var documentEdited = false
+    var hasUnsavedChanges: Bool { documentEdited }
     private var lastAutomaticRecovery: Date?
     private var navigationGeneration = UUID()
 
@@ -415,6 +416,7 @@ extension BrowserModel: WKNavigationDelegate {
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
         guard !isResetting else { return }
+        LocalDiagnostics.shared.record("webProcessTerminated." + site.rawValue)
         if webView === self.webView { processTerminated = true }
         showLoadFailure(L10n.tr("页面进程已被系统回收。请重新载入；尚未提交的内容可能需要重新填写。"), in: webView)
         recoverReadOnlyDocumentIfNeeded()
@@ -429,6 +431,7 @@ extension BrowserModel: WKNavigationDelegate {
               lastAutomaticRecovery.map({ Date().timeIntervalSince($0) >= 60 }) != false,
               mayRememberLocation, let url = currentURL, AppSettings.restorable(url, site: site) else { return }
         lastAutomaticRecovery = Date()
+        LocalDiagnostics.shared.record("readOnlyRecovery." + site.rawValue)
         reload()
     }
 

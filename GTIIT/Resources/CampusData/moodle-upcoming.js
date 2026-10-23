@@ -93,6 +93,7 @@ const merge = item => {
  if(!item.url || !item.name)return;
  const old=map.get(item.url);
  if(!old)map.set(item.url,item);
+ else if(item.source==='assignment' && item.checkedAt===now){const opened=item.opened??old.opened;Object.assign(old,item,{opened});}
  else {for(const k of ['due','opened'])if(item[k])old[k]=item[k];if(item.status&&item.status!=='unknown')old.status=item.status;if(item.source==='assignment')old.source='assignment';}
 };
 try {
@@ -107,33 +108,50 @@ try {
    if(!['open','due','close'].includes(type))continue;
    merge({url,name:clean(e.name),course:clean(e.course?.fullname),courseID:Number(e.course?.id)||null,due:type==='open'?null:Number(e.timestart)||null,opened:type==='open'?Number(e.timestart)||null:null,status:'unknown',source:'calendar',kind});
  }}catch {failed++;}}
+ const cachedDirectory = typeof cachedDirectoryJSON === 'string' ? JSON.parse(cachedDirectoryJSON) : [];
+ const directoryRefreshed = typeof refreshDirectory !== 'boolean' || refreshDirectory || !cachedDirectory.length || cachedDirectory.some(c=>typeof c.active!=='boolean');
+ if (!directoryRefreshed) {
+  allCourses=cachedDirectory;
+  courses=cachedDirectory.filter(c=>c.active && (!c.term || c.term.toLowerCase()===season+' '+year));
+ } else {
  let offset=0;
  for(let page=0;page<5;page++){
   let data;
   try { data=await rpc('core_course_get_enrolled_courses_by_timeline_classification',{classification:'all',limit:100,offset,sort:'fullname'}); }
   catch { data=await rpc('core_course_get_enrolled_courses_by_timeline_classification',{classification:'inprogress',limit:100,offset,sort:'fullname'}); }
   if(!Array.isArray(data.courses))throw Error('COURSES_UNAVAILABLE');
-  const mapped=data.courses.map(c=>({id:Number(c.id),name:clean(c.fullname),shortname:clean(c.shortname),category:clean(c.coursecategory),term:courseTerm(c)})).filter(c=>Number.isSafeInteger(c.id)&&c.id>0);
+  const mapped=data.courses.map(c=>({id:Number(c.id),name:clean(c.fullname),shortname:clean(c.shortname),category:clean(c.coursecategory),term:courseTerm(c),active:currentCourse(c)})).filter(c=>Number.isSafeInteger(c.id)&&c.id>0);
   allCourses.push(...mapped);
-  courses.push(...mapped.filter((c,i)=>data.courses[i] && currentCourse(data.courses[i])));
+  courses.push(...mapped.filter(c=>c.active));
   if(!data.courses.length || !data.nextoffset || data.nextoffset<=offset)break;
   offset=data.nextoffset;if(page===4)failed++;
+ }
  }
  allCourses=[...new Map(allCourses.map(c=>[c.id,c])).values()].slice(0,150);
  courses=[...new Map(courses.map(c=>[c.id,c])).values()];courseCount=courses.length;
  if(courses.length>100){failed+=courses.length-100;courses=courses.slice(0,100);}
+ const priority=new Set(typeof priorityIDs !== 'undefined' ? priorityIDs : []);
+ courses.sort((a,b)=>Number(priority.has(b.id))-Number(priority.has(a.id)));
+ const cachedWork=new Map((typeof cachedItemsJSON==='string'?JSON.parse(cachedItemsJSON):[]).map(w=>[w.url,w]));
  const assignments=new Map();
  const pool=async(values,work)=>{let i=0;await Promise.all(Array.from({length:2},async()=>{while(i<values.length&&!signal.aborted){const v=values[i++];try{await work(v);}catch{failed++;}}}));};
  await pool(courses,async(c)=>{
    const doc=await html(base.origin+'/moodle/mod/assign/index.php?id='+c.id);
    // Index includes assignments from every section, including collapsed sections.
    for(const a of doc.querySelectorAll('a[href*="/mod/assign/view.php"]')){
-     const url=safeURL(a.getAttribute('href'),'assign');if(url&&!assignments.has(url))assignments.set(url,{url,name:clean(a.textContent),course:c.name});
+     const url=safeURL(a.getAttribute('href'),'assign');if(url&&!assignments.has(url))assignments.set(url,{url,name:clean(a.textContent),course:c.name,courseID:c.id});
    }
    checked++;
  });
  let pages=[...assignments.values()];if(pages.length>240){failed+=pages.length-240;pages=pages.slice(0,240);}
  await pool(pages,async(a)=>{
+   const cached=cachedWork.get(a.url);
+   if(cached && cached.checkedAt && now-cached.checkedAt<6*3600 &&
+      (cached.status==='submitted' || (cached.due && cached.due>now+7*86400))){
+     merge({...cached,...a});return;
+   }
+   const previous=cachedWork.get(a.url);
+   if(previous)merge({...previous,...a});
    const doc=await html(a.url);let due=null,opened=null,status='unknown',sawDue=false;
    for(const row of doc.querySelectorAll('.submissionstatustable tr')){
      const cells=[...row.children];if(cells.length<2)continue;const key=clean(cells[0].textContent),value=clean(cells[1].textContent);
@@ -151,9 +169,9 @@ try {
      if(t>0&&/open|opened|开放|开始/i.test(label))opened=t;
    }
    if(!sawDue&&!doc.querySelector('.submissionstatustable'))failed++;
-   merge({...a,due,opened,status,source:'assignment',kind:'assign'});
+   merge({...a,due,opened,status,source:'assignment',kind:'assign',checkedAt:now});
  });
  if(signal.aborted)throw Error('CANCELLED');
  const activeIDs=new Set(courses.map(c=>c.id));
- return JSON.stringify({loginRequired:false,items:[...map.values()].filter(x=>(!x.courseID||activeIDs.has(x.courseID))&&((x.due>=start&&x.due<=end)||(x.opened>=start&&x.opened<=end))).map(({courseID,...item})=>item),courses:courseCount,courseList:allCourses,checked,failed});
+ return JSON.stringify({loginRequired:false,items:[...map.values()].filter(x=>(!x.courseID||activeIDs.has(x.courseID))).map(({courseID,...item})=>item),courses:courseCount,courseList:allCourses,directoryRefreshed,checked,failed});
 } finally {clearTimeout(deadline);if(window.__gtiitUpcomingJob===controller)delete window.__gtiitUpcomingJob;}

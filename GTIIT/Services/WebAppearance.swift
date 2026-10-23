@@ -97,6 +97,7 @@ import WebKit
         guard site == .rooms || site == .sports || site == .portal else { return }
         let source = nativePageMarker + """
         (() => {
+            if (location.hostname !== "\(site.host)") return;
             const id = 'gtiit-native-page-background';
             let style = document.getElementById(id);
             if (!style) {
@@ -129,13 +130,16 @@ import WebKit
         let source = courseChromeMarker + """
         (() => {
             const id = 'gtiit-moodle-course-chrome';
+            if (location.hostname !== 'moodle.gtiit.edu.cn' || location.pathname !== '/moodle/course/view.php') {
+                document.getElementById(id)?.remove(); return;
+            }
             let style = document.getElementById(id);
             if (!style) {
                 style = document.createElement('style');
                 style.id = id;
                 (document.head || document.documentElement).appendChild(style);
             }
-            style.textContent = 'nav.navbar, .navbar, #page-navbar, .breadcrumb, .drawer, .drawer-toggles, #page-header, #page-footer, .secondary-navigation, .tertiary-navigation, .page-context-header, .activity-header { display: none !important; } body, #page-wrapper, #page { padding-top: 0 !important; margin-top: 0 !important; } html, body, #page, #page-wrapper, #page-content, #region-main, .course-content, .main-inner, .course-content-item, .coursebox { background-color: \(pageHex) !important; }';
+            style.textContent = 'nav.navbar, .navbar, #page-navbar, .breadcrumb, .drawer, .drawer-toggles, #page-header, #page-footer, .secondary-navigation, .tertiary-navigation, .page-context-header { display: none !important; } body, #page-wrapper, #page { padding-top: 0 !important; margin-top: 0 !important; } html, body, #page, #page-wrapper, #page-content, #region-main, .course-content, .main-inner, .course-content-item, .coursebox { background-color: \(pageHex) !important; }';
         })();
         """
         let controller = webView.configuration.userContentController

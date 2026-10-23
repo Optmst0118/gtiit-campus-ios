@@ -9,10 +9,16 @@ import WebKit
 final class MoodleAutoLogin {
     private var cancellables: Set<AnyCancellable> = []
     private weak var browser: BrowserModel?
+    private var generation = UUID()
     private var busy = false
     private var tried: Set<String> = []
     private var retryTask: Task<Void, Never>?
 
+    func reset() {
+        generation = UUID()
+        cancellables.removeAll(); retryTask?.cancel(); retryTask = nil
+        browser = nil; tried = []; busy = false
+    }
     func start(browser: BrowserModel, allowed: @escaping @MainActor () -> Bool) {
         guard self.browser == nil else { return }
         self.browser = browser
@@ -32,11 +38,12 @@ final class MoodleAutoLogin {
     private func tryOffice365Link(browser: BrowserModel, loginURL: URL, allowed: @escaping @MainActor () -> Bool) async {
         let key = loginURL.absoluteString
         guard !busy, !tried.contains(key), allowed(), browser.currentURLString == key else { return }
+        let token = generation
         busy = true
         defer { busy = false }
 
         if let raw = try? await browser.webView.evaluateJavaScript(Self.linkProbe) as? String,
-           let link = Self.allowedOffice365(raw) {
+           let link = Self.allowedOffice365(raw), token == generation, self.browser === browser, allowed() {
             tried.insert(key)
             browser.load(link)
             return
@@ -49,9 +56,9 @@ final class MoodleAutoLogin {
         retryTask = Task { @MainActor [weak self, weak browser] in
             try? await Task.sleep(for: .milliseconds(700))
             guard let self, let browser, !Task.isCancelled, allowed(),
-                  browser.currentURLString == key, !self.busy else { return }
+                  self.generation == token, browser.currentURLString == key, !self.busy else { return }
             if let raw = try? await browser.webView.evaluateJavaScript(Self.linkProbe) as? String,
-               let link = Self.allowedOffice365(raw) {
+               let link = Self.allowedOffice365(raw), self.generation == token, allowed() {
                 browser.load(link)
             }
         }

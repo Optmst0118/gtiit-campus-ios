@@ -143,6 +143,28 @@ private final class RetiredViewReference {
         check("Welcome blocks Moodle login page confirmation", !WelcomeLoginPolicy.canConfirm(site: .moodle, url: URL(string: "https://moodle.gtiit.edu.cn/moodle/login/index.php"), loaded: true, loading: false, error: nil))
         check("Welcome blocks another site's confirmation", !WelcomeLoginPolicy.canConfirm(site: .portal, url: SiteID.moodle.homeURL, loaded: true, loading: false, error: nil))
 
+        let routeSuite = "regression.routes." + UUID().uuidString
+        let routeDefaults = UserDefaults(suiteName: routeSuite)!
+        defer { routeDefaults.removePersistentDomain(forName: routeSuite) }
+        let routeSettings = AppSettings(defaults: routeDefaults)
+        routeSettings.nativeMoodleEnabled = true; routeSettings.nativeBookingEnabled = true
+        routeSettings.biometricLockEnabled = false
+        let routeApp = AppModel(settings: routeSettings)
+        let taskURL = URL(string: "https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=123")!
+        routeApp.openWeb(taskURL, site: .moodle, title: "Synthetic assignment")
+        check("summary_route_targets_visible_native_moodle", routeApp.selectedTab == .learning && routeApp.pendingWebRoute?.url == taskURL)
+        routeApp.pendingWebRoute = nil
+        routeApp.browserRouteToOtherSite(url: taskURL, from: .portal)
+        check("cross_site_route_uses_native_destination", routeApp.pendingWebRoute?.site == .moodle && routeApp.pendingWebRoute?.url == taskURL)
+        routeApp.pendingWebRoute = nil
+        routeApp.openWeb(URL(string: "https://evil.example/moodle/mod/assign/view.php?id=123")!, site: .moodle)
+        check("native_route_rejects_wrong_origin", routeApp.pendingWebRoute == nil)
+        let roomURL = SiteID.rooms.homeURL
+        routeApp.openWeb(roomURL, site: .rooms)
+        check("native_booking_route_preserves_target", routeApp.selectedTab == .booking && routeApp.pendingWebRoute?.url == roomURL)
+        routeSettings.followedMoodleCourseIDs = [12, 21]
+        check("followed_courses_persist", AppSettings(defaults: routeDefaults).followedMoodleCourseIDs == [12, 21])
+
         Theme.configureNavigationAppearance()
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "layout" {
             await verifyGlassWebLayout(); finish(); return
@@ -956,7 +978,7 @@ extension RegressionApp {
                 {id:9,fullname:'2025Winter Old Course'},{id:10,fullname:'2026Spring Old Course'},
                 {id:11,fullname:'2026Winter Future Course',startdate:1792706400},
                 {id:12,fullname:'2026Winter Hidden Course',visible:false}],nextoffset:100}:{courses:[{id:2,fullname:'Synthetic Physics',shortname:'2026Winter_Physics'}],nextoffset:0};
-            }else data={events:[{name:'Open quiz',modulename:'quiz',eventtype:'open',timestart:1792620000,url:'https://moodle.gtiit.edu.cn/moodle/mod/quiz/view.php?id=77',course:{fullname:'Synthetic Physics'}},{name:'Unsafe',modulename:'assign',eventtype:'due',timestart:1792943940,url:'https://evil.test/moodle/mod/assign/view.php?id=3'}]};
+            }else data={events:[{name:'Recently opened assignment',modulename:'assign',eventtype:'open',timestart:1792620000,url:'https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=1',course:{fullname:'Synthetic Robotics'}},{name:'Open quiz',modulename:'quiz',eventtype:'open',timestart:1792620000,url:'https://moodle.gtiit.edu.cn/moodle/mod/quiz/view.php?id=77',course:{fullname:'Synthetic Physics'}},{name:'Unsafe',modulename:'assign',eventtype:'due',timestart:1792943940,url:'https://evil.test/moodle/mod/assign/view.php?id=3'}]};
             body=JSON.stringify([{error:false,data}]);
           }else if(u.pathname.endsWith('index.php')){
             if(testFail&&u.searchParams.get('id')==='2')throw Error('UNAVAILABLE');
@@ -978,11 +1000,19 @@ extension RegressionApp {
                 return try JSONDecoder().decode(MoodleUpcomingResult.self, from: Data((raw as! String).utf8))
             }
             let result = try await read()
+            check("assignment_detail_preserves_calendar_open_date", result.items.first(where: { $0.url.hasSuffix("id=1") })?.opened == 1792620000)
             check("upcoming_reads_active_course_pages_and_pagination", result.courses == 2 && result.checked == 2 && result.failed == 0)
             check("upcoming_skips_old_terms_future_and_hidden_courses", await js(web, "calls.filter(c=>new URL(c.url).pathname.endsWith('index.php')).every(c=>['1','2'].includes(new URL(c.url).searchParams.get('id')))") == "true")
             check("upcoming_requests_complete_course_list", await js(web, "classifications.length>=1&&classifications.every(c=>c==='all'||c==='inprogress')") == "true")
             let folder = FileManager.default.temporaryDirectory.appendingPathComponent("upcoming-cache-" + UUID().uuidString)
             defer { try? FileManager.default.removeItem(at: folder) }
+            let directoryJSON = String(data: try JSONEncoder().encode(result.courseList ?? []), encoding: .utf8)!
+            let itemsJSON = String(data: try JSONEncoder().encode(result.items), encoding: .utf8)!
+            let beforeDirectoryCalls = await js(web, "classifications.length")
+            let detailCount = await js(web, "calls.filter(c=>new URL(c.url).pathname.endsWith('view.php')&&new URL(c.url).searchParams.get('id')==='2').length")
+            _ = try await web.callAsyncJavaScript(script, arguments: ["now": 1792620000, "jobID": "cached-fixture", "cachedDirectoryJSON": directoryJSON, "refreshDirectory": false, "cachedItemsJSON": itemsJSON], in: nil, contentWorld: .page)
+            check("cached_course_directory_avoids_repeat_requests", await js(web, "classifications.length") == beforeDirectoryCalls)
+            check("submitted_assignment_detail_uses_six_hour_cache", await js(web, "calls.filter(c=>new URL(c.url).pathname.endsWith('view.php')&&new URL(c.url).searchParams.get('id')==='2').length") == detailCount)
             let cache = MoodleUpcomingStore(directory: folder)
             cache.accept(result)
             let restored = MoodleUpcomingStore(directory: folder)
@@ -1002,7 +1032,9 @@ extension RegressionApp {
             let cachedBrowser = BrowserModel(site: .moodle, router: cachedRouter)
             restored.refresh(browser: cachedBrowser, allowed: { true })
             check("upcoming_recent_cache_does_not_trigger_scan", !restored.refreshing && restored.items.count == 3 && MoodleUpcomingStore.refreshInterval == 1800)
+            check("upcoming_course_directory_present_before_clear", !restored.courseItems.isEmpty)
             restored.cancel(clear: true)
+            check("upcoming_clear_removes_in_memory_courses", restored.courseItems.isEmpty && restored.items.isEmpty && restored.status == .notConnected)
             check("upcoming_clear_removes_persistent_summary", !FileManager.default.fileExists(atPath: cachedFile.path) && MoodleUpcomingStore(directory: folder).items.isEmpty)
             let suite = "regression.shortcuts." + UUID().uuidString
             let prefs = UserDefaults(suiteName: suite)!

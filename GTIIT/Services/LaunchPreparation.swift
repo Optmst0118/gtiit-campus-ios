@@ -42,8 +42,6 @@ enum SitePreparationState: Equatable {
         task = Task { [weak self] in
             guard let self else { return }
             let started = Date()
-            var triedSSO: Set<SiteID> = []
-            var settlingUntil: [SiteID: Date] = [:]
             while !Task.isCancelled && !self.didFinish {
                 for model in models where self.states[model.site]?.isSettled != true {
                     guard !Task.isCancelled, !self.didFinish else { return }
@@ -53,21 +51,6 @@ enum SitePreparationState: Equatable {
                     }
                     guard model.hasLoadedOnce, !model.isLoading,
                         model.webView.window != nil, model.webView.bounds.width > 0 else { continue }
-                    if let until = settlingUntil[model.site], Date() < until { continue }
-                    if model.site == .moodle, !triedSSO.contains(.moodle),
-                        Self.isMoodleLogin(model.currentURL), canRestoreSession() {
-                        triedSSO.insert(.moodle)
-                        // 只读取学校登录页上既有的 SSO 链接，不读取表单值、账号或 Cookie。
-                        let candidate = try? await model.webView.evaluateJavaScript(
-                            "Array.from(document.querySelectorAll('a[href]')).find(a=>a.href.includes('/auth/saml2/login.php'))?.href || ''")
-                        guard !Task.isCancelled, !self.didFinish else { return }
-                        if let raw = candidate as? String, let url = Self.allowedMoodleSSO(raw), canRestoreSession() {
-                            self.states[model.site] = .restoringSession
-                            settlingUntil[model.site] = Date().addingTimeInterval(0.6)
-                            model.load(url)
-                            continue
-                        }
-                    }
                     let authURL = model.currentURL.map(NavigationPolicy.isAuthentication) ?? false
                     if authURL {
                         self.states[model.site] = .needsLogin
@@ -106,10 +89,7 @@ enum SitePreparationState: Equatable {
         return url.path == "/moodle/login/index.php"
     }
     static func allowedMoodleSSO(_ raw: String) -> URL? {
-        guard let url = URL(string: raw), url.scheme == "https", url.host == SiteID.moodle.host,
-            url.path == "/moodle/auth/saml2/login.php", url.user == nil, url.password == nil,
-            url.port == nil || url.port == 443 else { return nil }
-        return url
+        MoodleAutoLogin.allowedOffice365(raw)
     }
     private static let loginFormProbe = """
         (() => {

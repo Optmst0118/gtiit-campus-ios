@@ -24,16 +24,17 @@ struct DocumentPreviewView: View {
                         if let error = session.error {
                             Text(error).font(.caption).padding(12).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14)).frame(maxWidth: 280)
                         }
-                        Button { session.saveAction?() } label: {
+                        Button { Haptics.medium(); session.saveAction?() } label: {
                             Group {
                                 if session.state == .saving { ProgressView() }
                                 else { Image(systemName: session.state == .saved ? "checkmark" : "arrow.down").font(.system(size: 23, weight: .semibold)) }
                             }.frame(width: PDFDownloadPlacement.diameter, height: PDFDownloadPlacement.diameter)
+                                .foregroundStyle(session.state == .saved ? Color.white : Theme.accent)
+                                .modifier(PDFDownloadGlass(saved: session.state == .saved))
+                                .contentShape(Circle())
                         }
-                        .buttonStyle(.plain).foregroundStyle(session.state == .saved ? Color.white : Theme.accent)
-                        .modifier(PDFDownloadGlass(saved: session.state == .saved))
-                        .disabled(session.state == .saving)
-                        .allowsHitTesting(session.canSave)
+                        .buttonStyle(PDFDownloadPressStyle())
+                        .disabled(!session.canSave)
                         .accessibilityLabel(session.state == .saved ? L10n.tr("已下载") : session.state == .saving ? L10n.tr("正在保存") : L10n.tr("下载 PDF"))
                     }
                     .padding(.trailing, placement.trailingPadding)
@@ -44,6 +45,20 @@ struct DocumentPreviewView: View {
             .navigationTitle(session.filename).navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L10n.tr("完成")) { session.closeAction?() }.disabled(session.state == .saving) } }
         }.tint(Theme.accent)
+            .onChange(of: session.error) { _, error in if error != nil { Haptics.error() } }
+            .onChange(of: session.state) { _, state in
+                if state == .saved { Haptics.success() }
+                else if state == .failed { Haptics.error() }
+            }
+    }
+}
+private struct PDFDownloadPressStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 1.065 : 1)
+            .brightness(configuration.isPressed ? 0.025 : 0)
+            .animation(reduceMotion ? nil : .spring(response: 0.26, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 private struct PDFCanvas: UIViewRepresentable {
@@ -69,9 +84,12 @@ struct PDFDownloadPlacement {
     }
 }
 private struct PDFDownloadGlass: ViewModifier {
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     let saved: Bool
     @ViewBuilder func body(content: Content) -> some View {
-        if #available(iOS 26.0, *) {
+        if reduceTransparency {
+            content.background(saved ? Theme.accent : Theme.cardBackground, in: Circle())
+        } else if #available(iOS 26.0, *) {
             content.glassEffect(.regular.tint(saved ? Theme.accent : Color.white.opacity(0.15)).interactive(), in: Circle())
         } else {
             content.background(saved ? Theme.accent : Color.white.opacity(0.15), in: Circle())

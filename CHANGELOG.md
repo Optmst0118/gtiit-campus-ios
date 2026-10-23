@@ -4,6 +4,26 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.36] - 2026-10-24
+
+### Fixed
+
+- Remove the extra tap recognizer from card labels so learning and booking cards retain native button activation; trigger haptics in their actions.
+- Preserve calendar opening dates when assignment detail pages omit them.
+- Clear in-memory Moodle courses with session data; protect session restoration from stale async callbacks.
+- Route summaries, shortcuts and cross-site links into visible native detail pages; preserve web entry points and confirm leaving edited pages.
+- Respect the 30-minute summary TTL on ordinary back navigation and add failed-request backoff.
+- Make the complete PDF glass surface respond to press/release, including Reduce Motion/Transparency fallbacks.
+
+### Changed
+
+- Keep simultaneous four-site preloading; start summary probes after prewarming settles.
+- Reuse course directory and settled assignment details for six hours; prioritize timetable and followed courses while keeping other active-course checks.
+- Compact Me summaries, move other courses/tools to secondary pages, add course following and Learning & timetable settings.
+- Tune stronger, distinct haptics with duplicate-event suppression and no feedback on cancelled scroll presses.
+- Add configurable Widget directions/service calendar and precomputed departure timeline nodes.
+- Add local aggregate diagnostics and full integrated regression to CI; support neutral public project generation.
+
 ## [2.0.0-alpha.34] - 2026-10-24
 
 ### Added

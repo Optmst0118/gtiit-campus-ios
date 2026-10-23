@@ -253,7 +253,7 @@ def main() -> int:
             if phase["isa"] == "PBXSourcesBuildPhase":
                 for b in field_values(phase["raw"], "files"):
                     compiled_widget.add(paths.get(field_id(objects[b]["raw"], "fileRef")))
-        required_widget = {str(p.relative_to(ROOT)) for p in (ROOT / "GTIITWidgets").glob("*.swift")} | {"GTIIT/Views/ShuttleActivityPresentation.swift", "GTIIT/Models/ShuttleActivityAttributes.swift", "GTIIT/Models/ShuttleSchedule.swift", "GTIIT/Core/Localization.swift", "GTIIT/Services/CampusLocationRecommendation.swift"}
+        required_widget = {str(p.relative_to(ROOT)) for p in (ROOT / "GTIITWidgets").glob("*.swift")} | {"GTIIT/Models/ShuttleTimelinePolicy.swift", "GTIIT/Core/AppGroup.swift", "GTIIT/Views/ShuttleActivityPresentation.swift", "GTIIT/Models/ShuttleActivityAttributes.swift", "GTIIT/Models/ShuttleSchedule.swift", "GTIIT/Core/Localization.swift", "GTIIT/Services/CampusLocationRecommendation.swift"}
         if compiled_widget != required_widget: fail(f"Widget 编译源码不一致：{compiled_widget ^ required_widget}")
         notes.append(f"Widget 编译 Swift 文件：{len(compiled_widget)}")
 

@@ -1,0 +1,20 @@
+{
+  "version": "2.0.0-alpha.36",
+  "build": 53,
+  "baseline": "9252b7f12662123011c606a81863a6bdfd5d3e41",
+  "regressionChecks": 294,
+  "regressionPassed": true,
+  "shuttleChecks": 25,
+  "shuttlePassed": true,
+  "deviceBuild": "Release signed",
+  "installedVersion": "2.0.0 (53)",
+  "deviceLaunch": "success",
+  "coordinateTapChecks": [
+    "learning upcoming card opens Homework 2 detail",
+    "booking availability card opens official sign-in page",
+    "booking practice-room category opens room list",
+    "booking D4-103-9 opens corresponding detail"
+  ],
+  "scope": "Independent synthetic UI fixtures; no business submission or account change",
+  "appGroupsEnabled": false
+}

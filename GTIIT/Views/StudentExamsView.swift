@@ -13,10 +13,20 @@ struct StudentExamsEntry: View {
                     Spacer()
                     if store.refreshing { ProgressView().controlSize(.small) }
                 }.foregroundStyle(Theme.accent)
-                if let exam = store.upcoming.first { StudentExamRow(exam: exam) }
+                if let exam = store.upcoming.first {
+                    if let start = exam.start, start.timeIntervalSinceNow <= 14 * 86400 { StudentExamRow(exam: exam) }
+                    else {
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(exam.course).font(.subheadline).lineLimit(1)
+                            Spacer()
+                            Text(exam.start ?? .now, format: .dateTime.month().day()).font(.caption).foregroundStyle(.secondary)
+                            Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
+                        }
+                    }
+                }
                 else { Text(L10n.tr(store.loginRequired ? "登录 Student 后查看考试" : store.refreshing ? "正在核对考试安排…" : store.failed ? "更新未完成，点按重试" : store.updatedAt == nil ? "连接 Student 后查看考试安排" : "暂无即将举行的考试")).font(.subheadline).foregroundStyle(.secondary) }
                 if store.upcoming.count > 1 { Text(L10n.format("另有 %@ 场考试", String(store.upcoming.count - 1))).font(.caption).foregroundStyle(.secondary) }
-            }.padding(.vertical, 8).padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
+            }.padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
         }.buttonStyle(CardPressStyle())
         .task {
             while !Task.isCancelled {
@@ -44,7 +54,7 @@ struct StudentExamsView: View {
             Section {
                 if store.upcoming.isEmpty && !store.refreshing { ContentUnavailableView(L10n.tr("暂无即将举行的考试"), systemImage: "calendar.badge.checkmark") }
                 ForEach(store.upcoming) { exam in StudentExamRow(exam: exam).padding(.vertical, 6) }
-            } header: { Text(L10n.tr("考试安排")) } footer: { Text(L10n.tr("来自 Student 当前学期的完整考试列表，含分页内容。时间为北京时间，地点待定时请在考前核对原网页。")) }
+            } header: { Text(L10n.tr("考试安排")) }
             Button(L10n.tr("在 Student 核对")) { app.switchTo(.portal); app.browser(for: .portal).loadHome() }
         }.navigationTitle(L10n.tr("临近考试")).navigationBarTitleDisplayMode(.inline)
             .scrollContentBackground(.hidden).background(Theme.pageBackground)

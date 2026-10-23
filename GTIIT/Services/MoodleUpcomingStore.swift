@@ -22,9 +22,26 @@ import WebKit
         let checked: Int
         let courses: Int
         let courseList: [MoodleCourse]?
+        var directoryUpdatedAt: Date? = nil
     }
     private let cacheURL: URL
     private var attemptedAt: Date?
+    private var retryAfter: Date?
+    private var failureCount = 0
+    private var directoryUpdatedAt: Date?
+    var priorityCourseIDs: Set<Int> = []
+    var status: CampusSummaryStatus {
+        if loginRequired { return .needsLogin }
+        if refreshing { return updatedAt == nil ? .loading : .refreshing }
+        if error { return updatedAt == nil ? .failed : .stale }
+        if partial { return .partial }
+        return updatedAt == nil ? .notConnected : .current
+    }
+    private func failedAttempt() {
+        error = true
+        failureCount = min(failureCount + 1, 4)
+        retryAfter = Date().addingTimeInterval(min(300, 15 * pow(2, Double(failureCount))))
+    }
     init(directory: URL? = nil) {
         let root = directory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("MoodleUpcoming", isDirectory: true)
@@ -34,6 +51,7 @@ import WebKit
               cache.updatedAt <= Date(), Date().timeIntervalSince(cache.updatedAt) < 7 * 86400 else { return }
         items = cache.items.filter { MoodleWork.safeURL($0.url) != nil }
         courseItems = cache.courseList ?? []
+        directoryUpdatedAt = cache.directoryUpdatedAt
         updatedAt = cache.updatedAt; partial = cache.partial; checked = cache.checked; courses = cache.courses
     }
     static func currentTerm(now: Date = Date()) -> (year: Int, season: String) {
@@ -55,7 +73,9 @@ import WebKit
         guard !result.loginRequired else { cancel(clear: true); loginRequired = true; return }
         items = result.items.filter { MoodleWork.safeURL($0.url) != nil }
         checked = result.checked; courses = result.courses
-        courseItems = result.courseList ?? []
+        if let list = result.courseList { courseItems = list }
+        if result.directoryRefreshed == true { directoryUpdatedAt = date }
+        error = false; failureCount = 0; retryAfter = nil
         partial = result.failed > 0 || result.checked < result.courses
         updatedAt = date; attemptedAt = date
         persist()
@@ -67,7 +87,7 @@ import WebKit
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [.protectionKey: FileProtectionType.complete])
             var values = URLResourceValues(); values.isExcludedFromBackup = true
             try folder.setResourceValues(values)
-            let cache = Cache(version: 3, term: Self.termKey(), items: items, updatedAt: updatedAt, partial: partial, checked: checked, courses: courses, courseList: courseItems)
+            let cache = Cache(version: 3, term: Self.termKey(), items: items, updatedAt: updatedAt, partial: partial, checked: checked, courses: courses, courseList: courseItems, directoryUpdatedAt: directoryUpdatedAt)
             try JSONEncoder().encode(cache).write(to: cacheURL, options: [.atomic, .completeFileProtection])
         } catch { /* Retain the current in-memory summary if local storage is unavailable. */ }
     }
@@ -76,9 +96,11 @@ import WebKit
     private var generation = UUID()
 
     func refresh(browser: BrowserModel, force: Bool = false, allowed: @escaping () -> Bool) {
-        guard !refreshing, allowed(), force || (attemptedAt ?? updatedAt).map({ Date().timeIntervalSince($0) >= Self.refreshInterval }) != false else { return }
+        guard !refreshing, allowed(), force || retryAfter.map({ $0 <= Date() }) != false else { return }
+        guard force || (attemptedAt ?? updatedAt).map({ Date().timeIntervalSince($0) >= Self.refreshInterval }) != false else { return }
         guard let path = Bundle.main.url(forResource: "moodle-upcoming", withExtension: "js", subdirectory: "CampusData"),
               let script = try? String(contentsOf: path, encoding: .utf8) else { error = true; return }
+        LocalDiagnostics.shared.record("moodleSummaryRefresh")
         refreshing = true; error = false; loginRequired = false
         webView = browser.webView
         let token = UUID(); generation = token
@@ -95,13 +117,20 @@ import WebKit
                 waited += 1
             }
             guard allowed(), !Task.isCancelled, browser.hasLoadedOnce, !browser.isLoading else {
-                self.error = true
-                self.attemptedAt = nil
+                self.failedAttempt()
                 return
             }
             do {
                 let term = Self.currentTerm()
-                let value = try await browser.webView.callAsyncJavaScript(script, arguments: ["now": Date().timeIntervalSince1970, "jobID": token.uuidString, "termYear": term.year, "termSeason": term.season], in: nil, contentWorld: .page)
+                let directoryJSON = String(data: try JSONEncoder().encode(self.courseItems), encoding: .utf8) ?? "[]"
+                let itemsJSON = String(data: try JSONEncoder().encode(self.items), encoding: .utf8) ?? "[]"
+                let refreshDirectory = force || (self.directoryUpdatedAt.map { Date().timeIntervalSince($0) >= 6 * 3600 } ?? true)
+                let value = try await browser.webView.callAsyncJavaScript(script, arguments: [
+                    "now": Date().timeIntervalSince1970, "jobID": token.uuidString,
+                    "termYear": term.year, "termSeason": term.season,
+                    "cachedDirectoryJSON": directoryJSON, "refreshDirectory": refreshDirectory,
+                    "cachedItemsJSON": force ? "[]" : itemsJSON, "priorityIDs": Array(self.priorityCourseIDs)
+                ], in: nil, contentWorld: .page)
                 guard self.generation == token, allowed(), !Task.isCancelled else { return }
                 guard let string = value as? String, string.utf8.count < 1_000_000 else { throw CocoaError(.coderReadCorrupt) }
                 let result = try JSONDecoder().decode(MoodleUpcomingResult.self, from: Data(string.utf8))
@@ -109,18 +138,18 @@ import WebKit
                 self.attemptedAt = Date()
             } catch {
                 guard self.generation == token, allowed(), !Task.isCancelled else { return }
-                self.error = true
-                self.attemptedAt = nil
+                self.failedAttempt()
             }
         }
     }
-    func invalidate() { attemptedAt = nil; updatedAt = nil }
+    func invalidate() { attemptedAt = nil; updatedAt = nil; retryAfter = nil }
+    func sessionDidAuthenticate() { retryAfter = nil; attemptedAt = nil; loginRequired = false }
 
     func cancel(clear: Bool = false) {
         let previous = generation.uuidString
         if refreshing { attemptedAt = updatedAt }
         generation = UUID(); task?.cancel(); task = nil; refreshing = false
         if let webView { Task { try? await webView.evaluateJavaScript("if(window.__gtiitUpcomingJob?.jobID === '\(previous)') window.__gtiitUpcomingJob.abort()") } }
-        if clear { try? FileManager.default.removeItem(at: cacheURL); attemptedAt = nil; items = []; updatedAt = nil; checked = 0; courses = 0; partial = false; error = false; loginRequired = false }
+        if clear { directoryUpdatedAt = nil; retryAfter = nil; failureCount = 0; priorityCourseIDs = []; try? FileManager.default.removeItem(at: cacheURL); attemptedAt = nil; items = []; courseItems = []; updatedAt = nil; checked = 0; courses = 0; partial = false; error = false; loginRequired = false }
     }
 }

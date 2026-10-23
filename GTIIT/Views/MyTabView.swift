@@ -4,6 +4,7 @@ struct MyTabView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @State private var showSettings = false
+    @State private var navigationEpoch = UUID()
     var body: some View {
         let _ = nativeLocale.identifier
 
@@ -48,6 +49,10 @@ struct MyTabView: View {
             }
             }
         }
+        .id(navigationEpoch)
+        .onChange(of: app.tabReselectToken) { _, _ in
+            if app.tabReselectTarget == .me { showSettings = false; navigationEpoch = UUID() }
+        }
     }
 }
 
@@ -62,7 +67,11 @@ struct CampusShortcutsSection: View {
     private var shortcuts: [CampusShortcut] { CampusShortcut.all.filter { settings.shortcutIDs.contains($0.id) } }
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(L10n.tr("常用入口")).font(.headline).padding(.top, 12).padding(.horizontal, 2)
+            HStack {
+                Text(L10n.tr("常用入口")).font(.headline)
+                Spacer()
+                Button(L10n.tr("编辑")) { managing = true }.font(.subheadline)
+            }.padding(.top, 8).padding(.horizontal, 2)
             if shortcuts.isEmpty {
                 NavigationLink { ShortcutSettingsView() } label: {
                     Label(L10n.tr("添加常用入口"), systemImage: "plus.circle")
@@ -75,7 +84,7 @@ struct CampusShortcutsSection: View {
                         .background { GeometryReader { geometry in
                             Color.clear.preference(key: ShortcutSizeKey.self, value: [shortcut.id: geometry.size])
                         } }
-                        .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: Theme.shortcutCorner, style: .continuous))
                         .contextMenu {
                             if let url = shortcut.link?.url {
                                 ShareLink(item: url) { Label(L10n.tr("分享"), systemImage: "square.and.arrow.up") }
@@ -181,8 +190,8 @@ private struct CampusShortcutTile: View {
             (0.025, 0.23, 0.46), (0.035, 0.27, 0.51), (0.045, 0.31, 0.56),
             (0.055, 0.35, 0.61), (0.070, 0.39, 0.66)
         ] : [
-            (0.030, 0.30, 0.60), (0.040, 0.345, 0.65), (0.050, 0.39, 0.70),
-            (0.070, 0.43, 0.74), (0.090, 0.465, 0.77)
+            (0.06, 0.39, 0.70), (0.075, 0.44, 0.74), (0.09, 0.48, 0.78),
+            (0.11, 0.51, 0.80), (0.13, 0.54, 0.82)
         ]
         let c = rows[min(tone / 2, rows.count - 1)]
         let right = tone % 2 == 1
@@ -193,7 +202,7 @@ private struct CampusShortcutTile: View {
                 Color(red: max(0, r - 0.020), green: g - 0.020, blue: b - 0.015)]
     }
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             Image(systemName: symbol)
                 .symbolRenderingMode(.monochrome)
                 .font(.system(size: 25, weight: .medium))
@@ -201,16 +210,16 @@ private struct CampusShortcutTile: View {
                 .accessibilityHidden(true)
             Text(title).font(.body.weight(.semibold)).fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity, minHeight: 84, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 66, alignment: .leading)
         .padding(16).foregroundStyle(.white)
         .background(LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing),
-                    in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    in: RoundedRectangle(cornerRadius: Theme.shortcutCorner, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.shortcutCorner, style: .continuous)
                 .strokeBorder(.white.opacity(scheme == .dark ? 0.12 : 0.28), lineWidth: 0.5)
         }
         .shadow(color: colors.first!.opacity(scheme == .dark ? 0.20 : 0.23), radius: 9, x: 0, y: 3)
-        .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: Theme.shortcutCorner, style: .continuous))
         .accessibilityElement(children: .combine)
     }
 }

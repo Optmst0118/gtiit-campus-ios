@@ -29,3 +29,8 @@
 ## 复测
 
 用 Instruments App Launch 看首帧和内存；用 Points of Interest 看页面/摘要区间；用 Network 模板确认门户不重复加载。命令行 simctl launch 只代表进程启动，不等于首帧时间。
+
+
+## alpha.36
+
+Four sites remain concurrent by explicit product requirement. Summary probes wait for the launch-prewarm window to settle; they do not stagger the four primary loads. Course directory and settled/distant assignment detail caches reduce repeated reads. Failed scans use a bounded short backoff; manual refresh explicitly bypasses summary/backoff and directory/detail caches. These changes require on-device profiling before claiming lower peak memory or battery use.

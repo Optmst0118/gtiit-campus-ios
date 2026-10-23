@@ -1,50 +1,36 @@
 import UIKit
 
-/// Central haptic vocabulary for the app.
-///
-/// Tune the feel here:
-/// - light / medium are impact styles;
-/// - selection is the small tick used for tab/picker changes;
-/// - success / warning are notification patterns;
-/// - the Settings toggle writes settings.hapticsEnabled.
-@MainActor
-enum Haptics {
-    private static let lightGenerator = UIImpactFeedbackGenerator(style: .light)
-    private static let mediumGenerator = UIImpactFeedbackGenerator(style: .medium)
-    private static let selectionGenerator = UISelectionFeedbackGenerator()
-    private static let notificationGenerator = UINotificationFeedbackGenerator()
-
+/// Short, deliberate tactile events; one event per interaction.
+@MainActor enum Haptics {
+    private static let crisp = UIImpactFeedbackGenerator(style: .rigid)
+    private static let firm = UIImpactFeedbackGenerator(style: .medium)
+    private static let soft = UIImpactFeedbackGenerator(style: .soft)
+    private static let notification = UINotificationFeedbackGenerator()
+    private static var lastEvent: TimeInterval = -.infinity
     static var isEnabled: Bool {
         UserDefaults.standard.object(forKey: "settings.hapticsEnabled") as? Bool ?? true
     }
-
-    static func light(intensity: CGFloat = 0.7) {
-        guard isEnabled else { return }
-        lightGenerator.prepare()
-        lightGenerator.impactOccurred(intensity: intensity)
+    private static func accept() -> Bool {
+        guard isEnabled, UIApplication.shared.applicationState == .active else { return false }
+        let now = ProcessInfo.processInfo.systemUptime
+        guard now - lastEvent >= 0.09 else { return false }
+        lastEvent = now
+        return true
     }
-
-    static func medium(intensity: CGFloat = 0.8) {
-        guard isEnabled else { return }
-        mediumGenerator.prepare()
-        mediumGenerator.impactOccurred(intensity: intensity)
+    static func prepare() { guard isEnabled else { return }; crisp.prepare(); firm.prepare(); soft.prepare(); notification.prepare() }
+    static func light(intensity: CGFloat = 0.9) {
+        guard accept() else { return }
+        crisp.impactOccurred(intensity: min(1, max(0, intensity))); crisp.prepare()
     }
-
+    static func medium(intensity: CGFloat = 1) {
+        guard accept() else { return }
+        firm.impactOccurred(intensity: min(1, max(0, intensity))); firm.prepare()
+    }
     static func selection() {
-        guard isEnabled else { return }
-        selectionGenerator.prepare()
-        selectionGenerator.selectionChanged()
+        guard accept() else { return }
+        soft.impactOccurred(intensity: 0.95); soft.prepare()
     }
-
-    static func success() {
-        guard isEnabled else { return }
-        notificationGenerator.prepare()
-        notificationGenerator.notificationOccurred(.success)
-    }
-
-    static func warning() {
-        guard isEnabled else { return }
-        notificationGenerator.prepare()
-        notificationGenerator.notificationOccurred(.warning)
-    }
+    static func success() { guard accept() else { return }; notification.notificationOccurred(.success); notification.prepare() }
+    static func warning() { guard accept() else { return }; notification.notificationOccurred(.warning); notification.prepare() }
+    static func error() { guard accept() else { return }; notification.notificationOccurred(.error); notification.prepare() }
 }

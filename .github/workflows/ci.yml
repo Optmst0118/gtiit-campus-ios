@@ -89,3 +89,19 @@ jobs:
 
       - name: Validate embedded extension and versions
         run: python3 Tools/verify_bundle.py "${RUNNER_TEMP}/DerivedData/Build/Products/Debug-iphonesimulator/GTIIT.app" --unsigned
+
+      - name: Integrated WebKit and campus workflow regression
+        run: |
+          set -euo pipefail
+          device=$(xcrun simctl create "GTIIT CI Review" com.apple.CoreSimulator.SimDeviceType.iPhone-17)
+          trap 'xcrun simctl shutdown "$device" || true; xcrun simctl delete "$device" || true' EXIT
+          xcrun simctl boot "$device"
+          xcrun simctl bootstatus "$device" -b
+          python3 Tools/run_regression.py "$device"
+
+      - name: Preserve regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-evidence
+          path: docs/verification/*results.json

@@ -14,7 +14,13 @@ enum Theme {
     })
     static let sky = Color(red: 0.30, green: 0.73, blue: 0.96)
 
-    static let corner: CGFloat = 18
+    static let corner: CGFloat = 24
+    static let shortcutCorner: CGFloat = 24
+    static let pageInset: CGFloat = 20
+    static let cardInset: CGFloat = 18
+    static let destructive = Color(uiColor: .systemRed)
+    static let primaryText = Color.primary
+    static let secondaryText = Color.secondary
 
     static let darkCanvasHex = "#0e141c"
     static let pageUIColor = UIColor { traits in
@@ -26,7 +32,11 @@ enum Theme {
     static func pageHex(for scheme: ColorScheme) -> String {
         scheme == .dark ? "#0e141c" : "#f2f7fa"
     }
-    static let cardBackground = Color(uiColor: .secondarySystemGroupedBackground)
+    static let cardBackground = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 27/255.0, green: 37/255.0, blue: 50/255.0, alpha: 1)
+            : .white
+    })
 
     /// Let the system own the navigation surface again: transparent at the top
     /// (the page background shows through) and the standard material once the
@@ -98,9 +108,6 @@ struct CardPressStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.975 : 1)
             .opacity(configuration.isPressed ? 0.92 : 1)
             .animation(reduceMotion ? nil : .smooth(duration: 0.18), value: configuration.isPressed)
-            .onChange(of: configuration.isPressed) { _, pressed in
-                if pressed { Haptics.light() }
-            }
     }
 }
 

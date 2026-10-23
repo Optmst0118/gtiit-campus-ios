@@ -5,44 +5,56 @@ struct TodayTimetableCard: View {
     @ObservedObject var store: LocalTimetableStore
     var body: some View {
         let _ = nativeLocale.identifier
-
         TimelineView(.periodic(from: .now, by: 30)) { context in
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Label(L10n.tr("本地课表"), systemImage: "calendar").font(.headline)
                     Spacer()
-                    Text(CampusDate.display(context.date, weekday: true)).font(.caption).foregroundStyle(.secondary)
+                    Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
                 }
                 if let snapshot = store.snapshot {
                     if let (course, date) = snapshot.next(after: context.date) {
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text(L10n.tr("下一节")).font(.caption.weight(.semibold)).foregroundStyle(Theme.accent)
-                            Text(course.name).font(.title3.weight(.semibold)).fixedSize(horizontal: false, vertical: true)
-                            Text("\(CampusDate.display(date, weekday: true)) · \(course.start)–\(course.end)")
-                                .font(.subheadline.monospacedDigit()).foregroundStyle(Theme.accent)
-                            Label(course.location.isEmpty ? L10n.tr("教室待确认") : course.location, systemImage: "mappin.and.ellipse")
-                                .font(.subheadline).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                        ViewThatFits(in: .horizontal) {
+                            HStack(alignment: .top, spacing: 16) {
+                                time(course)
+                                details(course, date: date)
+                            }
+                            VStack(alignment: .leading, spacing: 8) { time(course); details(course, date: date) }
                         }
-                    } else { Text(L10n.tr("暂无后续课程，请检查课表有效期。")).foregroundStyle(.secondary) }
-                    Divider()
-                    let courses = snapshot.courses(on: context.date)
-                    if courses.isEmpty { Text(L10n.tr("今天没有课程")).font(.subheadline).foregroundStyle(.secondary) }
-                    ForEach(courses) { course in
-                        HStack(alignment: .top, spacing: 12) {
-                            VStack(alignment: .leading, spacing: 3) { Text(course.start); Text(course.end).foregroundStyle(.secondary) }
-                                .font(.caption.monospacedDigit()).frame(width: 45, alignment: .leading)
-                            RoundedRectangle(cornerRadius: 2).fill(Theme.accent).frame(width: 3)
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(course.name).font(.subheadline.weight(.medium))
-                                Text(course.location.isEmpty ? L10n.tr("教室待确认") : course.location).font(.caption).foregroundStyle(.secondary)
-                            }.frame(maxWidth: .infinity, alignment: .leading)
-                        }.fixedSize(horizontal: false, vertical: true)
-                    }
+                        let remaining = snapshot.courses(on: context.date).filter { $0.id != course.id }
+                        if let later = remaining.first {
+                            Divider()
+                            HStack(alignment: .firstTextBaseline) {
+                                Text(later.start).monospacedDigit().foregroundStyle(Theme.accent)
+                                Text(later.name).lineLimit(2)
+                                Spacer(minLength: 0)
+                            }.font(.subheadline)
+                        } else if snapshot.courses(on: context.date).isEmpty {
+                            Text(L10n.tr("今天没有课程")).font(.caption).foregroundStyle(.secondary)
+                        }
+                    } else { Text(L10n.tr("暂无后续课程")).font(.subheadline).foregroundStyle(.secondary) }
                 } else {
-                    Text(L10n.tr("提取一次，离线查看每天课程与教室。")).font(.subheadline).foregroundStyle(.secondary)
+                    Text(L10n.tr("从门户导入课表")).font(.subheadline).foregroundStyle(.secondary)
                 }
-            }.padding(.vertical, 10)
+            }.accessibilityElement(children: .combine)
         }
+    }
+    private func time(_ course: LocalCourse) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(L10n.tr("下一节")).font(.caption.weight(.medium))
+            Text(course.start).font(.title2.weight(.semibold).monospacedDigit())
+            Text(course.end).font(.caption.monospacedDigit()).foregroundStyle(Color(uiColor: .secondaryLabel))
+        }.foregroundStyle(Theme.accent).fixedSize(horizontal: true, vertical: false)
+    }
+    private func details(_ course: LocalCourse, date: Date) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(course.name).font(.headline).fixedSize(horizontal: false, vertical: true)
+            Text(CampusDate.display(date, weekday: true)).font(.caption).foregroundStyle(.secondary)
+            Label(course.room.isEmpty ? L10n.tr("教室待确认") : course.room, systemImage: "mappin.and.ellipse")
+                .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                .accessibilityLabel(course.location)
+            if !course.building.isEmpty { Text(course.building).font(.caption2).foregroundStyle(.secondary).lineLimit(2) }
+        }.frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

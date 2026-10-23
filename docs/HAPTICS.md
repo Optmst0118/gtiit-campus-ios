@@ -21,3 +21,10 @@
 ## 注意
 
 模拟器没有真实触感，需要真机验证。UIImpactFeedbackGenerator 每次触发前 prepare，减少首次延迟。
+
+
+## alpha.36 tuning
+
+Confirmed taps use a rigid impact (default0.9); explicit save actions use medium impact(1.0); tab/picker changes use a softer impact(0.95). Success/warning/error retain system notification patterns. Events inside90ms are coalesced. The global switch and foreground check gate all effects. Card styles do not install gesture recognizers. Learning and booking trigger feedback inside the accepted button action, preserving native tap and scroll cancellation. Actual perceived strength depends on the device and iOS haptic settings and must be judged on hardware.
+
+PDF's complete glass circle scales to1.065 while held and springs back(response0.26,damping0.7). Reduce Motion removes scale animation; Reduce Transparency uses a solid semantic surface. There is no extra post-save duplicate-download action.

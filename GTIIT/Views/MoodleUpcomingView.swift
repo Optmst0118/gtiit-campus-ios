@@ -25,8 +25,7 @@ struct MoodleUpcomingEntry: View {
                         .font(.subheadline).foregroundStyle(.secondary)
                 }
                 if store.partial { Label(L10n.tr("部分更新，仍有课程未能核对"), systemImage: "exclamationmark.circle").font(.caption).foregroundStyle(Theme.orange) }
-            }.padding(.vertical, 8)
-                .padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
+            }.padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
         }.buttonStyle(CardPressStyle())
         .task {
             while !Task.isCancelled {
@@ -37,7 +36,7 @@ struct MoodleUpcomingEntry: View {
         .onChange(of: phase) { _, value in if value != .active { store.cancel() } else { refresh() } }
     }
     private func refresh() {
-        store.refresh(browser: app.browser(for: .moodle), allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData })
+        app.refreshMoodleSummary(force: false)
     }
 }
 
@@ -54,7 +53,7 @@ struct MoodleUpcomingView: View {
                     HStack(spacing: 12) { ProgressView(); Text(L10n.tr("正在逐课程核对作业…")) }
                 }
                 if store.loginRequired {
-                    Button(L10n.tr("前往 Moodle 登录")) { app.switchTo(.moodle) }
+                    Button(L10n.tr("前往 Moodle 登录")) { app.openWeb(SiteID.moodle.homeURL, site: .moodle, title: L10n.tr("Moodle 登录")) }
                 } else if store.error {
                     Label(L10n.tr("更新失败，请确认学习页面已登录后重试。"), systemImage: "exclamationmark.triangle").foregroundStyle(Theme.orange)
                 }
@@ -85,9 +84,7 @@ struct MoodleUpcomingView: View {
                         }.padding(.vertical, 6)
                     }.buttonStyle(CardPressStyle())
                 }
-            } header: { Text(L10n.tr("即将截止与最近开放")) } footer: {
-                Text(L10n.tr("结合 Moodle 日历与各课程作业页面。时间为北京时间；未识别的提交状态需在 Moodle 核对，课程临时变更以原页面为准。"))
-            }
+            } header: { Text(L10n.tr("即将截止与最近开放")) }
         }.navigationTitle(L10n.tr("Moodle 临近日程")).navigationBarTitleDisplayMode(.inline)
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
             .toolbar { ToolbarItem(placement: .topBarTrailing) {
@@ -97,11 +94,11 @@ struct MoodleUpcomingView: View {
             .onAppear { if store.updatedAt == nil { refresh() } }
     }
     private func refresh() {
-        store.refresh(browser: app.browser(for: .moodle), force: true, allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData })
+        app.refreshMoodleSummary(force: true)
     }
     private func open(_ item: MoodleWork) {
         guard let url = MoodleWork.safeURL(item.url) else { return }
-        app.browser(for: .moodle).load(url); app.switchTo(.moodle)
+        app.openWeb(url, site: .moodle, title: item.name)
     }
 }
 private struct MoodleWorkRow: View {
@@ -119,7 +116,7 @@ private struct MoodleWorkRow: View {
             if let date = item.openedDate {
                 Text(L10n.format(date > Date() ? "开放 · %@" : "最近开放 · %@", dateLabel(date))).font(.caption).foregroundStyle(Theme.accent)
             }
-            Text(L10n.tr(item.status == "notSubmitted" ? "尚未提交" : item.status == "draft" ? "草稿，尚未正式提交" : item.status == "submitted" ? "已提交" : "请在 Moodle 核对提交状态"))
+            Text(L10n.tr(item.status == "notSubmitted" ? "尚未提交" : item.status == "draft" ? "草稿" : item.status == "submitted" ? "已提交" : "提交状态未知"))
                 .font(.caption).foregroundStyle(.secondary)
         }.accessibilityElement(children: .combine)
     }

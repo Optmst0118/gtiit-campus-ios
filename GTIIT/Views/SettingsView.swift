@@ -10,7 +10,7 @@ struct SettingsView: View {
         List {
             Section {
                 NavigationLink { LanguageSettingsView() } label: { SettingsLabel(L10n.tr("语言"), symbol: "globe") }
-                NavigationLink { TimetableSettingsView() } label: { SettingsLabel(L10n.tr("课表"), symbol: "calendar.badge.plus") }
+                NavigationLink { LearningSettingsView() } label: { SettingsLabel(L10n.tr("学习与课表"), symbol: "calendar.badge.plus") }
                 if settings.yilongUnlocked {
                     NavigationLink { YilongSettingsView() } label: { SettingsLabel(L10n.tr("以龙"), symbol: "sparkles") }
                 }
@@ -59,7 +59,7 @@ struct SettingsView: View {
                     SettingsLabel(L10n.tr("关于 GTIIT"), symbol: "info.circle")
                 }
             } footer: {
-                Text(L10n.format("GTIIT %@ · 非官方客户端", String(describing: AppInfo.versionText)))
+                Text(verbatim: "GTIIT " + AppInfo.versionText)
             }
         }
         .scrollContentBackground(.hidden)
@@ -109,8 +109,6 @@ private struct GeneralSettingsView: View {
                 Toggle(L10n.tr("启动时预加载网站"), isOn: $settings.preloadSitesOnLaunch)
             } header: {
                 Text(L10n.tr("启动"))
-            } footer: {
-                Text(L10n.tr("预加载只预热启动页对应网站，其他站点按需加载；不会阻塞启动。"))
             }
             Section {
                 NavigationLink { ShortcutSettingsView() } label: {
@@ -381,6 +379,16 @@ struct ShortcutSettingsView: View {
             } footer: { Text(L10n.tr("开启以添加到我的页面；关闭仅移除快捷入口，不影响网站和数据。")) }
             Section { Button(L10n.tr("恢复默认入口")) { settings.shortcutIDs = CampusShortcut.defaults } }
         }.navigationTitle(L10n.tr("管理常用入口")).navigationBarTitleDisplayMode(.inline)
+            .scrollContentBackground(.hidden).background(Theme.pageBackground)
+    }
+}
+
+struct LearningSettingsView: View {
+    var body: some View {
+        List {
+            NavigationLink { TimetableSettingsView() } label: { SettingsLabel(L10n.tr("课表"), symbol: "calendar") }
+            NavigationLink { MoodleLayoutSettingsView(embedded: true) } label: { SettingsLabel(L10n.tr("Moodle 布局"), symbol: "square.grid.2x2") }
+        }.navigationTitle(L10n.tr("学习与课表")).navigationBarTitleDisplayMode(.inline)
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
     }
 }

@@ -30,6 +30,7 @@ struct MoodleTabView: View {
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
     @State private var path = NavigationPath()
+    @State private var navigationEpoch = UUID()
 
     var body: some View {
         let _ = nativeLocale.identifier
@@ -44,7 +45,7 @@ struct MoodleTabView: View {
             app.prepareMoodleAutoLogin()
             consumePendingURL()
         }
-        .onChange(of: app.pendingMoodleURL) { _, _ in consumePendingURL() }
+        .onChange(of: app.pendingWebRoute) { _, _ in consumePendingURL() }
     }
 
     private var native: some View {
@@ -54,7 +55,7 @@ struct MoodleTabView: View {
                 .navigationBarTitleDisplayMode(.large)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button { refresh() } label: {
+                        Button { refresh(force: true) } label: {
                             Image(systemName: "arrow.clockwise")
                         }
                         .accessibilityLabel(L10n.tr("刷新 Moodle"))
@@ -68,25 +69,30 @@ struct MoodleTabView: View {
                     }
                 }
         }
+        .id(navigationEpoch)
         .onChange(of: path.count) { _, count in
             if count == 0 { refresh() }
+        }
+        .onChange(of: app.tabReselectToken) { _, _ in
+            if app.tabReselectTarget == .learning { path = NavigationPath(); navigationEpoch = UUID() }
         }
     }
 
     private func open(_ destination: MoodleDestination) {
+        Haptics.light()
         path.append(destination)
     }
 
-    private func refresh() {
-        app.upcoming.refresh(browser: app.browser(for: .moodle), force: true) {
-            !app.lock.isLocked && app.lock.isActive && !app.isClearingData
-        }
+    private func refresh(force: Bool = false) {
+        app.refreshMoodleSummary(force: force)
     }
 
     private func consumePendingURL() {
-        guard let url = app.pendingMoodleURL else { return }
-        app.pendingMoodleURL = nil
-        path.append(MoodleDestination(title: "Moodle", url: url))
+        guard settings.nativeMoodleEnabled, let route = app.pendingWebRoute, route.site == .moodle else { return }
+        app.pendingWebRoute = nil
+        path = NavigationPath()
+        navigationEpoch = UUID()
+        path.append(MoodleDestination(title: route.title, url: route.url))
     }
 }
 
@@ -112,6 +118,7 @@ struct MoodleHomeView: View {
     @ObservedObject var store: MoodleUpcomingStore
     @ObservedObject var timetable: LocalTimetableStore
     @State private var showLayout = false
+    @State private var showImport = false
     let open: (MoodleDestination) -> Void
 
     private var upcoming: [MoodleWork] {
@@ -151,6 +158,7 @@ struct MoodleHomeView: View {
                 .accessibilityLabel(L10n.tr("Moodle 布局"))
             }
         }
+        .sheet(isPresented: $showImport) { TimetableImportView(automatic: true) }
         .sheet(isPresented: $showLayout) {
             MoodleLayoutSettingsView()
                 .environmentObject(settings)
@@ -201,7 +209,7 @@ struct MoodleHomeView: View {
                         }.buttonStyle(CardPressStyle())
                     }
                     if upcoming.count > 5 {
-                        Button { open(MoodleDestination(title: L10n.tr("Moodle 临近日程"), url: URL(string: "https://moodle.gtiit.edu.cn/moodle/calendar/view.php?view=upcoming")!)) } label: {
+                        NavigationLink { MoodleUpcomingView(store: store) } label: {
                             Label(L10n.format("查看全部 %@ 项", String(upcoming.count)), systemImage: "arrow.up.right")
                                 .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity, minHeight: 44)
                         }.foregroundStyle(Theme.accent)
@@ -213,10 +221,8 @@ struct MoodleHomeView: View {
 
     private var emptyUpcoming: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label(store.loginRequired ? L10n.tr("需要登录 Moodle") : L10n.tr("暂无近期事项"), systemImage: store.loginRequired ? "person.crop.circle.badge.exclamationmark" : "checkmark.circle")
+            Label(store.status.title, systemImage: store.loginRequired ? "person.crop.circle.badge.exclamationmark" : "checkmark.circle")
                 .font(.headline).foregroundStyle(store.loginRequired ? Theme.orange : Theme.accent)
-            Text(store.loginRequired ? L10n.tr("打开官方 Moodle 完成登录，返回后这里会自动更新。") : L10n.tr("连接 Moodle 后查看近期作业与测验。"))
-                .font(.subheadline).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             Button { open(MoodleDestination(title: L10n.tr("Moodle 登录"), url: URL(string: "https://moodle.gtiit.edu.cn/moodle/my/")!)) } label: {
                 Label(store.loginRequired ? L10n.tr("打开 Moodle 登录") : L10n.tr("打开 Moodle"), systemImage: "arrow.up.right")
                     .font(.subheadline.weight(.semibold)).frame(minHeight: 44)
@@ -256,35 +262,8 @@ struct MoodleHomeView: View {
             .sorted { $0.id < $1.id }
     }
 
-    private func normalizedName(_ value: String) -> String {
-        let stripped = value.lowercased()
-            .replacingOccurrences(of: "\\b(winter|spring|summer|autumn|fall)\\b", with: "", options: .regularExpression)
-            .replacingOccurrences(of: "\\b20\\d{2}\\b", with: "", options: .regularExpression)
-        return stripped.unicodeScalars.filter { CharacterSet.alphanumerics.contains($0) }.map(String.init).joined()
-    }
-
-    private func normalizedCode(_ value: String) -> String {
-        value.lowercased().unicodeScalars.filter { CharacterSet.alphanumerics.contains($0) }.map(String.init).joined()
-    }
-
     private func matchesTimetable(_ course: MoodleCourse) -> Bool {
-        let schedule = timetable.snapshot?.courses ?? []
-        guard !schedule.isEmpty else { return false }
-        let codes = Set(schedule.map { normalizedCode($0.code) }.filter { !$0.isEmpty })
-        let names = schedule.map { normalizedName($0.name) }.filter { !$0.isEmpty }
-        let rawCandidates = [course.shortname, course.name].compactMap { $0 }
-        let tokens = rawCandidates.flatMap { $0.components(separatedBy: CharacterSet.alphanumerics.inverted) }
-        let numericCodes = tokens.filter { $0.count >= 3 && $0.allSatisfy(\.isNumber) }
-        let courseCodes = (rawCandidates + [course.courseNumber ?? ""] + numericCodes)
-            .map(normalizedCode).filter { !$0.isEmpty }
-        if courseCodes.contains(where: { codes.contains($0) }) { return true }
-        let courseNames = [course.displayName, course.name, course.shortname].compactMap { $0 }.map(normalizedName).filter { $0.count >= 4 }
-        for name in courseNames {
-            if names.contains(where: { candidate in
-                candidate == name || (candidate.count >= 5 && name.count >= 5 && (candidate.contains(name) || name.contains(candidate)))
-            }) { return true }
-        }
-        return false
+        settings.followedMoodleCourseIDs.contains(course.id) || course.matches(timetable.snapshot)
     }
 
     private var historyCourses: [MoodleCourse] {
@@ -298,8 +277,14 @@ struct MoodleHomeView: View {
                 sectionTitle(L10n.tr("当前课程"), symbol: "book.closed.fill")
                 Text(currentTermLabel).font(.caption.weight(.medium)).foregroundStyle(.secondary)
             }
+            if timetable.snapshot == nil {
+                Button { showImport = true } label: {
+                    Label(L10n.tr("从门户导入课表"), systemImage: "calendar.badge.plus")
+                        .frame(minHeight: 44)
+                }.buttonStyle(.borderedProminent)
+            }
             if syncedCurrentCourses.isEmpty {
-                Text(L10n.tr("导入课表后，这里只显示课表上的课程。"))
+                Text(L10n.tr(timetable.snapshot == nil ? "导入课表后显示当前课程" : "可在其他课程中关注课程"))
                     .font(.subheadline).foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading).padding(16).cardBackground()
             } else {
@@ -312,6 +297,13 @@ struct MoodleHomeView: View {
                         } label: {
                             courseCard(course)
                         }.buttonStyle(CardPressStyle())
+                        .contextMenu {
+                            Button(settings.followedMoodleCourseIDs.contains(course.id) ? L10n.tr("取消关注课程") : L10n.tr("关注课程"), systemImage: "star") {
+                                if settings.followedMoodleCourseIDs.contains(course.id) { settings.followedMoodleCourseIDs.remove(course.id) }
+                                else { settings.followedMoodleCourseIDs.insert(course.id) }
+                                Haptics.selection()
+                            }
+                        }
                     }
                 }
             }
@@ -319,8 +311,21 @@ struct MoodleHomeView: View {
     }
 
     private var otherCoursesSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            sectionTitle(L10n.tr("其他课程"), symbol: "square.grid.2x2.fill")
+        NavigationLink {
+            ScrollView {
+                otherCourseGrid.padding(20)
+            }.background(Theme.pageBackground)
+                .navigationTitle(L10n.tr("其他课程")).navigationBarTitleDisplayMode(.inline)
+        } label: {
+            HStack {
+                Label(L10n.tr("其他课程"), systemImage: "square.grid.2x2")
+                Spacer()
+                Text(String(otherCourses.count)).foregroundStyle(.secondary)
+                Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
+            }.padding(18).cardBackground()
+        }.buttonStyle(CardPressStyle())
+    }
+    private var otherCourseGrid: some View {
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(otherCourses.sorted { $0.name < $1.name }) { course in
                     Button {
@@ -330,9 +335,15 @@ struct MoodleHomeView: View {
                     } label: {
                         courseCard(course)
                     }.buttonStyle(CardPressStyle())
+                        .contextMenu {
+                            Button(settings.followedMoodleCourseIDs.contains(course.id) ? L10n.tr("取消关注课程") : L10n.tr("关注课程"), systemImage: "star") {
+                                if settings.followedMoodleCourseIDs.contains(course.id) { settings.followedMoodleCourseIDs.remove(course.id) }
+                                else { settings.followedMoodleCourseIDs.insert(course.id) }
+                                Haptics.selection()
+                            }
+                        }
                 }
             }
-        }
     }
 
     private var historyCoursesSection: some View {
@@ -399,8 +410,20 @@ struct MoodleHomeView: View {
     // MARK: Tools
 
     private var tools: some View {
+        NavigationLink {
+            ScrollView { toolGrid.padding(20) }
+                .background(Theme.pageBackground).navigationTitle(L10n.tr("Moodle 工具"))
+                .navigationBarTitleDisplayMode(.inline)
+        } label: {
+            HStack {
+                Label(L10n.tr("Moodle 工具"), systemImage: "square.grid.2x2")
+                Spacer()
+                Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
+            }.padding(18).cardBackground()
+        }.buttonStyle(CardPressStyle())
+    }
+    private var toolGrid: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionTitle(L10n.tr("Moodle 工具"), symbol: "square.grid.2x2")
             LazyVGrid(columns: columns, spacing: 10) {
                 ForEach(MoodleDirectory.tools) { tool in
                     Button { open(MoodleDestination(title: tool.title, url: tool.url)) } label: {
@@ -427,9 +450,7 @@ struct MoodleHomeView: View {
 
     private func refreshIfNeeded() {
         guard !store.refreshing else { return }
-        store.refresh(browser: app.browser(for: .moodle)) {
-            !app.lock.isLocked && app.lock.isActive && !app.isClearingData
-        }
+        app.refreshMoodleSummary()
     }
 }
 
@@ -615,8 +636,11 @@ struct MoodleLayoutSettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var editMode: EditMode = .inactive
 
+    var embedded = false
     var body: some View {
-        NavigationStack {
+        if embedded { form } else { NavigationStack { form } }
+    }
+    private var form: some View {
             List {
                 Section {
                     ForEach(settings.moodleSectionOrder, id: \.self) { raw in
@@ -652,41 +676,19 @@ struct MoodleLayoutSettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { EditButton() }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(L10n.tr("完成")) { dismiss() }
+                if !embedded {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(L10n.tr("完成")) { dismiss() }
+                    }
                 }
             }
-        }
     }
 }
 
 struct MoodleCoursePageView: View {
-    @EnvironmentObject private var app: AppModel
-    @Environment(\.colorScheme) private var colorScheme
     let title: String
     let url: URL
-
     var body: some View {
-        WebViewContainer(model: app.browser(for: .moodle), inlineTitle: true)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .onAppear {
-                    let browser = app.browser(for: .moodle)
-                    browser.webView.allowsBackForwardNavigationGestures = false
-                    WebAppearance.setMoodleCourseChrome(hidden: true, on: browser.webView, pageHex: Theme.pageHex(for: colorScheme))
-                    if browser.webView.url?.absoluteString != url.absoluteString {
-                        browser.load(url)
-                    }
-                }
-                .onChange(of: colorScheme) { _, scheme in
-                    WebAppearance.setMoodleCourseChrome(hidden: true, on: app.browser(for: .moodle).webView, pageHex: Theme.pageHex(for: scheme))
-                }
-                .onDisappear {
-                    let browser = app.browser(for: .moodle)
-                    browser.webView.allowsBackForwardNavigationGestures = true
-                    WebAppearance.setMoodleCourseChrome(hidden: false, on: browser.webView)
-                }
-                .background(Theme.pageBackground)
-                .navigationTitle(title)
-                .navigationBarTitleDisplayMode(.inline)
+        NativeWebPageView(site: .moodle, title: title, url: url, courseChrome: true)
     }
 }

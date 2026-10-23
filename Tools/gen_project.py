@@ -20,6 +20,8 @@ DEPLOYMENT_TARGET = "17.0"
 
 def development_team() -> str:
     """签名团队：优先环境变量 DEVELOPMENT_TEAM，其次 Tools/signing.env 里的同名行。"""
+    if os.environ.get("GTIIT_UNSIGNED") == "1":
+        return ""
     team = os.environ.get("DEVELOPMENT_TEAM", "").strip()
     if team:
         return team

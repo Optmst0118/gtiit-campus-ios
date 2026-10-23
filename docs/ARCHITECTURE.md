@@ -112,3 +112,16 @@ Tools/version.json owns marketing/prerelease/build values. widget_project.py aug
 CampusProximity uses WGS84 centroids (OSM ways 536680356 and 1313755916), 5 km nearest-center radius, 300 m maximum reported accuracy, 120 s maximum fix age and an ambiguity margin. The foreground CLLocationManager shell never persists locations. Recommendations select an offered direction without changing saved preferences or starting activities until tapped. Direction and language are carried by optional Activity attributes so older activity data remains decodable.
 
 ShuttleReminderPlan is the pure date/identifier/authorization policy. Notifications use the campus Gregorian Asia/Shanghai calendar. Reconciliation preserves explicitly chosen per-notification lead times, removes invalid teaching-week requests and refreshes content language/privacy. No BGAppRefresh or remote backend is required for already queued local reminders. Live Activity expiry is best-effort while app execution is available; staleDate provides an out-of-date state, not a guarantee of background termination.
+
+
+## alpha.36: routes, cache and view ownership
+
+CampusWebRoute is the single payload for native Moodle/booking destinations. AppModel.openWeb handles summaries, shortcuts and cross-site GET routing. Each native tab consumes only its own route and resets its navigation stack on reselect. NativeWebPageView records its entry history item, loads only once per route, returns through owned web history, then pops the native page; edited content gets a leave confirmation.
+
+MoodleUpcomingStore owns a session generation token, 30-minute successful summary TTL, short failed-attempt backoff and 6-hour course-directory cache. Production refresh triggers go through AppModel.refreshMoodleSummary. The same-origin adapter prioritizes matched/followed courses, keeps active unpaired courses, and reuses confirmed submitted or distant assignment details for at most six hours. Logout clears courses and work together. A successful login enables a fresh scan. A single MoodleAutoLogin owns SSO restoration; LaunchPreparation only observes readiness.
+
+All four primary WebViews still load concurrently. Only secondary summary work waits for prewarming to settle. Do not replace this with phased four-site loading without a new user request.
+
+Widget service calendar and direction are explicitly configurable without App Groups. Shared language is used only when a valid shared container exists. ShuttleTimelinePolicy generates departure boundaries ahead of time, including expiry of a location suggestion; no vehicle arrival is inferred.
+
+LocalDiagnostics stores only current-process aggregate event counts and system diagnostic-report counts in memory. OSLog contains event categories and counts, never URL query strings or webpage/account content. The displayed view-ready duration is an application marker, not a measured OS first-draw metric.

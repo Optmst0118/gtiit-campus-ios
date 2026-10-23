@@ -9,10 +9,7 @@ import WebKit
 final class AppModel: ObservableObject {
     @Published var selectedTab: AppTab = .portal
     @Published var bookingSegment: BookingSegment = .rooms
-    /// Booking shortcuts target an exact official page; the native booking home
-    /// picks this up and presents it in the in-app web sheet.
-    @Published var pendingBookingLink: QuickLink?
-    @Published var pendingMoodleURL: URL?
+    @Published var pendingWebRoute: CampusWebRoute?
     @Published var visitedTabs: Set<AppTab> = [.portal]
     @Published var toastText: String?
     @Published var showWelcome = false
@@ -42,8 +39,8 @@ final class AppModel: ObservableObject {
     private var appearanceSubscription: AnyCancellable?
     private var launchSubscription: AnyCancellable?
     private var didScheduleSummaryWarmup = false
-    private var didScheduleMoodleAutoLogin = false
     private var moodleAutoLoginStarted = false
+    private var refreshAfterMoodleLogin = false
 
     private var browsers: [SiteID: BrowserModel] = [:]
     private var toastTask: Task<Void, Never>?
@@ -93,6 +90,15 @@ final class AppModel: ObservableObject {
         }
     }
 
+    func refreshMoodleSummary(force: Bool = false) {
+        upcoming.priorityCourseIDs = Set(upcoming.courseItems.filter { $0.matches(timetable.snapshot) }.map(\.id))
+            .union(settings.followedMoodleCourseIDs)
+        upcoming.refresh(browser: browser(for: .moodle), force: force) { [weak self] in
+            guard let self else { return false }
+            return !self.lock.isLocked && self.lock.isActive && !self.isClearingData
+        }
+    }
+
     private func warmUpCampusSummaries() {
         let allowed: () -> Bool = { [weak self] in
             guard let self else { return false }
@@ -101,7 +107,7 @@ final class AppModel: ObservableObject {
         // Moodle's lightweight on-device summary starts first. The exam probe
         // uses a second hidden WebView, so give it a separate slot instead of
         // competing with the first portal/Moodle paint.
-        upcoming.refresh(browser: browser(for: .moodle), allowed: allowed)
+        refreshMoodleSummary()
         Task { @MainActor [weak self] in
             try? await Task.sleep(for: .milliseconds(200))
             guard let self, allowed() else { return }
@@ -111,9 +117,9 @@ final class AppModel: ObservableObject {
 
     func prepareLaunchIfAllowed() {
         guard settings.hasSeenWelcome, !showWelcome, !lock.isLocked, lock.isActive else { return }
-        scheduleMoodleAutoLoginIfNeeded()
         guard settings.preloadSitesOnLaunch else { launch.skip(); return }
         guard !launch.hasStarted, !launch.didFinish else { return }
+        prepareMoodleAutoLogin()
         // Load all four real WebKit hosts in parallel behind the visible UI.
         // There is no launch overlay: first paint and page warming are independent.
         launch.start(models: SiteID.allCases.map { browser(for: $0) }, canRestoreSession: { [weak self] in
@@ -132,28 +138,16 @@ final class AppModel: ObservableObject {
         }
     }
 
-    private func scheduleMoodleAutoLoginIfNeeded() {
-        guard !didScheduleMoodleAutoLogin else { return }
-        didScheduleMoodleAutoLogin = true
-        Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(1_200))
-            guard let self else { return }
-            guard !self.lock.isLocked, self.lock.isActive, !self.isClearingData else {
-                self.didScheduleMoodleAutoLogin = false
-                return
-            }
-            let hasSession = await WebDataStoreRegistry.shared.hasStoredData(for: .moodle)
-            guard hasSession else { return }
-            self.prepareMoodleAutoLogin()
-        }
-    }
-
     private func scheduleSummaryWarmupIfNeeded() {
         guard !didScheduleSummaryWarmup, settings.preloadSitesOnLaunch else { return }
         didScheduleSummaryWarmup = true
         Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(250))
-            guard let self, !self.lock.isLocked, self.lock.isActive, !self.isClearingData else { return }
+            guard let self else { return }
+            while self.launch.isPreparing {
+                try? await Task.sleep(for: .milliseconds(250))
+                guard !Task.isCancelled else { return }
+            }
+            guard !self.lock.isLocked, self.lock.isActive, !self.isClearingData else { return }
             self.warmUpCampusSummaries()
         }
     }
@@ -189,9 +183,9 @@ final class AppModel: ObservableObject {
         case .portal:
             browser(for: .portal).loadHome()
         case .learning:
-            browser(for: .moodle).loadHome()
+            if !settings.nativeMoodleEnabled { browser(for: .moodle).loadHome() }
         case .booking:
-            browser(for: bookingSegment.site).loadHome()
+            if !settings.nativeBookingEnabled { browser(for: bookingSegment.site).loadHome() }
         case .shuttle, .me:
             break
         }
@@ -206,12 +200,8 @@ final class AppModel: ObservableObject {
 
     func openSite(_ site: SiteID) {
         guard !isClearingData else { return }
-        switchTo(site)
-        let browser = self.browser(for: site)
-        if browser.webView.url == nil {
-            browser.loadHome()
-        }
-        toast(L10n.format("已打开「%@」", String(describing: site.displayName)))
+        openWeb(site.homeURL, site: site)
+
     }
 
     func open(_ link: QuickLink) {
@@ -219,15 +209,19 @@ final class AppModel: ObservableObject {
             toast(L10n.tr("链接无效"))
             return
         }
-        switchTo(link.site)
-        if link.site == .moodle, settings.nativeMoodleEnabled {
-            pendingMoodleURL = url
-        } else if (link.site == .rooms || link.site == .sports), settings.nativeBookingEnabled {
-            pendingBookingLink = link
-        } else {
-            browser(for: link.site).load(url)
-        }
-        toast(L10n.format("正在打开「%@」", String(describing: link.title)))
+        openWeb(url, site: link.site, title: link.title)
+    }
+
+    /// One entry point for shortcuts, summaries and cross-site links.
+    func openWeb(_ url: URL, site: SiteID, title: String? = nil) {
+        guard !isClearingData, !lock.isLocked, url.scheme == "https",
+              SiteID.site(for: url) == site else { return }
+        Haptics.light()
+        switchTo(site)
+        if (site == .moodle && settings.nativeMoodleEnabled) ||
+            ((site == .rooms || site == .sports) && settings.nativeBookingEnabled) {
+            pendingWebRoute = CampusWebRoute(site: site, url: url, title: title ?? site.displayName)
+        } else { browser(for: site).load(url) }
     }
 
     // MARK: - 轻提示
@@ -254,7 +248,7 @@ final class AppModel: ObservableObject {
         guard !isClearingData else { return }
         isClearingData = true
         defer { isClearingData = false }
-        if site == .moodle { upcoming.cancel(clear: true) }
+        if site == .moodle { upcoming.cancel(clear: true); moodleAutoLogin.reset(); moodleAutoLoginStarted = false; pendingWebRoute = nil; settings.followedMoodleCourseIDs = [] }
         if site == .portal { exams.cancel(clear: true) }
         downloads.invalidateSession(for: site)
         if let browser = browsers[site], !(await browser.prepareForDataClear()) {
@@ -278,6 +272,7 @@ final class AppModel: ObservableObject {
         isClearingData = true
         defer { isClearingData = false }
         upcoming.cancel(clear: true)
+        moodleAutoLogin.reset(); moodleAutoLoginStarted = false; pendingWebRoute = nil; settings.followedMoodleCourseIDs = []
         exams.cancel(clear: true)
         var prepared: [BrowserModel] = []
         for site in SiteID.allCases {
@@ -328,8 +323,15 @@ extension AppModel: BrowserRouter {
         settings.remember(url, for: site)
         if site == .portal && (url.host != site.host || url.path.contains("login") || url.path.contains("logout")) { exams.cancel(clear: true) }
         if site == .moodle {
-            if url.path.contains("/login/") || url.path.contains("/auth/") { upcoming.cancel(clear: true) }
-
+            if url.path.contains("/login/") {
+                upcoming.cancel(clear: true)
+                settings.followedMoodleCourseIDs = []
+                refreshAfterMoodleLogin = true
+            } else if url.host == SiteID.moodle.host, !url.path.contains("/auth/"), refreshAfterMoodleLogin {
+                refreshAfterMoodleLogin = false
+                upcoming.sessionDidAuthenticate()
+                refreshMoodleSummary()
+            }
         }
     }
     func browserClearData(for site: SiteID) async { await clearData(for: site) }
@@ -343,9 +345,7 @@ extension AppModel: BrowserRouter {
             browserOpenExternal(url: url)
             return
         }
-        switchTo(target)
-        browser(for: target).load(url)
-        toast(L10n.format("已跳转到「%@」", String(describing: target.displayName)))
+        openWeb(url, site: target)
     }
 
     func browserOpenExternal(url: URL) {

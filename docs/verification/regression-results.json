@@ -48,6 +48,31 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "summary_route_targets_visible_native_moodle"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "cross_site_route_uses_native_destination"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_route_rejects_wrong_origin"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_booking_route_preserves_target"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "followed_courses_persist"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "shuttle_reminder_lead_persists"
     },
     {
@@ -648,6 +673,11 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "assignment_detail_preserves_calendar_open_date"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "upcoming_reads_active_course_pages_and_pagination"
     },
     {
@@ -663,6 +693,16 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "cached_course_directory_avoids_repeat_requests"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "submitted_assignment_detail_uses_six_hour_cache"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "upcoming_summary_survives_store_restart"
     },
     {
@@ -674,6 +714,16 @@
       "detail" : "",
       "passed" : true,
       "test" : "upcoming_recent_cache_does_not_trigger_scan"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_course_directory_present_before_clear"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_clear_removes_in_memory_courses"
     },
     {
       "detail" : "",
@@ -991,7 +1041,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 2C422DA4-4F32-4F56-8E75-78A2263F5D3A, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-23 18:09:26 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 41AC887D-7D83-42D9-BF77-0541C203572D, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-23 19:11:14 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1422,8 +1472,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-23T18:09:57Z",
+  "date" : "2026-10-23T19:11:42Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "1c5d4e27-f389-417e-bfbf-aedeaa0f6aa3"
+  "runID" : "b744bb1f-20fa-4197-b000-c59aaad4eb1d"
 }

@@ -7,6 +7,7 @@ struct BookingTabView: View {
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
     @State private var path = NavigationPath()
+    @State private var navigationEpoch = UUID()
 
     var body: some View {
         let _ = nativeLocale.identifier
@@ -20,7 +21,7 @@ struct BookingTabView: View {
             }
         }
         .onAppear { consumePendingLink() }
-        .onChange(of: app.pendingBookingLink) { _, _ in consumePendingLink() }
+        .onChange(of: app.pendingWebRoute) { _, _ in consumePendingLink() }
     }
 
     private var nativeBooking: some View {
@@ -42,23 +43,30 @@ struct BookingTabView: View {
                 ToolbarItem(placement: .topBarLeading) { BookingSiteMenu() }
             }
         }
-        .onChange(of: app.bookingSegment) { _, _ in path = NavigationPath() }
+        .id(navigationEpoch)
+        .onChange(of: app.tabReselectToken) { _, _ in
+            if app.tabReselectTarget == .booking { path = NavigationPath(); navigationEpoch = UUID() }
+        }
     }
 
     private var title: String {
-        app.bookingSegment == .rooms ? "GTIIT Room Booking" : "GTIIT Sports Center"
+        app.bookingSegment == .rooms ? L10n.tr("练习房 / 讨论室") : L10n.tr("体育场馆")
     }
 
     private func open(_ destination: BookingDestination) {
+        Haptics.light()
         path.append(destination)
     }
 
     /// Shortcuts from My/Settings still open the exact official page, now in a
     /// native sheet instead of loading a hidden background WebView.
     private func consumePendingLink() {
-        guard let link = app.pendingBookingLink, let url = link.url else { return }
-        app.pendingBookingLink = nil
-        path.append(BookingDestination(site: link.site, title: link.title, url: url))
+        guard settings.nativeBookingEnabled, let route = app.pendingWebRoute,
+              route.site == .rooms || route.site == .sports else { return }
+        app.pendingWebRoute = nil
+        path = NavigationPath()
+        navigationEpoch = UUID()
+        path.append(BookingDestination(site: route.site, title: route.title, url: route.url))
     }
 }
 
@@ -67,7 +75,10 @@ private struct BookingSiteMenu: View {
 
     var body: some View {
         Menu {
-            Picker(L10n.tr("预约场所"), selection: $app.bookingSegment) {
+            Picker(L10n.tr("预约场所"), selection: Binding(get: { app.bookingSegment }, set: { value in
+                app.bookingSegment = value
+                app.reselect(tab: .booking)
+            })) {
                 ForEach(BookingSegment.allCases) { segment in
                     Label(segment.title, systemImage: segment == .rooms ? "door.left.hand.open" : "sportscourt")
                         .tag(segment)

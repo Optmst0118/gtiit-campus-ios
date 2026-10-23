@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import plistlib
+import platform
 import shutil
 import subprocess
 import sys
@@ -28,7 +29,7 @@ def main():
     app = build / 'Regression.app'; app.mkdir()
     sdk = subprocess.check_output(['xcrun', '--sdk', 'iphonesimulator', '--show-sdk-path'], text=True).strip()
     sources = sorted(str(p) for p in (ROOT/'GTIIT').rglob('*.swift') if p.name != 'GTIITApp.swift')
-    call(['xcrun', 'swiftc', '-D', 'GTIIT_REGRESSION', '-warnings-as-errors', '-sdk', sdk, '-target', 'arm64-apple-ios17.0-simulator', '-module-name', 'Regression', '-parse-as-library', *sources, str(ROOT/'Tests/RegressionHarness.swift'), '-o', str(app/'Regression')])
+    call(['xcrun', 'swiftc', '-D', 'GTIIT_REGRESSION', '-warnings-as-errors', '-sdk', sdk, '-target', platform.machine() + '-apple-ios17.0-simulator', '-module-name', 'Regression', '-parse-as-library', *sources, str(ROOT/'Tests/RegressionHarness.swift'), '-o', str(app/'Regression')])
     (app/'Info.plist').write_bytes(plistlib.dumps({
         'CFBundleIdentifier': BUNDLE, 'CFBundleExecutable': 'Regression', 'CFBundleName': 'Regression',
         'CFBundlePackageType': 'APPL', 'CFBundleVersion': '1', 'CFBundleShortVersionString': '1',

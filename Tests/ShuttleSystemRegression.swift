@@ -32,8 +32,16 @@ import UserNotifications
         check("provisional_schedule", ShuttleReminderPlan.permits(.provisional))
         let tomorrow = ShuttleSchedule.upcoming(.southToNorth, after: ISO8601DateFormatter().date(from: "2026-10-23T23:59:59+08:00")!, teachingWeek: true, limit: 1).first!
         check("rollover_daily", tomorrow.trip.bus == 1 && tomorrow.trip.time == "07:25")
+        let ticks = ShuttleTimelinePolicy.dates(after: now, teachingWeek: true, locationExpiry: now.addingTimeInterval(121))
+        check("widget_timeline_sorted_unique", ticks == Array(Set(ticks)).sorted())
+        check("widget_timeline_starts_now", ticks.first == now)
+        check("widget_updates_after_departure", ticks.contains(departure.date.addingTimeInterval(1)))
+        check("widget_expires_nearby_suggestion", ticks.contains(now.addingTimeInterval(121)))
+        check("widget_timeline_bounded_24h", ticks.allSatisfy { $0 >= now && $0 < now.addingTimeInterval(86400) })
+        let afterDeparture = ShuttleSchedule.upcoming(.southToNorth, after: departure.date.addingTimeInterval(1), teachingWeek: true, limit: 1).first!
+        check("widget_next_bus_advances_after_boundary", afterDeparture.date > departure.date)
         let data = try JSONSerialization.data(withJSONObject: ["passed":checks.values.allSatisfy{$0},"count":checks.count,"checks":checks], options:[.prettyPrinted,.sortedKeys])
-        try data.write(to: URL(fileURLWithPath:"docs/verification/shuttle-system-alpha9.json"))
+        try data.write(to: URL(fileURLWithPath:"docs/verification/shuttle-system-results.json"))
         print("Shuttle system:",checks.count,"passed:",checks.values.allSatisfy{$0},"failed:",checks.filter{!$0.value}.keys)
         if checks.values.contains(false) { exit(1) }
     }

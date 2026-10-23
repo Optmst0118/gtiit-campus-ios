@@ -9,6 +9,7 @@ struct MoodleWork: Codable, Identifiable {
     let status: String
     let source: String
     let kind: String
+    var checkedAt: TimeInterval? = nil
     var id: String { url }
     var isSubmitted: Bool { status == "submitted" }
     var dueDate: Date? { due.map { Date(timeIntervalSince1970: $0) } }
@@ -37,6 +38,7 @@ struct MoodleCourse: Codable, Identifiable, Hashable {
     let shortname: String?
     let category: String?
     let term: String?
+    var active: Bool? = nil
     var displayName: String {
         var value = name
         value = value.replacingOccurrences(
@@ -91,4 +93,23 @@ struct MoodleUpcomingResult: Decodable {
     let checked: Int
     let failed: Int
     let courseList: [MoodleCourse]?
+    let directoryRefreshed: Bool?
+}
+
+
+extension MoodleCourse {
+    func matches(_ snapshot: TimetableSnapshot?) -> Bool {
+        guard let courses = snapshot?.courses, !courses.isEmpty else { return false }
+        func code(_ s: String) -> String { s.lowercased().filter { $0.isLetter || $0.isNumber } }
+        func name(_ s: String) -> String {
+            code(s.lowercased().replacingOccurrences(of: "\\b(winter|spring|summer|autumn|fall|20\\d{2})\\b", with: "", options: .regularExpression))
+        }
+        let codes = Set(courses.map { code($0.code) }.filter { !$0.isEmpty })
+        if let number = courseNumber, codes.contains(code(number)) { return true }
+        let candidates = [displayName, self.name, shortname ?? ""].map(name).filter { $0.count >= 4 }
+        return courses.contains { course in
+            let value = name(course.name)
+            return !value.isEmpty && candidates.contains { $0 == value || (value.count >= 5 && $0.count >= 5 && ($0.contains(value) || value.contains($0))) }
+        }
+    }
 }

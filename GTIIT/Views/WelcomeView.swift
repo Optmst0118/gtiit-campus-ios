@@ -139,8 +139,8 @@ struct WelcomeView: View {
     }
 
     private var privacy: some View {
-        pageLayout(index: 3, symbol: "lock.shield.fill", title: L10n.tr("边界与隐私"),
-                   subtitle: L10n.tr("非官方客户端；只做入口，不代填、不代提交。")) {
+        pageLayout(index: 3, symbol: "lock.shield.fill", title: L10n.tr("隐私与数据"),
+                   subtitle: L10n.tr("管理你的本地数据与登录设置。")) {
             VStack(alignment: .leading, spacing: 16) {
                 Label(L10n.tr("这是非官方客户端"), systemImage: "exclamationmark.shield.fill")
                     .font(.subheadline.weight(.semibold)).foregroundStyle(.orange)
@@ -153,7 +153,7 @@ struct WelcomeView: View {
                         HStack(alignment: .top, spacing: 8) {
                             Image(systemName: hasConfirmed ? "checkmark.circle.fill" : "circle")
                                 .font(.system(size: 18)).foregroundStyle(hasConfirmed ? Theme.accent : Color.secondary)
-                            Text(L10n.tr("我已阅读并了解：本应用不是学校官方应用，仅作为官方网页入口，不采集数据、不代填、不代提交。"))
+                            Text(L10n.tr("我已了解应用与隐私说明。"))
                                 .font(.caption).foregroundStyle(.secondary)
                                 .multilineTextAlignment(.leading).fixedSize(horizontal: false, vertical: true)
                         }.contentShape(Rectangle())
