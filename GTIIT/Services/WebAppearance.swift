@@ -92,7 +92,7 @@ import WebKit
 
     /// Course detail pages supply their own native title; strip Moodle's site chrome
     /// while keeping the course content and activity controls intact.
-    static func setMoodleCourseChrome(hidden: Bool, on webView: WKWebView) {
+    static func setMoodleCourseChrome(hidden: Bool, on webView: WKWebView, pageHex: String = "#f2f7fa") {
         let source = courseChromeMarker + """
         (() => {
             const id = 'gtiit-moodle-course-chrome';
@@ -102,7 +102,7 @@ import WebKit
                 style.id = id;
                 (document.head || document.documentElement).appendChild(style);
             }
-            style.textContent = 'nav.navbar, .navbar, #page-navbar, .breadcrumb, .drawer, .drawer-toggles, #page-header, #page-footer, .secondary-navigation, .tertiary-navigation, .page-context-header, .activity-header { display: none !important; } body, #page-wrapper, #page { padding-top: 0 !important; margin-top: 0 !important; }';
+            style.textContent = 'nav.navbar, .navbar, #page-navbar, .breadcrumb, .drawer, .drawer-toggles, #page-header, #page-footer, .secondary-navigation, .tertiary-navigation, .page-context-header, .activity-header { display: none !important; } body, #page-wrapper, #page { padding-top: 0 !important; margin-top: 0 !important; } html, body, #page, #page-wrapper, #page-content, #region-main, .course-content, .main-inner, .course-content-item, .coursebox { background-color: \(pageHex) !important; }';
         })();
         """
         let controller = webView.configuration.userContentController

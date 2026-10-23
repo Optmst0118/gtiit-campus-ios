@@ -685,6 +685,7 @@ struct MoodleWebPageView: View {
 
 struct MoodleCoursePageView: View {
     @EnvironmentObject private var app: AppModel
+    @Environment(\.colorScheme) private var colorScheme
     let title: String
     let url: URL
 
@@ -694,10 +695,22 @@ struct MoodleCoursePageView: View {
                 .onAppear {
                     let browser = app.browser(for: .moodle)
                     browser.webView.allowsBackForwardNavigationGestures = false
-                    WebAppearance.setMoodleCourseChrome(hidden: true, on: browser.webView)
+                    WebAppearance.setMoodleCourseChrome(hidden: true, on: browser.webView, pageHex: Theme.pageHex(for: colorScheme))
+                    browser.webView.scrollView.setContentOffset(.zero, animated: false)
                     if browser.webView.url?.absoluteString != url.absoluteString {
                         browser.load(url)
                     }
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .milliseconds(80))
+                        browser.webView.scrollView.setContentOffset(.zero, animated: false)
+                        WebViewHostController.resetForCourse(browser.webView)
+                        try? await Task.sleep(for: .milliseconds(350))
+                        browser.webView.scrollView.setContentOffset(.zero, animated: false)
+                        WebViewHostController.resetForCourse(browser.webView)
+                    }
+                }
+                .onChange(of: colorScheme) { _, scheme in
+                    WebAppearance.setMoodleCourseChrome(hidden: true, on: app.browser(for: .moodle).webView, pageHex: Theme.pageHex(for: scheme))
                 }
                 .onDisappear {
                     let browser = app.browser(for: .moodle)

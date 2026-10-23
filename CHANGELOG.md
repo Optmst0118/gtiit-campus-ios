@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.20] - 2026-10-23
+
+### Fixed
+
+- Course-page web content now uses the same page background as the app in light and dark mode, instead of a white Moodle canvas.
+- Course pages reset their native scroll offset when pushed, so they start with the large left title rather than an inline collapsed title.
+
+### Changed
+
+- Course web chrome CSS now also paints Moodle page containers with the app background colour.
+
 ## [2.0.0-alpha.19] - 2026-10-23
 
 ### Changed

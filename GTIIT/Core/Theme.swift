@@ -23,6 +23,9 @@ enum Theme {
             : UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1)
     }
     static let pageBackground = Color(uiColor: pageUIColor)
+    static func pageHex(for scheme: ColorScheme) -> String {
+        scheme == .dark ? "#0e141c" : "#f2f7fa"
+    }
     static let cardBackground = Color(uiColor: .secondarySystemGroupedBackground)
 
     /// Let the system own the navigation surface again: transparent at the top

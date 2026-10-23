@@ -52,6 +52,15 @@ final class WebViewHostController: UIViewController {
     private var homeObserver: NSObjectProtocol?
     private lazy var scrollMessages = NavigationScrollMessages(owner: self)
     private static let navigationOwners = NSMapTable<WKWebView, WebViewHostController>(keyOptions: .weakMemory, valueOptions: .weakMemory)
+    static func resetForCourse(_ webView: WKWebView) {
+        navigationOwners.object(forKey: webView)?.resetNavigationForCourse()
+    }
+    private func resetNavigationForCourse() {
+        innerScrollOffset = 0
+        navigationScrollView.setContentOffset(.zero, animated: false)
+        navigationController?.navigationBar.sizeToFit()
+        navigationController?.navigationBar.setNeedsLayout()
+    }
     private static let scrollHandler = "gtiitNavigationScroll"
     private static let scrollScript = """
         /* GTIIT_NAVIGATION_SCROLL */
