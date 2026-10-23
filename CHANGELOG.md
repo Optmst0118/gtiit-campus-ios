@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.18] - 2026-10-23
+
+### Changed
+
+- Course detail pages now show the native course name followed by the official course content, with Moodle site chrome (navbar, drawer, breadcrumb, page header, footer) hidden.
+- Pushed Moodle pages disable WKWebView history gestures, so a back swipe pops the native page instead of moving through web history.
+
 ## [2.0.0-alpha.17] - 2026-10-23
 
 ### Changed

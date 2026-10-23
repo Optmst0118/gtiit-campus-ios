@@ -59,7 +59,7 @@ struct MoodleTabView: View {
                 }
                 .navigationDestination(for: MoodleDestination.self) { destination in
                     if destination.kind == .course {
-                        MoodleCoursePageView(title: destination.title)
+                        MoodleCoursePageView(title: destination.title, url: destination.url)
                     } else {
                         MoodleWebPageView(destination: destination)
                     }
@@ -676,24 +676,48 @@ struct MoodleWebPageView: View {
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 let browser = app.browser(for: .moodle)
+                browser.webView.allowsBackForwardNavigationGestures = false
+                WebAppearance.setMoodleCourseChrome(hidden: false, on: browser.webView)
                 if browser.webView.url?.absoluteString != destination.url.absoluteString {
                     browser.load(destination.url)
                 }
+            }
+            .onDisappear {
+                app.browser(for: .moodle).webView.allowsBackForwardNavigationGestures = true
             }
     }
 }
 
 struct MoodleCoursePageView: View {
+    @EnvironmentObject private var app: AppModel
     let title: String
+    let url: URL
 
     var body: some View {
-        VStack {
-            Spacer(minLength: 20)
+        VStack(spacing: 0) {
             Text(title)
-                .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 30)
-            Spacer(minLength: 20)
+                .font(.system(.title2, design: .rounded, weight: .bold))
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
+                .padding(.bottom, 8)
+
+            WebViewContainer(model: app.browser(for: .moodle))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .onAppear {
+                    let browser = app.browser(for: .moodle)
+                    browser.webView.allowsBackForwardNavigationGestures = false
+                    WebAppearance.setMoodleCourseChrome(hidden: true, on: browser.webView)
+                    if browser.webView.url?.absoluteString != url.absoluteString {
+                        browser.load(url)
+                    }
+                }
+                .onDisappear {
+                    let browser = app.browser(for: .moodle)
+                    browser.webView.allowsBackForwardNavigationGestures = true
+                    WebAppearance.setMoodleCourseChrome(hidden: false, on: browser.webView)
+                }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.pageBackground)

@@ -198,3 +198,11 @@ Moodle Tab
 - 课程卡进入 name-only 的课程页：只显示课程名称，不显示网页标题栏或 Moodle chrome。
 - 作业、日历、工具等官方页面也改为 push 的 web 详情页，不再从下往上弹 sheet。
 - 历史课程仍是原生 push 页面，历史课程卡再 push 到 name-only 课程页。
+
+
+## 14. 课程详情内容（alpha.18）
+
+- 课程详情页顶部由原生代码显示课程名称，下面嵌入官方课程内容。
+- 注入 CSS 隐藏 Moodle navbar、drawer、breadcrumb、page header/footer 等站点 chrome；课程内容区保留。
+- 页面使用 NavigationStack push，关闭 WKWebView 的 back/forward 手势，边缘滑动返回上一级原生页面，而不是网页历史。
+- 名称下方的实际课程内容仍来自学校官方 Moodle 页面。

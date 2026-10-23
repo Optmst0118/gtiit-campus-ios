@@ -87,4 +87,32 @@ import WebKit
         install(on: webView.configuration, enabled: enabled)
         webView.evaluateJavaScript("globalThis.__gtiitAppearance?.setEnabled(\(enabled ? "true" : "false"))", in: nil, in: world) { _ in }
     }
+
+    private static let courseChromeMarker = "/* GTIIT_MOODLE_COURSE_CHROME */"
+
+    /// Course detail pages supply their own native title; strip Moodle's site chrome
+    /// while keeping the course content and activity controls intact.
+    static func setMoodleCourseChrome(hidden: Bool, on webView: WKWebView) {
+        let source = courseChromeMarker + """
+        (() => {
+            const id = 'gtiit-moodle-course-chrome';
+            let style = document.getElementById(id);
+            if (!style) {
+                style = document.createElement('style');
+                style.id = id;
+                (document.head || document.documentElement).appendChild(style);
+            }
+            style.textContent = 'nav.navbar, .navbar, #page-navbar, .breadcrumb, .drawer, .drawer-toggles, #page-header, #page-footer, .secondary-navigation, .tertiary-navigation, .page-context-header, .activity-header { display: none !important; } body, #page-wrapper, #page { padding-top: 0 !important; margin-top: 0 !important; }';
+        })();
+        """
+        let controller = webView.configuration.userContentController
+        let other = controller.userScripts.filter { !$0.source.hasPrefix(courseChromeMarker) }
+        controller.removeAllUserScripts()
+        other.forEach(controller.addUserScript)
+        if hidden {
+            controller.addUserScript(WKUserScript(source: source, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: world))
+        }
+        let immediate = hidden ? source : "document.getElementById('gtiit-moodle-course-chrome')?.remove();"
+        webView.evaluateJavaScript(immediate, in: nil, in: world) { _ in }
+    }
 }
