@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.17] - 2026-10-23
+
+### Changed
+
+- Moodle cards now use native navigation push (right-to-left page transition), not a bottom sheet.
+- Course cards push a native course page that shows only the course name; no web title bar or Moodle chrome.
+- Assignment, calendar and tool cards push a native web page with a standard back button instead of presenting a sheet.
+- History remains a pushed native page; course cards inside it push the same name-only course page.
+
 ## [2.0.0-alpha.16] - 2026-10-23
 
 ### Added

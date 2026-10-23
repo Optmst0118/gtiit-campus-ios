@@ -190,3 +190,11 @@ Moodle Tab
 - 首页“历史课程”入口显示归档课程数量，点击进入原生二级页。
 - 二级页读取完整 Moodle course list（包括 2024/2025 等旧课程），按学期倒序分组，每门课程一个卡片。
 - 点击课程卡片打开 official course/view.php?id= 页面；右上角个人主页按钮打开 /moodle/my/。
+
+
+## 13. 原生的左右层级（alpha.17）
+
+- Moodle 卡片统一使用 NavigationStack push，页面从右向左进入。
+- 课程卡进入 name-only 的课程页：只显示课程名称，不显示网页标题栏或 Moodle chrome。
+- 作业、日历、工具等官方页面也改为 push 的 web 详情页，不再从下往上弹 sheet。
+- 历史课程仍是原生 push 页面，历史课程卡再 push 到 name-only 课程页。

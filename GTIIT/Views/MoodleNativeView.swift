@@ -29,7 +29,7 @@ struct MoodleTabView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
-    @State private var official: MoodleDestination?
+    @State private var path = NavigationPath()
 
     var body: some View {
         let _ = nativeLocale.identifier
@@ -40,16 +40,12 @@ struct MoodleTabView: View {
                 SiteBrowserView(site: .moodle)
             }
         }
-        .sheet(item: $official, onDismiss: { refresh() }) { destination in
-            MoodleOfficialSheet(destination: destination)
-                .environmentObject(app)
-        }
         .onAppear { consumePendingURL() }
         .onChange(of: app.pendingMoodleURL) { _, _ in consumePendingURL() }
     }
 
     private var native: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             MoodleHomeView(store: app.upcoming, timetable: app.timetable, open: open)
                 .navigationTitle("Moodle")
                 .navigationBarTitleDisplayMode(.large)
@@ -61,11 +57,21 @@ struct MoodleTabView: View {
                         .accessibilityLabel(L10n.tr("刷新 Moodle"))
                     }
                 }
+                .navigationDestination(for: MoodleDestination.self) { destination in
+                    if destination.kind == .course {
+                        MoodleCoursePageView(title: destination.title)
+                    } else {
+                        MoodleWebPageView(destination: destination)
+                    }
+                }
+        }
+        .onChange(of: path.count) { _, count in
+            if count == 0 { refresh() }
         }
     }
 
     private func open(_ destination: MoodleDestination) {
-        official = destination
+        path.append(destination)
     }
 
     private func refresh() {
@@ -77,14 +83,22 @@ struct MoodleTabView: View {
     private func consumePendingURL() {
         guard let url = app.pendingMoodleURL else { return }
         app.pendingMoodleURL = nil
-        official = MoodleDestination(title: "Moodle", url: url)
+        path.append(MoodleDestination(title: "Moodle", url: url))
     }
 }
 
-struct MoodleDestination: Identifiable {
+struct MoodleDestination: Identifiable, Hashable {
+    enum Kind: Hashable { case course, web }
     let id = UUID()
     let title: String
     let url: URL
+    var kind: Kind = .web
+
+    init(title: String, url: URL, kind: Kind = .web) {
+        self.title = title
+        self.url = url
+        self.kind = kind
+    }
 }
 
 struct MoodleHomeView: View {
@@ -314,7 +328,7 @@ struct MoodleHomeView: View {
                     ForEach(syncedCurrentCourses) { course in
                         Button {
                             if let url = course.url {
-                                open(MoodleDestination(title: course.name, url: url))
+                                open(MoodleDestination(title: course.name, url: url, kind: .course))
                             }
                         } label: {
                             courseCard(course)
@@ -335,7 +349,7 @@ struct MoodleHomeView: View {
                         ForEach(group.courses) { course in
                             Button {
                                 if let url = course.url {
-                                    open(MoodleDestination(title: course.name, url: url))
+                                    open(MoodleDestination(title: course.name, url: url, kind: .course))
                                 }
                             } label: {
                                 courseCard(course)
@@ -351,7 +365,7 @@ struct MoodleHomeView: View {
         VStack(alignment: .leading, spacing: 12) {
             sectionTitle(L10n.tr("历史课程"), symbol: "clock.arrow.circlepath")
             NavigationLink {
-                MoodleHistoryView(store: store)
+                MoodleHistoryView(store: store, open: open)
             } label: {
                 HStack(spacing: 14) {
                     Image(systemName: "clock.arrow.circlepath")
@@ -490,10 +504,9 @@ enum MoodleDirectory {
 }
 
 struct MoodleHistoryView: View {
-    @EnvironmentObject private var app: AppModel
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @ObservedObject var store: MoodleUpcomingStore
-    @State private var official: MoodleDestination?
+    let open: (MoodleDestination) -> Void
 
     private var currentTermLabel: String {
         let term = MoodleUpcomingStore.currentTerm()
@@ -523,7 +536,7 @@ struct MoodleHistoryView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Text(L10n.tr("暂无历史课程")).font(.headline)
                         Button {
-                            official = MoodleDestination(title: L10n.tr("历史课程"), url: URL(string: "https://moodle.gtiit.edu.cn/moodle/my/")!)
+                            open(MoodleDestination(title: L10n.tr("历史课程"), url: URL(string: "https://moodle.gtiit.edu.cn/moodle/my/")!))
                         } label: {
                             Label(L10n.tr("打开 Moodle 个人主页"), systemImage: "arrow.up.right")
                         }.foregroundStyle(Theme.accent)
@@ -541,7 +554,7 @@ struct MoodleHistoryView: View {
                                 ForEach(group.courses) { course in
                                     Button {
                                         if let url = course.url {
-                                            official = MoodleDestination(title: course.name, url: url)
+                                            open(MoodleDestination(title: course.name, url: url, kind: .course))
                                         }
                                     } label: {
                                         historyCard(course)
@@ -562,16 +575,12 @@ struct MoodleHistoryView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    official = MoodleDestination(title: L10n.tr("历史课程"), url: URL(string: "https://moodle.gtiit.edu.cn/moodle/my/")!)
+                    open(MoodleDestination(title: L10n.tr("历史课程"), url: URL(string: "https://moodle.gtiit.edu.cn/moodle/my/")!))
                 } label: {
                     Image(systemName: "person.crop.circle")
                 }
                 .accessibilityLabel(L10n.tr("打开 Moodle 个人主页"))
             }
-        }
-        .sheet(item: $official) { destination in
-            MoodleOfficialSheet(destination: destination)
-                .environmentObject(app)
         }
     }
 
@@ -657,27 +666,38 @@ struct MoodleLayoutSettingsView: View {
     }
 }
 
-private struct MoodleOfficialSheet: View {
+struct MoodleWebPageView: View {
     @EnvironmentObject private var app: AppModel
-    @Environment(\.dismiss) private var dismiss
     let destination: MoodleDestination
 
     var body: some View {
-        NavigationStack {
-            WebViewContainer(model: app.browser(for: .moodle))
-                .navigationTitle(destination.title)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button(L10n.tr("完成")) { dismiss() }
-                    }
+        WebViewContainer(model: app.browser(for: .moodle))
+            .navigationTitle(destination.title)
+            .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                let browser = app.browser(for: .moodle)
+                if browser.webView.url?.absoluteString != destination.url.absoluteString {
+                    browser.load(destination.url)
                 }
-                .onAppear {
-                    let browser = app.browser(for: .moodle)
-                    if browser.webView.url?.absoluteString != destination.url.absoluteString {
-                        browser.load(destination.url)
-                    }
-                }
+            }
+    }
+}
+
+struct MoodleCoursePageView: View {
+    let title: String
+
+    var body: some View {
+        VStack {
+            Spacer(minLength: 20)
+            Text(title)
+                .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 30)
+            Spacer(minLength: 20)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.pageBackground)
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
