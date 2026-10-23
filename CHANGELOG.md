@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.32] - 2026-10-24
+
+### Changed
+
+- Welcome content is now vertically centered with a 540pt centered column, larger header icon, 28pt section spacing, roomier cards and footer padding.
+- Welcome page transitions now include haptic feedback (selection), with a success haptic on completion.
+- Student portal web pages use the same light/dark canvas as Learning, including the React root and nested main scroller.
+
+### Fixed
+
+- Numeric course codes are preferred when matching Moodle courses to the imported timetable, so Creative Introduction-type courses land in Current courses.
+
 ## [2.0.0-alpha.31] - 2026-10-24
 
 ### Fixed

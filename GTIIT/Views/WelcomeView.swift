@@ -38,8 +38,8 @@ struct WelcomeView: View {
     }
 
     private var hero: some View {
-        VStack(spacing: 28) {
-            Spacer(minLength: 28)
+        VStack(spacing: 32) {
+            Spacer(minLength: 32)
             ZStack {
                 Circle().fill(Theme.accent.opacity(0.08)).frame(width: 190, height: 190)
                 Circle().fill(Theme.accent.opacity(0.13)).frame(width: 148, height: 148)
@@ -58,18 +58,18 @@ struct WelcomeView: View {
                     .font(.subheadline).foregroundStyle(.tertiary)
                     .multilineTextAlignment(.center)
             }
-            HStack(spacing: 14) {
+            HStack(spacing: 18) {
                 ForEach(SiteID.allCases) { site in
                     Image(systemName: site.symbol)
                         .font(.system(size: 15, weight: .semibold)).foregroundStyle(.white)
-                        .frame(width: 36, height: 36)
+                        .frame(width: 38, height: 38)
                         .background(site.tint, in: RoundedRectangle(cornerRadius: 11, style: .continuous))
                 }
             }
-            Spacer(minLength: 28)
+            Spacer(minLength: 32)
         }
-        .padding(.horizontal, 28)
-        .frame(maxWidth: 560)
+        .padding(.horizontal, 32)
+        .frame(maxWidth: 540)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .topTrailing) {
             if !settings.hasSeenWelcome && page < pageCount - 1 {
@@ -82,9 +82,9 @@ struct WelcomeView: View {
     private var sites: some View {
         pageLayout(symbol: "square.grid.2x2.fill", title: L10n.tr("四个校园入口"),
                    subtitle: L10n.tr("门户、Moodle、预约与体育中心，各自独立登录、独立清除。")) {
-            VStack(spacing: 10) {
+            VStack(spacing: 14) {
                 ForEach(SiteID.allCases) { site in
-                    HStack(spacing: 14) {
+                    HStack(spacing: 16) {
                         Image(systemName: site.symbol)
                             .font(.system(size: 18, weight: .semibold)).foregroundStyle(.white)
                             .frame(width: 42, height: 42)
@@ -95,8 +95,8 @@ struct WelcomeView: View {
                         }
                         Spacer(minLength: 0)
                     }
-                    .padding(14)
-                    .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .padding(16)
+                    .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 }
             }
         }
@@ -105,7 +105,7 @@ struct WelcomeView: View {
     private var tools: some View {
         pageLayout(symbol: "sparkles", title: L10n.tr("更顺手的校园工具"),
                    subtitle: L10n.tr("原生入口、班车倒计时与本地文件，都围绕同一个校园。")) {
-            VStack(spacing: 10) {
+            VStack(spacing: 14) {
                 featureRow("door.left.hand.open", Theme.accent, L10n.tr("原生预约目录"),
                            L10n.tr("练习房、学生中心和活动室按用途整理，直接进入官方预约表单。"))
                 featureRow("bus.fill", Theme.orange, L10n.tr("班车倒计时"),
@@ -119,7 +119,7 @@ struct WelcomeView: View {
     private var privacy: some View {
         pageLayout(symbol: "lock.shield.fill", title: L10n.tr("边界与隐私"),
                    subtitle: L10n.tr("非官方客户端；只做入口，不代填、不代提交。")) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 16) {
                 Label(L10n.tr("这是非官方客户端"), systemImage: "exclamationmark.shield.fill")
                     .font(.subheadline.weight(.semibold)).foregroundStyle(.orange)
                 Text(L10n.tr("本应用由学生个人开发，非广东以色列理工学院官方应用。登录与网页数据仅保存在本机，开发者不采集、不上传；选课、申请、预约等业务请在官方网页内确认并提交。"))
@@ -144,39 +144,41 @@ struct WelcomeView: View {
 
     private func pageLayout<Content: View>(symbol: String, title: String, subtitle: String,
                                            @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 22) {
-            HStack(spacing: 16) {
+        VStack(spacing: 28) {
+            Spacer(minLength: 16)
+            VStack(spacing: 16) {
                 Image(systemName: symbol)
-                    .font(.system(size: 30, weight: .semibold)).foregroundStyle(Theme.accent)
-                    .frame(width: 68, height: 68)
-                    .background(Theme.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .font(.system(size: 31, weight: .semibold)).foregroundStyle(Theme.accent)
+                    .frame(width: 72, height: 72)
+                    .background(Theme.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 21, style: .continuous))
                     .symbolEffect(.bounce, value: page)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title).font(.title2.weight(.bold))
+                VStack(spacing: 8) {
+                    Text(title).font(.title2.weight(.bold)).multilineTextAlignment(.center)
                     Text(subtitle).font(.subheadline).foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
             content()
-            Spacer(minLength: 0)
+            Spacer(minLength: 16)
         }
-        .padding(.horizontal, 28).padding(.top, 32).padding(.bottom, 24)
-        .frame(maxWidth: 560, alignment: .leading)
-        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.horizontal, 32).padding(.vertical, 28)
+        .frame(maxWidth: 540)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func featureRow(_ symbol: String, _ tint: Color, _ title: String, _ detail: String) -> some View {
-        HStack(alignment: .top, spacing: 14) {
+        HStack(alignment: .top, spacing: 16) {
             Image(systemName: symbol).font(.system(size: 18, weight: .semibold)).foregroundStyle(tint)
-                .frame(width: 42, height: 42)
-                .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
-            VStack(alignment: .leading, spacing: 3) {
+                .frame(width: 44, height: 44)
+                .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            VStack(alignment: .leading, spacing: 4) {
                 Text(title).font(.headline)
                 Text(detail).font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
         }
-        .padding(14).background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .padding(18).background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     private var footer: some View {
@@ -206,7 +208,7 @@ struct WelcomeView: View {
                 .disabled(page == pageCount - 1 && !hasConfirmed && !settings.hasSeenWelcome)
             }
         }
-        .padding(.horizontal, 28).padding(.top, 16).padding(.bottom, 16)
+        .padding(.horizontal, 32).padding(.top, 18).padding(.bottom, 20)
         .frame(maxWidth: 560)
         .frame(maxWidth: .infinity)
         .background(Theme.pageBackground.overlay(alignment: .top) { Divider() })
