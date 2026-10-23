@@ -31,10 +31,20 @@ struct MoodleWork: Codable, Identifiable {
         return u.url
     }
 }
+struct MoodleCourse: Codable, Identifiable, Hashable {
+    let id: Int
+    let name: String
+    let term: String?
+    var url: URL? {
+        guard id > 0 else { return nil }
+        return URL(string: "https://moodle.gtiit.edu.cn/moodle/course/view.php?id=\(id)")
+    }
+}
 struct MoodleUpcomingResult: Decodable {
     let loginRequired: Bool
     let items: [MoodleWork]
     let courses: Int
     let checked: Int
     let failed: Int
+    let courseList: [MoodleCourse]?
 }

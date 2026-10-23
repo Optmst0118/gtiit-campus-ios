@@ -107,6 +107,12 @@ enum DownloadRetention: String, SettingChoice {
     @Published var prefillLoginEmail: Bool {
         didSet { defaults.set(prefillLoginEmail, forKey: "settings.prefillLoginEmail") }
     }
+    @Published var moodleSectionOrder: [String] {
+        didSet { defaults.set(moodleSectionOrder, forKey: "settings.moodleSectionOrder") }
+    }
+    @Published var moodleHiddenSections: Set<String> {
+        didSet { defaults.set(moodleHiddenSections.sorted(), forKey: "settings.moodleHiddenSections") }
+    }
     @Published var shuttleTeachingWeek: Bool {
         didSet {
             defaults.set(shuttleTeachingWeek, forKey: "settings.shuttleTeachingWeek")
@@ -177,6 +183,10 @@ enum DownloadRetention: String, SettingChoice {
         nativeMoodleEnabled = defaults.object(forKey: "settings.nativeMoodleEnabled") as? Bool ?? true
         loginEmail = defaults.string(forKey: "settings.loginEmail") ?? ""
         prefillLoginEmail = defaults.object(forKey: "settings.prefillLoginEmail") as? Bool ?? true
+        let storedSections = defaults.stringArray(forKey: "settings.moodleSectionOrder") ?? ["recent", "courses", "tools"]
+        let allSections = ["recent", "courses", "tools"]
+        moodleSectionOrder = storedSections.filter(allSections.contains) + allSections.filter { !storedSections.contains($0) }
+        moodleHiddenSections = Set((defaults.stringArray(forKey: "settings.moodleHiddenSections") ?? []).filter(allSections.contains))
         shuttleTeachingWeek = defaults.object(forKey: "settings.shuttleTeachingWeek") as? Bool ?? true
         favoriteShuttleDirection = ShuttleDirection(rawValue: defaults.string(forKey: "settings.shuttleFavoriteDirection") ?? "")
             ?? ShuttleDirection(rawValue: AppGroup.defaults.string(forKey: AppGroup.Key.favoriteDirection) ?? "")

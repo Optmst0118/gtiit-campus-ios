@@ -11,6 +11,7 @@ import WebKit
     @Published private(set) var error = false
     @Published private(set) var checked = 0
     @Published private(set) var courses = 0
+    @Published private(set) var courseItems: [MoodleCourse] = []
     static let refreshInterval: TimeInterval = 30 * 60
     private struct Cache: Codable {
         let version: Int
@@ -20,6 +21,7 @@ import WebKit
         let partial: Bool
         let checked: Int
         let courses: Int
+        let courseList: [MoodleCourse]?
     }
     private let cacheURL: URL
     private var attemptedAt: Date?
@@ -28,9 +30,10 @@ import WebKit
             .appendingPathComponent("MoodleUpcoming", isDirectory: true)
         cacheURL = root.appendingPathComponent("summary.json")
         guard let data = try? Data(contentsOf: cacheURL), data.count < 1_000_000,
-              let cache = try? JSONDecoder().decode(Cache.self, from: data), cache.version == 1, cache.term == Self.termKey(),
+              let cache = try? JSONDecoder().decode(Cache.self, from: data), cache.version == 2, cache.term == Self.termKey(),
               cache.updatedAt <= Date(), Date().timeIntervalSince(cache.updatedAt) < 7 * 86400 else { return }
         items = cache.items.filter { MoodleWork.safeURL($0.url) != nil }
+        courseItems = cache.courseList ?? []
         updatedAt = cache.updatedAt; partial = cache.partial; checked = cache.checked; courses = cache.courses
     }
     static func currentTerm(now: Date = Date()) -> (year: Int, season: String) {
@@ -52,6 +55,7 @@ import WebKit
         guard !result.loginRequired else { cancel(clear: true); loginRequired = true; return }
         items = result.items.filter { MoodleWork.safeURL($0.url) != nil }
         checked = result.checked; courses = result.courses
+        courseItems = result.courseList ?? []
         partial = result.failed > 0 || result.checked < result.courses
         updatedAt = date; attemptedAt = date
         persist()
@@ -63,7 +67,7 @@ import WebKit
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [.protectionKey: FileProtectionType.complete])
             var values = URLResourceValues(); values.isExcludedFromBackup = true
             try folder.setResourceValues(values)
-            let cache = Cache(version: 1, term: Self.termKey(), items: items, updatedAt: updatedAt, partial: partial, checked: checked, courses: courses)
+            let cache = Cache(version: 2, term: Self.termKey(), items: items, updatedAt: updatedAt, partial: partial, checked: checked, courses: courses, courseList: courseItems)
             try JSONEncoder().encode(cache).write(to: cacheURL, options: [.atomic, .completeFileProtection])
         } catch { /* Retain the current in-memory summary if local storage is unavailable. */ }
     }

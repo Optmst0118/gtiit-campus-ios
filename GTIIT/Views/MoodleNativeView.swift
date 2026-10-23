@@ -1,5 +1,24 @@
 import SwiftUI
 
+enum MoodleSection: String, CaseIterable, Identifiable {
+    case recent, courses, tools
+    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .recent: return L10n.tr("临近日程")
+        case .courses: return L10n.tr("课程")
+        case .tools: return L10n.tr("Moodle 工具")
+        }
+    }
+    var symbol: String {
+        switch self {
+        case .recent: return "calendar.day.timeline.left"
+        case .courses: return "book.closed"
+        case .tools: return "square.grid.2x2"
+        }
+    }
+}
+
 /// Native Moodle home: a clear dashboard around the official course workspace.
 /// Content and submission stay on the official Moodle pages.
 struct MoodleTabView: View {
@@ -68,7 +87,9 @@ struct MoodleHomeView: View {
     @Environment(\.locale) private var nativeLocale
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @EnvironmentObject private var app: AppModel
+    @EnvironmentObject private var settings: AppSettings
     @ObservedObject var store: MoodleUpcomingStore
+    @State private var showLayout = false
     let open: (MoodleDestination) -> Void
 
     private var upcoming: [MoodleWork] {
@@ -86,10 +107,9 @@ struct MoodleHomeView: View {
             VStack(alignment: .leading, spacing: 22) {
                 header
                 stats
-                dashboard
-                courses
-                tools
-                footer
+                ForEach(visibleSections) { section in
+                    sectionView(section)
+                }
             }
             .padding(.horizontal, horizontalSizeClass == .regular ? 28 : 20)
             .padding(.top, 8)
@@ -98,6 +118,22 @@ struct MoodleHomeView: View {
             .frame(maxWidth: .infinity)
         }
         .background(Theme.pageBackground)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button { showLayout = true } label: {
+                        Label(L10n.tr("编辑 Moodle 布局"), systemImage: "slider.horizontal.3")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+                .accessibilityLabel(L10n.tr("Moodle 布局"))
+            }
+        }
+        .sheet(isPresented: $showLayout) {
+            MoodleLayoutSettingsView()
+                .environmentObject(settings)
+        }
         .task { refreshIfNeeded() }
         .onChange(of: app.lock.isLocked) { _, locked in if !locked { refreshIfNeeded() } }
     }
@@ -119,7 +155,7 @@ struct MoodleHomeView: View {
                 .font(.caption.weight(.semibold)).tracking(1.4).foregroundStyle(Theme.accent)
             Text(L10n.tr("你的 Moodle 工作台"))
                 .font(.title2.weight(.bold))
-            Text(L10n.tr("课程、作业、测验、日历与消息集中在这里；打开官方页面继续学习。"))
+            Text(L10n.tr("课程、作业、测验与消息。"))
                 .font(.subheadline).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -156,6 +192,21 @@ struct MoodleHomeView: View {
         .padding(13)
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardBackground(corner: 16)
+    }
+
+    private var visibleSections: [MoodleSection] {
+        let ordered = settings.moodleSectionOrder.compactMap(MoodleSection.init(rawValue:))
+        let missing = MoodleSection.allCases.filter { !ordered.contains($0) }
+        return (ordered + missing).filter { !settings.moodleHiddenSections.contains($0.rawValue) }
+    }
+
+    @ViewBuilder
+    private func sectionView(_ section: MoodleSection) -> some View {
+        switch section {
+        case .recent: dashboard
+        case .courses: courses
+        case .tools: tools
+        }
     }
 
     // MARK: Dashboard
@@ -205,10 +256,29 @@ struct MoodleHomeView: View {
     private var courses: some View {
         VStack(alignment: .leading, spacing: 12) {
             sectionTitle(L10n.tr("课程"), symbol: "book.closed")
-            if courseGroups.isEmpty {
+            if store.courseItems.isEmpty && courseGroups.isEmpty {
                 Text(L10n.tr("登录后可查看课程与活动。"))
                     .font(.subheadline).foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading).padding(16).cardBackground()
+            } else if !store.courseItems.isEmpty {
+                ForEach(termGroups) { group in
+                    VStack(alignment: .leading, spacing: 8) {
+                        if let term = group.term {
+                            Text(term).font(.caption.weight(.semibold)).foregroundStyle(Theme.accent).padding(.leading, 2)
+                        }
+                        LazyVGrid(columns: columns, spacing: 12) {
+                            ForEach(group.courses) { course in
+                                Button {
+                                    if let url = course.url {
+                                        open(MoodleDestination(title: course.name, url: url))
+                                    }
+                                } label: {
+                                    courseCard(course)
+                                }.buttonStyle(CardPressStyle())
+                            }
+                        }
+                    }
+                }
             } else {
                 LazyVGrid(columns: columns, spacing: 12) {
                     ForEach(courseGroups) { group in
@@ -231,6 +301,20 @@ struct MoodleHomeView: View {
         }
     }
 
+    private func courseCard(_ course: MoodleCourse) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "book.closed.fill").foregroundStyle(Theme.accent)
+                .frame(width: 38, height: 38).background(Theme.accent.opacity(0.11), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(course.name).font(.subheadline.weight(.semibold)).foregroundStyle(.primary).lineLimit(2)
+                Text(course.term ?? L10n.tr("当前学期")).font(.caption).foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 4)
+            Image(systemName: "arrow.up.right").font(.caption).foregroundStyle(.tertiary)
+        }
+        .padding(15).frame(maxWidth: .infinity, minHeight: 86, alignment: .leading).cardBackground(corner: 16)
+    }
+
     private struct CourseGroup: Identifiable {
         let id: String
         let name: String
@@ -241,6 +325,20 @@ struct MoodleHomeView: View {
         Dictionary(grouping: upcoming, by: \.course)
             .map { CourseGroup(id: $0.key, name: $0.key, count: $0.value.count) }
             .sorted { $0.name < $1.name }
+    }
+
+    private struct TermGroup: Identifiable {
+        let id: String
+        let term: String?
+        let courses: [MoodleCourse]
+    }
+
+    private var termGroups: [TermGroup] {
+        let groups = Dictionary(grouping: store.courseItems, by: { $0.term })
+        return groups.map { term, courses in
+            TermGroup(id: term ?? "current", term: term, courses: courses.sorted { $0.name < $1.name })
+        }
+        .sorted { ($0.term ?? "") < ($1.term ?? "") }
     }
 
     // MARK: Tools
@@ -266,19 +364,6 @@ struct MoodleHomeView: View {
                 }
             }
         }
-    }
-
-    private var footer: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            if let updated = store.updatedAt {
-                Text(L10n.format("最近更新：%@", updated.formatted(date: .abbreviated, time: .shortened)))
-            } else if store.refreshing {
-                Text(L10n.tr("正在连接 Moodle…"))
-            }
-            Text(L10n.tr("课程内容、作业提交、测验与成绩以 Moodle 官方页面为准。"))
-        }
-        .font(.caption).foregroundStyle(.tertiary)
-        .fixedSize(horizontal: false, vertical: true)
     }
 
     private func sectionTitle(_ title: String, symbol: String) -> some View {
@@ -345,6 +430,56 @@ enum MoodleDirectory {
     private static func tool(_ id: String, _ title: String, _ subtitle: String, _ symbol: String,
                              _ tint: Color, _ url: String) -> MoodleTool {
         MoodleTool(id: id, title: title, subtitle: subtitle, symbol: symbol, tint: tint, url: URL(string: url)!)
+    }
+}
+
+struct MoodleLayoutSettingsView: View {
+    @EnvironmentObject private var settings: AppSettings
+    @Environment(\.dismiss) private var dismiss
+    @State private var editMode: EditMode = .inactive
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    ForEach(settings.moodleSectionOrder, id: \.self) { raw in
+                        if let section = MoodleSection(rawValue: raw) {
+                            Toggle(isOn: Binding(
+                                get: { !settings.moodleHiddenSections.contains(raw) },
+                                set: { visible in
+                                    if visible { settings.moodleHiddenSections.remove(raw) }
+                                    else { settings.moodleHiddenSections.insert(raw) }
+                                }
+                            )) {
+                                Label(section.title, systemImage: section.symbol)
+                            }
+                        }
+                    }
+                    .onMove { source, destination in
+                        settings.moodleSectionOrder.move(fromOffsets: source, toOffset: destination)
+                    }
+                } header: {
+                    Text(L10n.tr("显示的内容"))
+                } footer: {
+                    Text(L10n.tr("拖动排序；关闭开关即可收起对应内容。"))
+                }
+                Section {
+                    Button(L10n.tr("恢复默认布局")) {
+                        settings.moodleSectionOrder = ["recent", "courses", "tools"]
+                        settings.moodleHiddenSections = []
+                    }
+                }
+            }
+            .environment(\.editMode, $editMode)
+            .navigationTitle(L10n.tr("Moodle 布局"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { EditButton() }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(L10n.tr("完成")) { dismiss() }
+                }
+            }
+        }
     }
 }
 

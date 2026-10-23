@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.12] - 2026-10-23
+
+### Fixed
+
+- Moodle course list now includes explicit terms from the current year onward (Winter 2026, Spring 2027 and later), instead of only courses that had an upcoming assignment.
+- Course cards open the exact course/view.php?id= URL rather than returning to the dashboard.
+- Explicit term labels are trusted over stale Moodle end dates, so Winter 2026 courses with old end dates remain visible.
+- Removed defensive captions from the Moodle native surface.
+
+### Added
+
+- Moodle layout editor: reorder or hide 临近日程, 课程 and Moodle 工具, with a default-layout reset.
+- Moodle course cards are grouped by term and sorted chronologically (Winter before Spring before Summer).
+
 ## [2.0.0-alpha.11] - 2026-10-23
 
 ### Added

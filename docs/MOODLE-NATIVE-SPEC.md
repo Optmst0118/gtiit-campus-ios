@@ -148,3 +148,12 @@ Moodle Tab
 - [ ] Dynamic Type 最大字号不截断关键按钮；
 - [ ] 深色模式下渐变、卡片、文字对比度正常；
 - [ ] 旧版网页开关可用。
+
+
+## 8. 2026-10 补充规则
+
+- 课程列表来自 Moodle 的完整课程清单，不再只来自有近期作业的课程。
+- 带显式学期标签的课程按年份纳入：当前年份及其后的 Winter / Spring / Summer 都显示（例如 Winter 2026、Spring 2027）；不再因为课程 enddate 过期而隐藏。
+- 课程按学期分组并按 Winter → Spring → Summer、年份升序排序。
+- 课程卡片打开 course/view.php?id=课程 ID，而不是 dashboard。
+- 首页的临近日程、课程、Moodle 工具支持拖动排序和选择性隐藏；布局保存在本机，可恢复默认。

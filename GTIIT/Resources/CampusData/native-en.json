@@ -808,5 +808,12 @@
   "私密文件": "Private files",
   "个人文件与上传": "Personal files and uploads",
   "徽章": "Badges",
-  "我的徽章": "My badges"
+  "我的徽章": "My badges",
+  "Moodle 布局": "Moodle layout",
+  "当前学期": "Current term",
+  "恢复默认布局": "Restore default layout",
+  "拖动排序；关闭开关即可收起对应内容。": "Drag to reorder; turn a switch off to hide that section.",
+  "显示的内容": "Visible sections",
+  "编辑 Moodle 布局": "Edit Moodle layout",
+  "课程、作业、测验与消息。": "Courses, assignments, quizzes and messages."
 }

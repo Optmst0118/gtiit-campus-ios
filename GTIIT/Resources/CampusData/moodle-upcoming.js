@@ -55,13 +55,30 @@ const campusNow = new Date(now*1000 + 8*3600000);
 const month = campusNow.getUTCMonth()+1;
 const year = typeof termYear === 'number' ? termYear : campusNow.getUTCFullYear()-(month<3?1:0);
 const season = typeof termSeason === 'string' ? termSeason.toLowerCase() : (month<3||month>=10?'winter':month<7?'spring':'summer');
-const currentCourse = c => {
+const seasonRank={winter:0,spring:1,summer:2};
+const courseTerms = c => {
  const label=clean([c.fullname,c.shortname,c.coursecategory].join(' ')).toLowerCase();
- const terms=[...label.matchAll(/(20\d{2})[\s_/-]*(winter|spring|summer|autumn|fall)/g),
-                ...label.matchAll(/(winter|spring|summer|autumn|fall)[\s_/-]*(20\d{2})/g)].map(m=>({year:+(/20\d{2}/.test(m[1])?m[1]:m[2]),season:(/20\d{2}/.test(m[1])?m[2]:m[1]).replace(/autumn|fall/,'winter')}));
- if(terms.length && !terms.some(t=>t.year===year&&t.season===season))return false;
+ return [...label.matchAll(/(20\d{2})[\s_/-]*(winter|spring|summer|autumn|fall)/g),
+         ...label.matchAll(/(winter|spring|summer|autumn|fall)[\s_/-]*(20\d{2})/g)]
+   .map(m=>({year:+(/20\d{2}/.test(m[1])?m[1]:m[2]),season:(/20\d{2}/.test(m[1])?m[2]:m[1]).replace(/autumn|fall/,'winter')}));
+};
+const courseTerm = c => {
+ const terms=courseTerms(c);
+ if(!terms.length)return null;
+ const t=terms.sort((a,b)=>a.year-b.year||(seasonRank[a.season]??0)-(seasonRank[b.season]??0))[0];
+ return t.season[0].toUpperCase()+t.season.slice(1)+' '+t.year;
+};
+const currentCourse = c => {
+ const terms=courseTerms(c);
+ const currentRank=seasonRank[season]??0;
+ // Keep this term and every later term (e.g. Winter 2026 -> Spring 2027).
+ if(terms.length && !terms.some(t=>t.year>=year))return false;
  if(c.visible===false||c.visible===0)return false;
- if(Number(c.startdate)>now || (Number(c.enddate)>0 && Number(c.enddate)<now))return false;
+ // Explicit term labels are more reliable than teacher-maintained end dates.
+ if(!terms.length) {
+   if(Number(c.startdate)>now+180*86400)return false;
+   if(Number(c.enddate)>0 && Number(c.enddate)<now)return false;
+ }
  return true;
 };
 const map=new Map();let failed=0,checked=0,courseCount=0,courses=[];
@@ -87,7 +104,7 @@ try {
  for(let page=0;page<5;page++){
   const data=await rpc('core_course_get_enrolled_courses_by_timeline_classification',{classification:'inprogress',limit:100,offset,sort:'fullname'});
   if(!Array.isArray(data.courses))throw Error('COURSES_UNAVAILABLE');
-  courses.push(...data.courses.filter(currentCourse).map(c=>({id:Number(c.id),name:clean(c.fullname)})).filter(c=>Number.isSafeInteger(c.id)&&c.id>0));
+  courses.push(...data.courses.filter(currentCourse).map(c=>({id:Number(c.id),name:clean(c.fullname),term:courseTerm(c)})).filter(c=>Number.isSafeInteger(c.id)&&c.id>0));
   if(!data.courses.length || !data.nextoffset || data.nextoffset<=offset)break;
   offset=data.nextoffset;if(page===4)failed++;
  }
@@ -126,5 +143,5 @@ try {
  });
  if(signal.aborted)throw Error('CANCELLED');
  const activeIDs=new Set(courses.map(c=>c.id));
- return JSON.stringify({loginRequired:false,items:[...map.values()].filter(x=>(!x.courseID||activeIDs.has(x.courseID))&&((x.due>=start&&x.due<=end)||(x.opened>=start&&x.opened<=end))).map(({courseID,...item})=>item),courses:courseCount,checked,failed});
+ return JSON.stringify({loginRequired:false,items:[...map.values()].filter(x=>(!x.courseID||activeIDs.has(x.courseID))&&((x.due>=start&&x.due<=end)||(x.opened>=start&&x.opened<=end))).map(({courseID,...item})=>item),courses:courseCount,courseList:courses,checked,failed});
 } finally {clearTimeout(deadline);if(window.__gtiitUpcomingJob===controller)delete window.__gtiitUpcomingJob;}
