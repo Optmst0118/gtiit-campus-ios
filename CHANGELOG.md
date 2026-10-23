@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.11] - 2026-10-23
+
+### Added
+
+- Native Moodle workspace: one dashboard for upcoming work, course groups and every official Moodle tool, with an alpha badge and an optional classic-web switch in Settings.
+- Moodle tool directory covering My courses, timeline, calendar/export, grades, messages, notifications, school timetable, profile, preferences, site home and search.
+- Adaptive Moodle layout: compact single-column on iPhone, max-width adaptive grid and three-column stats on iPad; Dynamic Type and dark-mode colours throughout.
+- docs/MOODLE-NATIVE-SPEC.md with the control inventory, native mapping, data states, constraints and acceptance checklist.
+
+### Changed
+
+- Quick links to Moodle now open the native dashboard and present the requested official page in an in-app sheet.
+- Closing that sheet refreshes the cached Moodle summary so a fresh sign-in is reflected without leaving the tab.
+
 ## [2.0.0-alpha.10] - 2026-10-23
 
 ### Added

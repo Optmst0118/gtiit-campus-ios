@@ -174,7 +174,7 @@ extension RootTabView {
             case .portal:
                 SiteBrowserView(site: .portal)
             case .learning:
-                SiteBrowserView(site: .moodle)
+                MoodleTabView()
             case .booking:
                 BookingTabView()
             case .me:

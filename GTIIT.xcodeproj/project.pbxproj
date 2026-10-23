@@ -59,6 +59,7 @@
 		ED89A1505462C4E57FD89C92 /* LaunchPreloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */; };
 		2B91C1A0D8A5231E97879D2C /* LocalTimetableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FD7E3BAD835CC92FB8D4EB /* LocalTimetableView.swift */; };
 		2083A20EED7A9DA069E3F650 /* LockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FAD011A1658F97414746F9 /* LockScreenView.swift */; };
+		59374B49C8933314B1B20FF8 /* MoodleNativeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C93E1848AA178B0CB63D9B2E /* MoodleNativeView.swift */; };
 		8F4F60D0316481A181D8DD14 /* MoodleUpcomingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF25BB537930B0F24C1B2873 /* MoodleUpcomingView.swift */; };
 		42163D6FEAAEABE45B668B9F /* MyTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AC536C50EC4B48743196A7 /* MyTabView.swift */; };
 		9B5E893ADDF2C6FFE4F53584 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B32A814B9C6172E0E91CE6 /* RootTabView.swift */; };
@@ -137,6 +138,7 @@
 		B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchPreloadView.swift; sourceTree = "<group>"; };
 		17FD7E3BAD835CC92FB8D4EB /* LocalTimetableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalTimetableView.swift; sourceTree = "<group>"; };
 		91FAD011A1658F97414746F9 /* LockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenView.swift; sourceTree = "<group>"; };
+		C93E1848AA178B0CB63D9B2E /* MoodleNativeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodleNativeView.swift; sourceTree = "<group>"; };
 		BF25BB537930B0F24C1B2873 /* MoodleUpcomingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodleUpcomingView.swift; sourceTree = "<group>"; };
 		70AC536C50EC4B48743196A7 /* MyTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTabView.swift; sourceTree = "<group>"; };
 		06B32A814B9C6172E0E91CE6 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
@@ -304,6 +306,7 @@
 				B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */,
 				17FD7E3BAD835CC92FB8D4EB /* LocalTimetableView.swift */,
 				91FAD011A1658F97414746F9 /* LockScreenView.swift */,
+				C93E1848AA178B0CB63D9B2E /* MoodleNativeView.swift */,
 				BF25BB537930B0F24C1B2873 /* MoodleUpcomingView.swift */,
 				70AC536C50EC4B48743196A7 /* MyTabView.swift */,
 				06B32A814B9C6172E0E91CE6 /* RootTabView.swift */,
@@ -465,6 +468,7 @@
 				ED89A1505462C4E57FD89C92 /* in Sources */,
 				2B91C1A0D8A5231E97879D2C /* in Sources */,
 				2083A20EED7A9DA069E3F650 /* in Sources */,
+				59374B49C8933314B1B20FF8 /* in Sources */,
 				8F4F60D0316481A181D8DD14 /* in Sources */,
 				42163D6FEAAEABE45B668B9F /* in Sources */,
 				9B5E893ADDF2C6FFE4F53584 /* in Sources */,
@@ -578,7 +582,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 27;
+				CURRENT_PROJECT_VERSION = 28;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -588,7 +592,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0.0;
-				GTIIT_RELEASE_LABEL = "2.0.0-alpha.10";
+				GTIIT_RELEASE_LABEL = "2.0.0-alpha.11";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -603,7 +607,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 27;
+				CURRENT_PROJECT_VERSION = 28;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -613,7 +617,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0.0;
-				GTIIT_RELEASE_LABEL = "2.0.0-alpha.10";
+				GTIIT_RELEASE_LABEL = "2.0.0-alpha.11";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -784,9 +788,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "27";
+				CURRENT_PROJECT_VERSION = "28";
 				MARKETING_VERSION = "2.0.0";
-				GTIIT_RELEASE_LABEL = "2.0.0-alpha.10";
+				GTIIT_RELEASE_LABEL = "2.0.0-alpha.11";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 			};
@@ -804,9 +808,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "27";
+				CURRENT_PROJECT_VERSION = "28";
 				MARKETING_VERSION = "2.0.0";
-				GTIIT_RELEASE_LABEL = "2.0.0-alpha.10";
+				GTIIT_RELEASE_LABEL = "2.0.0-alpha.11";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 			};

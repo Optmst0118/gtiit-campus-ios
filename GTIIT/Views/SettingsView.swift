@@ -186,6 +186,11 @@ private struct BrowsingSettingsView: View {
             } footer: {
                 Text(L10n.tr("关闭后回到旧版网页预约界面；新版为原生重绘预览，最终预约仍在学校官方页面完成。"))
             }
+            Section {
+                Toggle(L10n.tr("新版 Moodle 界面（Alpha）"), isOn: $settings.nativeMoodleEnabled)
+            } footer: {
+                Text(L10n.tr("关闭后回到旧版 Moodle 网页；新版为原生课程与工具入口，课程内容和提交仍在官方页面完成。"))
+            }
         }.navigationTitle(L10n.tr("网页浏览")).navigationBarTitleDisplayMode(.inline)
     }
 }

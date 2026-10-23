@@ -98,6 +98,9 @@ enum DownloadRetention: String, SettingChoice {
     @Published var nativeBookingEnabled: Bool {
         didSet { defaults.set(nativeBookingEnabled, forKey: "settings.nativeBookingEnabled") }
     }
+    @Published var nativeMoodleEnabled: Bool {
+        didSet { defaults.set(nativeMoodleEnabled, forKey: "settings.nativeMoodleEnabled") }
+    }
     @Published var loginEmail: String {
         didSet { defaults.set(loginEmail, forKey: "settings.loginEmail") }
     }
@@ -171,6 +174,7 @@ enum DownloadRetention: String, SettingChoice {
         originalColorSites = Set((defaults.stringArray(forKey: "settings.originalColorSites") ?? []).compactMap(SiteID.init(rawValue:)))
         preloadSitesOnLaunch = defaults.object(forKey: "settings.preloadSitesOnLaunch") as? Bool ?? true
         nativeBookingEnabled = defaults.object(forKey: "settings.nativeBookingEnabled") as? Bool ?? true
+        nativeMoodleEnabled = defaults.object(forKey: "settings.nativeMoodleEnabled") as? Bool ?? true
         loginEmail = defaults.string(forKey: "settings.loginEmail") ?? ""
         prefillLoginEmail = defaults.object(forKey: "settings.prefillLoginEmail") as? Bool ?? true
         shuttleTeachingWeek = defaults.object(forKey: "settings.shuttleTeachingWeek") as? Bool ?? true

@@ -12,6 +12,7 @@ final class AppModel: ObservableObject {
     /// Booking shortcuts target an exact official page; the native booking home
     /// picks this up and presents it in the in-app web sheet.
     @Published var pendingBookingLink: QuickLink?
+    @Published var pendingMoodleURL: URL?
     @Published var visitedTabs: Set<AppTab> = [.portal]
     @Published var toastText: String?
     @Published var showWelcome = false
@@ -172,7 +173,9 @@ final class AppModel: ObservableObject {
             return
         }
         switchTo(link.site)
-        if (link.site == .rooms || link.site == .sports), settings.nativeBookingEnabled {
+        if link.site == .moodle, settings.nativeMoodleEnabled {
+            pendingMoodleURL = url
+        } else if (link.site == .rooms || link.site == .sports), settings.nativeBookingEnabled {
             pendingBookingLink = link
         } else {
             browser(for: link.site).load(url)
