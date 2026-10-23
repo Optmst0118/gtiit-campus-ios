@@ -199,7 +199,7 @@
             if (element.children.length > 2) continue;
             const text = (element.textContent || '').replace(/\s+/g, ' ').trim();
             if (!text || text.length > 60 || !patterns.some((pattern) => pattern.test(text))) continue;
-            let target = element.closest('.block,[data-block],.card,.dashboard-card,.block-region,.page-actions');
+            let target = element.closest('.block,[data-block],.card,.dashboard-card,.page-actions');
             if (!target) target = element.closest('header,section') || element;
             if (target === document.body) target = element;
             // Remove the node, not just hide it: hiding keeps its text in the
