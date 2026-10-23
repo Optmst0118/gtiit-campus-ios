@@ -465,14 +465,6 @@ enum BookingDirectory {
         RoomCategory(
             id: "discussion-sc", title: L10n.tr("南校区教室"), subtitle: L10n.tr("SC E1/E2 教室"), symbol: "door.left.hand.open",
             rooms: [
-                room(128, "SC E1-402", L10n.tr("小组讨论")),
-                room(129, "SC E1-403", L10n.tr("小组讨论")),
-                room(130, "SC E1-404", L10n.tr("小组讨论")),
-                room(132, "SC E1-405", L10n.tr("小组讨论")),
-                room(133, "SC E1-407", L10n.tr("小组讨论")),
-                room(134, "SC E2-407", L10n.tr("小组讨论")),
-                room(135, "SC E2-408", L10n.tr("小组讨论")),
-                room(136, "SC E2-409", L10n.tr("小组讨论")),
                 room(137, "SC E1-202", L10n.tr("小组讨论")),
                 room(138, "SC E1-203", L10n.tr("小组讨论")),
                 room(139, "SC E1-204", L10n.tr("小组讨论")),

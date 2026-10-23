@@ -59,6 +59,13 @@ import UIKit
         if ProcessInfo.processInfo.environment["UI_REVIEW_EXAMS"] == "1" {
             try? model.exams.accept(semester: "Synthetic semester", items: [StudentExam(course: "Engineering Mathematics", code: "TEST1001", session: "Mid", date: "2026-11-21", time: "09:00", duration: 2, venue: "SC E1-201")])
         }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_WELCOME_FIXTURE"] == "1" {
+            for site in SiteID.allCases {
+                let browser = model.browser(for: site)
+                browser.webView.stopLoading()
+                browser.webView.loadHTMLString("<html><head><meta name='viewport' content='width=device-width, initial-scale=1'></head><body style='font:18px -apple-system;padding:24px'><h1>\(site.displayName)</h1><p>Synthetic signed-in page</p></body></html>", baseURL: site.homeURL)
+            }
+        }
         _app = StateObject(wrappedValue: model)
         let lock = AppLockController(authenticator: PreviewUnavailableAuthenticator())
         lock.lock()
@@ -67,7 +74,9 @@ import UIKit
     var body: some Scene {
         WindowGroup {
             Group {
-                if environment["UI_REVIEW_ACTIVITY"] == "1" {
+                if environment["UI_REVIEW_WELCOME"] == "1" {
+                    WelcomeView().environmentObject(app).environmentObject(settings)
+                } else if environment["UI_REVIEW_ACTIVITY"] == "1" {
                     VStack(spacing: 24) {
                         ForEach(ShuttleDirection.allCases) { direction in
                             ShuttleActivitySummary(attributes: ShuttleActivityAttributes(directionTitle: direction.title,

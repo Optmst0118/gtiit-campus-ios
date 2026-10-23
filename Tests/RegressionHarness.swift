@@ -129,6 +129,20 @@ private final class RetiredViewReference {
         } catch { return "ERROR \(error)" }
     }
     func run() async {
+        let southRooms = BookingDirectory.roomCategories.first { $0.id == "discussion-sc" }?.rooms ?? []
+        check("South Campus omits unavailable rooms 402–409", !southRooms.isEmpty && !southRooms.contains { room in
+            guard let number = Int(room.name.split(separator: "-").last ?? "") else { return false }
+            return (402...409).contains(number)
+        })
+        check("South Campus keeps available 202–205", Set(southRooms.map(\.name)).isSuperset(of: ["SC E1-202", "SC E1-203", "SC E1-204", "SC E1-205"]))
+        check("Welcome permits explicit confirmation on ready campus page", WelcomeLoginPolicy.canConfirm(site: .portal, url: SiteID.portal.homeURL, loaded: true, loading: false, error: nil))
+        check("Welcome blocks confirmation while loading", !WelcomeLoginPolicy.canConfirm(site: .portal, url: SiteID.portal.homeURL, loaded: true, loading: true, error: nil))
+        check("Welcome blocks failed page confirmation", !WelcomeLoginPolicy.canConfirm(site: .portal, url: SiteID.portal.homeURL, loaded: true, loading: false, error: "offline"))
+        check("Welcome blocks unvisited page confirmation", !WelcomeLoginPolicy.canConfirm(site: .portal, url: SiteID.portal.homeURL, loaded: false, loading: false, error: nil))
+        check("Welcome blocks SSO redirect confirmation", !WelcomeLoginPolicy.canConfirm(site: .portal, url: URL(string: "https://login.microsoftonline.com/common/oauth2/authorize"), loaded: true, loading: false, error: nil))
+        check("Welcome blocks Moodle login page confirmation", !WelcomeLoginPolicy.canConfirm(site: .moodle, url: URL(string: "https://moodle.gtiit.edu.cn/moodle/login/index.php"), loaded: true, loading: false, error: nil))
+        check("Welcome blocks another site's confirmation", !WelcomeLoginPolicy.canConfirm(site: .portal, url: SiteID.moodle.homeURL, loaded: true, loading: false, error: nil))
+
         Theme.configureNavigationAppearance()
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "layout" {
             await verifyGlassWebLayout(); finish(); return

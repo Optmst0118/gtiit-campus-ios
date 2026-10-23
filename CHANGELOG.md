@@ -4,6 +4,24 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.34] - 2026-10-24
+
+### Added
+
+- First-launch sign-in hub on onboarding page two: open each official site in a bottom sheet, explicitly confirm sign-in, and continue to the next site with checked progress. Reuses the main tabs' WebKit sessions.
+- Sequential icon/row fades and a subtle upward title reveal, with Reduce Motion support and scrolling for larger text.
+
+### Fixed
+
+- Prevent continuing past the sign-in step until all four confirmations are complete; failed, loading and authentication redirect pages cannot be confirmed.
+- Add regression coverage for unavailable South Campus classrooms 402–409 and sign-in confirmation readiness.
+
+## [2.0.0-alpha.33] - 2026-10-24
+
+### Changed
+
+- Removed the unavailable South Campus classrooms 402 / 403 / 404 / 405 / 407 / E2-407 / E2-408 / E2-409 from the room directory.
+
 ## [2.0.0-alpha.32] - 2026-10-24
 
 ### Changed

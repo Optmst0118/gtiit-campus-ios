@@ -3,6 +3,51 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "South Campus omits unavailable rooms 402–409"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "South Campus keeps available 202–205"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome permits explicit confirmation on ready campus page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks confirmation while loading"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks failed page confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks unvisited page confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks SSO redirect confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks Moodle login page confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks another site's confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "shuttle_reminder_lead_persists"
     },
     {
@@ -946,7 +991,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: ADF7131E-068F-4D19-9BA8-D207D83171D6, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-23 17:32:32 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 2C422DA4-4F32-4F56-8E75-78A2263F5D3A, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-23 18:09:26 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1377,8 +1422,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-23T17:33:01Z",
+  "date" : "2026-10-23T18:09:57Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "f1620a4d-b04a-46c5-829d-2a2902b8bb7e"
+  "runID" : "1c5d4e27-f389-417e-bfbf-aedeaa0f6aa3"
 }

@@ -831,5 +831,12 @@
   "你的校园，一站连接": "YOUR CAMPUS, CONNECTED",
   "预加载只预热启动页对应网站，其他站点按需加载；不会阻塞启动。": "Preload only warms the site for the startup tab; other sites load on demand and never block launch.",
   "冷启动只预热启动页网站，其他站点按需加载；密码、验证码及二次验证由你在学校页面完成。": "Cold launch warms only the startup site. Other sites load on demand; passwords, codes and additional verification remain on the official page.",
-  "触感反馈": "Haptics"
+  "触感反馈": "Haptics",
+  "登录校园网站": "Sign in to campus websites",
+  "依次登录四个校园入口，完成后逐个确认。": "Sign in to each campus website, then confirm each one.",
+  "已确认登录": "Sign-in confirmed",
+  "待登录": "Not signed in",
+  "继续登录": "Continue signing in",
+  "确认已登录，继续": "Confirm sign-in and continue",
+  "登录": "Sign in"
 }
