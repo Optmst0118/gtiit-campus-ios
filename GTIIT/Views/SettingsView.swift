@@ -98,6 +98,7 @@ private struct GeneralSettingsView: View {
                 SettingsChoicePicker(
                     L10n.tr("外观"), selection: $settings.appearance, choices: AppAppearance.allCases,
                     title: { $0.title })
+                Toggle(L10n.tr("触感反馈"), isOn: $settings.hapticsEnabled)
             }
             Section {
                 SettingsChoicePicker(

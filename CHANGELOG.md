@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.30] - 2026-10-24
+
+### Added
+
+- Haptic feedback infrastructure and a Settings toggle, with light feedback on card press, selection feedback on tabs and booking categories, success feedback on unlock, and light feedback on pull-to-refresh.
+- Non-blocking WebPrewarmHost: all four shell WebViews are created in the window behind the UI at launch, so Student, Moodle, booking and sports pages warm in parallel without a blocking launch screen.
+- Moodle/Exam summaries start earlier (250ms / +200ms).
+- docs/HAPTICS.md.
+
+### Fixed
+
+- Booking official pages now match the app page background in light/dark mode.
+- Pushed booking web pages no longer use WKWebView back/forward gestures, so edge back returns to the native booking page.
+
 ## [2.0.0-alpha.29] - 2026-10-24
 
 ### Fixed

@@ -43,6 +43,7 @@ private struct NativeWebPageContent: View {
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
+            model.webView.allowsBackForwardNavigationGestures = false
             if site == .rooms || site == .sports {
                 WebAppearance.setNativePageBackground(site: site, pageHex: Theme.pageHex(for: colorScheme), on: model.webView)
             } else {
@@ -55,6 +56,9 @@ private struct NativeWebPageContent: View {
         .onChange(of: colorScheme) { _, scheme in
             guard site == .rooms || site == .sports else { return }
             WebAppearance.setNativePageBackground(site: site, pageHex: Theme.pageHex(for: scheme), on: model.webView)
+        }
+        .onDisappear {
+            model.webView.allowsBackForwardNavigationGestures = true
         }
     }
 }

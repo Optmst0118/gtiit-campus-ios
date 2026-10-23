@@ -10,7 +10,12 @@ struct RootTabView: View {
         let _ = nativeLocale.identifier
 
         ZStack {
-            // Show the real tabs immediately; prewarming happens in the background.
+            // Lay out the WebKit views behind the UI so pages can restore
+            // sessions/render without a blocking launch screen.
+            if !app.launch.didFinish {
+                WebPrewarmHost(models: app.launch.models)
+                    .opacity(0.01)
+            }
             tabs
         }
         .modifier(ContextMenuBackdrop(active: app.contextMenuSource != nil))
@@ -50,10 +55,14 @@ private struct RootLifecycle: ViewModifier {
         .accessibilityHidden(app.lock.isLocked)
         .allowsHitTesting(!app.lock.isLocked && !app.isClearingData)
         .onChange(of: app.selectedTab) { _, newValue in
+            Haptics.selection()
             app.markVisited(newValue)
             app.downloads.dismissCompletedPresentation()
         }
-        .onChange(of: app.bookingSegment) { _, _ in app.downloads.dismissCompletedPresentation() }
+        .onChange(of: app.bookingSegment) { _, _ in
+            Haptics.selection()
+            app.downloads.dismissCompletedPresentation()
+        }
         .overlay {
             if app.isClearingData {
                 ZStack {
@@ -123,7 +132,14 @@ private struct RootLifecycle: ViewModifier {
         .onChange(of: settings.favoriteShuttleDirection) { _, _ in syncShuttleSystemState() }
         .onChange(of: settings.language) { _, _ in syncShuttleSystemState() }
         .onChange(of: settings.privateShuttleReminders) { _, _ in syncShuttleSystemState() }
-        .onChange(of: app.lock.isLocked) { _, locked in if !locked { app.prepareLaunchIfAllowed() } else { app.yilong.close() } }
+        .onChange(of: app.lock.isLocked) { _, locked in
+            if !locked {
+                Haptics.success()
+                app.prepareLaunchIfAllowed()
+            } else {
+                app.yilong.close()
+            }
+        }
         .onChange(of: settings.hasSeenWelcome) { _, _ in app.prepareLaunchIfAllowed() }
         .onChange(of: app.showWelcome) { _, shown in if !shown { app.prepareLaunchIfAllowed() } }
     }

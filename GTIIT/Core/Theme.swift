@@ -98,6 +98,9 @@ struct CardPressStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.975 : 1)
             .opacity(configuration.isPressed ? 0.92 : 1)
             .animation(reduceMotion ? nil : .smooth(duration: 0.18), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { _, pressed in
+                if pressed { Haptics.light() }
+            }
     }
 }
 

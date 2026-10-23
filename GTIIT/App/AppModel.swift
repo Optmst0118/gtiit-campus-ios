@@ -42,7 +42,6 @@ final class AppModel: ObservableObject {
     private var appearanceSubscription: AnyCancellable?
     private var launchSubscription: AnyCancellable?
     private var didScheduleSummaryWarmup = false
-    private var didScheduleDeferredWarmup = false
     private var didScheduleMoodleAutoLogin = false
     private var moodleAutoLoginStarted = false
 
@@ -104,7 +103,7 @@ final class AppModel: ObservableObject {
         // competing with the first portal/Moodle paint.
         upcoming.refresh(browser: browser(for: .moodle), allowed: allowed)
         Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(650))
+            try? await Task.sleep(for: .milliseconds(200))
             guard let self, allowed() else { return }
             self.exams.refresh(allowed: allowed)
         }
@@ -113,20 +112,15 @@ final class AppModel: ObservableObject {
     func prepareLaunchIfAllowed() {
         guard settings.hasSeenWelcome, !showWelcome, !lock.isLocked, lock.isActive else { return }
         scheduleMoodleAutoLoginIfNeeded()
-        let sites = startupWebSites
-        guard !sites.isEmpty else {
-            // Native startup (Shuttle/Me): keep the first frame free of WebKit.
-            launch.skip()
-            return
-        }
-        scheduleSummaryWarmupIfNeeded()
         guard settings.preloadSitesOnLaunch else { launch.skip(); return }
         guard !launch.hasStarted, !launch.didFinish else { return }
-        launch.start(models: sites.map { browser(for: $0) }, canRestoreSession: { [weak self] in
+        // Load all four real WebKit hosts in parallel behind the visible UI.
+        // There is no launch overlay: first paint and page warming are independent.
+        launch.start(models: SiteID.allCases.map { browser(for: $0) }, canRestoreSession: { [weak self] in
             guard let self else { return false }
             return !self.lock.isLocked && self.lock.isActive && !self.isClearingData
         })
-        scheduleDeferredWarmupIfNeeded()
+        scheduleSummaryWarmupIfNeeded()
     }
 
     func prepareMoodleAutoLogin() {
@@ -154,38 +148,13 @@ final class AppModel: ObservableObject {
         }
     }
 
-    private var startupWebSites: [SiteID] {
-        switch settings.startupTab {
-        case .portal: return [.portal]
-        case .learning: return [.moodle]
-        case .booking: return [settings.defaultBooking.site]
-        case .shuttle, .me: return []
-        }
-    }
-
     private func scheduleSummaryWarmupIfNeeded() {
-        guard !didScheduleSummaryWarmup, !startupWebSites.isEmpty, settings.preloadSitesOnLaunch else { return }
+        guard !didScheduleSummaryWarmup, settings.preloadSitesOnLaunch else { return }
         didScheduleSummaryWarmup = true
         Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(700))
+            try? await Task.sleep(for: .milliseconds(250))
             guard let self, !self.lock.isLocked, self.lock.isActive, !self.isClearingData else { return }
             self.warmUpCampusSummaries()
-        }
-    }
-
-    private func scheduleDeferredWarmupIfNeeded() {
-        guard !didScheduleDeferredWarmup, !startupWebSites.isEmpty else { return }
-        didScheduleDeferredWarmup = true
-        Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(1_500))
-            guard let self, self.settings.preloadSitesOnLaunch,
-                  !ProcessInfo.processInfo.isLowPowerModeEnabled,
-                  !self.lock.isLocked, self.lock.isActive, !self.isClearingData else { return }
-            _ = self.browser(for: .moodle)
-            try? await Task.sleep(for: .milliseconds(1_200))
-            guard !self.lock.isLocked, self.lock.isActive, !self.isClearingData else { return }
-            _ = self.browser(for: .rooms)
-            _ = self.browser(for: .sports)
         }
     }
 

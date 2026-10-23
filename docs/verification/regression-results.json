@@ -766,7 +766,7 @@
       "test" : "moodle_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 118.0, 402.0, 756.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "moodle_web_extends_under_tab_bar"
     },
@@ -946,7 +946,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 94BE88C3-40CE-40A6-81F0-CAADC35EE907, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-23 16:52:21 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 5A4D15BD-DFE1-4E1F-9E68-83D0837DB5A9, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-23 17:06:28 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1377,8 +1377,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-23T16:52:48Z",
+  "date" : "2026-10-23T17:06:56Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "c5e0fe25-28bb-4b00-807c-25d0c55499c3"
+  "runID" : "c41f4bdd-876e-42fe-a9f7-7157df7cbaca"
 }

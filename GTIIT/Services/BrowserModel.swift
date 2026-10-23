@@ -255,6 +255,8 @@ final class BrowserModel: NSObject, ObservableObject {
     func clearSiteData() async { await router?.browserClearData(for: site) }
 
     @objc private func handlePullToRefresh() {
+        Haptics.light()
+
         webView.reload()
     }
 

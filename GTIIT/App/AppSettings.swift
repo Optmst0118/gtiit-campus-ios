@@ -101,6 +101,9 @@ enum DownloadRetention: String, SettingChoice {
     @Published var nativeMoodleEnabled: Bool {
         didSet { defaults.set(nativeMoodleEnabled, forKey: "settings.nativeMoodleEnabled") }
     }
+    @Published var hapticsEnabled: Bool {
+        didSet { defaults.set(hapticsEnabled, forKey: "settings.hapticsEnabled") }
+    }
     @Published var loginEmail: String {
         didSet { defaults.set(loginEmail, forKey: "settings.loginEmail") }
     }
@@ -181,6 +184,7 @@ enum DownloadRetention: String, SettingChoice {
         preloadSitesOnLaunch = defaults.object(forKey: "settings.preloadSitesOnLaunch") as? Bool ?? true
         nativeBookingEnabled = defaults.object(forKey: "settings.nativeBookingEnabled") as? Bool ?? true
         nativeMoodleEnabled = defaults.object(forKey: "settings.nativeMoodleEnabled") as? Bool ?? true
+        hapticsEnabled = defaults.object(forKey: "settings.hapticsEnabled") as? Bool ?? true
         loginEmail = defaults.string(forKey: "settings.loginEmail") ?? ""
         prefillLoginEmail = defaults.object(forKey: "settings.prefillLoginEmail") as? Bool ?? true
         let allSections = ["currentCourses", "recent", "otherCourses", "historyCourses", "tools"]

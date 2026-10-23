@@ -1,60 +1,31 @@
-# 加载与一体化优化（alpha.27）
+# 加载与一体化优化（alpha.30）
 
-## 1. 启动路径
+## 启动路径
 
-启动时不再等待四个网页全部准备完成。应用先显示真实 Tab，WebKit 预加载在后台分阶段进行。
+1. SwiftUI 首帧：Tab、启动页、设置和缓存对象可用。
+2. 后台并行创建门户、Moodle、预约、体育四个 BrowserModel。
+3. 不可见的 WebPrewarmHost 为四个 WKWebView 提供窗口与布局，不接收触摸、不遮挡 UI。
+4. 约 250ms 后启动 Moodle 摘要；考试摘要再延后 200ms。
+5. LaunchPreparation 结束后移除隐藏 host；进入 Tab 时复用同一 WKWebView，不重新加载。
+6. 有 Moodle 缓存时，约 1.2s 后检查登录页并自动点击现有 Office 365 SAML 链接。
 
-阶段：
+## 策略
 
-1. SwiftUI 首帧：只创建 Tab、当前原生页面和必要的设置/缓存对象；
-2. 立即创建启动页对应的门户 WebView；
-3. 门户开始加载后，约 700ms 再启动 Moodle/考试摘要；
-4. 约 1.5s 后创建 Moodle WebView；
-5. 约 2.7s 后创建预约与体育 WebView；
-6. 低电量模式下跳过第 5 步。
+- 非阻塞预加载：没有全屏等待层。
+- 并行四站预热：首次打开即加载 Student、Moodle、预约和体育。
+- 摘要错峰：Moodle 摘要与考试摘要分开启动。
+- 隐藏 host 生命周期：启动准备结束后移除，避免长期保留重复宿主。
+- 统一 NativeWebPageView：进度条、加载占位、错误重试、预约背景色和 push 返回。
+- 统一 NativePageIcon：Learning/Booking 使用相同图标尺寸和内容边距。
+- MoodleAutoLogin：只点击现有 Office 365 链接，不填写密码。
 
-这样避免了启动瞬间同时创建四个 WebView、四个网页进程和多个摘要抓取任务。
+## 完整性
 
-## 2. 采用的策略
+- 四站仍是独立持久化数据容器。
+- 官方登录、SSO、MFA、表单和页面行为不变。
+- 清除数据、App 锁、下载、Live Activity、Widget 不改。
+- 关闭“启动时预加载网站”时回到按需创建。
 
-- **非阻塞启动**：删除原来的全屏 LaunchPreloadView 等待层。真实 Tab 直接出现，网页在各自宿主里显示进度和占位。
-- **分阶段预热**：只把启动页需要的内核放在首帧热路径；其他站点放到 Task 中按延迟创建。
-- **摘要错峰**：Moodle 摘要先启动，依赖第二个隐藏 WebView 的考试摘要延后 650ms，减少主线程/网络争抢。
-- **低电量自适应**：跳过后台预约/体育预加载，保留用户点击时的按需创建。
-- **统一页面外壳**：Moodle 与预约的官方网页统一使用 NativeWebPageView，带进度条、首次加载占位和错误重试；卡片统一 push 导航。
-- **统一起始图标**：学习/预约共用 NativePageIcon，58pt、20pt 内容边距、相同圆角。
+## 复测
 
-## 3. 仍然保持的完整性
-
-- 门户首页仍优先加载；四站会话仍各自持久化；
-- 未预加载的站点在首次点击时按需创建，不丢登录态；
-- 清除数据、App 锁、隐私遮罩、下载、Live Activity、Widget 等状态没有改变；
-- 预加载只是改变时序，不改变浏览器导航策略或官方页面行为。
-
-## 4. 如何复测
-
-用 Xcode Instruments 的 App Launch 模板观察：
-
-- 首帧到 RootTabView 可见的时间；
-- WKWebView 首次创建数量；
-- MoodleUpcomingStore / StudentExamStore 抓取开始时间。
-
-也可以在本机用 xcodebuild 构建 Debug 模拟器包，冷启动后通过 os_signpost / Instruments 记录。命令行 xcrun simctl launch 只代表进程启动，不等于首帧时间。
-
-## 5. 后续可试验项
-
-以下未在本轮启用，避免破坏现有会话与业务边界：
-
-- AppModel 从 Combine ObservableObject 迁移到 iOS 17 @Observable；
-- 四站共享 WKProcessPool（需要真机验证进程复用与数据隔离）；
-- 门户/Moodle 的 HTTP preconnect/prefetch（必须不绕过登录与同源策略）；
-- 课程摘要从 JSON 文件迁移到 SQLite/增量索引（只有在摘要规模明显增大时才值得）；
-- 真正的 Moodle 内容 API 与离线课程内容（需要学校侧接口/授权）。
-
-
-## 6. Moodle 自动登录（alpha.28）
-
-- 若本机已有 Moodle 数据存储，启动后约 1.2s 会在后台创建 Moodle 内核并检查登录页。
-- 登录页出现时，只查找并点击现有的 Office 365 SAML 链接；不读取/填写邮箱、密码或验证码。
-- 若启动时被 App 锁阻挡，解锁后会重新排队执行。
-- 没有缓存数据时不会创建额外的 Moodle 内核；进入学习页时也会启动同一检查。
+用 Instruments App Launch 看首帧和内存；用 Points of Interest 看页面/摘要区间；用 Network 模板确认门户不重复加载。命令行 simctl launch 只代表进程启动，不等于首帧时间。
