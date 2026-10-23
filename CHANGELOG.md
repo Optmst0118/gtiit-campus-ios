@@ -17,6 +17,7 @@ All notable changes to this project are documented here. The format follows
 ### Infrastructure
 
 - Added a WidgetKit extension target, app/extension entitlements and a gtiit://shuttle URL scheme.
+- The App Group defaults/entitlement scaffolding is present, but this team provision profile does not yet include the group; signing currently omits that entitlement so device builds stay installable. The Live Activity carries its own state and does not depend on the group.
 - Added Live Activity support and notification categories to the app target.
 
 ## [2.0.0-alpha.7] - 2026-10-23
