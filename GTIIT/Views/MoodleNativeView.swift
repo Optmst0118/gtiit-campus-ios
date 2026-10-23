@@ -159,33 +159,23 @@ struct MoodleHomeView: View {
     // MARK: Header
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top) {
-                Image(systemName: "book.closed.fill")
-                    .font(.system(size: 27, weight: .semibold))
-                    .foregroundStyle(Theme.accent)
-                    .frame(width: 58, height: 58)
-                    .background(Theme.accent.opacity(0.13), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                Spacer(minLength: 8)
-                AlphaBadge()
-            }
-            Text(L10n.tr("课程学习"))
-                .font(.caption.weight(.semibold)).tracking(1.4).foregroundStyle(Theme.accent)
-            Text(L10n.tr("你的 Moodle 工作台"))
-                .font(.title2.weight(.bold))
-            Text(L10n.tr("课程、作业、测验与消息。"))
-                .font(.subheadline).foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+        HStack(spacing: 0) {
+            Image(systemName: "book.closed.fill")
+                .font(.system(size: 27, weight: .semibold))
+                .foregroundStyle(Theme.accent)
+                .frame(width: 58, height: 58)
+                .background(Theme.accent.opacity(0.13), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            Spacer(minLength: 0)
         }
-        .padding(20)
+        .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             LinearGradient(colors: [Theme.accent.opacity(0.17), Theme.accent.opacity(0.035)],
                            startPoint: .topLeading, endPoint: .bottomTrailing),
-            in: RoundedRectangle(cornerRadius: 28, style: .continuous)
+            in: RoundedRectangle(cornerRadius: 24, style: .continuous)
         )
         .overlay {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .strokeBorder(Theme.accent.opacity(0.12))
         }
     }

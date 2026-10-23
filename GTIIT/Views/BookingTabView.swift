@@ -108,45 +108,26 @@ struct AlphaBadge: View {
 
 private struct BookingHeader: View {
     let symbol: String
-    let eyebrow: String
-    let title: String
-    let subtitle: String
     let tint: Color
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top) {
-                Image(systemName: symbol)
-                    .font(.system(size: 26, weight: .semibold))
-                    .foregroundStyle(tint)
-                    .frame(width: 54, height: 54)
-                    .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 17, style: .continuous))
-                Spacer(minLength: 8)
-                AlphaBadge()
-            }
-            Text(eyebrow)
-                .font(.caption.weight(.semibold))
-                .tracking(1.5)
+        HStack(spacing: 0) {
+            Image(systemName: symbol)
+                .font(.system(size: 26, weight: .semibold))
                 .foregroundStyle(tint)
-            Text(title)
-                .font(.title2.weight(.bold))
-                .fixedSize(horizontal: false, vertical: true)
-            if !subtitle.isEmpty {
-                Text(subtitle)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+                .frame(width: 58, height: 58)
+                .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+            Spacer(minLength: 0)
         }
-        .padding(20)
+        .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             LinearGradient(colors: [tint.opacity(0.17), tint.opacity(0.04)],
                            startPoint: .topLeading, endPoint: .bottomTrailing),
-            in: RoundedRectangle(cornerRadius: 28, style: .continuous)
+            in: RoundedRectangle(cornerRadius: 24, style: .continuous)
         )
         .overlay {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .strokeBorder(tint.opacity(0.12))
         }
     }
@@ -246,13 +227,7 @@ struct RoomBookingHomeView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                BookingHeader(
-                    symbol: "door.left.hand.open",
-                    eyebrow: L10n.tr("GTIIT ROOM BOOKING"),
-                    title: L10n.tr("练习房与讨论室"),
-                    subtitle: "",
-                    tint: Theme.accent
-                )
+                BookingHeader(symbol: "door.left.hand.open", tint: Theme.accent)
 
                 LazyVGrid(columns: dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())] : [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
                     ForEach(actions) { action in
@@ -340,13 +315,7 @@ struct SportsCenterHomeView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                BookingHeader(
-                    symbol: "sportscourt",
-                    eyebrow: L10n.tr("GTIIT SPORTS CENTER"),
-                    title: L10n.tr("广东以色列理工学院体育中心"),
-                    subtitle: "",
-                    tint: Theme.orange
-                )
+                BookingHeader(symbol: "sportscourt", tint: Theme.orange)
 
                 sectionTitle(L10n.tr("场馆预约"), symbol: "square.grid.2x2")
                 LazyVGrid(columns: dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())] : [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {

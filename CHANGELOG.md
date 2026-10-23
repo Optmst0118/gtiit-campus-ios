@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.25] - 2026-10-24
+
+### Changed
+
+- Learning and booking top gradient cards now keep only their icon; eyebrow, alpha badge, title, subtitle and descriptive copy are removed.
+- The cards are compact icon-only surfaces, reducing vertical space at the top of both tabs.
+
 ## [2.0.0-alpha.24] - 2026-10-23
 
 ### Fixed
