@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.21] - 2026-10-23
+
+### Changed
+
+- Current-course cards now show only the course name; the term remains in the gray subtitle.
+- The course number is shown as a small tinted rounded badge to the left of the term.
+- Course pages use the cleaned course name in the large title.
+
+### Fixed
+
+- Force the course-page navigation host into the large-title state before first appearance and reset the WebKit scroll offset, fixing the entry jump to a centered title.
+
 ## [2.0.0-alpha.20] - 2026-10-23
 
 ### Fixed

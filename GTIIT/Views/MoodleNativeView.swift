@@ -328,7 +328,7 @@ struct MoodleHomeView: View {
                     ForEach(syncedCurrentCourses) { course in
                         Button {
                             if let url = course.url {
-                                open(MoodleDestination(title: course.name, url: url, kind: .course))
+                                open(MoodleDestination(title: course.displayName, url: url, kind: .course))
                             }
                         } label: {
                             courseCard(course)
@@ -346,7 +346,7 @@ struct MoodleHomeView: View {
                 ForEach(otherCourses.sorted { $0.name < $1.name }) { course in
                     Button {
                         if let url = course.url {
-                            open(MoodleDestination(title: course.name, url: url, kind: .course))
+                            open(MoodleDestination(title: course.displayName, url: url, kind: .course))
                         }
                     } label: {
                         courseCard(course)
@@ -388,9 +388,20 @@ struct MoodleHomeView: View {
         HStack(spacing: 12) {
             Image(systemName: "book.closed.fill").foregroundStyle(Theme.accent)
                 .frame(width: 38, height: 38).background(Theme.accent.opacity(0.11), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
-            VStack(alignment: .leading, spacing: 3) {
-                Text(course.name).font(.subheadline.weight(.semibold)).foregroundStyle(.primary).lineLimit(2)
-                Text(course.term ?? L10n.tr("当前学期")).font(.caption).foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 5) {
+                Text(course.displayName).font(.subheadline.weight(.semibold)).foregroundStyle(.primary).lineLimit(2)
+                HStack(spacing: 6) {
+                    if let number = course.courseNumber, !number.isEmpty {
+                        Text(number)
+                            .font(.system(.caption2, design: .monospaced).weight(.medium))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(Theme.accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 4, style: .continuous))
+                    }
+                    Text(course.term ?? L10n.tr("当前学期"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
             Spacer(minLength: 4)
             Image(systemName: "arrow.up.right").font(.caption).foregroundStyle(.tertiary)
@@ -549,7 +560,7 @@ struct MoodleHistoryView: View {
                                 ForEach(group.courses) { course in
                                     Button {
                                         if let url = course.url {
-                                            open(MoodleDestination(title: course.name, url: url, kind: .course))
+                                            open(MoodleDestination(title: course.displayName, url: url, kind: .course))
                                         }
                                     } label: {
                                         historyCard(course)
@@ -590,10 +601,19 @@ struct MoodleHistoryView: View {
             Image(systemName: "book.closed.fill").foregroundStyle(Theme.orange)
                 .frame(width: 38, height: 38)
                 .background(Theme.orange.opacity(0.11), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
-            VStack(alignment: .leading, spacing: 3) {
-                Text(course.name).font(.subheadline.weight(.semibold)).lineLimit(3)
-                if let shortname = course.shortname, !shortname.isEmpty {
-                    Text(shortname).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+            VStack(alignment: .leading, spacing: 5) {
+                Text(course.displayName).font(.subheadline.weight(.semibold)).lineLimit(3)
+                HStack(spacing: 6) {
+                    if let number = course.courseNumber, !number.isEmpty {
+                        Text(number)
+                            .font(.system(.caption2, design: .monospaced).weight(.medium))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(Theme.accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 4, style: .continuous))
+                    }
+                    Text(course.term ?? L10n.tr("历史课程"))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
             }
             Spacer(minLength: 4)
@@ -690,7 +710,7 @@ struct MoodleCoursePageView: View {
     let url: URL
 
     var body: some View {
-        WebViewContainer(model: app.browser(for: .moodle))
+        WebViewContainer(model: app.browser(for: .moodle), startsLargeTitle: true)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onAppear {
                     let browser = app.browser(for: .moodle)

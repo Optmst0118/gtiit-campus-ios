@@ -37,6 +37,30 @@ struct MoodleCourse: Codable, Identifiable, Hashable {
     let shortname: String?
     let category: String?
     let term: String?
+    var displayName: String {
+        var value = name
+        value = value.replacingOccurrences(
+            of: "\\s*[-–—(]?\\s*(Winter|Spring|Summer|Fall|Autumn)\\s*\\d{4}\\s*\\)?\\s*$",
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        value = value.replacingOccurrences(
+            of: "^\\s*\\d{3,}\\s*[-–—]\\s*",
+            with: "",
+            options: .regularExpression
+        )
+        return value.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: "-–— ")))
+    }
+    var courseNumber: String? {
+        if let shortname, !shortname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return shortname
+        }
+        let pattern = "^\\s*(\\d{3,})\\s*[-–—]"
+        guard let regex = try? NSRegularExpression(pattern: pattern),
+              let match = regex.firstMatch(in: name, range: NSRange(name.startIndex..., in: name)),
+              let range = Range(match.range(at: 1), in: name) else { return nil }
+        return String(name[range])
+    }
     var url: URL? {
         guard id > 0 else { return nil }
         return URL(string: "https://moodle.gtiit.edu.cn/moodle/course/view.php?id=\(id)")
