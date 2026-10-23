@@ -4,6 +4,7 @@ import SwiftUI
     @StateObject private var app: AppModel
     @StateObject private var settings: AppSettings
     init() {
+        Theme.configureNavigationAppearance()
         let settings = AppSettings()
         _settings = StateObject(wrappedValue: settings)
         _app = StateObject(wrappedValue: AppModel(settings: settings))

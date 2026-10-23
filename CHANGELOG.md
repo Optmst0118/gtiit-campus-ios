@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13] - 2026-10-23
+
+### Fixed
+
+- Native website titles share a clamped navigation scroll tracker: pull-to-refresh cannot stretch or move the large title; document and full-height inner scrollers drive the same native large/compact transition. Booking navigation explicitly registers its top tracker above the separate scope selector.
+- Navigation surfaces use an white appearance in light mode and the existing dark native canvas in dark mode for large, compact and scroll-edge states, with matching title contrast.
+- Downloads share one location row, file-count header and rounded file container. List/grid switching replaces only the file arrangement, preserving icons, margins, corner radius and container frame. Removed redundant swipe/preview instruction footers.
+
 ## [1.12] - 2026-10-23
 
 ### Added

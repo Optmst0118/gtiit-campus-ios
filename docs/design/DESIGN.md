@@ -73,3 +73,7 @@
 References: [UICollectionView context menu configuration](https://developer.apple.com/documentation/uikit/uicollectionviewdelegate/collectionview(_:contextmenuconfigurationforitemsat:point:)) and [targeted highlight previews](https://developer.apple.com/documentation/uikit/uicollectionviewdelegate/collectionview(_:contextmenuconfiguration:highlightpreviewforitemat:)).
 
 Download grid source thumbnails have 24-point top clearance (16 points more than the initial grid) and a shadow path inset by 6 points. The full 72×88-point paper remains visible. This changes the lift shadow footprint, not page blur strength.
+
+### 1.13 consistency
+
+Native navigation appearances use white in light mode and the existing dark native canvas in dark mode, with matching title contrast across large/compact/scroll-edge states. Website title collapse uses UIKit's native behavior with nonnegative scroll progress; refresh rubber-banding belongs to the web content only. Download location/header and an 18-point continuous rounded file surface remain fixed when switching list/grid. Remove redundant gesture instruction footers.

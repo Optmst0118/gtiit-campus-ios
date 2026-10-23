@@ -1,0 +1,28 @@
+{
+  "version": "1.13",
+  "build": {
+    "projectStructurePassed": true,
+    "signedDeviceReleasePassed": true,
+    "swiftSources": 59
+  },
+  "sourceSHA256": "8dbdb97261e1d1859e9bc86448b5cac820b3d4d064f136ed6c9f1cff5490db8d",
+  "regression": {
+    "scope": "full",
+    "passed": true,
+    "checks": 285
+  },
+  "review": {
+    "lightNavigation": "white",
+    "darkNavigation": "existing #0E141C canvas",
+    "listGridLocationCountPixelRegionEqual": true,
+    "listGridOuterContainerEdgesEqual": true,
+    "images": "synthetic documents only"
+  },
+  "delivery": {
+    "overlayInstalled": true,
+    "inventoryVersion": "1.13 (17)",
+    "launchConfirmed": true,
+    "sameProcessObservedLater": true,
+    "dataReset": false
+  }
+}

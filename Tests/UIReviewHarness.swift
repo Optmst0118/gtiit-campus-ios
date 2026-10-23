@@ -8,10 +8,11 @@ import UIKit
     @StateObject private var previewLock: AppLockController
     private let environment = ProcessInfo.processInfo.environment
     init() {
+        Theme.configureNavigationAppearance()
         let defaults = UserDefaults(suiteName: "ui-review.preferences")!
         defaults.removePersistentDomain(forName: "ui-review.preferences")
-        if ProcessInfo.processInfo.environment["UI_REVIEW_DOWNLOAD_GRID"] == "1" {
-            UserDefaults.standard.set(true, forKey: "downloads.grid")
+        if let grid = ProcessInfo.processInfo.environment["UI_REVIEW_DOWNLOAD_GRID"] {
+            UserDefaults.standard.set(grid == "1", forKey: "downloads.grid")
         }
         let settings = AppSettings(defaults: defaults)
         settings.hasSeenWelcome = true

@@ -11,7 +11,7 @@
 
 把学校的四个官方网页集中到一个 iOS App，配合原生班车倒计时、离线课表、Moodle 临近日程、临近考试、PDF 预览与下载管理。课表需用户确认后保存；日程摘要仅缓存在本机，不转发、不代提交校园业务数据。
 
-**当前版本：1.12（16）**。完整变更见 [CHANGELOG](CHANGELOG.md)，交付与验证范围见 [1.12 记录](docs/RELEASE-1.12.md)。
+**当前版本：1.13（17）**。完整变更见 [CHANGELOG](CHANGELOG.md)，交付与验证范围见 [1.13 记录](docs/RELEASE-1.13.md)。
 
 <p align="center">
   <img src="docs/screenshots/01-welcome.png" width="200" alt="首次启动说明">
@@ -194,7 +194,7 @@ python3 Tools/verify_builds.py
 
 | 验证 | 数量 | 说明 |
 | --- | --- | --- |
-| 集成回归 | 274 项 | 导航策略、WebKit、下载、锁定、暗色、校历、课表、当前学期过滤、日程缓存与入口配置；最终版本结果见交付记录 |
+| 集成回归 | 285 项 | 导航策略、WebKit、下载、锁定、暗色、校历、课表、当前学期过滤、日程缓存与入口配置；最终版本结果见交付记录 |
 | 班车检查 | 40 项 | 时刻表解析、跨日、教学周、末班 |
 | 构建 | 3 种 | Debug 模拟器、Release 模拟器、Release 真机目标（`CODE_SIGNING_ALLOWED=NO`） |
 

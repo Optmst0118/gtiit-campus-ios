@@ -11,6 +11,7 @@ struct SiteBrowserView: View {
         let _ = nativeLocale.identifier
 
         NavigationStack { BrowserChrome(model: app.browser(for: site)) }
+            .id(site)
             .onAppear { app.browser(for: site).recoverReadOnlyDocumentIfNeeded() }
             .onChange(of: phase) { _, value in
                 if value == .active && !app.lock.isLocked { app.browser(for: site).recoverReadOnlyDocumentIfNeeded() }

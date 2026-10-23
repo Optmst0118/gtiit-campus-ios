@@ -20,26 +20,30 @@ struct DownloadsView: View {
     var body: some View {
         let _ = nativeLocale.identifier
 
-        Group {
-            if grid {
-                VStack(alignment: .leading, spacing: 16) {
-                    Button { chooseFolder = true } label: { locationRow }
-                        .buttonStyle(.plain).padding(16).cardBackground().padding(.horizontal, 20)
-                    Text(L10n.format("文件 · %@", String(center.items.count)))
-                        .font(.footnote).foregroundStyle(.secondary).padding(.horizontal, 24)
-                    if center.items.isEmpty {
-                        ContentUnavailableView(L10n.tr("暂无下载"), systemImage: "arrow.down.circle")
-                    } else {
-                        DownloadFileGrid(items: sortedItems, center: center,
-                            activate: activate, delete: { pendingDelete = $0.id },
-                            share: { url in app.browserPresentShare(items: [url]) },
-                            openSource: { app.openSite($0.site) })
-                    }
-                }.padding(.top, 16)
-            } else { listContent }
+        VStack(alignment: .leading, spacing: 16) {
+            Button { chooseFolder = true } label: { locationRow }
+                .buttonStyle(.plain)
+                .font(.body)
+                .padding(16)
+                .cardBackground()
+                .accessibilityHint(L10n.tr("选择之后新下载文件的默认文件夹"))
+            Text(L10n.format("文件 · %@", String(center.items.count)))
+                .font(.footnote).foregroundStyle(.secondary).padding(.horizontal, 4)
+            ZStack {
+                if center.items.isEmpty {
+                    ContentUnavailableView(L10n.tr("暂无下载"), systemImage: "arrow.down.circle")
+                } else if grid {
+                    DownloadFileGrid(items: sortedItems, center: center,
+                        activate: activate, delete: { pendingDelete = $0.id },
+                        share: { url in app.browserPresentShare(items: [url]) },
+                        openSource: { app.openSite($0.site) })
+                } else { listContent }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Theme.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.corner, style: .continuous))
         }
-        .listStyle(.insetGrouped)
-        .scrollContentBackground(.hidden)
+        .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, 12)
         .background(Theme.pageBackground)
         .navigationTitle(L10n.tr("下载管理"))
         .navigationBarTitleDisplayMode(.inline)
@@ -90,42 +94,17 @@ struct DownloadsView: View {
 
     private var listContent: some View {
         List {
-            Section {
-                Button { chooseFolder = true } label: { locationRow }
-                    .buttonStyle(.plain)
-                    .accessibilityHint(L10n.tr("选择之后新下载文件的默认文件夹"))
-            }
-
-            Section {
-                if center.items.isEmpty {
-                    ContentUnavailableView {
-                        Label(L10n.tr("暂无下载"), systemImage: "arrow.down.circle")
-                    } description: {
-                        Text(L10n.tr("保存的文件会显示在这里。"))
-                    }
+            ForEach(sortedItems) { item in
+                fileRow(item)
+                    .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
                     .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                } else {
-                    ForEach(sortedItems) { item in
-                        fileRow(item)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                Button(role: .destructive) {
-                                    pendingDelete = item.id
-                                } label: {
-                                    Label(L10n.tr("删除"), systemImage: "trash")
-                                }
-                                .tint(Color(uiColor: .systemRed))
-                            }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button(role: .destructive) { pendingDelete = item.id } label: {
+                            Label(L10n.tr("删除"), systemImage: "trash")
+                        }.tint(Color(uiColor: .systemRed))
                     }
-                }
-            } header: {
-                Text(center.items.isEmpty ? L10n.tr("文件") : L10n.format("文件 · %@", String(describing: center.items.count)))
-            } footer: {
-                if !center.items.isEmpty {
-                    Text(grid ? L10n.tr("点按文件可预览或继续操作。") : L10n.tr("左滑文件可以删除；删除只影响本机文件与这条记录。"))
-                }
             }
-        }
+        }.listStyle(.plain).scrollContentBackground(.hidden)
     }
 
     private var locationRow: some View {

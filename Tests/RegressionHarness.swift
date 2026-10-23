@@ -129,6 +129,10 @@ private final class RetiredViewReference {
         } catch { return "ERROR \(error)" }
     }
     func run() async {
+        Theme.configureNavigationAppearance()
+        if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "layout" {
+            await verifyGlassWebLayout(); finish(); return
+        }
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "download" {
             await downloadSmoke()
             finish()
@@ -1043,6 +1047,22 @@ extension RegressionApp {
             check("\(site.rawValue)_web_extends_under_tab_bar", frame.maxY >= barFrame.maxY - 1 && frame.maxY >= window!.bounds.maxY - 1, "web=\(frame), tab=\(barFrame)")
             let scroll = web.scrollView
             _ = await wait { scroll.contentSize.height > 1800 && web.bounds.height > 0 }
+            func hostController(_ controller: UIViewController) -> WebViewHostController? {
+                if let value = controller as? WebViewHostController, value.view.window != nil, value.view.subviews.contains(where: { $0 === web }) { return value }
+                for child in controller.children { if let value = hostController(child) { return value } }
+                return nil
+            }
+            let tracker = hostController(host)?.navigationScrollView
+            scroll.setContentOffset(CGPoint(x: 0, y: -scroll.adjustedContentInset.top), animated: false)
+            _ = await wait { tracker?.contentOffset.y == 0 }
+            try? await Task.sleep(for: .milliseconds(350))
+            let expandedTop = web.convert(web.bounds, to: window).minY
+            scroll.setContentOffset(CGPoint(x: 0, y: -80 - scroll.adjustedContentInset.top), animated: false)
+            try? await Task.sleep(for: .milliseconds(150))
+            check("\(site.rawValue)_pull_keeps_title_stationary", tracker?.contentOffset.y == 0 && abs(web.convert(web.bounds, to: window).minY - expandedTop) < 1)
+            scroll.setContentOffset(CGPoint(x: 0, y: 150), animated: false)
+            let collapsed = await wait { web.convert(web.bounds, to: self.window).minY < expandedTop - 15 }
+            check("\(site.rawValue)_native_title_collapses", collapsed && (tracker?.contentOffset.y ?? 0) > 0, "expanded=\(expandedTop), compact=\(web.convert(web.bounds, to: window).minY)")
             let y = max(-scroll.adjustedContentInset.top, scroll.contentSize.height - scroll.bounds.height + scroll.adjustedContentInset.bottom)
             scroll.setContentOffset(CGPoint(x: 0, y: y), animated: false)
             try? await Task.sleep(for: .milliseconds(300))
@@ -1055,6 +1075,11 @@ extension RegressionApp {
                 try? await Task.sleep(for: .milliseconds(300))
                 let fixedBottom = Double(await js(web, "document.getElementById('fixed').getBoundingClientRect().bottom")) ?? .infinity
                 check("portal_inner_scroll_fixed_action_above_glass", nestedReady && web.convert(web.bounds, to: window).minY + fixedBottom <= barFrame.minY + 1, "fixed=\(web.convert(web.bounds, to: window).minY+fixedBottom), bar=\(barFrame.minY)")
+                scroll.setContentOffset(CGPoint(x: 0, y: -scroll.adjustedContentInset.top), animated: false)
+                _ = await js(web, "document.querySelector('main').scrollTop=200; 'done'")
+                check("portal_nested_scroll_drives_title", await wait { (tracker?.contentOffset.y ?? 0) > 0 })
+                _ = await js(web, "document.querySelector('main').scrollTop=0; 'done'")
+                check("portal_nested_scroll_restores_title", await wait { tracker?.contentOffset.y == 0 })
                 if #available(iOS 26.0, *) {
                     let clearance = Double((await js(web, "getComputedStyle(document.documentElement).getPropertyValue('--gtiit-bottom-obstruction').trim().replace('px','')"))) ?? 0
                     check("portal_full_viewport_with_inner_scroll_clearance", web.obscuredContentInsets.bottom == 0 && clearance >= barFrame.height - 1)
@@ -1078,6 +1103,16 @@ extension RegressionApp {
         second.release()
         check("shared_webview_restored_after_modal_release", shared.superview === firstHost)
         second.dismiss(animated: false)
+        try? await Task.sleep(for: .milliseconds(150))
+        shared.scrollView.setContentOffset(CGPoint(x: 0, y: -shared.scrollView.adjustedContentInset.top), animated: false)
+        let delivered: Bool = await withCheckedContinuation { continuation in
+            shared.evaluateJavaScript("window.webkit.messageHandlers.gtiitNavigationScroll.postMessage(90); 'sent'", in: nil, in: .defaultClient) { result in
+                if case .success = result { continuation.resume(returning: true) }
+                else { continuation.resume(returning: false) }
+            }
+        }
+        let rebound = await wait { first.navigationScrollView.contentOffset.y == 90 }
+        check("restored_host_rebinds_navigation_scroll", delivered && rebound, "offset=\(first.navigationScrollView.contentOffset.y), delivered=\(delivered)")
         first.release()
         window!.rootViewController = original; window!.makeKeyAndVisible()
         for site in SiteID.allCases {

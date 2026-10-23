@@ -25,6 +25,25 @@ enum Theme {
     static let pageBackground = Color(uiColor: pageUIColor)
     static let cardBackground = Color(uiColor: .secondarySystemGroupedBackground)
 
+    /// Consistent navigation surfaces: white in light mode and the existing
+    /// native canvas in dark mode, with matching system title/status contrast.
+    @MainActor static func configureNavigationAppearance() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor { traits in
+            traits.userInterfaceStyle == .dark ? pageUIColor.resolvedColor(with: traits) : .white
+        }
+        appearance.shadowColor = .clear
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.label]
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+        let bar = UINavigationBar.appearance()
+        bar.standardAppearance = appearance
+        bar.scrollEdgeAppearance = appearance
+        bar.compactAppearance = appearance
+        bar.compactScrollEdgeAppearance = appearance
+        bar.tintColor = UIColor(accent)
+    }
+
     static let headerHeight: CGFloat = 46
 }
 
