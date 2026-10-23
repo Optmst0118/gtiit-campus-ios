@@ -89,6 +89,9 @@ enum DownloadRetention: String, SettingChoice {
     @Published var preloadSitesOnLaunch: Bool {
         didSet { defaults.set(preloadSitesOnLaunch, forKey: "settings.preloadSitesOnLaunch") }
     }
+    @Published var nativeBookingEnabled: Bool {
+        didSet { defaults.set(nativeBookingEnabled, forKey: "settings.nativeBookingEnabled") }
+    }
     @Published var shuttleTeachingWeek: Bool {
         didSet { defaults.set(shuttleTeachingWeek, forKey: "settings.shuttleTeachingWeek") }
     }
@@ -143,6 +146,7 @@ enum DownloadRetention: String, SettingChoice {
         webDarkMode = defaults.object(forKey: "settings.webDarkMode") as? Bool ?? true
         originalColorSites = Set((defaults.stringArray(forKey: "settings.originalColorSites") ?? []).compactMap(SiteID.init(rawValue:)))
         preloadSitesOnLaunch = defaults.object(forKey: "settings.preloadSitesOnLaunch") as? Bool ?? true
+        nativeBookingEnabled = defaults.object(forKey: "settings.nativeBookingEnabled") as? Bool ?? true
         shuttleTeachingWeek = defaults.object(forKey: "settings.shuttleTeachingWeek") as? Bool ?? true
         hasSeenWelcome = defaults.bool(forKey: "settings.hasSeenWelcome")
         biometricLockEnabled = defaults.bool(forKey: "settings.biometricLock")

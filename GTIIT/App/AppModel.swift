@@ -156,7 +156,7 @@ final class AppModel: ObservableObject {
             return
         }
         switchTo(link.site)
-        if link.site == .rooms || link.site == .sports {
+        if (link.site == .rooms || link.site == .sports), settings.nativeBookingEnabled {
             pendingBookingLink = link
         } else {
             browser(for: link.site).load(url)

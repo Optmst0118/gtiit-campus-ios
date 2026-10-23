@@ -5,11 +5,29 @@ import SwiftUI
 struct BookingTabView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
+    @EnvironmentObject private var settings: AppSettings
     @State private var official: BookingDestination?
 
     var body: some View {
         let _ = nativeLocale.identifier
 
+        Group {
+            if settings.nativeBookingEnabled {
+                nativeBooking
+            } else {
+                // Old alpha / 1.x experience: the original wrapped web pages.
+                SiteBrowserView(site: app.bookingSegment == .rooms ? .rooms : .sports)
+            }
+        }
+        .sheet(item: $official) { destination in
+            BookingOfficialSheet(destination: destination)
+                .environmentObject(app)
+        }
+        .onAppear { consumePendingLink() }
+        .onChange(of: app.pendingBookingLink) { _, _ in consumePendingLink() }
+    }
+
+    private var nativeBooking: some View {
         NavigationStack {
             Group {
                 if app.bookingSegment == .rooms {
@@ -25,12 +43,6 @@ struct BookingTabView: View {
                 ToolbarItem(placement: .topBarLeading) { BookingSiteMenu() }
             }
         }
-        .sheet(item: $official) { destination in
-            BookingOfficialSheet(destination: destination)
-                .environmentObject(app)
-        }
-        .onAppear { consumePendingLink() }
-        .onChange(of: app.pendingBookingLink) { _, _ in consumePendingLink() }
     }
 
     private var title: String {
@@ -505,18 +517,22 @@ enum BookingDirectory {
     static func roomSchedule(_ sid: Int) -> URL {
         URL(string: "https://roombooking.gtiit.edu.cn/Web/view-calendar.php?sid=\(sid)")!
     }
+
+    static func roomReservation(_ rid: Int) -> URL {
+        URL(string: "https://roombooking.gtiit.edu.cn/Web/reservation.php?rid=\(rid)")!
+    }
     static let sportsHomeURL = URL(string: "https://gtiit.mike-x.com/0x2Rg")!
     static let sportsRegistrationURL = URL(string: "https://gtiit.mike-x.com/VK31S")!
 
     static let rooms: [RoomDirectoryEntry] = [
         RoomDirectoryEntry(id: "instrument", title: L10n.tr("练习房"), subtitle: L10n.tr("D4-103-9 · 电子琴练习室"), symbol: "pianokeys", url: URL(string: "https://roombooking.gtiit.edu.cn/Web/reservation.php?rid=78")!),
-        RoomDirectoryEntry(id: "hub", title: L10n.tr("学生中心"), subtitle: L10n.tr("Student Hub · 5 个房间/桌位"), symbol: "building.2.fill", url: roomSchedule(10)),
-        RoomDirectoryEntry(id: "discussion", title: L10n.tr("讨论室"), subtitle: L10n.tr("SC E1/E2 · 小组讨论空间"), symbol: "bubble.left.and.bubble.right.fill", url: roomSchedule(11)),
-        RoomDirectoryEntry(id: "teaching", title: L10n.tr("教室与会议室"), subtitle: L10n.tr("A/B/E 栋 · 选择具体排程"), symbol: "door.left.hand.open", url: roomSchedule(3), choices: [
-            BookingDestination(site: .rooms, title: L10n.tr("教室"), url: roomSchedule(3)),
-            BookingDestination(site: .rooms, title: L10n.tr("会议室"), url: roomSchedule(2))
+        RoomDirectoryEntry(id: "hub", title: L10n.tr("学生中心"), subtitle: L10n.tr("SC Student hub-Room 1 · 登录后可改选"), symbol: "building.2.fill", url: roomReservation(84)),
+        RoomDirectoryEntry(id: "discussion", title: L10n.tr("讨论室"), subtitle: L10n.tr("SC E1-402 · 登录后可改选"), symbol: "bubble.left.and.bubble.right.fill", url: roomReservation(128)),
+        RoomDirectoryEntry(id: "teaching", title: L10n.tr("教室与会议室"), subtitle: L10n.tr("E101 教室 / A218 会议室"), symbol: "door.left.hand.open", url: roomReservation(48), choices: [
+            BookingDestination(site: .rooms, title: L10n.tr("教室（E101）"), url: roomReservation(48)),
+            BookingDestination(site: .rooms, title: L10n.tr("会议室（A218）"), url: roomReservation(19))
         ]),
-        RoomDirectoryEntry(id: "activity", title: L10n.tr("学生活动室"), subtitle: L10n.tr("社团与学生活动空间"), symbol: "party.popper.fill", url: roomSchedule(9))
+        RoomDirectoryEntry(id: "activity", title: L10n.tr("学生活动室"), subtitle: L10n.tr("D5-101-3 · 登录后可改选"), symbol: "party.popper.fill", url: roomReservation(81))
     ]
 
     static let sports: [SportsVenue] = [

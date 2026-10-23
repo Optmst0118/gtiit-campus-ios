@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.3] - 2026-10-23
+
+### Fixed
+
+- Room directory rows now open Booked resource reservation forms, matching the practice room: Student Hub Room 1 (rid=84), SC E1-402 discussion room (rid=128), E101 classroom (rid=48), A218 meeting room (rid=19) and D5-101-3 activity room (rid=81). The classroom/meeting row presents both choices natively.
+
+### Added
+
+- Settings → 网页浏览 now has a "新版预约界面（Alpha）" switch. Turning it off restores the previous wrapped web booking experience; turning it back on returns to the native alpha screens.
+
 ## [2.0.0-alpha.2] - 2026-10-23
 
 ### Fixed

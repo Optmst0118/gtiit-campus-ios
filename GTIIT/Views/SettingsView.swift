@@ -181,6 +181,11 @@ private struct BrowsingSettingsView: View {
             } footer: {
                 Text(L10n.tr("随 App 外观切换，仅调整四站的网页配色。图片与二维码保留原色，登录和表单仍由学校网页处理。各站更多菜单可单独恢复原色。"))
             }
+            Section {
+                Toggle(L10n.tr("新版预约界面（Alpha）"), isOn: $settings.nativeBookingEnabled)
+            } footer: {
+                Text(L10n.tr("关闭后回到旧版网页预约界面；新版为原生重绘预览，最终预约仍在学校官方页面完成。"))
+            }
         }.navigationTitle(L10n.tr("网页浏览")).navigationBarTitleDisplayMode(.inline)
     }
 }

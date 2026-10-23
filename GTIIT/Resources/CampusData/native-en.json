@@ -649,5 +649,13 @@
   "预约查询": "Search bookings",
   "选择具体排程": "Choose a schedule",
   "教室": "Classrooms",
-  "会议室": "Meeting rooms"
+  "会议室": "Meeting rooms",
+  "新版预约界面（Alpha）": "New booking interface (Alpha)",
+  "关闭后回到旧版网页预约界面；新版为原生重绘预览，最终预约仍在学校官方页面完成。": "Turn this off to return to the classic wrapped booking pages. The new interface is a native preview; final booking still happens on the official school pages.",
+  "SC Student hub-Room 1 · 登录后可改选": "SC Student hub-Room 1 · switch rooms after sign-in",
+  "SC E1-402 · 登录后可改选": "SC E1-402 · switch rooms after sign-in",
+  "E101 教室 / A218 会议室": "E101 classroom / A218 meeting room",
+  "D5-101-3 · 登录后可改选": "D5-101-3 · switch rooms after sign-in",
+  "教室（E101）": "Classroom (E101)",
+  "会议室（A218）": "Meeting room (A218)"
 }
