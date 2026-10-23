@@ -193,6 +193,7 @@ private struct BookingLinkRowContent: View {
     let subtitle: String
     let symbol: String
     let tint: Color
+    var accessory: String = "arrow.up.right"
 
     var body: some View {
         HStack(spacing: 14) {
@@ -206,7 +207,7 @@ private struct BookingLinkRowContent: View {
                 Text(subtitle).font(.caption).foregroundStyle(.secondary).lineLimit(2)
             }
             Spacer(minLength: 8)
-            Image(systemName: "arrow.up.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
+            Image(systemName: accessory).font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
         }
         .padding(15)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -257,24 +258,19 @@ struct RoomBookingHomeView: View {
 
                 sectionTitle(L10n.tr("房间目录"), symbol: "square.grid.2x2")
                 VStack(spacing: 10) {
-                    ForEach(BookingDirectory.rooms) { room in
-                        if room.choices.isEmpty {
-                            BookingLinkRow(title: room.title, subtitle: room.subtitle, symbol: room.symbol, tint: Theme.accent) {
-                                open(BookingDestination(site: .rooms, title: room.title, url: room.url))
-                            }
-                        } else {
-                            Menu {
-                                ForEach(room.choices) { choice in
-                                    Button { open(choice) } label: {
-                                        Label(choice.title, systemImage: "calendar")
-                                    }
-                                }
-                            } label: {
-                                BookingLinkRowContent(title: room.title, subtitle: room.subtitle, symbol: room.symbol, tint: Theme.accent)
-                            }
-                            .buttonStyle(.plain)
-                            .menuOrder(.fixed)
+                    ForEach(BookingDirectory.roomCategories) { category in
+                        NavigationLink {
+                            RoomCategoryDetailView(category: category, open: open)
+                        } label: {
+                            BookingLinkRowContent(
+                                title: category.title,
+                                subtitle: "\(category.rooms.count) \(L10n.tr("间")) · \(category.subtitle)",
+                                symbol: category.symbol,
+                                tint: Theme.accent,
+                                accessory: "chevron.right"
+                            )
                         }
+                        .buttonStyle(CardPressStyle())
                     }
                 }
 
@@ -324,6 +320,39 @@ struct RoomBookingHomeView: View {
         Label(title, systemImage: symbol)
             .font(.title3.weight(.semibold))
             .padding(.top, 2)
+    }
+}
+
+private struct RoomCategoryDetailView: View {
+    @Environment(\.locale) private var nativeLocale
+    let category: RoomCategory
+    let open: (BookingDestination) -> Void
+
+    var body: some View {
+        let _ = nativeLocale.identifier
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(category.subtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 4)
+                ForEach(category.rooms) { room in
+                    BookingLinkRow(title: room.name, subtitle: room.note, symbol: category.symbol, tint: Theme.accent) {
+                        open(BookingDestination(site: .rooms, title: room.name, url: BookingDirectory.roomReservation(room.rid)))
+                    }
+                }
+                Text(L10n.tr("房间目录来自 Booked 公开排程；登录后仅显示本人有权限预约的房间。"))
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .padding(.top, 4)
+            }
+            .padding(20)
+            .frame(maxWidth: 720)
+            .frame(maxWidth: .infinity)
+        }
+        .background(Theme.pageBackground)
+        .navigationTitle(category.title)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -484,13 +513,19 @@ private struct BookingOfficialSheet: View {
 
 // MARK: - Local directory (from the 2026-10 public research snapshot)
 
-struct RoomDirectoryEntry: Identifiable {
+struct RoomOption: Identifiable {
+    let id: String
+    let name: String
+    let note: String
+    let rid: Int
+}
+
+struct RoomCategory: Identifiable {
     let id: String
     let title: String
     let subtitle: String
     let symbol: String
-    let url: URL
-    var choices: [BookingDestination] = []
+    let rooms: [RoomOption]
 }
 
 struct SportsVenue: Identifiable {
@@ -524,16 +559,102 @@ enum BookingDirectory {
     static let sportsHomeURL = URL(string: "https://gtiit.mike-x.com/0x2Rg")!
     static let sportsRegistrationURL = URL(string: "https://gtiit.mike-x.com/VK31S")!
 
-    static let rooms: [RoomDirectoryEntry] = [
-        RoomDirectoryEntry(id: "instrument", title: L10n.tr("练习房"), subtitle: L10n.tr("D4-103-9 · 电子琴练习室"), symbol: "pianokeys", url: URL(string: "https://roombooking.gtiit.edu.cn/Web/reservation.php?rid=78")!),
-        RoomDirectoryEntry(id: "hub", title: L10n.tr("学生中心"), subtitle: L10n.tr("SC Student hub-Room 1 · 登录后可改选"), symbol: "building.2.fill", url: roomReservation(84)),
-        RoomDirectoryEntry(id: "discussion", title: L10n.tr("讨论室"), subtitle: L10n.tr("SC E1-402 · 登录后可改选"), symbol: "bubble.left.and.bubble.right.fill", url: roomReservation(128)),
-        RoomDirectoryEntry(id: "teaching", title: L10n.tr("教室与会议室"), subtitle: L10n.tr("E101 教室 / A218 会议室"), symbol: "door.left.hand.open", url: roomReservation(48), choices: [
-            BookingDestination(site: .rooms, title: L10n.tr("教室（E101）"), url: roomReservation(48)),
-            BookingDestination(site: .rooms, title: L10n.tr("会议室（A218）"), url: roomReservation(19))
-        ]),
-        RoomDirectoryEntry(id: "activity", title: L10n.tr("学生活动室"), subtitle: L10n.tr("D5-101-3 · 登录后可改选"), symbol: "party.popper.fill", url: roomReservation(81))
+    static let roomCategories: [RoomCategory] = [
+        RoomCategory(
+            id: "practice", title: L10n.tr("练习房"), subtitle: L10n.tr("乐器练习与电子琴房"), symbol: "pianokeys",
+            rooms: [
+                room(78, "D4-103-9（电子琴）", L10n.tr("电子琴练习室")),
+                room(77, "D4-103-10（自带乐器）", L10n.tr("乐器练习")),
+                room(80, "D4-103-3（自带乐器）", L10n.tr("乐器练习")),
+                room(79, "D4-103-4（架子鼓）", L10n.tr("架子鼓练习")),
+                room(83, "D5-101-2（钢琴）", L10n.tr("钢琴练习")),
+                room(71, "Dorm B, First floor, NC", L10n.tr("乐器练习")),
+                room(70, "E602", L10n.tr("乐器练习")),
+                room(72, "E604", L10n.tr("乐器练习"))
+            ]),
+        RoomCategory(
+            id: "hub", title: L10n.tr("学生中心"), subtitle: L10n.tr("自习与小组讨论"), symbol: "building.2.fill",
+            rooms: [
+                room(84, "SC Student hub-Room 1", L10n.tr("房间")),
+                room(94, "SC Student hub-Room 2-Table 1", L10n.tr("桌位")),
+                room(100, "SC Student hub-Room 2-Table 2", L10n.tr("桌位")),
+                room(106, "SC Student hub-Room 3-Table 1", L10n.tr("桌位")),
+                room(112, "SC Student hub-Room 3-Table 2", L10n.tr("桌位")),
+                room(114, "SC Student hub-Room 4-Table 1", L10n.tr("桌位")),
+                room(119, "SC Student hub-Room 4-Table 2", L10n.tr("桌位")),
+                room(123, "SC Student hub-Room 5-Table 1", L10n.tr("桌位")),
+                room(127, "SC Student hub-Room 5-Table 2", L10n.tr("桌位"))
+            ]),
+        RoomCategory(
+            id: "discussion-main", title: L10n.tr("主校区讨论室"), subtitle: L10n.tr("E105 小组讨论空间"), symbol: "bubble.left.and.bubble.right.fill",
+            rooms: [
+                room(64, "E105-1", L10n.tr("小组讨论")),
+                room(65, "E105-2", L10n.tr("小组讨论")),
+                room(66, "E105-3", L10n.tr("小组讨论")),
+                room(67, "E105-4", L10n.tr("小组讨论")),
+                room(68, "E105-5", L10n.tr("小组讨论")),
+                room(69, "E105-6", L10n.tr("小组讨论"))
+            ]),
+        RoomCategory(
+            id: "discussion-sc", title: L10n.tr("学生中心讨论室"), subtitle: L10n.tr("SC E1/E2 小组讨论空间"), symbol: "bubble.left.and.bubble.right.fill",
+            rooms: [
+                room(128, "SC E1-402", L10n.tr("小组讨论")),
+                room(129, "SC E1-403", L10n.tr("小组讨论")),
+                room(130, "SC E1-404", L10n.tr("小组讨论")),
+                room(132, "SC E1-405", L10n.tr("小组讨论")),
+                room(133, "SC E1-407", L10n.tr("小组讨论")),
+                room(134, "SC E2-407", L10n.tr("小组讨论")),
+                room(135, "SC E2-408", L10n.tr("小组讨论")),
+                room(136, "SC E2-409", L10n.tr("小组讨论")),
+                room(137, "SC E1-202", L10n.tr("小组讨论")),
+                room(138, "SC E1-203", L10n.tr("小组讨论")),
+                room(139, "SC E1-204", L10n.tr("小组讨论")),
+                room(140, "SC E1-205", L10n.tr("小组讨论"))
+            ]),
+        RoomCategory(
+            id: "teaching", title: L10n.tr("教学教室"), subtitle: L10n.tr("E101–E511 教学空间"), symbol: "door.left.hand.open",
+            rooms: [
+                room(48, "E101", L10n.tr("教学教室")), room(29, "E201", L10n.tr("教学教室")),
+                room(30, "E206", L10n.tr("教学教室")), room(31, "E207", L10n.tr("教学教室")),
+                room(32, "E208", L10n.tr("教学教室")), room(33, "E209", L10n.tr("教学教室")),
+                room(34, "E210", L10n.tr("教学教室")), room(35, "E211", L10n.tr("教学教室")),
+                room(36, "E301", L10n.tr("教学教室")), room(37, "E302", L10n.tr("教学教室")),
+                room(38, "E303", L10n.tr("教学教室")), room(39, "E308", L10n.tr("教学教室")),
+                room(40, "E309", L10n.tr("教学教室")), room(41, "E310", L10n.tr("教学教室")),
+                room(42, "E311", L10n.tr("教学教室")), room(49, "E401", L10n.tr("教学教室")),
+                room(50, "E402", L10n.tr("教学教室")), room(52, "E403", L10n.tr("教学教室")),
+                room(53, "E408", L10n.tr("教学教室")), room(54, "E409", L10n.tr("教学教室")),
+                room(55, "E410", L10n.tr("教学教室")), room(56, "E411", L10n.tr("教学教室")),
+                room(57, "E501", L10n.tr("教学教室")), room(58, "E502", L10n.tr("教学教室")),
+                room(59, "E503", L10n.tr("教学教室")), room(60, "E508", L10n.tr("教学教室")),
+                room(61, "E509", L10n.tr("教学教室")), room(62, "E510", L10n.tr("教学教室")),
+                room(63, "E511", L10n.tr("教学教室"))
+            ]),
+        RoomCategory(
+            id: "meeting", title: L10n.tr("会议室与多功能空间"), subtitle: L10n.tr("会议、面试与活动空间"), symbol: "person.2.wave.2.fill",
+            rooms: [
+                room(19, "A218", L10n.tr("会议室")), room(22, "A320", L10n.tr("会议室")),
+                room(8, "A321", L10n.tr("会议室")), room(9, "A416", L10n.tr("会议室")),
+                room(3, "A528-VC", L10n.tr("视频会议室")), room(2, "A530-VC", L10n.tr("视频会议室")),
+                room(43, "Auditorium", L10n.tr("礼堂")), room(5, "E103", L10n.tr("会议室")),
+                room(11, "E203", L10n.tr("会议室")), room(12, "E205", L10n.tr("会议室")),
+                room(13, "E305", L10n.tr("会议室")), room(21, "E307", L10n.tr("会议室")),
+                room(14, "E405", L10n.tr("会议室")), room(15, "E407", L10n.tr("会议室")),
+                room(16, "E505", L10n.tr("会议室")), room(17, "E507", L10n.tr("会议室")),
+                room(44, "Innovation Center", L10n.tr("创新中心")), room(10, "M106-VC", L10n.tr("视频会议室")),
+                room(18, "M301", L10n.tr("会议室"))
+            ]),
+        RoomCategory(
+            id: "activity", title: L10n.tr("学生活动室"), subtitle: L10n.tr("社团与学生活动空间"), symbol: "party.popper.fill",
+            rooms: [
+                room(81, "D5-101-3", L10n.tr("活动室")),
+                room(82, "D5-101-5", L10n.tr("活动室"))
+            ])
     ]
+
+    private static func room(_ rid: Int, _ name: String, _ note: String) -> RoomOption {
+        RoomOption(id: "r\(rid)", name: name, note: note, rid: rid)
+    }
 
     static let sports: [SportsVenue] = [
         SportsVenue(id: "north-tt", title: L10n.tr("北校区乒乓球室"), subtitle: "North Campus Table Tennis Room", symbol: "figure.table.tennis", url: URL(string: "https://gtiit.mike-x.com/0TZPp")!),

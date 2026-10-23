@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.4] - 2026-10-23
+
+### Changed
+
+- Rebuilt the room directory from Booked's actual public schedules and resource mapping. It now groups all 85 student-relevant rooms by use: practice rooms, Student Hub, main-campus discussion rooms, Student-Centre discussion rooms, teaching rooms, meeting/multipurpose rooms and activity rooms.
+- Opening a category shows its full room list; each room opens its own Booked reservation form (reservation.php?rid=...). Hotel guest rooms and the two test rooms are intentionally excluded.
+- Validated all 85 generated reservation URLs: every one returns Booked's login redirect while preserving the exact resource id.
+
 ## [2.0.0-alpha.3] - 2026-10-23
 
 ### Fixed
