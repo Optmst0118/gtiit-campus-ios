@@ -1035,7 +1035,9 @@ extension RegressionApp {
             for child in view.subviews { if let bar = tabBar(in: child) { return bar } }
             return nil
         }
-        for site in SiteID.allCases {
+        // Booking now has a native alpha home; only the two wrapped sites use the
+        // glass WebView layout under the tab bar.
+        for site in [SiteID.portal, .moodle] {
             let browser = app.browser(for: site)
             app.openSite(site)
             browser.webView.loadHTMLString("<title>Glass fixture</title><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{margin:0}#content{height:1800px}button{height:50px}</style><div id='content'>Synthetic long content</div><button id='tail'>Last action</button>", baseURL: site.homeURL)

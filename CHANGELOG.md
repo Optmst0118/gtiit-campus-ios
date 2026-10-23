@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.1] - 2026-10-23
+
+### Added
+
+- Alpha native redesign of the Booking tab. GTIT Room Booking and GTIT Sports Center now open as SwiftUI screens instead of the raw web pages, with native cards, grouped directory rows, opening hours, practice-room rules, membership actions, Dynamic Type, dark-mode colours and VoiceOver labels.
+- The native screens expose every booking action as an in-app official-page sheet. No API, page scraping or booking submission was added; final sign-in, availability, booking, cancellation and check-in remain on the school pages.
+
+### Changed
+
+- Room-booking and sports shortcuts now route to the native screen and present the exact official deep link in a sheet instead of loading a hidden background WebView.
+- The Booking tab keeps its Liquid Glass venue switch in the leading toolbar. This is the first alpha of the 2.0 line; the stable 1.x line remains unchanged.
+
 ## [1.17] - 2026-10-23
 
 ### Changed

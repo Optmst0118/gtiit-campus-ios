@@ -137,6 +137,9 @@ private struct RootLifecycle: ViewModifier {
             if let raw = environment["GTIIT_TAB"], let tab = AppTab(rawValue: raw) {
                 app.select(tab: tab)
             }
+            if let raw = environment["GTIIT_BOOKING"], let segment = BookingSegment(rawValue: raw) {
+                app.bookingSegment = segment
+            }
             if let raw = environment["GTIIT_REVIEW_URL"], let url = URL(string: raw),
                 url.scheme == "https" || url.host == "127.0.0.1" {
                 app.select(tab: .portal)

@@ -9,6 +9,9 @@ import WebKit
 final class AppModel: ObservableObject {
     @Published var selectedTab: AppTab = .portal
     @Published var bookingSegment: BookingSegment = .rooms
+    /// Booking shortcuts target an exact official page; the native booking home
+    /// picks this up and presents it in the in-app web sheet.
+    @Published var pendingBookingLink: QuickLink?
     @Published var visitedTabs: Set<AppTab> = [.portal]
     @Published var toastText: String?
     @Published var showWelcome = false
@@ -153,7 +156,11 @@ final class AppModel: ObservableObject {
             return
         }
         switchTo(link.site)
-        browser(for: link.site).load(url)
+        if link.site == .rooms || link.site == .sports {
+            pendingBookingLink = link
+        } else {
+            browser(for: link.site).load(url)
+        }
         toast(L10n.format("正在打开「%@」", String(describing: link.title)))
     }
 

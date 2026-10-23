@@ -103,86 +103,6 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "rooms_glass_host_ready"
-    },
-    {
-      "detail" : "web=(0.0, 118.0, 402.0, 756.0), tab=(0.0, 791.0, 402.0, 83.0)",
-      "passed" : true,
-      "test" : "rooms_web_extends_under_tab_bar"
-    },
-    {
-      "detail" : "",
-      "passed" : true,
-      "test" : "rooms_pull_keeps_title_stationary"
-    },
-    {
-      "detail" : "expanded=170.0, compact=118.0",
-      "passed" : true,
-      "test" : "rooms_native_title_collapses"
-    },
-    {
-      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
-      "passed" : true,
-      "test" : "rooms_native_title_restores_at_top"
-    },
-    {
-      "detail" : "tail=791.0, bar=791.0, inset=83.0",
-      "passed" : true,
-      "test" : "rooms_last_action_scrolls_above_bar"
-    },
-    {
-      "detail" : "",
-      "passed" : true,
-      "test" : "rooms_network_error_available"
-    },
-    {
-      "detail" : "",
-      "passed" : true,
-      "test" : "rooms_http_error_available"
-    },
-    {
-      "detail" : "",
-      "passed" : true,
-      "test" : "sports_glass_host_ready"
-    },
-    {
-      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
-      "passed" : true,
-      "test" : "sports_web_extends_under_tab_bar"
-    },
-    {
-      "detail" : "",
-      "passed" : true,
-      "test" : "sports_pull_keeps_title_stationary"
-    },
-    {
-      "detail" : "expanded=170.0, compact=118.0",
-      "passed" : true,
-      "test" : "sports_native_title_collapses"
-    },
-    {
-      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
-      "passed" : true,
-      "test" : "sports_native_title_restores_at_top"
-    },
-    {
-      "detail" : "tail=791.0, bar=791.0, inset=83.0",
-      "passed" : true,
-      "test" : "sports_last_action_scrolls_above_bar"
-    },
-    {
-      "detail" : "",
-      "passed" : true,
-      "test" : "sports_network_error_available"
-    },
-    {
-      "detail" : "",
-      "passed" : true,
-      "test" : "sports_http_error_available"
-    },
-    {
-      "detail" : "",
-      "passed" : true,
       "test" : "shared_webview_background_updates_do_not_steal_modal"
     },
     {
@@ -197,8 +117,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-23T07:57:52Z",
+  "date" : "2026-10-23T08:43:30Z",
   "focus" : "layout",
   "passed" : true,
-  "runID" : "97f52e47-7795-4051-b1c6-db1bbf4b6c12"
+  "runID" : "16312bbc-06c1-482a-aabc-4368ed526a4b"
 }
