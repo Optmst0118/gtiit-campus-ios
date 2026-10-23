@@ -191,6 +191,35 @@
         if (padding > 0) document.body.style.setProperty('padding-top', '0', 'important');
     };
 
+    // Moodle dashboard 的「Customise this page」卡片和它留下的空白区域。
+    const removeMoodleCustomizeCard = () => {
+        if (pageHost !== 'moodle.gtiit.edu.cn' || !document.body) return;
+        const patterns = [/customi[sz]e this page/i, /自定义此页/i, /自定义此页面/i, /编辑此页/i];
+        for (const element of document.querySelectorAll('button,a,span,div')) {
+            if (element.children.length > 2) continue;
+            const text = (element.textContent || '').replace(/\s+/g, ' ').trim();
+            if (!text || text.length > 60 || !patterns.some((pattern) => pattern.test(text))) continue;
+            let target = element.closest('.block,[data-block],.card,.dashboard-card,.block-region,.page-actions');
+            if (!target) target = element.closest('header,section') || element;
+            if (target === document.body) target = element;
+            // Remove the node, not just hide it: hiding keeps its text in the
+            // parent's textContent, which prevents the empty wrapper collapsing.
+            target.remove();
+            // Collapse wrappers that become completely empty so the next block
+            // (Recent accessed courses) moves directly under the web navbar.
+            let parent = target.parentElement;
+            for (let depth = 0; depth < 4 && parent && parent !== document.body; depth += 1) {
+                const rect = parent.getBoundingClientRect();
+                const media = parent.querySelector('img,video,iframe,input,button,a');
+                const remaining = (parent.textContent || '').trim().length;
+                if (remaining > 0 || media || rect.height > 180) break;
+                parent.style.setProperty('display', 'none', 'important');
+                parent = parent.parentElement;
+            }
+            break;
+        }
+    };
+
     const markPortalPrivateCards = () => {
         if (pageHost !== 'students.gtiit.edu.cn' || !document.body) return;
         const findLabel = (pattern) => {
@@ -257,6 +286,7 @@
         hideBookedLoginHeader();
         hideMoodleOverviewFilters();
         releaseMoodleNavigation();
+        removeMoodleCustomizeCard();
         markPortalPrivateCards();
     };
 

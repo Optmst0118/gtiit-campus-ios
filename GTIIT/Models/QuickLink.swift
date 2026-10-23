@@ -74,7 +74,7 @@ enum QuickLinkCatalog {
 
     /// 首页展示的 8 个高频入口。
     static var highlights: [QuickLink] {
-        let ids = ["moodle.home", "moodle.upcoming", "portal.grades", "portal.enrollments",
+        let ids = ["moodle.home", "moodle.upcoming", "portal.grades",
                    "portal.attendance", "portal.checklist", "rooms.dashboard", "rooms.find"]
         return all.filter { ids.contains($0.id) }
     }
@@ -95,6 +95,9 @@ struct CampusShortcut: Identifiable {
         return [CampusShortcut(id: "native.calendar", title: L10n.tr("校历"), symbol: "calendar", link: nil),
                 CampusShortcut(id: "native.shuttle", title: L10n.tr("校园班车"), symbol: "bus.fill", link: nil)]
             + links.map { CampusShortcut(id: $0.id, title: $0.title, symbol: $0.symbol, link: $0) }
+            + [CampusShortcut(id: "native.mail", title: L10n.tr("邮箱助手"), symbol: "envelope.fill", link: nil)]
     }
-    static var defaults: Set<String> { Set(["native.calendar", "native.shuttle"] + QuickLinkCatalog.highlights.map(\.id)) }
+    static var defaults: Set<String> {
+        Set(["native.calendar", "native.shuttle", "native.mail"] + QuickLinkCatalog.highlights.map(\.id))
+    }
 }

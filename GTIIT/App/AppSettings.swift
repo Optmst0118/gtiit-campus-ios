@@ -128,7 +128,16 @@ enum DownloadRetention: String, SettingChoice {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        shortcutIDs = defaults.stringArray(forKey: "settings.shortcutIDs").map(Set.init) ?? CampusShortcut.defaults
+        var initialShortcuts = defaults.stringArray(forKey: "settings.shortcutIDs").map(Set.init) ?? CampusShortcut.defaults
+        if defaults.integer(forKey: "settings.shortcutDefaultsVersion") < 2 {
+            initialShortcuts.remove("portal.enrollments")
+            initialShortcuts.insert("native.mail")
+            // Property observers do not run during init; persist the migrated set
+            // now or it would come back from the old stored value next launch.
+            defaults.set(initialShortcuts.sorted(), forKey: "settings.shortcutIDs")
+            defaults.set(2, forKey: "settings.shortcutDefaultsVersion")
+        }
+        shortcutIDs = initialShortcuts
         language = AppLanguage(rawValue: defaults.string(forKey: "settings.language") ?? "") ?? .chinese
         yilongUnlocked = defaults.bool(forKey: "settings.yilongUnlocked")
         webDarkMode = defaults.object(forKey: "settings.webDarkMode") as? Bool ?? true

@@ -56,6 +56,7 @@ struct CampusShortcutsSection: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
+    @Environment(\.openURL) private var openURL
     @State private var managing = false
     @State private var tileSizes: [String: CGSize] = [:]
     private var shortcuts: [CampusShortcut] { CampusShortcut.all.filter { settings.shortcutIDs.contains($0.id) } }
@@ -123,10 +124,22 @@ struct CampusShortcutsSection: View {
             NavigationLink { AcademicCalendarView() } label: {
                 CampusShortcutTile(title: shortcut.title, symbol: shortcut.symbol, tone: tone)
             }
+        } else if shortcut.id == "native.mail" {
+            Button { openMailAssistant() } label: {
+                CampusShortcutTile(title: shortcut.title, symbol: shortcut.symbol, tone: tone)
+            }
         } else {
             Button {
                 if let link = shortcut.link { app.open(link) } else { app.select(tab: .shuttle) }
             } label: { CampusShortcutTile(title: shortcut.title, symbol: shortcut.symbol, tone: tone) }
+        }
+    }
+
+    private func openMailAssistant() {
+        guard let outlook = URL(string: "ms-outlook://") else { return }
+        openURL(outlook) { accepted in
+            guard !accepted, let web = URL(string: "https://outlook.office.com/mail/") else { return }
+            openURL(web)
         }
     }
 

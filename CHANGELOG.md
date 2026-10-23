@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17] - 2026-10-23
+
+### Changed
+
+- Moodle dashboard removes the "Customise this page" card and collapses the empty region above Recent accessed courses.
+- Added a final 邮箱助手 shortcut that opens the Outlook app (falling back to Outlook on the web).
+- 选课与周课表 is hidden from the default shortcuts; existing installs migrate once and can re-add it from shortcut settings.
+
 ## [1.16] - 2026-10-23
 
 ### Fixed
