@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.10] - 2026-10-23
+
+### Added
+
+- Optional school-email prefill on the Microsoft sign-in page; the email is stored in settings, the password is never stored or submitted.
+- Location-aware Home Screen Widget for the next shuttle. It refreshes its timeline about every 10 minutes, reads the widget/extended location authorization and picks the return direction from the nearest campus.
+- New four-page swipe onboarding with animated icons, feature explanations and the privacy boundary confirmation.
+- Equal-height departure cards so both directions end on the same baseline.
+
+### Changed
+
+- The widget extension now contains both the Live Activity and the Shuttle Home Widget.
+
 ## [2.0.0-alpha.9] - 2026-10-23
 
 ### Changed

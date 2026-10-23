@@ -192,10 +192,23 @@ private struct BrowsingSettingsView: View {
 struct SitesSettingsView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
+    @EnvironmentObject private var settings: AppSettings
     var body: some View {
         let _ = nativeLocale.identifier
 
         List {
+            Section {
+                TextField(L10n.tr("学校邮箱"), text: $settings.loginEmail)
+                    .textContentType(.emailAddress)
+                    .keyboardType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                Toggle(L10n.tr("登录页自动填入邮箱"), isOn: $settings.prefillLoginEmail)
+            } header: {
+                Text(L10n.tr("账号邮箱"))
+            } footer: {
+                Text(L10n.tr("仅自动填入邮箱，不保存密码；密码请由系统密码建议或你手动输入。"))
+            }
             Section {
                 ForEach(SiteID.allCases) { site in
                     NavigationLink {

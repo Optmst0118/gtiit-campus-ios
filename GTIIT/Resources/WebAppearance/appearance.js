@@ -11,6 +11,22 @@
     const cleanupHost = (typeof GTIIT_CLEANUP_HOSTS === 'undefined' ? GTIIT_ALLOWED_HOSTS : GTIIT_CLEANUP_HOSTS)
         .includes(pageHost);
 
+    const LOGIN_EMAIL = GTIIT_LOGIN_EMAIL || '';
+    const PREFILL_LOGIN_EMAIL = GTIIT_PREFILL_EMAIL;
+    const prefillMicrosoftEmail = () => {
+        if (!PREFILL_LOGIN_EMAIL || !LOGIN_EMAIL || !cleanupHost) return;
+        if (!/(^|\.)microsoftonline\.com$/i.test(pageHost) && pageHost !== 'login.microsoft.com') return;
+        if (document.querySelector('input[type="password"]')) return;
+        const input = document.querySelector('input[type="email"], input[name="loginfmt"], input#i0116, input[autocomplete="username"]');
+        if (!input || input.value) return;
+        try {
+            const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+            if (setter) setter.call(input, LOGIN_EMAIL); else input.value = LOGIN_EMAIL;
+            input.dispatchEvent(new Event('input', {bubbles: true}));
+            input.dispatchEvent(new Event('change', {bubbles: true}));
+        } catch (_) {}
+    };
+
     // 站点自带的页脚、版权条与商标条。
     const shellCSS = [
         'footer,#footer,.footer,#page-footer,#course-footer,[class*="footer" i],[id*="footer" i],',
@@ -281,6 +297,7 @@
     };
 
     const runCleanup = () => {
+        prefillMicrosoftEmail();
         hideBrandingImages();
         hideCreditBlocks();
         hideBookedLoginHeader();

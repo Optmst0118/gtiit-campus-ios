@@ -43,7 +43,7 @@ struct ShuttleView: View {
                         Text(L10n.tr("两座校园，轻松往返。"))
                             .font(.subheadline).foregroundStyle(.secondary).padding(.top, -12)
 
-                        HStack(alignment: .top, spacing: 12) {
+                        EqualHeightHStack(spacing: 12) {
                             ForEach(ShuttleDirection.allCases) { direction in
                                 Button {
                                     settings.favoriteShuttleDirection = direction
@@ -53,7 +53,6 @@ struct ShuttleView: View {
                                         direction: direction, now: context.date,
                                         departures: ShuttleSchedule.upcoming(direction, after: context.date,
                                             teachingWeek: settings.shuttleTeachingWeek))
-                                        .frame(maxWidth: .infinity, alignment: .topLeading)
                                         .contentShape(Rectangle())
                                 }.buttonStyle(CardPressStyle())
                                     .accessibilityHint(L10n.tr("查看此方向完整时刻表"))
@@ -193,7 +192,7 @@ private struct DepartureColumn: View {
             }
         }
         .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background {
             RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .fill(Theme.cardBackground)
@@ -244,5 +243,36 @@ private struct ShuttleTimetableView: View {
             .navigationTitle(L10n.tr("班车时刻表")).navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L10n.tr("完成")) { dismiss() } } }
         }.tint(Theme.accent)
+    }
+}
+
+
+/// Keeps both departure cards at the height of the taller content.
+private struct EqualHeightHStack: Layout {
+    var spacing: CGFloat = 12
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let count = max(1, subviews.count)
+        let width = proposal.width ?? 0
+        let childWidth = max(0, (width - spacing * CGFloat(count - 1)) / CGFloat(count))
+        let height = subviews.map {
+            $0.sizeThatFits(ProposedViewSize(width: childWidth, height: nil)).height
+        }.max() ?? 0
+        return CGSize(width: width, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        guard !subviews.isEmpty else { return }
+        let count = CGFloat(subviews.count)
+        let childWidth = max(0, (bounds.width - spacing * (count - 1)) / count)
+        var x = bounds.minX
+        for subview in subviews {
+            subview.place(
+                at: CGPoint(x: x, y: bounds.minY),
+                anchor: .topLeading,
+                proposal: ProposedViewSize(width: childWidth, height: bounds.height)
+            )
+            x += childWidth + spacing
+        }
     }
 }

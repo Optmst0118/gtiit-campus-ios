@@ -51,10 +51,16 @@ import WebKit
             let cleanupData = try? JSONEncoder().encode(cleanupHosts),
             let json = String(data: data, encoding: .utf8),
             let cleanupJSON = String(data: cleanupData, encoding: .utf8) else { return "" }
+        let email = UserDefaults.standard.string(forKey: "settings.loginEmail") ?? ""
+        let prefill = UserDefaults.standard.object(forKey: "settings.prefillLoginEmail") as? Bool ?? true
+        let emailData = try? JSONEncoder().encode(email)
+        let emailJSON = emailData.flatMap { String(data: $0, encoding: .utf8) } ?? "\"\""
         let body = adapter.replacingOccurrences(of: "GTIIT_INITIAL_ENABLED", with: enabled ? "true" : "false")
             .replacingOccurrences(of: "GTIIT_DARK_CANVAS", with: Theme.darkCanvasHex)
             .replacingOccurrences(of: "GTIIT_ALLOWED_HOSTS", with: json)
             .replacingOccurrences(of: "GTIIT_CLEANUP_HOSTS", with: cleanupJSON)
+            .replacingOccurrences(of: "GTIIT_LOGIN_EMAIL", with: emailJSON)
+            .replacingOccurrences(of: "GTIIT_PREFILL_EMAIL", with: prefill ? "true" : "false")
         return marker + """
         (() => {
             const allowed = \(json);
