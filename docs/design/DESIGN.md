@@ -77,3 +77,9 @@ Download grid source thumbnails have 24-point top clearance (16 points more than
 ### 1.13 consistency
 
 Native navigation appearances use white in light mode and the existing dark native canvas in dark mode, with matching title contrast across large/compact/scroll-edge states. Website title collapse uses UIKit's native behavior with nonnegative scroll progress; refresh rubber-banding belongs to the web content only. Download location/header and an 18-point continuous rounded file surface remain fixed when switching list/grid. Remove redundant gesture instruction footers.
+
+## Alpha.9 system shuttle surfaces
+
+Live Activities use one left-aligned direction/metadata block and a right-aligned system countdown; full campus names in Chinese and concise South → North / North → South in English. Lock-screen padding is 14 points, with restrained blue emphasis and no custom glass background stacking. Expanded island preserves direction/time above metadata/countdown; minimal view keeps a bus symbol with direction badge.
+
+Product copy rule: avoid defensive disclaimers and redundant instructional footers. Show only information needed to act, real operational details and concise recoverable errors. Put necessary privacy facts in privacy/settings rather than repeat them over daily flows.

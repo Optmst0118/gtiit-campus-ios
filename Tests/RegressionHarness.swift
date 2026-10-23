@@ -142,6 +142,11 @@ private final class RetiredViewReference {
         defaults.removePersistentDomain(forName: "regression.preferences")
         let settings = AppSettings(defaults: defaults)
         settings.hasSeenWelcome = true
+        settings.shuttleReminderLead = 5
+        settings.privateShuttleReminders = true
+        let reminderRestore = AppSettings(defaults: defaults)
+        check("shuttle_reminder_lead_persists", reminderRestore.shuttleReminderLead == 5)
+        check("shuttle_reminder_privacy_persists", reminderRestore.privateShuttleReminders)
         settings.startupTab = .me
         settings.defaultBooking = .sports
         settings.appearance = .dark

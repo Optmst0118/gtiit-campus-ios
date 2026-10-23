@@ -50,7 +50,13 @@ jobs:
           # Tools/signing.env (never committed), so CI regenerates an unsigned
           # project. CODE_SIGNING_ALLOWED=NO makes that sufficient to build.
           python3 Tools/gen_project.py
+          cp GTIIT.xcodeproj/project.pbxproj /tmp/gtiit-first.pbxproj
+          python3 Tools/gen_project.py
+          cmp /tmp/gtiit-first.pbxproj GTIIT.xcodeproj/project.pbxproj
           python3 Tools/check_project.py
+
+      - name: Shuttle date, location and notification policies
+        run: python3 Tools/run_shuttle_system_tests.py
 
       - name: Swift type check
         run: |
@@ -77,3 +83,6 @@ jobs:
             -derivedDataPath "${RUNNER_TEMP}/DerivedData" \
             CODE_SIGNING_ALLOWED=NO \
             build
+
+      - name: Validate embedded extension and versions
+        run: python3 Tools/verify_bundle.py "${RUNNER_TEMP}/DerivedData/Build/Products/Debug-iphonesimulator/GTIIT.app" --unsigned

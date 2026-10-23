@@ -160,7 +160,7 @@ def main() -> int:
 
     # 工程结构
     project = next((o for o in objects.values() if o["isa"] == "PBXProject"), None)
-    target = next((o for o in objects.values() if o["isa"] == "PBXNativeTarget"), None)
+    target = next((o for o in objects.values() if o["isa"] == "PBXNativeTarget" and field_string(o["raw"], "name") == "GTIIT"), None)
     if project is None or target is None:
         fail("找不到 PBXProject 或 PBXNativeTarget")
         return report()
@@ -182,7 +182,7 @@ def main() -> int:
         "TARGETED_DEVICE_FAMILY": "1,2",
     }
     configs = [o for o in objects.values() if o["isa"] == "XCBuildConfiguration"
-               and "PRODUCT_BUNDLE_IDENTIFIER" in o["raw"]]
+               and field_string(o["raw"], "PRODUCT_BUNDLE_IDENTIFIER") == "io.github.optmst0118.gtiit"]
     if len(configs) != 2:
         fail(f"target 应有 2 个 XCBuildConfiguration，实际 {len(configs)}")
     for config in configs:
@@ -192,6 +192,22 @@ def main() -> int:
                 fail(f"{config['name']} 缺少 {key}")
             elif value != expected:
                 fail(f"{config['name']} 的 {key} = {value}，期望 {expected}")
+
+    # Each target owns its own configurations; the extension must stay embedded.
+    version = json.loads((ROOT / "Tools/version.json").read_text())
+    widgets = [o for o in objects.values() if o["isa"] == "PBXNativeTarget" and field_string(o["raw"], "name") == "GTIITWidgets"]
+    if len(widgets) != 1: fail("必须恰有一个 GTIITWidgets target")
+    else:
+        widget = widgets[0]
+        if field_string(widget["raw"], "productType") != "com.apple.product-type.app-extension": fail("Widget productType 错误")
+        widget_configs = [o for o in objects.values() if o["isa"] == "XCBuildConfiguration" and field_string(o["raw"], "PRODUCT_BUNDLE_IDENTIFIER") == "io.github.optmst0118.gtiit.widgets"]
+        if len(widget_configs) != 2: fail("Widget 缺少 Debug/Release 配置")
+        for config in configs + widget_configs:
+            if field_string(config["raw"], "CURRENT_PROJECT_VERSION") != str(version["build"]): fail("App/Widget build 与 version.json 不一致")
+            if field_string(config["raw"], "MARKETING_VERSION") != version["marketing"]: fail("App/Widget 版本不一致")
+        embeds = [objects[i] for i in field_values(target["raw"], "buildPhases") if objects[i]["isa"] == "PBXCopyFilesBuildPhase"]
+        product = field_id(widget["raw"], "productReference")
+        if not any(field_string(e["raw"], "dstSubfolderSpec") == "13" and any(field_id(objects[b]["raw"], "fileRef") == product for b in field_values(e["raw"], "files")) for e in embeds): fail("App 未嵌入 Widget 扩展")
 
     # group 树 → 文件存在
     main_group = field_id(project["raw"], "mainGroup")
@@ -203,8 +219,8 @@ def main() -> int:
             fail(f"文件引用不存在：{rel}")
 
     # Swift 源码都在编译阶段
-    sources_phase = next((o for o in objects.values()
-                          if o["isa"] == "PBXSourcesBuildPhase"), None)
+    sources_phase = next((objects[i] for i in field_values(target["raw"], "buildPhases")
+                          if objects[i]["isa"] == "PBXSourcesBuildPhase"), None)
     if sources_phase is None:
         fail("缺少 Sources 编译阶段")
     else:
@@ -229,9 +245,21 @@ def main() -> int:
             fail(f"编译列表里有磁盘不存在的文件：{extra}")
         notes.append(f"编译 Swift 文件：{len(compiled)} / 磁盘 {len(disk_swift)}")
 
+    if widgets:
+        widget = widgets[0]
+        compiled_widget = set()
+        for phase_id in field_values(widget["raw"], "buildPhases"):
+            phase = objects[phase_id]
+            if phase["isa"] == "PBXSourcesBuildPhase":
+                for b in field_values(phase["raw"], "files"):
+                    compiled_widget.add(paths.get(field_id(objects[b]["raw"], "fileRef")))
+        required_widget = {str(p.relative_to(ROOT)) for p in (ROOT / "GTIITWidgets").glob("*.swift")} | {"GTIIT/Views/ShuttleActivityPresentation.swift", "GTIIT/Models/ShuttleActivityAttributes.swift", "GTIIT/Models/ShuttleSchedule.swift", "GTIIT/Core/Localization.swift"}
+        if compiled_widget != required_widget: fail(f"Widget 编译源码不一致：{compiled_widget ^ required_widget}")
+        notes.append(f"Widget 编译 Swift 文件：{len(compiled_widget)}")
+
     # Resources 阶段
-    resources_phase = next((o for o in objects.values()
-                            if o["isa"] == "PBXResourcesBuildPhase"), None)
+    resources_phase = next((objects[i] for i in field_values(target["raw"], "buildPhases")
+                            if objects[i]["isa"] == "PBXResourcesBuildPhase"), None)
     if resources_phase is None:
         fail("缺少 Resources 编译阶段")
     else:

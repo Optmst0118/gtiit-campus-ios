@@ -5,7 +5,7 @@ struct ShuttleReminderSettingsView: View {
     @EnvironmentObject private var settings: AppSettings
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var notifications = ShuttleNotificationCenter.shared
-    @State private var leadMinutes = 10
+    @Environment(\.scenePhase) private var scenePhase
     @State private var message: String?
 
     var body: some View {
@@ -25,8 +25,6 @@ struct ShuttleReminderSettingsView: View {
                             }
                         }
                     }
-                } footer: {
-                    Text(L10n.tr("仅发送本机班车提醒，不使用服务器推送；可在系统设置中随时关闭。"))
                 }
 
                 Section {
@@ -35,7 +33,7 @@ struct ShuttleReminderSettingsView: View {
                             Text(direction.title).tag(direction)
                         }
                     }
-                    Picker(L10n.tr("提前时间"), selection: $leadMinutes) {
+                    Picker(L10n.tr("提前时间"), selection: $settings.shuttleReminderLead) {
                         Text(L10n.tr("5 分钟")).tag(5)
                         Text(L10n.tr("10 分钟")).tag(10)
                         Text(L10n.tr("15 分钟")).tag(15)
@@ -50,8 +48,7 @@ struct ShuttleReminderSettingsView: View {
                             message = nil
                         }
                     }
-                } footer: {
-                    Text(L10n.format("当前常用方向：%@", String(describing: settings.favoriteShuttleDirection.title)))
+                    Toggle(L10n.tr("隐藏提醒详情"), isOn: $settings.privateShuttleReminders)
                 }
 
                 if let message {
@@ -68,6 +65,7 @@ struct ShuttleReminderSettingsView: View {
                 }
             }
             .task { await notifications.refreshStatus() }
+            .onChange(of: scenePhase) { _, phase in if phase == .active { Task { await notifications.refreshStatus() } } }
         }
     }
 
@@ -94,16 +92,16 @@ struct ShuttleReminderSettingsView: View {
             teachingWeek: settings.shuttleTeachingWeek,
             limit: 1
         ).first else {
-            message = L10n.tr("今天已经没有符合条件的班车。")
+            message = L10n.tr("没有可提醒的班次。")
             return
         }
         let ok = await notifications.scheduleReminder(
             direction: settings.favoriteShuttleDirection,
             departure: next,
-            leadMinutes: leadMinutes
+            leadMinutes: settings.shuttleReminderLead
         )
         message = ok
-            ? L10n.format("已设置：%@ 的班车提前 %@ 分钟提醒。", String(describing: next.trip.time), String(describing: leadMinutes))
-            : L10n.tr("提醒时间已过或通知不可用，未能设置。")
+            ? L10n.format("已设置：%@ 的班车提前 %@ 分钟提醒。", String(describing: next.trip.time), String(describing: settings.shuttleReminderLead))
+            : L10n.tr("未能设置，请选择更短的提前时间或重试。")
     }
 }

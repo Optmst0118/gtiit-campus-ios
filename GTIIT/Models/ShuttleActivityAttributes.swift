@@ -13,5 +13,7 @@ struct ShuttleActivityAttributes: ActivityAttributes {
     let destination: String
     let departureTime: String
     let busLabel: String
+    var directionRaw: String? = nil
+    var languageCode: String? = nil
     let departedLabel: String
 }

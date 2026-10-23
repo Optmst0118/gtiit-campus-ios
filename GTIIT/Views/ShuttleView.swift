@@ -9,6 +9,8 @@ struct ShuttleView: View {
     @State private var showReminders = false
     @State private var appeared = false
 
+    @StateObject private var proximity = CampusLocationRecommendation()
+    @Environment(\.scenePhase) private var scenePhase
     var body: some View {
         let _ = nativeLocale.identifier
 
@@ -61,10 +63,15 @@ struct ShuttleView: View {
                         .offset(y: appeared || reduceMotion ? 0 : 10)
 
                         if let next = ShuttleSchedule.upcoming(
-                            settings.favoriteShuttleDirection, after: context.date,
+                            proximity.direction ?? settings.favoriteShuttleDirection, after: context.date,
                             teachingWeek: settings.shuttleTeachingWeek, limit: 1
                         ).first {
-                            ShuttleLiveActivityCard(direction: settings.favoriteShuttleDirection, departure: next)
+                            ShuttleLiveActivityCard(direction: proximity.direction ?? settings.favoriteShuttleDirection, departure: next, suggested: proximity.direction != nil)
+                            if proximity.authorization == .notDetermined {
+                                Button { proximity.activate(requestPermission: true) } label: {
+                                    Label(L10n.tr("按位置推荐方向"), systemImage: "location")
+                                }.font(.subheadline).buttonStyle(.borderless)
+                            }
                         }
 
                         VStack(alignment: .leading, spacing: 12) {
@@ -75,8 +82,7 @@ struct ShuttleView: View {
                                         .font(.caption).foregroundStyle(.secondary)
                                 }
                             }
-                            Text(L10n.tr("教学周请手动确认；假期、调休请关闭。校方临时通知优先。"))
-                                .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+
                         }.padding(18).cardBackground()
 
                         Button { timetableDirection = .southToNorth } label: {
@@ -91,7 +97,6 @@ struct ShuttleView: View {
                             Label(L10n.tr("19:30 后，南校区 9 号门关闭"), systemImage: "door.left.hand.closed")
                                 .font(.footnote.weight(.medium)).foregroundStyle(Theme.orange)
                             Text(L10n.tr("关闭期间请使用其他校门进出。南行路线：北校区正门 → 南校区 2 号门 → 9 号门；北行路线相反。"))
-                            Text(L10n.tr("按计划发车时间倒计时，非车辆实时到站。时间均为北京时间。"))
                             Text(L10n.format("时刻表：%@", String(describing: ShuttleSchedule.effectiveLabel)))
                         }.font(.caption).foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -102,8 +107,11 @@ struct ShuttleView: View {
             .sheet(item: $timetableDirection) { direction in ShuttleTimetableView(initialDirection: direction) }
             .sheet(isPresented: $showReminders) { ShuttleReminderSettingsView() }
             .onAppear {
+                proximity.activate()
                 withAnimation(reduceMotion ? nil : .easeOut(duration: 0.35)) { appeared = true }
             }
+            .onDisappear { proximity.deactivate() }
+            .onChange(of: scenePhase) { _, phase in if phase == .active { proximity.activate() } else { proximity.deactivate() } }
             .onChange(of: app.tabReselectToken) { _, _ in
                 guard app.tabReselectTarget == .shuttle else { return }
                 withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3)) {

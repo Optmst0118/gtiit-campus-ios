@@ -1,0 +1,25 @@
+{
+  "checks" : {
+    "authorized_schedule" : true,
+    "boundary_uncertain_no_guess" : true,
+    "campus_timezone_explicit" : true,
+    "denied_no_schedule" : true,
+    "duplicate_identifier_stable" : true,
+    "exact_trigger_rejected" : true,
+    "far_away_no_recommendation" : true,
+    "invalid_accuracy_rejected" : true,
+    "invalid_lead_rejected" : true,
+    "lead_exact" : true,
+    "north_recommends_southbound" : true,
+    "old_fix_rejected" : true,
+    "outside_5km_no_recommendation" : true,
+    "past_trigger_rejected" : true,
+    "provisional_schedule" : true,
+    "reduced_accuracy_no_guess" : true,
+    "rollover_daily" : true,
+    "south_recommends_northbound" : true,
+    "unknown_permission_no_schedule" : true
+  },
+  "count" : 19,
+  "passed" : true
+}

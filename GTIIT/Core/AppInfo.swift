@@ -13,7 +13,7 @@ enum AppInfo {
     }
 
     static var versionText: String {
-        "\(version) (\(build))"
+        "\(Bundle.main.infoDictionary?["GTIITReleaseLabel"] as? String ?? version) (\(build))"
     }
 
     static var tagline: String { L10n.tr("校园服务，一路相连") }

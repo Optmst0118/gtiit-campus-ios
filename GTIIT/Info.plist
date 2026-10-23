@@ -83,5 +83,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>GTIITReleaseLabel</key>
+	<string>$(GTIIT_RELEASE_LABEL)</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>用于推荐从附近校区出发的班车方向。</string>
 </dict>
 </plist>

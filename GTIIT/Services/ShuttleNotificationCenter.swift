@@ -25,7 +25,7 @@ final class ShuttleNotificationCenter: NSObject, ObservableObject {
         Task { await refreshStatus() }
     }
 
-    private func registerCategories() {
+    func registerCategories() {
         let open = UNNotificationAction(
             identifier: Self.openAction,
             title: L10n.tr("查看时刻表"),
@@ -54,7 +54,7 @@ final class ShuttleNotificationCenter: NSObject, ObservableObject {
 
     func requestAuthorization() async -> Bool {
         do {
-            let granted = try await center.requestAuthorization(options: [.alert, .sound, .badge])
+            let granted = try await center.requestAuthorization(options: [.alert, .sound])
             await refreshStatus()
             return granted
         } catch {
@@ -70,30 +70,15 @@ final class ShuttleNotificationCenter: NSObject, ObservableObject {
         leadMinutes: Int
     ) async -> Bool {
         let settings = await center.notificationSettings()
-        guard settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional else {
+        guard ShuttleReminderPlan.permits(settings.authorizationStatus) else {
             return false
         }
-        let fireDate = departure.date.addingTimeInterval(-Double(max(1, leadMinutes) * 60))
-        guard fireDate > Date() else { return false }
-
-        let content = UNMutableNotificationContent()
-        content.title = L10n.tr("班车提醒")
-        content.body = L10n.isEnglish
-            ? "The \(departure.trip.time) shuttle to \(direction.destination) leaves in \(leadMinutes) minutes."
-            : "去\(direction.destination)的 \(departure.trip.time) 班车还有 \(leadMinutes) 分钟发车。"
-        content.sound = .default
-        content.categoryIdentifier = Self.category
-        content.userInfo = [
-            "direction": direction.rawValue,
-            "departure": departure.date.timeIntervalSince1970,
-            "leadMinutes": leadMinutes
-        ]
-
-        let components = Calendar.current.dateComponents(
-            [.year, .month, .day, .hour, .minute], from: fireDate)
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-        let identifier = Self.identifierPrefix + direction.rawValue + "." + String(Int(departure.date.timeIntervalSince1970))
-        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+        guard let plan = ShuttleReminderPlan(direction: direction, departure: departure, leadMinutes: leadMinutes, now: Date()) else { return false }
+        let pending = await center.pendingNotificationRequests()
+        guard pending.count < 48 || pending.contains(where: { $0.identifier == plan.identifier }) else { return false }
+        let content = makeContent(direction: direction, departure: departure.date, time: departure.trip.time,
+                                  bus: departure.trip.bus, lead: leadMinutes)
+        let request = UNNotificationRequest(identifier: plan.identifier, content: content, trigger: plan.trigger)
         do {
             try await center.add(request)
             await refreshStatus()
@@ -103,6 +88,35 @@ final class ShuttleNotificationCenter: NSObject, ObservableObject {
         }
     }
 
+    private func makeContent(direction: ShuttleDirection, departure: Date, time: String, bus: Int, lead: Int) -> UNMutableNotificationContent {
+        let content = UNMutableNotificationContent()
+        content.title = L10n.tr("班车提醒")
+        content.body = UserDefaults.standard.bool(forKey: "settings.privateShuttleReminders")
+            ? L10n.tr("该出发了")
+            : L10n.format("%@ · %@ 发车", direction.title, time)
+        content.sound = .default; content.categoryIdentifier = Self.category
+        content.userInfo = ["direction": direction.rawValue, "departure": departure.timeIntervalSince1970, "leadMinutes": lead, "bus": bus]
+        return content
+    }
+    func reconcile(teachingWeek: Bool) async {
+        registerCategories()
+        for request in await center.pendingNotificationRequests() where request.identifier.hasPrefix(Self.identifierPrefix) {
+            let info = request.content.userInfo
+            guard let raw = info["direction"] as? String, let direction = ShuttleDirection(rawValue: raw),
+                  let seconds = info["departure"] as? Double, let lead = info["leadMinutes"] as? Int else {
+                center.removePendingNotificationRequests(withIdentifiers: [request.identifier]); continue
+            }
+            let date = Date(timeIntervalSince1970: seconds), bus = info["bus"] as? Int
+            guard let departure = ShuttleSchedule.departures(direction, on: date, teachingWeek: teachingWeek)
+                .first(where: { $0.date == date && (bus == nil || $0.trip.bus == bus) }),
+                  let plan = ShuttleReminderPlan(direction: direction, departure: departure, leadMinutes: lead, now: Date()) else {
+                center.removePendingNotificationRequests(withIdentifiers: [request.identifier]); continue
+            }
+            let content = makeContent(direction: direction, departure: date, time: departure.trip.time, bus: departure.trip.bus, lead: lead)
+            try? await center.add(UNNotificationRequest(identifier: request.identifier, content: content, trigger: plan.trigger))
+        }
+        await refreshStatus()
+    }
     func cancelReminder(for departure: ShuttleDeparture, direction: ShuttleDirection) {
         let identifier = Self.identifierPrefix + direction.rawValue + "." + String(Int(departure.date.timeIntervalSince1970))
         center.removePendingNotificationRequests(withIdentifiers: [identifier])
@@ -134,6 +148,7 @@ extension ShuttleNotificationCenter: UNUserNotificationCenterDelegate {
         let userInfo = response.notification.request.content.userInfo
         let direction = (userInfo["direction"] as? String).flatMap(ShuttleDirection.init(rawValue:))
         if response.actionIdentifier == "SHUTTLE_CANCEL" {
+            center.removePendingNotificationRequests(withIdentifiers: [response.notification.request.identifier])
             center.removeDeliveredNotifications(withIdentifiers: [response.notification.request.identifier])
             return
         }

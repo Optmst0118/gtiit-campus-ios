@@ -70,14 +70,13 @@ enum DownloadRetention: String, SettingChoice {
 
 @MainActor final class AppSettings: ObservableObject {
     @Published var language: AppLanguage {
-        didSet {
-            defaults.set(language.rawValue, forKey: "settings.language")
-            AppGroup.defaults.set(language.rawValue, forKey: AppGroup.Key.language)
-            AppGroup.defaults.set(language.rawValue, forKey: AppGroup.Key.language)
-        AppGroup.defaults.set(shuttleTeachingWeek, forKey: AppGroup.Key.teachingWeek)
-        AppGroup.defaults.set(favoriteShuttleDirection.rawValue, forKey: AppGroup.Key.favoriteDirection)
-        L10n.language = language
-        }
+        didSet { defaults.set(language.rawValue, forKey: "settings.language"); AppGroup.defaults.set(language.rawValue, forKey: AppGroup.Key.language); L10n.language = language }
+    }
+    @Published var shuttleReminderLead: Int {
+        didSet { defaults.set(shuttleReminderLead, forKey: "settings.shuttleReminderLead") }
+    }
+    @Published var privateShuttleReminders: Bool {
+        didSet { defaults.set(privateShuttleReminders, forKey: "settings.privateShuttleReminders") }
     }
     @Published var yilongUnlocked: Bool {
         didSet { defaults.set(yilongUnlocked, forKey: "settings.yilongUnlocked") }
@@ -147,6 +146,9 @@ enum DownloadRetention: String, SettingChoice {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        let storedLead = defaults.integer(forKey: "settings.shuttleReminderLead")
+        shuttleReminderLead = [5, 10, 15].contains(storedLead) ? storedLead : 10
+        privateShuttleReminders = defaults.bool(forKey: "settings.privateShuttleReminders")
         var initialShortcuts = defaults.stringArray(forKey: "settings.shortcutIDs").map(Set.init) ?? CampusShortcut.defaults
         if defaults.integer(forKey: "settings.shortcutDefaultsVersion") < 2 {
             initialShortcuts.remove("portal.enrollments")

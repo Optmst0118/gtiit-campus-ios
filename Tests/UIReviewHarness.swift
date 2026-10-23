@@ -67,7 +67,18 @@ import UIKit
     var body: some Scene {
         WindowGroup {
             Group {
-                if environment["UI_REVIEW_SHORTCUTS"] == "1" {
+                if environment["UI_REVIEW_ACTIVITY"] == "1" {
+                    VStack(spacing: 24) {
+                        ForEach(ShuttleDirection.allCases) { direction in
+                            ShuttleActivitySummary(attributes: ShuttleActivityAttributes(directionTitle: direction.title,
+                                origin: direction.origin, destination: direction.destination, departureTime: "17:25",
+                                busLabel: L10n.format("%@ 号车", "1"), directionRaw: direction.rawValue,
+                                languageCode: settings.language.rawValue, departedLabel: L10n.tr("计划时间已过")),
+                                state: .init(departureDate: Date().addingTimeInterval(345), busNumber: 1))
+                                .background(Color(red: 0.055, green: 0.078, blue: 0.11), in: RoundedRectangle(cornerRadius: 24))
+                        }
+                    }.padding(20).frame(maxWidth: .infinity, maxHeight: .infinity).background(Theme.pageBackground)
+                } else if environment["UI_REVIEW_SHORTCUTS"] == "1" {
                     NavigationStack {
                         ScrollView {
                             CampusShortcutsSection().padding(.horizontal, 20).padding(.bottom, 20)

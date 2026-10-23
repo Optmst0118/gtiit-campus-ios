@@ -11,7 +11,7 @@
 
 把学校的四个官方网页集中到一个 iOS App，配合原生班车倒计时、离线课表、Moodle 临近日程、临近考试、PDF 预览与下载管理。课表需用户确认后保存；日程摘要仅缓存在本机，不转发、不代提交校园业务数据。
 
-**当前版本：1.13（17）**。完整变更见 [CHANGELOG](CHANGELOG.md)，交付与验证范围见 [1.13 记录](docs/RELEASE-1.13.md)。
+**当前版本：2.0.0-alpha.9（build 26）**。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)，验证范围见 [alpha.9 记录](docs/RELEASE-2.0.0-alpha.9.md)。
 
 <p align="center">
   <img src="docs/screenshots/01-welcome.png" width="200" alt="首次启动说明">
@@ -70,6 +70,15 @@ GTIIT 的日常学习与预约分散在四个系统里：
 - **常用入口**：两栏蓝色渐变卡片（无障碍大字号使用单栏）；设置 → 通用 → 管理常用入口可添加、隐藏与恢复。网站快捷卡片长按可分享链接、移除与管理；移除仅影响入口。菜单出现后卡片持续等比放大约 12%，连续圆角随比例保持，背景轻微模糊和变暗。无长按菜单的可点击卡片采用按住微缩、松开恢复；遵循减弱动态效果。
 - **语言**：设置 → 语言即时切换 English／中文，仅影响原生界面，保留网页实例。
 - **以龙彩蛋**：连续点击“关于 GTIIT”标题或简介卡片六次，在设置中解锁。三视图贴纸带碰撞与橡胶回弹；可收起，减弱动态效果时静态展示。
+
+### 2.0 Alpha：预约与系统班车入口
+
+- **原生预约目录**：练习房／讨论室与体育中心采用原生入口，具体可用性、登录和预约仍在对应官方页面完成。设置 → 网页浏览可切换回网页预约。
+- **实时活动**：锁屏显示完整南北方向、车号、计划发车时间和系统倒计时；灵动岛支持紧凑、展开和最小布局。重启／回到前台时恢复有效活动并清理失效或重复活动，方向、教学周或语言变化时核对当前活动。没有后台运行机会时由系统显示过期状态，下次进入时清理。
+- **附近校区推荐**：班车页可授权仅使用 App 时定位；靠近南校区推荐南→北，靠近北校区推荐北→南。以最近校区中心为基准，超过 5 公里、精度超过 300 米、两校区判断不明确或定位超过 120 秒时不推荐。推荐不自动开启活动，原始坐标不保存、不上传、不写入共享容器。
+- **本地提醒**：提前 5／10／15 分钟的偏好跨启动保存，Siri 与 App 共用；支持隐藏通知详情、去重、撤销与教学周变化后的失效清理。通知使用明确的北京时间触发日期，待处理请求设有预算。
+- **系统语言**：Intent 标题／通知动作使用中英文系统资源；通知内容和活动状态使用创建时的 App 语言，并在前台设置变更时核对现有内容。
+- **扩展构建**：Python 生成器直接生成 App、Widget、依赖和嵌入阶段；CI 验证双 target、相同版本、扩展存在及生成幂等性。`Tools/add_widget_target.rb` 仅转到同一生成器，不再另改工程。
 
 ### 网页容器
 
@@ -152,6 +161,9 @@ xcodebuild -project GTIIT.xcodeproj -scheme GTIIT -configuration Debug \
 
 ### 工程文件是生成的
 
+版本号只修改 `Tools/version.json`，App 与扩展均由生成器读取。生成器使用 Python 标准库，不依赖 Ruby xcodeproj。
+
+
 `GTIIT.xcodeproj/project.pbxproj` 由脚本生成，新增/删除源文件后运行：
 
 ```bash
@@ -168,7 +180,7 @@ python3 Tools/check_project.py    # 校验引用、UUID、签名设置、图标�
 ./Tools/install_device.sh <UDID>   # 指定设备
 ```
 
-脚本会：读取 `Tools/signing.env` 里的团队（或 `DEVELOPMENT_TEAM` 环境变量）→ 构建并自动续签 → 安装 → 启动。**不需要在 Xcode 里手工点 Team，也不会把团队写进 `project.pbxproj`。**
+脚本会：读取 `Tools/signing.env` 里的团队（或 `DEVELOPMENT_TEAM` 环境变量）→ 构建并自动续签 → 安装 → 启动。**生成器会按本机配置写入签名团队；不需要在 Xcode 手工点 Team，证书与签名密钥不进入仓库。**
 
 首次安装后需要在 iPhone 上信任开发者证书：
 
@@ -194,11 +206,11 @@ python3 Tools/verify_builds.py
 
 | 验证 | 数量 | 说明 |
 | --- | --- | --- |
-| 集成回归 | 285 项 | 导航策略、WebKit、下载、锁定、暗色、校历、课表、当前学期过滤、日程缓存与入口配置；最终版本结果见交付记录 |
+| 集成回归 | 275 项 | 导航策略、WebKit、下载、锁定、暗色、校历、课表、当前学期过滤、日程缓存与入口配置；最终版本结果见交付记录 |
 | 班车检查 | 40 项 | 时刻表解析、跨日、教学周、末班 |
 | 构建 | 3 种 | Debug 模拟器、Release 模拟器、Release 真机目标（`CODE_SIGNING_ALLOWED=NO`） |
 
-CI（GitHub Actions）在 `macos-26` 上执行工程检查与模拟器构建。
+CI（GitHub Actions）在 `macos-26` 上执行双 target 工程检查、生成幂等性、班车定位／提醒规则、Swift 检查、含 Widget 的模拟器构建及包结构验证。
 
 ## 架构
 
@@ -239,6 +251,8 @@ GTIIT-iOS-App/
 
 ## 隐私与安全
 
+- **定位**：仅在用户授权且班车页位于前台时获取位置；只在内存判断最近校区，不记录轨迹或发送给学校及其他服务。离开班车页或进入后台停止定位。
+
 - **不采集数据**：没有自建后端、统计 SDK、埋点或崩溃上报；仓库内没有真实学生数据。
 - **账号只在官方网页输入**：App 代码不接触账号密码，不注入登录表单；课程提取是用户主动发起、字段受限的本地读取。
 - **会话只在本地**：Cookie 与网页存储在 WebKit 沙盒内，四站隔离；可单站或全站清除。
@@ -250,6 +264,9 @@ GTIIT-iOS-App/
 发现安全问题请按 [SECURITY.md](SECURITY.md) 私下报告，不要公开提交 Issue。
 
 ## 已知限制
+
+- 当前签名账号未启用 App Groups。实时活动通过 Activity attributes 传递状态正常工作；共享容器不记为已启用。具有相应能力的开发团队可用 `GTIIT_APP_GROUPS=1 python3 Tools/gen_project.py` 同时生成双端 entitlement 设置，然后重新签名并运行包验证。
+- `python3 Tools/verify_bundle.py <GTIIT.app>` 验证真机包与扩展的版本、签名及 profile 一致；CI 的 `--unsigned` 只验证结构和版本，不等同于真机签名验证。
 
 1. 四个站点需要在 App 内**分别登录**；Safari 的会话不会自动迁入。
 2. 校园站点通常需要**校园网或学校认可的访问方式**，校外网络可能无法解析。
@@ -302,6 +319,8 @@ An unofficial, open-source iOS client for GTIIT campus services, written in Swif
 - No analytics, backend or account storage. Optional, explicitly confirmed timetable imports read registered course fields only and stay on the device. All sessions live in the WebKit sandbox and can be cleared per site.
 - Protected local timetable and Moodle summaries; current-term active courses only, 30-minute automatic refresh, manual refresh, and cache removal with Moodle website data.
 - Persistent shortcut management in Settings → General. Native context menus keep a proportional 12% card enlargement, matching continuous corners, subtle background blur/dimming, and document-only grid lift targets. Settings → Timetable uses standard push navigation.
+- Live Activity shuttle countdowns with explicit direction, local reminders with persisted lead time, and optional foreground campus proximity suggestions; no location history is stored or uploaded.
+- App and Widget targets are generated together from one version file, with embedded-extension and signing/profile verification. App Groups remain disabled for the current signing team.
 - No third-party package dependencies; Dark Reader (MIT) is bundled only for optional web dark appearance.
 
 **Build**

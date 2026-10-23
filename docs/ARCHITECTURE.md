@@ -104,3 +104,11 @@ SiteBrowserView owns native NavigationStack chrome and a fixed SiteID.nativeTitl
 ## 1.13 navigation and download structure
 
 WebViewHostController registers a noninteractive native UIScrollView for the navigation edge and retains WebKit for the bottom edge. It mirrors only nonnegative scroll progress, capped at 120 points. Main-frame isolated-world events report numeric offsets from full-height inner scrollers; no text or form data is read. A weak ownership map rebinds the handler after a shared web view returns from a modal. The top tracker is also explicitly registered on the navigation content controller, supporting the booking scope selector above the web host. DownloadsView owns the location/count/container layout once; its file container selects native collection grid or plain List internally.
+
+## 2.0 alpha.9
+
+Tools/version.json owns marketing/prerelease/build values. widget_project.py augments deterministic main-target output with extension sources/resources, target dependency and copy phase; no Ruby library is required. App Groups are opt-in for teams with matching profiles. verify_bundle.py validates both product versions and device signatures/profile entitlements, while unsigned CI validates only structure.
+
+CampusProximity uses WGS84 centroids (OSM ways 536680356 and 1313755916), 5 km nearest-center radius, 300 m maximum reported accuracy, 120 s maximum fix age and an ambiguity margin. The foreground CLLocationManager shell never persists locations. Recommendations select an offered direction without changing saved preferences or starting activities until tapped. Direction and language are carried by optional Activity attributes so older activity data remains decodable.
+
+ShuttleReminderPlan is the pure date/identifier/authorization policy. Notifications use the campus Gregorian Asia/Shanghai calendar. Reconciliation preserves explicitly chosen per-notification lead times, removes invalid teaching-week requests and refreshes content language/privacy. No BGAppRefresh or remote backend is required for already queued local reminders. Live Activity expiry is best-effort while app execution is available; staleDate provides an out-of-date state, not a guarantee of background termination.

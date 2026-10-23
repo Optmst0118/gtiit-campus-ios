@@ -65,15 +65,16 @@ struct ScheduleShuttleReminderIntent: AppIntent {
             return .result(dialog: IntentDialog(stringLiteral: L10n.tr("现在没有符合条件的班车。")))
         }
         let center = ShuttleNotificationCenter.shared
+        await center.refreshStatus()
         if center.authorizationStatus == .notDetermined {
             _ = await center.requestAuthorization()
         }
         guard center.authorizationStatus == .authorized || center.authorizationStatus == .provisional else {
             return .result(dialog: IntentDialog(stringLiteral: L10n.tr("请先在 App 的班车提醒中允许通知。")))
         }
-        let ok = await center.scheduleReminder(direction: direction, departure: next, leadMinutes: 10)
+        let ok = await center.scheduleReminder(direction: direction, departure: next, leadMinutes: UserDefaults.standard.object(forKey: "settings.shuttleReminderLead") as? Int ?? 10)
         let text = ok
-            ? L10n.format("已设置：%@ 的班车提前 10 分钟提醒。", String(describing: next.trip.time))
+            ? L10n.format("已设置：%@ 的班车提前 %@ 分钟提醒。", next.trip.time, String(UserDefaults.standard.object(forKey: "settings.shuttleReminderLead") as? Int ?? 10))
             : L10n.tr("提醒时间已过，未能设置。")
         return .result(dialog: IntentDialog(stringLiteral: text))
     }
@@ -109,7 +110,8 @@ struct GTIITShortcuts: AppShortcutsProvider {
             intent: ScheduleShuttleReminderIntent(destination: .north),
             phrases: [
                 "\(.applicationName) 提醒我赶去北校的班车",
-                "\(.applicationName) 提醒我赶北校班车"
+                "\(.applicationName) 提醒我赶北校班车",
+                "\(.applicationName) remind me to catch the north campus shuttle"
             ],
             shortTitle: "北校班车提醒",
             systemImageName: "bell.badge.fill"
@@ -118,7 +120,8 @@ struct GTIITShortcuts: AppShortcutsProvider {
             intent: ScheduleShuttleReminderIntent(destination: .south),
             phrases: [
                 "\(.applicationName) 提醒我赶去南校的班车",
-                "\(.applicationName) 提醒我赶南校班车"
+                "\(.applicationName) 提醒我赶南校班车",
+                "\(.applicationName) remind me to catch the south campus shuttle"
             ],
             shortTitle: "南校班车提醒",
             systemImageName: "bell.badge.fill"

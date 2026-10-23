@@ -5,79 +5,43 @@ import WidgetKit
 struct ShuttleLiveActivityWidget: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: ShuttleActivityAttributes.self) { context in
-            ShuttleLockScreenView(context: context)
-                .activityBackgroundTint(Color.black.opacity(0.55))
+            ShuttleActivitySummary(attributes: context.attributes, state: context.state, isStale: context.isStale)
+                .activityBackgroundTint(Color(red: 0.055, green: 0.078, blue: 0.11))
                 .activitySystemActionForegroundColor(.white)
-                .widgetURL(URL(string: "gtiit://shuttle"))
+                .widgetURL(link(context.attributes))
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    Image(systemName: "bus.fill")
-                        .foregroundStyle(.orange)
-                }
-                DynamicIslandExpandedRegion(.center) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(context.attributes.destination)
-                            .font(.caption.weight(.semibold))
-                        Text("\(context.attributes.departureTime) · \(context.attributes.busLabel)")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
+                    Label(ShuttleActivityWords.compact(context.attributes), systemImage: "bus.fill")
+                        .font(.headline).foregroundStyle(.cyan)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    ShuttleTimer(departure: context.state.departureDate, departedLabel: context.attributes.departedLabel)
-                        .font(.headline.monospacedDigit())
-                        .foregroundStyle(.orange)
+                    Text(context.attributes.departureTime).font(.headline.monospacedDigit())
+                }
+                DynamicIslandExpandedRegion(.bottom) {
+                    HStack {
+                        Text(context.attributes.busLabel).font(.subheadline).foregroundStyle(.secondary)
+                        Spacer(minLength: 12)
+                        ShuttleActivityCountdown(date: context.state.departureDate, expired: context.isStale, language: context.attributes.languageCode)
+                            .font(.title2.monospacedDigit().weight(.semibold)).foregroundStyle(.cyan).frame(width: 110, alignment: .trailing)
+                    }.padding(.top, 5)
                 }
             } compactLeading: {
-                Image(systemName: "bus.fill").foregroundStyle(.orange)
+                Text(ShuttleActivityWords.compact(context.attributes)).font(.caption2.weight(.semibold)).foregroundStyle(.cyan)
             } compactTrailing: {
-                ShuttleTimer(departure: context.state.departureDate, departedLabel: context.attributes.departedLabel)
-                    .font(.caption2.monospacedDigit())
-                    .foregroundStyle(.orange)
+                ShuttleActivityCountdown(date: context.state.departureDate, expired: context.isStale, language: context.attributes.languageCode)
+                    .font(.caption2.monospacedDigit()).frame(maxWidth: 54)
             } minimal: {
-                Image(systemName: "bus.fill").foregroundStyle(.orange)
-            }
-            .widgetURL(URL(string: "gtiit://shuttle"))
+                Image(systemName: "bus.fill").foregroundStyle(.cyan)
+                    .overlay(alignment: .bottomTrailing) {
+                        Image(systemName: context.attributes.directionRaw == ShuttleDirection.northToSouth.rawValue ? "arrow.down" : "arrow.up")
+                            .font(.system(size: 8, weight: .bold)).foregroundStyle(.black)
+                            .padding(2).background(.cyan, in: Circle()).offset(x: 5, y: 4)
+                    }
+            }.widgetURL(link(context.attributes))
         }
     }
-}
-
-private struct ShuttleTimer: View {
-    let departure: Date
-    let departedLabel: String
-
-    var body: some View {
-        if departure > Date() {
-            Text(timerInterval: Date.now...departure, countsDown: true)
-                .monospacedDigit()
-        } else {
-            Text(departedLabel)
-                .font(.caption)
-        }
-    }
-}
-
-private struct ShuttleLockScreenView: View {
-    let context: ActivityViewContext<ShuttleActivityAttributes>
-
-    var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: "bus.fill")
-                .font(.title2)
-                .foregroundStyle(.orange)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(context.attributes.destination)
-                    .font(.headline)
-                Text("\(context.attributes.busLabel) · \(context.attributes.departureTime)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer(minLength: 8)
-            ShuttleTimer(departure: context.state.departureDate, departedLabel: context.attributes.departedLabel)
-                .font(.title3.monospacedDigit().weight(.semibold))
-                .foregroundStyle(.orange)
-        }
-        .padding(16)
+    private func link(_ attributes: ShuttleActivityAttributes) -> URL? {
+        URL(string: "gtiit://shuttle?direction=" + (attributes.directionRaw ?? ShuttleDirection.southToNorth.rawValue))
     }
 }

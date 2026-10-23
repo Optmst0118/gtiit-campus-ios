@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.9] - 2026-10-23
+
+### Changed
+
+- Generate the Widget target, dependency, embed phase and bilingual system resources in Python; align both target versions through version.json (build 26). Check both targets and validate unsigned/signed bundle structure separately.
+- Rebuild Live Activity layouts with clear campus direction, departure metadata and aligned countdown; restore, deduplicate and reconcile activities on foreground/settings changes, observe termination and handle request failures.
+- Add foreground-only campus proximity recommendations with a 5 km cutoff, accuracy/age/ambiguity checks and no location persistence.
+- Persist reminder lead time and privacy, use the same preference in Siri, pin notification triggers to the campus calendar and reconcile invalid requests after teaching-week changes.
+- Remove redundant shuttle/reminder explanatory footers; add bilingual system localization and date/location/permission boundary tests.
+
 ## [2.0.0-alpha.8] - 2026-10-23
 
 ### Added

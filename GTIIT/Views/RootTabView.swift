@@ -102,6 +102,7 @@ private struct RootLifecycle: ViewModifier {
                 applyDebugLaunchOverrides()
             #endif
             app.prepareLaunchIfAllowed()
+            syncShuttleSystemState()
             await WebDataStoreRegistry.shared.cleanupRetiredStores()
         }
         .onAppear {
@@ -113,6 +114,7 @@ private struct RootLifecycle: ViewModifier {
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
+                syncShuttleSystemState()
                 app.lock.setActive(settings: settings)
                 app.prepareLaunchIfAllowed()
             } else {
@@ -120,9 +122,20 @@ private struct RootLifecycle: ViewModifier {
                 app.lock.setInactive(settings: settings)
             }
         }
+        .onChange(of: settings.shuttleTeachingWeek) { _, _ in syncShuttleSystemState() }
+        .onChange(of: settings.favoriteShuttleDirection) { _, _ in syncShuttleSystemState() }
+        .onChange(of: settings.language) { _, _ in syncShuttleSystemState() }
+        .onChange(of: settings.privateShuttleReminders) { _, _ in syncShuttleSystemState() }
         .onChange(of: app.lock.isLocked) { _, locked in if !locked { app.prepareLaunchIfAllowed() } else { app.yilong.close() } }
         .onChange(of: settings.hasSeenWelcome) { _, _ in app.prepareLaunchIfAllowed() }
         .onChange(of: app.showWelcome) { _, shown in if !shown { app.prepareLaunchIfAllowed() } }
+    }
+
+    private func syncShuttleSystemState() {
+        Task {
+            await ShuttleLiveActivityController.shared.reconcile(direction: settings.favoriteShuttleDirection, teachingWeek: settings.shuttleTeachingWeek)
+            await ShuttleNotificationCenter.shared.reconcile(teachingWeek: settings.shuttleTeachingWeek)
+        }
     }
 
     #if DEBUG

@@ -1,0 +1,46 @@
+{
+  "version": "2.0.0-alpha.9",
+  "build": {
+    "signedRelease": true,
+    "simulatorDebug": true,
+    "generatorIdempotent": true,
+    "dualTargetCheck": true,
+    "bundleVersionsMatch": true,
+    "signedProfilesMatch": true,
+    "appGroupsEnabled": false
+  },
+  "sourceSHA256": "887e2f59993509a8465e66abd96a845ec50b0fb666fcb93d6c0158d4d7c0d886",
+  "regression": {
+    "passed": true,
+    "checks": 275,
+    "scope": "full isolated suite before final presentation/Siri-phrase-only refinements"
+  },
+  "shuttleRules": {
+    "passed": true,
+    "checks": 40
+  },
+  "locationReminderRules": {
+    "passed": true,
+    "checks": 19
+  },
+  "uiReview": {
+    "zhDirections": true,
+    "enDirections": true,
+    "actualCompactIsland": true,
+    "simulatedSouthNorthOutside5km": true,
+    "actualActivityCreationRestoreEnd": true,
+    "notificationAuthorizationScheduleCancel": true,
+    "limits": [
+      "Actual in-campus GPS not independently verified",
+      "Future notification delivery and Siri speech not independently observed",
+      "Expanded/minimal transitions and full-screen lock state not independently inspected"
+    ]
+  },
+  "delivery": {
+    "overlayInstalled": true,
+    "version": "2.0.0 (26)",
+    "releaseLabel": "2.0.0-alpha.9",
+    "launchConfirmed": true,
+    "dataReset": false
+  }
+}
