@@ -111,25 +111,13 @@ private struct BookingHeader: View {
     let tint: Color
 
     var body: some View {
-        HStack(spacing: 0) {
-            Image(systemName: symbol)
-                .font(.system(size: 26, weight: .semibold))
-                .foregroundStyle(tint)
-                .frame(width: 58, height: 58)
-                .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 17, style: .continuous))
-            Spacer(minLength: 0)
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            LinearGradient(colors: [tint.opacity(0.17), tint.opacity(0.04)],
-                           startPoint: .topLeading, endPoint: .bottomTrailing),
-            in: RoundedRectangle(cornerRadius: 24, style: .continuous)
-        )
-        .overlay {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .strokeBorder(tint.opacity(0.12))
-        }
+        Image(systemName: symbol)
+            .font(.system(size: 26, weight: .semibold))
+            .foregroundStyle(tint)
+            .frame(width: 58, height: 58)
+            .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 14)
     }
 }
 

@@ -159,25 +159,13 @@ struct MoodleHomeView: View {
     // MARK: Header
 
     private var header: some View {
-        HStack(spacing: 0) {
-            Image(systemName: "book.closed.fill")
-                .font(.system(size: 27, weight: .semibold))
-                .foregroundStyle(Theme.accent)
-                .frame(width: 58, height: 58)
-                .background(Theme.accent.opacity(0.13), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            Spacer(minLength: 0)
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            LinearGradient(colors: [Theme.accent.opacity(0.17), Theme.accent.opacity(0.035)],
-                           startPoint: .topLeading, endPoint: .bottomTrailing),
-            in: RoundedRectangle(cornerRadius: 24, style: .continuous)
-        )
-        .overlay {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .strokeBorder(Theme.accent.opacity(0.12))
-        }
+        Image(systemName: "book.closed.fill")
+            .font(.system(size: 27, weight: .semibold))
+            .foregroundStyle(Theme.accent)
+            .frame(width: 58, height: 58)
+            .background(Theme.accent.opacity(0.13), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 14)
     }
 
     private var visibleSections: [MoodleSection] {

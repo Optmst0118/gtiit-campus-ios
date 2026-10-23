@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.26] - 2026-10-24
+
+### Changed
+
+- Removed the remaining tinted rounded container from the learning and booking headers; only the icon tile remains.
+- Aligned the icon tile with the standard 20pt page content margin in both tabs.
+
 ## [2.0.0-alpha.25] - 2026-10-24
 
 ### Changed
