@@ -176,6 +176,32 @@ private struct BookingActionCard: View {
     }
 }
 
+private struct BookingLinkRowContent: View {
+    let title: String
+    let subtitle: String
+    let symbol: String
+    let tint: Color
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: symbol)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(tint)
+                .frame(width: 42, height: 42)
+                .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.body.weight(.semibold)).foregroundStyle(.primary)
+                Text(subtitle).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+            }
+            Spacer(minLength: 8)
+            Image(systemName: "arrow.up.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
+        }
+        .padding(15)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .cardBackground(corner: 16)
+    }
+}
+
 private struct BookingLinkRow: View {
     let title: String
     let subtitle: String
@@ -185,22 +211,7 @@ private struct BookingLinkRow: View {
 
     var body: some View {
         Button(action: onOpen) {
-            HStack(spacing: 14) {
-                Image(systemName: symbol)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(tint)
-                    .frame(width: 42, height: 42)
-                    .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(title).font(.body.weight(.semibold)).foregroundStyle(.primary)
-                    Text(subtitle).font(.caption).foregroundStyle(.secondary).lineLimit(2)
-                }
-                Spacer(minLength: 8)
-                Image(systemName: "arrow.up.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
-            }
-            .padding(15)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .cardBackground(corner: 16)
+            BookingLinkRowContent(title: title, subtitle: subtitle, symbol: symbol, tint: tint)
         }
         .buttonStyle(CardPressStyle())
     }
@@ -235,8 +246,22 @@ struct RoomBookingHomeView: View {
                 sectionTitle(L10n.tr("房间目录"), symbol: "square.grid.2x2")
                 VStack(spacing: 10) {
                     ForEach(BookingDirectory.rooms) { room in
-                        BookingLinkRow(title: room.title, subtitle: room.subtitle, symbol: room.symbol, tint: Theme.accent) {
-                            open(BookingDestination(site: .rooms, title: room.title, url: room.url))
+                        if room.choices.isEmpty {
+                            BookingLinkRow(title: room.title, subtitle: room.subtitle, symbol: room.symbol, tint: Theme.accent) {
+                                open(BookingDestination(site: .rooms, title: room.title, url: room.url))
+                            }
+                        } else {
+                            Menu {
+                                ForEach(room.choices) { choice in
+                                    Button { open(choice) } label: {
+                                        Label(choice.title, systemImage: "calendar")
+                                    }
+                                }
+                            } label: {
+                                BookingLinkRowContent(title: room.title, subtitle: room.subtitle, symbol: room.symbol, tint: Theme.accent)
+                            }
+                            .buttonStyle(.plain)
+                            .menuOrder(.fixed)
                         }
                     }
                 }
@@ -453,6 +478,7 @@ struct RoomDirectoryEntry: Identifiable {
     let subtitle: String
     let symbol: String
     let url: URL
+    var choices: [BookingDestination] = []
 }
 
 struct SportsVenue: Identifiable {
@@ -474,15 +500,23 @@ enum BookingDirectory {
     static let roomsMyCalendarURL = URL(string: "https://roombooking.gtiit.edu.cn/Web/my-calendar.php")!
     static let roomsSearchReservationsURL = URL(string: "https://roombooking.gtiit.edu.cn/Web/search-reservations.php")!
     static let roomsPublicScheduleURL = URL(string: "https://roombooking.gtiit.edu.cn/Web/view-calendar.php")!
+    static let roomsScheduleURL = URL(string: "https://roombooking.gtiit.edu.cn/Web/view-calendar.php")!
+
+    static func roomSchedule(_ sid: Int) -> URL {
+        URL(string: "https://roombooking.gtiit.edu.cn/Web/view-calendar.php?sid=\(sid)")!
+    }
     static let sportsHomeURL = URL(string: "https://gtiit.mike-x.com/0x2Rg")!
     static let sportsRegistrationURL = URL(string: "https://gtiit.mike-x.com/VK31S")!
 
     static let rooms: [RoomDirectoryEntry] = [
         RoomDirectoryEntry(id: "instrument", title: L10n.tr("练习房"), subtitle: L10n.tr("D4-103-9 · 电子琴练习室"), symbol: "pianokeys", url: URL(string: "https://roombooking.gtiit.edu.cn/Web/reservation.php?rid=78")!),
-        RoomDirectoryEntry(id: "hub", title: L10n.tr("学生中心"), subtitle: L10n.tr("Student Hub · 5 个房间/桌位"), symbol: "building.2.fill", url: roomsPublicScheduleURL),
-        RoomDirectoryEntry(id: "discussion", title: L10n.tr("讨论室"), subtitle: L10n.tr("SC E1/E2 · 小组讨论空间"), symbol: "bubble.left.and.bubble.right.fill", url: roomsPublicScheduleURL),
-        RoomDirectoryEntry(id: "teaching", title: L10n.tr("教室与会议室"), subtitle: L10n.tr("A/B/E 栋 · 教学与会议空间"), symbol: "door.left.hand.open", url: roomsPublicScheduleURL),
-        RoomDirectoryEntry(id: "activity", title: L10n.tr("学生活动室"), subtitle: L10n.tr("社团与学生活动空间"), symbol: "party.popper.fill", url: roomsPublicScheduleURL)
+        RoomDirectoryEntry(id: "hub", title: L10n.tr("学生中心"), subtitle: L10n.tr("Student Hub · 5 个房间/桌位"), symbol: "building.2.fill", url: roomSchedule(10)),
+        RoomDirectoryEntry(id: "discussion", title: L10n.tr("讨论室"), subtitle: L10n.tr("SC E1/E2 · 小组讨论空间"), symbol: "bubble.left.and.bubble.right.fill", url: roomSchedule(11)),
+        RoomDirectoryEntry(id: "teaching", title: L10n.tr("教室与会议室"), subtitle: L10n.tr("A/B/E 栋 · 选择具体排程"), symbol: "door.left.hand.open", url: roomSchedule(3), choices: [
+            BookingDestination(site: .rooms, title: L10n.tr("教室"), url: roomSchedule(3)),
+            BookingDestination(site: .rooms, title: L10n.tr("会议室"), url: roomSchedule(2))
+        ]),
+        RoomDirectoryEntry(id: "activity", title: L10n.tr("学生活动室"), subtitle: L10n.tr("社团与学生活动空间"), symbol: "party.popper.fill", url: roomSchedule(9))
     ]
 
     static let sports: [SportsVenue] = [

@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.2] - 2026-10-23
+
+### Fixed
+
+- The native room directory now uses Booked's numeric schedule links (view-calendar.php?sid=10/11/3/2/9), so Student Hub, discussion rooms, classrooms, meeting rooms and student activity rooms open the correct schedule instead of the generic All Reservations calendar.
+- 教室与会议室 opens a native choice for Classrooms or Meeting rooms, preserving both official schedules.
+
 ## [2.0.0-alpha.1] - 2026-10-23
 
 ### Added
