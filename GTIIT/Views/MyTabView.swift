@@ -12,6 +12,7 @@ struct MyTabView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     LocalTimetableEntry(store: app.timetable)
                     MoodleUpcomingEntry(store: app.upcoming)
+                    StudentExamsEntry(store: app.exams)
 
                     CampusShortcutsSection()
                 }

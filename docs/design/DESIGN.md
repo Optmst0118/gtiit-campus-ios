@@ -61,3 +61,15 @@
 - 下载网格中只有文档缩略图是长按抬起的源轮廓，文件名与整格不抬起。大预览呈现文件内容，菜单保留系统材质。
 
 依据 [Apple Context Menus HIG](https://developer.apple.com/design/human-interface-guidelines/context-menus) 与 [contextMenuPreview 形状接口](https://developer.apple.com/documentation/swiftui/contentshapekinds/contextmenupreview)；具体 12% 比例取自用户提供的捷径截图参考，不宣称是 Apple 规定的常量。
+
+
+### 1.12: native files, exams and web chrome
+
+- Upcoming exams is a separate card after Moodle upcoming work, with the same spacing, radius and press behavior as the timetable and Moodle cards. Course, session, start time, venue and duration remain distinct; an unknown venue is displayed explicitly.
+- Each grid file is a UIKit collection cell. The native context-menu source is its document thumbnail alone; the system owns lifting, backdrop dimming, dismissal and return to that thumbnail. No SwiftUI List row wraps multiple files. PDFs render directly with PDFKit inside the independent context preview to avoid a blank Quick Look cold-start surface; other file types use Quick Look.
+- Fixed site titles use the native navigation bar and system typography. Booking scope selection belongs below that bar; refresh and home stay in More. Native large-title collapse changes the content origin, so verification measures window coordinates after scrolling rather than using the initial header position.
+- For Student's full-height React root and inner main scroll view, keep page pixels underneath the floating tab bar. Add clearance to the end of scrolling content and the specific Checklist action bar without shortening the website viewport. Reapply the clearance on each new document.
+
+References: [UICollectionView context menu configuration](https://developer.apple.com/documentation/uikit/uicollectionviewdelegate/collectionview(_:contextmenuconfigurationforitemsat:point:)) and [targeted highlight previews](https://developer.apple.com/documentation/uikit/uicollectionviewdelegate/collectionview(_:contextmenuconfiguration:highlightpreviewforitemat:)).
+
+Download grid source thumbnails have 24-point top clearance (16 points more than the initial grid) and a shadow path inset by 6 points. The full 72×88-point paper remains visible. This changes the lift shadow footprint, not page blur strength.

@@ -3,7 +3,10 @@
     let enabled = GTIIT_INITIAL_ENABLED;
     const dark = matchMedia('(prefers-color-scheme: dark)');
     const sameHost = (host) => GTIIT_ALLOWED_HOSTS.includes(host);
-    const pageHost = location.hostname;
+    const pageHost = location.hostname || (() => {
+        if (location.href !== 'about:blank') return '';
+        try { return new URL(document.baseURI).hostname; } catch (_) { return ''; }
+    })();
     const officialHost = GTIIT_ALLOWED_HOSTS.includes(pageHost);
     const cleanupHost = (typeof GTIIT_CLEANUP_HOSTS === 'undefined' ? GTIIT_ALLOWED_HOSTS : GTIIT_CLEANUP_HOSTS)
         .includes(pageHost);
@@ -29,6 +32,9 @@
     // 门户顶部原本是白色 Tailwind 渐变；直接去掉，让网页背景跟随 App 深浅色。
     const portalCSS = pageHost === 'students.gtiit.edu.cn' ? [
         '.app-bg{background:transparent !important}',
+        'body:not(:has(main)){padding-bottom:var(--gtiit-bottom-obstruction,env(safe-area-inset-bottom)) !important}',
+        'nav[aria-label="Checklist steps"]{bottom:var(--gtiit-bottom-obstruction,env(safe-area-inset-bottom)) !important}',
+        'main{scroll-padding-bottom:var(--gtiit-bottom-obstruction,env(safe-area-inset-bottom));padding-bottom:calc(.75rem + var(--gtiit-bottom-obstruction,env(safe-area-inset-bottom))) !important}',
         '.bg-gradient-to-b,.bg-gradient-to-t,.bg-gradient-to-r{background-image:none !important}',
         '.from-white,.from-gray-50{--tw-gradient-from:transparent !important}'
     ].join('') : '';

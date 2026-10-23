@@ -53,7 +53,9 @@ def main():
         parsed = json.loads(data)
         if parsed.get('runID') != run_id or not parsed.get('completed'):
             raise RuntimeError('Missing current-run completion evidence; refusing stale results')
-        target = ROOT/'docs/verification/regression-results.json'; target.write_bytes(data)
+        focus = parsed.get('focus', 'full')
+        filename = 'regression-results.json' if focus == 'full' else 'regression-' + focus + '-results.json'
+        target = ROOT/'docs/verification'/filename; target.write_bytes(data)
         print('Results:',target,'Passed:',parsed['passed'],'Checks:',len(parsed['checks']))
         return 0 if parsed['passed'] else 1
     finally:

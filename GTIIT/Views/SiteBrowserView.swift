@@ -10,7 +10,7 @@ struct SiteBrowserView: View {
     var body: some View {
         let _ = nativeLocale.identifier
 
-        BrowserChrome(model: app.browser(for: site))
+        NavigationStack { BrowserChrome(model: app.browser(for: site)) }
             .onAppear { app.browser(for: site).recoverReadOnlyDocumentIfNeeded() }
             .onChange(of: phase) { _, value in
                 if value == .active && !app.lock.isLocked { app.browser(for: site).recoverReadOnlyDocumentIfNeeded() }
@@ -28,45 +28,23 @@ private struct BrowserChrome: View {
         let _ = nativeLocale.identifier
 
         VStack(spacing: 0) {
-            header
+            if model.site == .rooms || model.site == .sports { BookingSitePicker() }
             ProgressBarView(progress: model.progress, isActive: model.isLoading)
             content
         }
         .background(Theme.pageBackground)
-    }
-
-    // MARK: - 顶部铬
-
-    private var header: some View {
-        HStack(spacing: 0) {
-            // 与右侧菜单等宽，保持页面标题居中。
-            Color.clear.frame(width: 44, height: 44).accessibilityHidden(true)
-            Button { model.loadHome() } label: {
-                Text(model.displayTitle)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(L10n.format("%@，回到%@", String(describing: model.displayTitle), String(describing: model.site.defaultLandingTitle)))
-            .accessibilityHint(L10n.tr("轻点回到网站主页"))
-            menu
-        }
-        .padding(.horizontal, 4)
-        .frame(minHeight: Theme.headerHeight)
-        .padding(.vertical, 4)
-        .background(.bar)
-        .overlay(alignment: .bottom) {
-            Divider()
-        }
+        .ignoresSafeArea(.container, edges: .bottom)
+        .navigationTitle(model.site.nativeTitle)
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar { ToolbarItem(placement: .topBarTrailing) { menu } }
     }
 
     // MARK: - 更多菜单（原生 Menu，iOS 26 使用系统 Liquid Glass）
 
     private var menu: some View {
         Menu {
+            Button { model.loadHome() } label: { Label(L10n.tr("回到站点首页"), systemImage: "house") }
+
             Toggle(isOn: appearanceBinding) {
                 Label(L10n.tr("暗色适配"), systemImage: "moon")
             }

@@ -1,0 +1,40 @@
+{
+  "version": "1.12",
+  "build": "16",
+  "sourceSHA256": "92be4e9152d279e647a8904ccf4712698d3c7c6873ca15d365d084d0fbac0958",
+  "regression": {
+    "passed": true,
+    "checks": 274,
+    "scope": "Full isolated regression before final preview presentation/spacing/shadow-only refinements"
+  },
+  "renderReview": {
+    "environment": "isolated synthetic iPhone 17 iOS 26.5",
+    "passed": [
+      "independent adjacent PDF previews",
+      "restoration to original file cells",
+      "final lift transition single paper and inset shadow source",
+      "native exam card below Moodle card",
+      "exam detail course/date/time/venue/duration",
+      "Student content extends behind glass tabs"
+    ],
+    "limits": [
+      "Device Hub coordinate scrolling unavailable; last-action clearance checked by automated geometry rather than manual end-scroll",
+      "Live iPhone exam refresh not independently asserted"
+    ]
+  },
+  "buildValidation": {
+    "projectStructure": true,
+    "signedRelease": true,
+    "swiftSources": 59
+  },
+  "delivery": {
+    "overlayInstalled": true,
+    "inventoryVersion": "1.12 (16)",
+    "launchConfirmed": true,
+    "sameProcessObservedLater": true,
+    "dataReset": false
+  },
+  "resources": {
+    "studentReaderSHA256": "6a78fd917ccd7c32de7e06efbca0a1d18a3a97bac2cfe874c992e8796fb765b9"
+  }
+}

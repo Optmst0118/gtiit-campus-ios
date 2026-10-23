@@ -696,12 +696,12 @@
       "test" : "portal_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 118.0, 402.0, 756.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "portal_web_extends_under_tab_bar"
     },
     {
-      "detail" : "tail=791.0, bar=791.0, inset=83.0",
+      "detail" : "tail=791.0, bar=791.0, inset=0.0",
       "passed" : true,
       "test" : "portal_last_action_scrolls_above_bar"
     },
@@ -713,7 +713,7 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "portal_webkit_obscured_insets_match_toolbar"
+      "test" : "portal_full_viewport_with_inner_scroll_clearance"
     },
     {
       "detail" : "",
@@ -731,7 +731,7 @@
       "test" : "moodle_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 118.0, 402.0, 756.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "moodle_web_extends_under_tab_bar"
     },
@@ -756,7 +756,7 @@
       "test" : "rooms_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 162.0, 402.0, 712.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 214.0, 402.0, 660.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "rooms_web_extends_under_tab_bar"
     },
@@ -781,7 +781,7 @@
       "test" : "sports_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 162.0, 402.0, 712.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 214.0, 402.0, 660.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "sports_web_extends_under_tab_bar"
     },
@@ -941,7 +941,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 40B6F9B1-A759-46C8-A5D7-F4C8BB7F47DB, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-22 15:16:25 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 585DEED3-62FA-4422-90CF-BC5AE18BE6CF, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-23 05:35:53 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1319,10 +1319,61 @@
       "detail" : "",
       "passed" : true,
       "test" : "authentication_unavailable_keeps_locked"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_cache_restart_deduplicates"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_time_uses_beijing"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_cache_excluded_from_backup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_cache_throttles_thirty_minutes"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_clear_removes_cache"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_invalid_date_rejected"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_reads_full_pre_pagination_list"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_exports_only_allowlisted_fields"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_missing_component_not_empty_success"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_site_titles_fixed"
     }
   ],
   "completed" : true,
-  "date" : "2026-10-22T15:16:53Z",
+  "date" : "2026-10-23T05:36:22Z",
+  "focus" : "full",
   "passed" : true,
-  "runID" : "2fff4a19-c1b4-48ac-a8a1-7ee67b6b9c30"
+  "runID" : "eeb965d6-9df7-4e34-9754-f710c24b608d"
 }

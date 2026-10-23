@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12] - 2026-10-23
+
+### Added
+
+- Separate upcoming-exams card and native detail screen, reading the Student exam component's complete current-semester list. Protected local summaries refresh every 30 minutes and clear with Student sign-out or website-data deletion.
+
+### Fixed
+
+- Rebuilt download grids with independent UIKit collection cells. Native lift/restore targets only the selected paper thumbnail, with deferred cell updates, 16-point extra top clearance and a 6-point inset shadow source. Background defocus remains unchanged.
+- PDF context-menu previews use PDFKit and an independent coordinated temporary copy, avoiding Quick Look helper startup delays; other document types retain Quick Look.
+- Student's independently scrolling viewport extends behind the glass tab bar, with clearance for its last content/action rather than a shortened viewport.
+- Four website tabs use stable native navigation titles and standard navigation bars; booking scope selection sits below the bar.
+
 ## [1.11] - 2026-10-22
 
 ### Fixed

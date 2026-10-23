@@ -509,6 +509,9 @@ extension BrowserModel: WKNavigationDelegate {
         }
         let disposition = response?.value(forHTTPHeaderField: "Content-Disposition")?.lowercased() ?? ""
         let isPDF = navigationResponse.response.mimeType?.lowercased() == "application/pdf"
+        #if GTIIT_REGRESSION
+        if navigationResponse.response.url?.host == "127.0.0.1" { print("RESPONSE", navigationResponse.response.url!.path, navigationResponse.response.mimeType ?? "nil", isPDF) }
+        #endif
         // 使用当前响应直接下载，保留 POST、一次性链接、Cookie 及 blob 的原始内容；不额外发 GET。
         if isPDF || navigationResponse.isForMainFrame
             && (!navigationResponse.canShowMIMEType || disposition.hasPrefix("attachment"))
@@ -520,6 +523,9 @@ extension BrowserModel: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
+        #if GTIIT_REGRESSION
+        print("DOWNLOAD_CALLBACK", site.rawValue, router != nil)
+        #endif
         finishDownloadNavigation(webView)
         router?.browserDownload(download, webView: webView, site: site)
     }
@@ -527,6 +533,9 @@ extension BrowserModel: WKNavigationDelegate {
     func webView(
         _ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload
     ) {
+        #if GTIIT_REGRESSION
+        print("DOWNLOAD_CALLBACK", site.rawValue, router != nil)
+        #endif
         finishDownloadNavigation(webView)
         router?.browserDownload(download, webView: webView, site: site)
     }

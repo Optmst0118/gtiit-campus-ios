@@ -20,51 +20,23 @@ struct DownloadsView: View {
     var body: some View {
         let _ = nativeLocale.identifier
 
-        List {
-            Section {
-                Button { chooseFolder = true } label: { locationRow }
-                    .buttonStyle(.plain)
-                    .accessibilityHint(L10n.tr("选择之后新下载文件的默认文件夹"))
-            }
-
-            Section {
-                if center.items.isEmpty {
-                    ContentUnavailableView {
-                        Label(L10n.tr("暂无下载"), systemImage: "arrow.down.circle")
-                    } description: {
-                        Text(L10n.tr("保存的文件会显示在这里。"))
+        Group {
+            if grid {
+                VStack(alignment: .leading, spacing: 16) {
+                    Button { chooseFolder = true } label: { locationRow }
+                        .buttonStyle(.plain).padding(16).cardBackground().padding(.horizontal, 20)
+                    Text(L10n.format("文件 · %@", String(center.items.count)))
+                        .font(.footnote).foregroundStyle(.secondary).padding(.horizontal, 24)
+                    if center.items.isEmpty {
+                        ContentUnavailableView(L10n.tr("暂无下载"), systemImage: "arrow.down.circle")
+                    } else {
+                        DownloadFileGrid(items: sortedItems, center: center,
+                            activate: activate, delete: { pendingDelete = $0.id },
+                            share: { url in app.browserPresentShare(items: [url]) },
+                            openSource: { app.openSite($0.site) })
                     }
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                } else if grid {
-                    LazyVGrid(
-                        columns: [GridItem(.adaptive(minimum: 105, maximum: 160), spacing: 20)],
-                        spacing: 24
-                    ) {
-                        ForEach(sortedItems) { item in fileCell(item) }
-                    }
-                    .padding(.vertical, 14)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                } else {
-                    ForEach(sortedItems) { item in
-                        fileRow(item)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                Button(role: .destructive) {
-                                    pendingDelete = item.id
-                                } label: {
-                                    Label(L10n.tr("删除"), systemImage: "trash")
-                                }
-                                .tint(Color(uiColor: .systemRed))
-                            }
-                    }
-                }
-            } header: {
-                Text(center.items.isEmpty ? L10n.tr("文件") : L10n.format("文件 · %@", String(describing: center.items.count)))
-            } footer: {
-                if !center.items.isEmpty {
-                    Text(grid ? L10n.tr("点按文件可预览或继续操作。") : L10n.tr("左滑文件可以删除；删除只影响本机文件与这条记录。"))
-                }
-            }
+                }.padding(.top, 16)
+            } else { listContent }
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
@@ -114,6 +86,46 @@ struct DownloadsView: View {
         .alert(L10n.tr("文件操作未完成"), isPresented: Binding(get: { center.locationError != nil }, set: { if !$0 { center.locationError = nil } })) {
             Button(L10n.tr("好")) { center.locationError = nil }
         } message: { Text(center.locationError ?? "") }
+    }
+
+    private var listContent: some View {
+        List {
+            Section {
+                Button { chooseFolder = true } label: { locationRow }
+                    .buttonStyle(.plain)
+                    .accessibilityHint(L10n.tr("选择之后新下载文件的默认文件夹"))
+            }
+
+            Section {
+                if center.items.isEmpty {
+                    ContentUnavailableView {
+                        Label(L10n.tr("暂无下载"), systemImage: "arrow.down.circle")
+                    } description: {
+                        Text(L10n.tr("保存的文件会显示在这里。"))
+                    }
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                } else {
+                    ForEach(sortedItems) { item in
+                        fileRow(item)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button(role: .destructive) {
+                                    pendingDelete = item.id
+                                } label: {
+                                    Label(L10n.tr("删除"), systemImage: "trash")
+                                }
+                                .tint(Color(uiColor: .systemRed))
+                            }
+                    }
+                }
+            } header: {
+                Text(center.items.isEmpty ? L10n.tr("文件") : L10n.format("文件 · %@", String(describing: center.items.count)))
+            } footer: {
+                if !center.items.isEmpty {
+                    Text(grid ? L10n.tr("点按文件可预览或继续操作。") : L10n.tr("左滑文件可以删除；删除只影响本机文件与这条记录。"))
+                }
+            }
+        }
     }
 
     private var locationRow: some View {
@@ -169,36 +181,6 @@ struct DownloadsView: View {
         .buttonStyle(.plain)
         .accessibilityLabel(item.filename)
         .accessibilityValue(detail(item))
-        .contextMenu { contextMenu(for: item) } preview: {
-            if item.state == .completed, let url = center.fileURL(for: item) {
-                DownloadContextPreview(source: url, filename: item.filename)
-                    .onAppear { app.showContextMenu("download." + item.id.uuidString) }
-                    .onDisappear { app.hideContextMenu("download." + item.id.uuidString) }
-            }
-        }
-    }
-
-    private func fileCell(_ item: DownloadItem) -> some View {
-        Button { activate(item) } label: {
-            VStack(spacing: 10) {
-                DownloadThumbnail(url: item.state == .completed ? center.fileURL(for: item) : nil)
-                    .frame(width: 72, height: 88)
-                    .background(Color(uiColor: .secondarySystemBackground), in: RoundedRectangle(cornerRadius: 4))
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
-                    .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color(uiColor: .separator).opacity(0.4), lineWidth: 0.5))
-                Text(item.filename).font(.caption).lineLimit(2).multilineTextAlignment(.center)
-                if item.state == .downloading { ProgressView(value: item.progress).frame(width: 72) }
-                else if item.state != .completed { Image(systemName: "exclamationmark.circle").foregroundStyle(.secondary) }
-            }
-            .frame(maxWidth: .infinity, alignment: .top)
-            .foregroundStyle(.primary)
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(item.filename)
-        .accessibilityValue(detail(item))
-        // The interaction can start anywhere in the item, but its lifted source
-        // contains only the 72 × 88 document, never the caption or grid cell.
-        .contentShape(.contextMenuPreview, DownloadIconPreviewShape())
         .contextMenu { contextMenu(for: item) } preview: {
             if item.state == .completed, let url = center.fileURL(for: item) {
                 DownloadContextPreview(source: url, filename: item.filename)
@@ -303,13 +285,14 @@ private struct DownloadFolderPicker: UIViewControllerRepresentable {
 
 /// Context-menu previews use an independent coordinated copy. Their lifetime is
 /// owned by the system preview, and cannot dismiss the normal document viewer.
-private struct DownloadContextPreview: View {
+struct DownloadContextPreview: View {
     let source: URL
     let filename: String
     @StateObject private var asset = DownloadPeekAsset()
     var body: some View {
         Group {
-            if asset.url != nil { DownloadPeekController(asset: asset) }
+            if let document = asset.document { DownloadPeekPDF(document: document) }
+            else if asset.url != nil { DownloadPeekController(asset: asset) }
             else {
                 VStack(spacing: 16) {
                     if asset.failed { Image(systemName: "doc.text.magnifyingglass").font(.largeTitle) }
@@ -327,6 +310,7 @@ private struct DownloadContextPreview: View {
 @MainActor private final class DownloadPeekAsset: ObservableObject {
     @Published private(set) var url: URL?
     @Published private(set) var failed = false
+    @Published private(set) var document: PDFDocument?
     private let folder = FileManager.default.temporaryDirectory.appendingPathComponent("file-peek-" + UUID().uuidString)
     func load(_ source: URL) async {
         guard url == nil else { return }
@@ -334,10 +318,26 @@ private struct DownloadContextPreview: View {
             let folder = folder
             let copy = try await Task.detached(priority: .userInitiated) { try DownloadFileAccess.readableCopy(source, to: folder) }.value
             guard !Task.isCancelled else { try? FileManager.default.removeItem(at: folder); return }
+            if copy.pathExtension.lowercased() == "pdf" { document = PDFDocument(url: copy) }
             url = copy
         } catch { failed = true }
     }
     deinit { try? FileManager.default.removeItem(at: folder) }
+}
+/// PDFKit avoids waiting for Quick Look's remote helper to cold-start before
+/// a PDF can be read in a context menu. Other document types retain Quick Look.
+private struct DownloadPeekPDF: UIViewRepresentable {
+    let document: PDFDocument
+    func makeUIView(context: Context) -> PDFView {
+        let view = PDFView()
+        view.displayMode = .singlePageContinuous; view.autoScales = true
+        view.displaysPageBreaks = false; view.backgroundColor = .clear
+        view.document = document
+        return view
+    }
+    func updateUIView(_ view: PDFView, context: Context) {
+        if view.document !== document { view.document = document }
+    }
 }
 private struct DownloadPeekController: UIViewControllerRepresentable {
     let asset: DownloadPeekAsset
@@ -355,13 +355,5 @@ private struct DownloadPeekController: UIViewControllerRepresentable {
         func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
             asset.url! as NSURL
         }
-    }
-}
-
-private struct DownloadIconPreviewShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        let width = min(72, rect.width), height = min(88, rect.height)
-        return RoundedRectangle(cornerRadius: 4, style: .continuous)
-            .path(in: CGRect(x: rect.midX - width / 2, y: rect.minY, width: width, height: height))
     }
 }

@@ -91,3 +91,12 @@ WebViewHostController 只在可见时挂载 BrowserModel 的 WKWebView。打开�
 无菜单的可点击卡片使用 CardPressStyle，按住微缩、松开恢复；有分享／移除动作的卡片由系统 contextMenu 管理。常用入口预览复用源卡片布局，宽、高、字体和连续圆角统一等比放大 1.12，整个菜单生命周期保持该比例，源轮廓与预览轮廓分别用 contextMenuPreview 指定。ContextMenuBackdrop 只为底层页面增加 1.6pt 模糊和 4% 黑色叠加，菜单仍由系统呈现；退出、锁定和背景切换清除对应状态。
 
 下载列表与网格保留独立的 Quick Look 大预览，用 File Coordinator 创建临时可读副本，其生命周期不依赖下载浮窗。网格的交互命中仍覆盖文件项，但 contextMenuPreview 的形状仅为顶部居中的 72×88pt 文档缩略图，不把标题或整格当作被抬起的文件。预览副本释放时清理，不生成新下载记录。
+
+
+## 1.12 architecture changes
+
+StudentExamStore uses a dedicated WebKit Dashboard view sharing only the existing portal website data store, without moving the user's visible portal, replaying forms or reading credentials. The bounded component reader examines only the Exams component's memoized pre-pagination arrays and exports an explicit exam-field whitelist. It has protected, backup-excluded local storage, a 30-minute refresh throttle, cancellation on lock/background, and clearing with portal login data. A missing component is not treated as an empty schedule. School markup changes require revalidation.
+
+Download grid presentation is a UIViewControllerRepresentable wrapping a UICollectionViewController. Each file is an independent cell and native context-menu configuration identified by file ID. Highlight and dismissal targeted previews point to the cell's document image view, not the collection or SwiftUI List row. Displayed items remain stable while UIKit owns a menu source; pending updates apply after its completion. Quick Look uses an independent coordinated copy, preserving the normal preview lifecycle.
+
+SiteBrowserView owns native NavigationStack chrome and a fixed SiteID.nativeTitle. Booking scope selection belongs below that navigation bar. The outer host extends to the window bottom; Student's height-constrained, nested-scrolling React layout keeps zero obscured viewport insets and receives CSS scroll-end clearance plus a specific Checklist action-bar offset. Native bar geometry is measured in window coordinates. Other websites keep WebKit obscured-inset behavior.

@@ -571,5 +571,20 @@
   "恢复默认入口": "Restore Default Shortcuts",
   "轻点文件可重新尝试预览": "Tap the file to try previewing again",
   "使用学习页面现有会话，只读核对当前学期活跃课程的作业名称、开放与截止时间、提交状态。摘要受文件保护缓存在本机并排除系统备份，自动更新间隔为 30 分钟，也可手动刷新。退出登录或清除 Moodle 网页数据时同步清除；不保存作业正文、成绩、附件或会话密钥。": "Using the existing Moodle session, checks assignment titles, opening and due dates, and submission status in active courses for the current term. Summaries are cached locally with file protection and excluded from backups. Automatic updates run every 30 minutes; manual refresh remains available. Signing out or clearing Moodle website data also clears the cache. Assignment content, grades, attachments, and session keys are not stored.",
-  "自动每 30 分钟更新，也可手动刷新。": "Updates automatically every 30 minutes. You can also refresh manually."
+  "自动每 30 分钟更新，也可手动刷新。": "Updates automatically every 30 minutes. You can also refresh manually.",
+  "临近考试": "Upcoming exams",
+  "登录 Student 后查看考试": "Sign in to Student to view exams",
+  "正在核对考试安排…": "Checking exam schedule…",
+  "连接 Student 后查看考试安排": "Connect to Student to view exams",
+  "暂无即将举行的考试": "No upcoming exams",
+  "另有 %@ 场考试": "%@ more exams",
+  "前往 Student 登录": "Sign in to Student",
+  "更新失败，请连接校园网或 A Trust 后重试。": "Could not update. Connect to campus Wi-Fi or A Trust and try again.",
+  "考试安排": "Exam schedule",
+  "来自 Student 当前学期的完整考试列表，含分页内容。时间为北京时间，地点待定时请在考前核对原网页。": "From the complete current-semester Student exam list, including all pages. Times are China Standard Time. Check Student before the exam for venue updates.",
+  "在 Student 核对": "Verify in Student",
+  "更新考试安排": "Refresh exams",
+  "地点待定": "Venue to be confirmed",
+  "时长 %@ 小时": "Duration: %@ hours",
+  "沿用 Student 登录会话，只读核对考试组件中的课程、场次、日期、时间、时长与地点。摘要受文件保护缓存在本机，排除系统备份，自动刷新间隔为 30 分钟；退出门户或清除门户网页数据时同步清除。不读取成绩、个人档案或账号凭据。": "Uses the existing Student session to read only exam courses, sessions, dates, times, durations and venues. Summaries are protected on this device, excluded from backup and refreshed every 30 minutes. Signing out or clearing Student website data clears the cache. Grades, profiles and credentials are not read."
 }

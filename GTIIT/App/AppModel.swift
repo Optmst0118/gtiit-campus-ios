@@ -22,6 +22,7 @@ final class AppModel: ObservableObject {
 
     let timetable = LocalTimetableStore()
     let upcoming = MoodleUpcomingStore()
+    let exams = StudentExamStore()
     let yilong = YilongController()
     let lock = AppLockController()
     let launch = LaunchPreparation()
@@ -51,7 +52,7 @@ final class AppModel: ObservableObject {
             self?.objectWillChange.send()
             Task { @MainActor [weak self] in
                 guard let self else { return }
-                if self.lock.isLocked || !self.lock.isActive { self.upcoming.cancel(); self.contextMenuSource = nil }
+                if self.lock.isLocked || !self.lock.isActive { self.upcoming.cancel(); self.exams.cancel(); self.contextMenuSource = nil }
             }
         }
         launchSubscription = launch.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
@@ -149,6 +150,7 @@ final class AppModel: ObservableObject {
         isClearingData = true
         defer { isClearingData = false }
         if site == .moodle { upcoming.cancel(clear: true) }
+        if site == .portal { exams.cancel(clear: true) }
         downloads.invalidateSession(for: site)
         if let browser = browsers[site], !(await browser.prepareForDataClear()) {
             browser.finishDataClear(dataCleared: false)
@@ -171,6 +173,7 @@ final class AppModel: ObservableObject {
         isClearingData = true
         defer { isClearingData = false }
         upcoming.cancel(clear: true)
+        exams.cancel(clear: true)
         var prepared: [BrowserModel] = []
         for site in SiteID.allCases {
             downloads.invalidateSession(for: site)
@@ -218,6 +221,7 @@ extension AppModel: BrowserRouter {
     var browserMayRecoverDocument: Bool { !lock.isLocked && lock.isActive && !isClearingData }
     func browserDidFinish(url: URL, site: SiteID) {
         settings.remember(url, for: site)
+        if site == .portal && (url.host != site.host || url.path.contains("login") || url.path.contains("logout")) { exams.cancel(clear: true) }
         if site == .moodle {
             if url.path.contains("/login/") || url.path.contains("/auth/") { upcoming.cancel(clear: true) }
 

@@ -19,6 +19,16 @@ enum SiteID: String, CaseIterable, Identifiable, Codable {
         }
     }
 
+    /// Stable native navigation titles, independent of the current HTML document.
+    var nativeTitle: String {
+        switch self {
+        case .portal: return "Student"
+        case .moodle: return "Moodle dashboard"
+        case .rooms: return "GTIT room booking service"
+        case .sports: return "GTIT sports center"
+        }
+    }
+
     var shortName: String {
         switch self {
         case .portal: return L10n.tr("门户")

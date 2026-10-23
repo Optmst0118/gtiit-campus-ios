@@ -8,20 +8,14 @@ struct BookingTabView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
-        let _ = nativeLocale.identifier
-
-        VStack(spacing: 0) {
-            segmentBar
-            switch app.bookingSegment {
-            case .rooms:
-                SiteBrowserView(site: .rooms)
-            case .sports:
-                SiteBrowserView(site: .sports)
-            }
-        }
+        SiteBrowserView(site: app.bookingSegment == .rooms ? .rooms : .sports)
     }
+}
 
-    private var segmentBar: some View {
+struct BookingSitePicker: View {
+    @EnvironmentObject private var app: AppModel
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    var body: some View {
         VStack(spacing: 6) {
             if dynamicTypeSize.isAccessibilitySize {
                 Menu {

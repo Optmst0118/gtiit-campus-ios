@@ -51,9 +51,12 @@ import UIKit
             let rows = (1...28).map { "<div class='row'>Campus item \($0)<span>Course · Room · 09:00</span></div>" }.joined()
             model.browser(for: site).webView.loadHTMLString("""
                 <html><head><title>Campus content</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>
-                body{margin:0;background:white;color:#161e28;font:17px -apple-system}h1{padding:20px 20px 0;font-size:30px}.row{padding:20px;border-bottom:1px solid #ddd;background:#eef7ff}.row:nth-child(2n){background:#d5eaff}.row span{display:block;font-size:13px;padding-top:6px}#tail{margin:20px;padding:16px;border:0;border-radius:12px;background:#0675bc;color:white}
-                </style></head><body><h1>Campus content</h1>\(rows)<button id="tail">Last page action</button></body></html>
+                html,body{height:100%}body{margin:0;background:white;color:#161e28;font:17px -apple-system}#root{height:100%;overflow:hidden}main{height:100%;overflow-y:auto;box-sizing:border-box}h1{padding:20px 20px 0;font-size:30px}.row{padding:20px;border-bottom:1px solid #ddd;background:#eef7ff}.row:nth-child(2n){background:#d5eaff}.row span{display:block;font-size:13px;padding-top:6px}#tail{margin:20px;padding:16px;border:0;border-radius:12px;background:#0675bc;color:white}
+                </style></head><body><div id="root"><main><h1>Campus content</h1>\(rows)<button id="tail">Last page action</button></main></div></body></html>
                 """, baseURL: site.homeURL)
+        }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_EXAMS"] == "1" {
+            try? model.exams.accept(semester: "Synthetic semester", items: [StudentExam(course: "Engineering Mathematics", code: "TEST1001", session: "Mid", date: "2026-11-21", time: "09:00", duration: 2, venue: "SC E1-201")])
         }
         _app = StateObject(wrappedValue: model)
         let lock = AppLockController(authenticator: PreviewUnavailableAuthenticator())
@@ -101,6 +104,19 @@ import UIKit
                                 }
                                 try? data.write(to: source)
                                 for name in ["Robotics syllabus.pdf", "Engineering mathematics.pdf", "Campus reference.pdf", "Week 3 notes.pdf"] {
+                                    _ = try? await app.downloads.savePreview(source, filename: name, site: .moodle)
+                                }
+                            }
+                            if environment["UI_REVIEW_DISTINCT_DOWNLOADS"] == "1" {
+                                for item in app.downloads.items { await app.downloads.removeFile(item.id) }
+                                for name in ["North Campus Schedule.pdf", "South Campus Schedule.pdf"] {
+                                    let source = FileManager.default.temporaryDirectory.appendingPathComponent(name)
+                                    let renderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 595, height: 842))
+                                    let data = renderer.pdfData { context in
+                                        context.beginPage()
+                                        (name + "\n\nIndependent file preview\nSynthetic verification document" as NSString).draw(at: CGPoint(x: 40, y: 70), withAttributes: [.font: UIFont.systemFont(ofSize: 25)])
+                                    }
+                                    try? data.write(to: source)
                                     _ = try? await app.downloads.savePreview(source, filename: name, site: .moodle)
                                 }
                             }

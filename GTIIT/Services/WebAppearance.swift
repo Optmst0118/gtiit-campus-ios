@@ -4,6 +4,29 @@ import WebKit
 @MainActor enum WebAppearance {
     private static let marker = "/* GTIIT_WEB_APPEARANCE */"
     private static let world = WKContentWorld.defaultClient
+    private static let insetMarker = "/* GTIIT_PORTAL_BOTTOM_INSET */"
+    private static let insets = NSMapTable<WKWebView, NSNumber>(keyOptions: .weakMemory, valueOptions: .strongMemory)
+    static func setPortalBottomInset(_ bottom: CGFloat, on webView: WKWebView) {
+        let pixels = max(0, Int(bottom.rounded(.up)))
+        let script = insetMarker + """
+        (() => {
+            let host=location.hostname;
+            if (!host && location.href==='about:blank') { try { host=new URL(document.baseURI).hostname; } catch (_) {} }
+            if(host!=='students.gtiit.edu.cn') return;
+            const root=document.documentElement, value='\(pixels)px';
+            if(root.style.getPropertyValue('--gtiit-bottom-obstruction')!==value)
+                root.style.setProperty('--gtiit-bottom-obstruction',value);
+        })();
+        """
+        if insets.object(forKey: webView)?.intValue != pixels {
+            insets.setObject(NSNumber(value: pixels), forKey: webView)
+            let controller = webView.configuration.userContentController
+            let other = controller.userScripts.filter { !$0.source.hasPrefix(insetMarker) }
+            controller.removeAllUserScripts(); other.forEach(controller.addUserScript)
+            controller.addUserScript(WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: world))
+        }
+        webView.evaluateJavaScript(script, in: nil, in: world) { _ in }
+    }
     static let officialHosts = SiteID.allCases.map(\.host)
     /// 登录页等也需要清理校徽的域名（只清理，不启用 Dark Reader）。
     static let cleanupHosts = officialHosts + [
@@ -37,6 +60,7 @@ import WebKit
             const allowed = \(json);
             const cleanup = \(cleanupJSON);
             let host = location.hostname;
+            try { if (!host && location.href === 'about:blank') host = new URL(document.baseURI).hostname; } catch (_) {}
             try { if (!host && location.href === 'about:blank' && parent !== self) host = parent.location.hostname; } catch (_) {}
             if (!cleanup.includes(host) && !allowed.includes(host)) return;
             \(engine)

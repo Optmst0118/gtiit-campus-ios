@@ -129,6 +129,11 @@ private final class RetiredViewReference {
         } catch { return "ERROR \(error)" }
     }
     func run() async {
+        if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "download" {
+            await downloadSmoke()
+            finish()
+            return
+        }
         let defaults = UserDefaults(suiteName: "regression.preferences")!
         defaults.removePersistentDomain(forName: "regression.preferences")
         let settings = AppSettings(defaults: defaults)
@@ -506,7 +511,12 @@ private final class RetiredViewReference {
         guarded.lock()
         await guarded.unlock()
         check("authentication_unavailable_keeps_locked", guarded.isLocked && guarded.lastMessage != nil)
+        await studentExamChecks()
+        finish()
+    }
+    func finish() {
         let output: [String: Any] = [
+            "focus": ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] ?? "full",
             "completed": true, "runID": ProcessInfo.processInfo.environment["REGRESSION_RUN_ID"] ?? "",
             "checks": results,
             "passed": results.allSatisfy { $0["passed"] as? Bool == true },
@@ -1037,16 +1047,17 @@ extension RegressionApp {
             scroll.setContentOffset(CGPoint(x: 0, y: y), animated: false)
             try? await Task.sleep(for: .milliseconds(300))
             let bottom = Double(await js(web, "document.getElementById('tail').getBoundingClientRect().bottom")) ?? .infinity
-            check("\(site.rawValue)_last_action_scrolls_above_bar", frame.minY + bottom <= barFrame.minY + 1, "tail=\(frame.minY + bottom), bar=\(barFrame.minY), inset=\(scroll.adjustedContentInset.bottom)")
+            check("\(site.rawValue)_last_action_scrolls_above_bar", web.convert(web.bounds, to: window).minY + bottom <= barFrame.minY + 1, "tail=\(web.convert(web.bounds, to: window).minY + bottom), bar=\(barFrame.minY), inset=\(scroll.adjustedContentInset.bottom)")
             if site == .portal {
-                web.loadHTMLString("<title>Nested glass fixture</title><meta name='viewport' content='width=device-width,initial-scale=1'><style>html,body{margin:0;height:100%;overflow:hidden}main{position:fixed;inset:0;overflow-y:auto;background:linear-gradient(#318fe8,#f2a04e)}section{height:1800px}#fixed{position:fixed;bottom:0;left:10px;height:44px}</style><main><section>Inner scrolling content</section></main><button id='fixed'>Fixed page action</button>", baseURL: site.homeURL)
+                web.loadHTMLString("<title>Nested glass fixture</title><meta name='viewport' content='width=device-width,initial-scale=1'><style>html,body{margin:0;height:100%;overflow:hidden}main{position:fixed;inset:0;overflow-y:auto;background:linear-gradient(#318fe8,#f2a04e)}section{height:1800px}#fixed{position:fixed;bottom:0;left:10px;height:44px}</style><main><section>Inner scrolling content</section></main><nav aria-label='Checklist steps' id='fixed'>Fixed page action</nav>", baseURL: site.homeURL)
                 let nestedReady = await wait { web.title == "Nested glass fixture" && !web.isLoading }
                 host.view.layoutIfNeeded()
                 try? await Task.sleep(for: .milliseconds(300))
                 let fixedBottom = Double(await js(web, "document.getElementById('fixed').getBoundingClientRect().bottom")) ?? .infinity
-                check("portal_inner_scroll_fixed_action_above_glass", nestedReady && frame.minY + fixedBottom <= barFrame.minY + 1, "fixed=\(frame.minY+fixedBottom), bar=\(barFrame.minY)")
+                check("portal_inner_scroll_fixed_action_above_glass", nestedReady && web.convert(web.bounds, to: window).minY + fixedBottom <= barFrame.minY + 1, "fixed=\(web.convert(web.bounds, to: window).minY+fixedBottom), bar=\(barFrame.minY)")
                 if #available(iOS 26.0, *) {
-                    check("portal_webkit_obscured_insets_match_toolbar", web.obscuredContentInsets.bottom > 0 && web.obscuredContentInsets.bottom <= barFrame.height + 1)
+                    let clearance = Double((await js(web, "getComputedStyle(document.documentElement).getPropertyValue('--gtiit-bottom-obstruction').trim().replace('px','')"))) ?? 0
+                    check("portal_full_viewport_with_inner_scroll_clearance", web.obscuredContentInsets.bottom == 0 && clearance >= barFrame.height - 1)
                 }
             }
             // Every site's transport errors share the VPN-capable error view.
@@ -1075,4 +1086,70 @@ extension RegressionApp {
         }
         defaults.removePersistentDomain(forName: suite)
     }
+    func downloadSmoke() async {
+        let defaults = UserDefaults(suiteName: "regression.download-smoke")!
+        defaults.removePersistentDomain(forName: "regression.download-smoke")
+        let settings = AppSettings(defaults: defaults)
+        settings.hasSeenWelcome = true; settings.preloadSitesOnLaunch = false; settings.externalLinks = .webView
+        let app = AppModel(settings: settings)
+        keep.append(app)
+        let browser = app.browser(for: .portal)
+        browser.webView.stopLoading()
+        browser.webView.frame = window!.bounds
+        window!.rootViewController!.view.addSubview(browser.webView)
+        check("download_smoke_page_ready", await load(browser, "a"))
+        browser.load(base.appendingPathComponent("file"))
+        let completed = await wait(10) { app.downloads.items.contains { $0.state == .completed } }
+        check("download_smoke_completed", completed, "url=\(browser.webView.url?.absoluteString ?? "nil") error=\(browser.errorText ?? "none") records=\(app.downloads.items.count)")
+    }
+    func studentExamChecks() async {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("exam-cache-" + UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let store = StudentExamStore(directory: folder)
+        let item = StudentExam(course: "Synthetic Physics", code: "TEST1001", session: "A", date: "2027-01-20", time: "09:00", duration: 3, venue: "TEST-101")
+        do {
+            try store.accept(semester: "2026-27 WINTER", items: [item, item])
+            let restored = StudentExamStore(directory: folder)
+            check("exam_cache_restart_deduplicates", restored.items.count == 1 && restored.items.first == item)
+            check("exam_time_uses_beijing", item.start == CampusDate.parse("2027-01-20")?.addingTimeInterval(9 * 3600))
+            let values = try folder.resourceValues(forKeys: [.isExcludedFromBackupKey])
+            #if targetEnvironment(simulator)
+            check("exam_cache_excluded_from_backup", values.isExcludedFromBackup == true)
+            #else
+            let attrs = try FileManager.default.attributesOfItem(atPath: folder.appendingPathComponent("summary.json").path)
+            check("exam_cache_protected_not_backed_up", values.isExcludedFromBackup == true && attrs[.protectionKey] as? String == FileProtectionType.complete.rawValue)
+            #endif
+            restored.refresh(allowed: { true })
+            check("exam_cache_throttles_thirty_minutes", !restored.refreshing && StudentExamStore.refreshInterval == 1800)
+            restored.cancel(clear: true)
+            check("exam_clear_removes_cache", StudentExamStore(directory: folder).items.isEmpty)
+            let invalid = StudentExam(course: "Invalid", code: "TEST", session: "A", date: "2027-02-30", time: "25:00", duration: -1, venue: "")
+            do { try store.accept(semester: "Test", items: [invalid]); check("exam_invalid_date_rejected", false) }
+            catch { check("exam_invalid_date_rejected", true) }
+        } catch { check("exam_cache", false, error.localizedDescription) }
+        let config = WKWebViewConfiguration()
+        let web = WKWebView(frame: CGRect(x: 0, y: 0, width: 390, height: 844), configuration: config)
+        web.loadHTMLString("<title>Exam fixture</title><select><option selected>2026-27 WINTER</option></select><section id='Exams'>Scheduled Exams 12</section>", baseURL: SiteID.portal.homeURL)
+        guard await wait(until: { web.title == "Exam fixture" && !web.isLoading }) else { check("exam_fixture_ready", false); return }
+        do {
+            let script = try String(contentsOf: Bundle.main.url(forResource: "student-exams", withExtension: "js", subdirectory: "CampusData")!, encoding: .utf8)
+            _ = try await web.evaluateJavaScript("""
+                const exams=Array.from({length:12},(_,i)=>({courseCode:'TEST'+i,courseName:'Synthetic course '+i,examSession:'A',date:'2027-01-20T00:00:00',time:'09:00:00',duration:2,venues:[{classNumber:'TEST-101'}]}));
+                document.getElementById('Exams').__reactFiber$fixture={memoizedState:{memoizedState:[exams,[]],next:null},return:null};
+                window.fetch=()=>{throw Error('NO_NETWORK_ALLOWED')};
+                true;
+                """)
+            let result = try await web.callAsyncJavaScript(script, arguments: [:], in: nil, contentWorld: .page) as? String ?? ""
+            let decoded = try JSONSerialization.jsonObject(with: Data(result.utf8)) as? [String: Any]
+            let rows = decoded?["items"] as? [[String: Any]] ?? []
+            check("exam_reads_full_pre_pagination_list", decoded?["state"] as? String == "ready" && rows.count == 12)
+            check("exam_exports_only_allowlisted_fields", rows.allSatisfy { Set($0.keys) == Set(["course","code","session","date","time","duration","venue"]) })
+            _ = try await web.evaluateJavaScript("document.getElementById('Exams').remove()")
+            let missing = try await web.callAsyncJavaScript(script, arguments: [:], in: nil, contentWorld: .page) as? String ?? ""
+            check("exam_missing_component_not_empty_success", missing.contains("loading"))
+        } catch { check("exam_reader", false, error.localizedDescription) }
+        web.stopLoading()
+        check("native_site_titles_fixed", SiteID.allCases.map(\.nativeTitle) == ["Student", "Moodle dashboard", "GTIT room booking service", "GTIT sports center"])
+    }
+
 }
