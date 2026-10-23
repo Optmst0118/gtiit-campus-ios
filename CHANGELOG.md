@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.29] - 2026-10-24
+
+### Fixed
+
+- Booking official pages now paint their canvas with the app page background in light and dark mode, using the same page-container approach as the Moodle course pages.
+- Booking page background follows any light/dark appearance change while the page is open.
+
 ## [2.0.0-alpha.28] - 2026-10-24
 
 ### Added

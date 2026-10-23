@@ -15,6 +15,7 @@ struct NativeWebPageView: View {
 }
 
 private struct NativeWebPageContent: View {
+    @Environment(\.colorScheme) private var colorScheme
     @ObservedObject var model: BrowserModel
     let site: SiteID
     let title: String
@@ -42,9 +43,18 @@ private struct NativeWebPageContent: View {
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
+            if site == .rooms || site == .sports {
+                WebAppearance.setNativePageBackground(site: site, pageHex: Theme.pageHex(for: colorScheme), on: model.webView)
+            } else {
+                WebAppearance.clearNativePageBackground(on: model.webView)
+            }
             if model.webView.url?.absoluteString != url.absoluteString {
                 model.load(url)
             }
+        }
+        .onChange(of: colorScheme) { _, scheme in
+            guard site == .rooms || site == .sports else { return }
+            WebAppearance.setNativePageBackground(site: site, pageHex: Theme.pageHex(for: scheme), on: model.webView)
         }
     }
 }

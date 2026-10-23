@@ -89,6 +89,39 @@ import WebKit
     }
 
     private static let courseChromeMarker = "/* GTIIT_MOODLE_COURSE_CHROME */"
+    private static let nativePageMarker = "/* GTIIT_NATIVE_PAGE_BACKGROUND */"
+
+    /// Paint an official booking page with the app's page background. The site
+    /// keeps its own layout and controls; only the surrounding canvas changes.
+    static func setNativePageBackground(site: SiteID, pageHex: String, on webView: WKWebView) {
+        guard site == .rooms || site == .sports else { return }
+        let source = nativePageMarker + """
+        (() => {
+            const id = 'gtiit-native-page-background';
+            let style = document.getElementById(id);
+            if (!style) {
+                style = document.createElement('style');
+                style.id = id;
+                (document.head || document.documentElement).appendChild(style);
+            }
+            style.textContent = 'html, body, #app, #root, #page, #main, .main, .container, .container-fluid, .page, .page-content, .content, .site-content, .app { background-color: \(pageHex) !important; }';
+        })();
+        """
+        let controller = webView.configuration.userContentController
+        let other = controller.userScripts.filter { !$0.source.hasPrefix(nativePageMarker) }
+        controller.removeAllUserScripts()
+        other.forEach(controller.addUserScript)
+        controller.addUserScript(WKUserScript(source: source, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: world))
+        webView.evaluateJavaScript(source, in: nil, in: world) { _ in }
+    }
+
+    static func clearNativePageBackground(on webView: WKWebView) {
+        let controller = webView.configuration.userContentController
+        let other = controller.userScripts.filter { !$0.source.hasPrefix(nativePageMarker) }
+        controller.removeAllUserScripts()
+        other.forEach(controller.addUserScript)
+        webView.evaluateJavaScript("document.getElementById('gtiit-native-page-background')?.remove()", in: nil, in: world) { _ in }
+    }
 
     /// Course detail pages supply their own native title; strip Moodle's site chrome
     /// while keeping the course content and activity controls intact.
