@@ -819,5 +819,12 @@
   "历史课程": "Course history",
   "当前学期暂无课程。": "No courses in the current term.",
   "当前课程": "Current courses",
-  "暂无历史课程。": "No course history."
+  "暂无历史课程。": "No course history.",
+  "%@ 门课程": "%@ courses",
+  "其他课程": "Other courses",
+  "导入课表后，这里只显示课表上的课程。": "Import your timetable to show only scheduled courses here.",
+  "其他": "Other",
+  "共 %@ 门课程": "%@ courses",
+  "暂无历史课程": "No course history",
+  "打开 Moodle 个人主页": "Open Moodle personal home"
 }

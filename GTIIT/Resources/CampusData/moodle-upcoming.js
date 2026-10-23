@@ -88,7 +88,7 @@ const currentCourse = c => {
  }
  return true;
 };
-const map=new Map();let failed=0,checked=0,courseCount=0,courses=[];
+const map=new Map();let failed=0,checked=0,courseCount=0,courses=[],allCourses=[];
 const merge = item => {
  if(!item.url || !item.name)return;
  const old=map.get(item.url);
@@ -109,12 +109,17 @@ try {
  }}catch {failed++;}}
  let offset=0;
  for(let page=0;page<5;page++){
-  const data=await rpc('core_course_get_enrolled_courses_by_timeline_classification',{classification:'inprogress',limit:100,offset,sort:'fullname'});
+  let data;
+  try { data=await rpc('core_course_get_enrolled_courses_by_timeline_classification',{classification:'all',limit:100,offset,sort:'fullname'}); }
+  catch { data=await rpc('core_course_get_enrolled_courses_by_timeline_classification',{classification:'inprogress',limit:100,offset,sort:'fullname'}); }
   if(!Array.isArray(data.courses))throw Error('COURSES_UNAVAILABLE');
-  courses.push(...data.courses.filter(currentCourse).map(c=>({id:Number(c.id),name:clean(c.fullname),term:courseTerm(c)})).filter(c=>Number.isSafeInteger(c.id)&&c.id>0));
+  const mapped=data.courses.map(c=>({id:Number(c.id),name:clean(c.fullname),shortname:clean(c.shortname),category:clean(c.coursecategory),term:courseTerm(c)})).filter(c=>Number.isSafeInteger(c.id)&&c.id>0);
+  allCourses.push(...mapped);
+  courses.push(...mapped.filter((c,i)=>data.courses[i] && currentCourse(data.courses[i])));
   if(!data.courses.length || !data.nextoffset || data.nextoffset<=offset)break;
   offset=data.nextoffset;if(page===4)failed++;
  }
+ allCourses=[...new Map(allCourses.map(c=>[c.id,c])).values()].slice(0,150);
  courses=[...new Map(courses.map(c=>[c.id,c])).values()];courseCount=courses.length;
  if(courses.length>100){failed+=courses.length-100;courses=courses.slice(0,100);}
  const assignments=new Map();
@@ -150,5 +155,5 @@ try {
  });
  if(signal.aborted)throw Error('CANCELLED');
  const activeIDs=new Set(courses.map(c=>c.id));
- return JSON.stringify({loginRequired:false,items:[...map.values()].filter(x=>(!x.courseID||activeIDs.has(x.courseID))&&((x.due>=start&&x.due<=end)||(x.opened>=start&&x.opened<=end))).map(({courseID,...item})=>item),courses:courseCount,courseList:courses,checked,failed});
+ return JSON.stringify({loginRequired:false,items:[...map.values()].filter(x=>(!x.courseID||activeIDs.has(x.courseID))&&((x.due>=start&&x.due<=end)||(x.opened>=start&&x.opened<=end))).map(({courseID,...item})=>item),courses:courseCount,courseList:allCourses,checked,failed});
 } finally {clearTimeout(deadline);if(window.__gtiitUpcomingJob===controller)delete window.__gtiitUpcomingJob;}

@@ -34,6 +34,8 @@ struct MoodleWork: Codable, Identifiable {
 struct MoodleCourse: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
+    let shortname: String?
+    let category: String?
     let term: String?
     var url: URL? {
         guard id > 0 else { return nil }

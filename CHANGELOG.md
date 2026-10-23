@@ -4,6 +4,38 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.16] - 2026-10-23
+
+### Added
+
+- Native 历史课程 destination: a second-level page with all non-current Moodle courses as cards grouped by term, based on the complete Moodle course list.
+- The history entry shows the archived course count and no longer opens the raw Moodle list.
+
+### Changed
+
+- Moodle history fetches the complete course archive (all classifications) instead of only the current-term course list.
+- Course history cards open the exact official course page; the toolbar opens the Moodle personal home.
+
+## [2.0.0-alpha.15] - 2026-10-23
+
+### Added
+
+- Timetable-aware current course filtering: 当前课程 now shows only current-term Moodle courses matched to the imported timetable.
+- “其他课程” module groups current-term Moodle courses that are not on the timetable by Moodle category (e.g. Career Services and service spaces).
+- Moodle course cards now receive shortname and category metadata for matching and grouping.
+
+### Changed
+
+- 历史课程 remains a single entry to the Moodle personal home page; historical course cards are not rendered on the native home.
+- Moodle layout defaults now include 当前课程, 临近日程, 其他课程, 历史课程 and Moodle 工具; 当前课程 stays first.
+
+## [2.0.0-alpha.14] - 2026-10-23
+
+### Changed
+
+- 历史课程 is now a single entry that opens the Moodle personal home page; the history course cards under the home section are removed.
+- Current courses stay first; history remains available as a separate destination for the full course archive.
+
 ## [2.0.0-alpha.13] - 2026-10-23
 
 ### Changed

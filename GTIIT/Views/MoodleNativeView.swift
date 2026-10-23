@@ -1,12 +1,13 @@
 import SwiftUI
 
 enum MoodleSection: String, CaseIterable, Identifiable {
-    case currentCourses, recent, historyCourses, tools
+    case currentCourses, recent, otherCourses, historyCourses, tools
     var id: String { rawValue }
     var title: String {
         switch self {
         case .currentCourses: return L10n.tr("当前课程")
         case .recent: return L10n.tr("临近日程")
+        case .otherCourses: return L10n.tr("其他课程")
         case .historyCourses: return L10n.tr("历史课程")
         case .tools: return L10n.tr("Moodle 工具")
         }
@@ -15,6 +16,7 @@ enum MoodleSection: String, CaseIterable, Identifiable {
         switch self {
         case .currentCourses: return "book.closed.fill"
         case .recent: return "calendar.day.timeline.left"
+        case .otherCourses: return "square.grid.2x2.fill"
         case .historyCourses: return "clock.arrow.circlepath"
         case .tools: return "square.grid.2x2"
         }
@@ -48,7 +50,7 @@ struct MoodleTabView: View {
 
     private var native: some View {
         NavigationStack {
-            MoodleHomeView(store: app.upcoming, open: open)
+            MoodleHomeView(store: app.upcoming, timetable: app.timetable, open: open)
                 .navigationTitle("Moodle")
                 .navigationBarTitleDisplayMode(.large)
                 .toolbar {
@@ -91,6 +93,7 @@ struct MoodleHomeView: View {
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
     @ObservedObject var store: MoodleUpcomingStore
+    @ObservedObject var timetable: LocalTimetableStore
     @State private var showLayout = false
     let open: (MoodleDestination) -> Void
 
@@ -185,6 +188,7 @@ struct MoodleHomeView: View {
         switch section {
         case .currentCourses: currentCoursesSection
         case .recent: dashboard
+        case .otherCourses: otherCoursesSection
         case .historyCourses: historyCoursesSection
         case .tools: tools
         }
@@ -244,6 +248,52 @@ struct MoodleHomeView: View {
             .sorted { $0.name < $1.name }
     }
 
+    private var syncedCurrentCourses: [MoodleCourse] {
+        currentCourses.filter(matchesTimetable)
+    }
+
+    private var otherCourses: [MoodleCourse] {
+        currentCourses.filter { !matchesTimetable($0) }
+    }
+
+    private struct CategoryGroup: Identifiable {
+        let id: String
+        let courses: [MoodleCourse]
+    }
+
+    private var otherCategoryGroups: [CategoryGroup] {
+        Dictionary(grouping: otherCourses, by: { $0.category ?? L10n.tr("其他") })
+            .map { CategoryGroup(id: $0.key, courses: $0.value.sorted { $0.name < $1.name }) }
+            .sorted { $0.id < $1.id }
+    }
+
+    private func normalizedName(_ value: String) -> String {
+        let stripped = value.lowercased()
+            .replacingOccurrences(of: "\\b(winter|spring|summer|autumn|fall)\\b", with: "", options: .regularExpression)
+            .replacingOccurrences(of: "\\b20\\d{2}\\b", with: "", options: .regularExpression)
+        return stripped.unicodeScalars.filter { CharacterSet.alphanumerics.contains($0) }.map(String.init).joined()
+    }
+
+    private func normalizedCode(_ value: String) -> String {
+        value.lowercased().unicodeScalars.filter { CharacterSet.alphanumerics.contains($0) }.map(String.init).joined()
+    }
+
+    private func matchesTimetable(_ course: MoodleCourse) -> Bool {
+        let schedule = timetable.snapshot?.courses ?? []
+        guard !schedule.isEmpty else { return false }
+        let codes = Set(schedule.map { normalizedCode($0.code) }.filter { !$0.isEmpty })
+        let names = schedule.map { normalizedName($0.name) }.filter { !$0.isEmpty }
+        let courseCodes = [course.shortname, course.name].compactMap { $0 }.map(normalizedCode).filter { !$0.isEmpty }
+        if courseCodes.contains(where: { codes.contains($0) }) { return true }
+        let courseNames = [course.name, course.shortname].compactMap { $0 }.map(normalizedName).filter { $0.count >= 4 }
+        for name in courseNames {
+            if names.contains(where: { candidate in
+                candidate == name || (candidate.count >= 5 && name.count >= 5 && (candidate.contains(name) || name.contains(candidate)))
+            }) { return true }
+        }
+        return false
+    }
+
     private var historyCourses: [MoodleCourse] {
         store.courseItems.filter { ($0.term ?? "").caseInsensitiveCompare(currentTermLabel) != .orderedSame }
             .sorted { $0.name < $1.name }
@@ -251,14 +301,17 @@ struct MoodleHomeView: View {
 
     private var currentCoursesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionTitle(L10n.tr("当前课程"), symbol: "book.closed.fill")
-            if currentCourses.isEmpty {
-                Text(L10n.tr("当前学期暂无课程。"))
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                sectionTitle(L10n.tr("当前课程"), symbol: "book.closed.fill")
+                Text(currentTermLabel).font(.caption.weight(.medium)).foregroundStyle(.secondary)
+            }
+            if syncedCurrentCourses.isEmpty {
+                Text(L10n.tr("导入课表后，这里只显示课表上的课程。"))
                     .font(.subheadline).foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading).padding(16).cardBackground()
             } else {
                 LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(currentCourses) { course in
+                    ForEach(syncedCurrentCourses) { course in
                         Button {
                             if let url = course.url {
                                 open(MoodleDestination(title: course.name, url: url))
@@ -272,33 +325,53 @@ struct MoodleHomeView: View {
         }
     }
 
-    private var historyCoursesSection: some View {
+    private var otherCoursesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionTitle(L10n.tr("历史课程"), symbol: "clock.arrow.circlepath")
-            if historyCourses.isEmpty {
-                Text(L10n.tr("暂无历史课程。"))
-                    .font(.subheadline).foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading).padding(16).cardBackground()
-            } else {
-                ForEach(historyTermGroups) { group in
-                    VStack(alignment: .leading, spacing: 8) {
-                        if let term = group.term {
-                            Text(term).font(.caption.weight(.semibold)).foregroundStyle(Theme.orange).padding(.leading, 2)
-                        }
-                        LazyVGrid(columns: columns, spacing: 12) {
-                            ForEach(group.courses) { course in
-                                Button {
-                                    if let url = course.url {
-                                        open(MoodleDestination(title: course.name, url: url))
-                                    }
-                                } label: {
-                                    courseCard(course)
-                                }.buttonStyle(CardPressStyle())
-                            }
+            sectionTitle(L10n.tr("其他课程"), symbol: "square.grid.2x2.fill")
+            ForEach(otherCategoryGroups) { group in
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(group.id).font(.caption.weight(.semibold)).foregroundStyle(Theme.orange).padding(.leading, 2)
+                    LazyVGrid(columns: columns, spacing: 12) {
+                        ForEach(group.courses) { course in
+                            Button {
+                                if let url = course.url {
+                                    open(MoodleDestination(title: course.name, url: url))
+                                }
+                            } label: {
+                                courseCard(course)
+                            }.buttonStyle(CardPressStyle())
                         }
                     }
                 }
             }
+        }
+    }
+
+    private var historyCoursesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionTitle(L10n.tr("历史课程"), symbol: "clock.arrow.circlepath")
+            NavigationLink {
+                MoodleHistoryView(store: store)
+            } label: {
+                HStack(spacing: 14) {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(Theme.orange)
+                        .frame(width: 42, height: 42)
+                        .background(Theme.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(L10n.tr("历史课程")).font(.body.weight(.semibold))
+                        Text(L10n.format("%@ 门课程", String(historyCourses.count)))
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                    Spacer(minLength: 8)
+                    Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
+                }
+                .padding(15)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .cardBackground(corner: 16)
+            }
+            .buttonStyle(CardPressStyle())
         }
     }
 
@@ -314,20 +387,6 @@ struct MoodleHomeView: View {
             Image(systemName: "arrow.up.right").font(.caption).foregroundStyle(.tertiary)
         }
         .padding(15).frame(maxWidth: .infinity, minHeight: 86, alignment: .leading).cardBackground(corner: 16)
-    }
-
-    private struct TermGroup: Identifiable {
-        let id: String
-        let term: String?
-        let courses: [MoodleCourse]
-    }
-
-    private var historyTermGroups: [TermGroup] {
-        Dictionary(grouping: historyCourses, by: { $0.term })
-            .map { term, courses in
-                TermGroup(id: term ?? "history", term: term, courses: courses.sorted { $0.name < $1.name })
-            }
-            .sorted { termKey($0.term) > termKey($1.term) }
     }
 
     private func termKey(_ term: String?) -> (Int, Int) {
@@ -430,6 +489,124 @@ enum MoodleDirectory {
     }
 }
 
+struct MoodleHistoryView: View {
+    @EnvironmentObject private var app: AppModel
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @ObservedObject var store: MoodleUpcomingStore
+    @State private var official: MoodleDestination?
+
+    private var currentTermLabel: String {
+        let term = MoodleUpcomingStore.currentTerm()
+        return term.season.capitalized + " " + String(term.year)
+    }
+
+    private var historyCourses: [MoodleCourse] {
+        store.courseItems.filter { ($0.term ?? "").caseInsensitiveCompare(currentTermLabel) != .orderedSame }
+    }
+
+    private var columns: [GridItem] {
+        horizontalSizeClass == .regular
+            ? [GridItem(.adaptive(minimum: 300), spacing: 16)]
+            : [GridItem(.flexible())]
+    }
+
+    private var groups: [HistoryGroup] {
+        Dictionary(grouping: historyCourses, by: { $0.term })
+            .map { HistoryGroup(id: $0.key ?? "history", term: $0.key, courses: $0.value.sorted { $0.name < $1.name }) }
+            .sorted { termKey($0.term) > termKey($1.term) }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                if historyCourses.isEmpty {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(L10n.tr("暂无历史课程")).font(.headline)
+                        Button {
+                            official = MoodleDestination(title: L10n.tr("历史课程"), url: URL(string: "https://moodle.gtiit.edu.cn/moodle/my/")!)
+                        } label: {
+                            Label(L10n.tr("打开 Moodle 个人主页"), systemImage: "arrow.up.right")
+                        }.foregroundStyle(Theme.accent)
+                    }
+                    .padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
+                } else {
+                    Text(L10n.format("共 %@ 门课程", String(historyCourses.count)))
+                        .font(.subheadline).foregroundStyle(.secondary)
+                    ForEach(groups) { group in
+                        VStack(alignment: .leading, spacing: 8) {
+                            if let term = group.term {
+                                Text(term).font(.headline).foregroundStyle(Theme.orange)
+                            }
+                            LazyVGrid(columns: columns, spacing: 12) {
+                                ForEach(group.courses) { course in
+                                    Button {
+                                        if let url = course.url {
+                                            official = MoodleDestination(title: course.name, url: url)
+                                        }
+                                    } label: {
+                                        historyCard(course)
+                                    }.buttonStyle(CardPressStyle())
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, horizontalSizeClass == .regular ? 28 : 20)
+            .padding(.top, 8).padding(.bottom, 30)
+            .frame(maxWidth: 1100).frame(maxWidth: .infinity)
+        }
+        .background(Theme.pageBackground)
+        .navigationTitle(L10n.tr("历史课程"))
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    official = MoodleDestination(title: L10n.tr("历史课程"), url: URL(string: "https://moodle.gtiit.edu.cn/moodle/my/")!)
+                } label: {
+                    Image(systemName: "person.crop.circle")
+                }
+                .accessibilityLabel(L10n.tr("打开 Moodle 个人主页"))
+            }
+        }
+        .sheet(item: $official) { destination in
+            MoodleOfficialSheet(destination: destination)
+                .environmentObject(app)
+        }
+    }
+
+    private struct HistoryGroup: Identifiable {
+        let id: String
+        let term: String?
+        let courses: [MoodleCourse]
+    }
+
+    private func historyCard(_ course: MoodleCourse) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "book.closed.fill").foregroundStyle(Theme.orange)
+                .frame(width: 38, height: 38)
+                .background(Theme.orange.opacity(0.11), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(course.name).font(.subheadline.weight(.semibold)).lineLimit(3)
+                if let shortname = course.shortname, !shortname.isEmpty {
+                    Text(shortname).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                }
+            }
+            Spacer(minLength: 4)
+            Image(systemName: "arrow.up.right").font(.caption).foregroundStyle(.tertiary)
+        }
+        .padding(15).frame(maxWidth: .infinity, minHeight: 86, alignment: .leading).cardBackground(corner: 16)
+    }
+
+    private func termKey(_ term: String?) -> (Int, Int) {
+        guard let term else { return (0, 0) }
+        let parts = term.split(separator: " ")
+        guard parts.count >= 2, let year = Int(parts.last ?? "") else { return (0, 0) }
+        let order = ["winter": 0, "spring": 1, "summer": 2][String(parts.first ?? "").lowercased()] ?? 3
+        return (year, order)
+    }
+}
+
 struct MoodleLayoutSettingsView: View {
     @EnvironmentObject private var settings: AppSettings
     @Environment(\.dismiss) private var dismiss
@@ -462,7 +639,7 @@ struct MoodleLayoutSettingsView: View {
                 }
                 Section {
                     Button(L10n.tr("恢复默认布局")) {
-                        settings.moodleSectionOrder = ["currentCourses", "recent", "historyCourses", "tools"]
+                        settings.moodleSectionOrder = ["currentCourses", "recent", "otherCourses", "historyCourses", "tools"]
                         settings.moodleHiddenSections = []
                     }
                 }

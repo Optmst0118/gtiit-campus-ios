@@ -183,8 +183,8 @@ enum DownloadRetention: String, SettingChoice {
         nativeMoodleEnabled = defaults.object(forKey: "settings.nativeMoodleEnabled") as? Bool ?? true
         loginEmail = defaults.string(forKey: "settings.loginEmail") ?? ""
         prefillLoginEmail = defaults.object(forKey: "settings.prefillLoginEmail") as? Bool ?? true
-        let allSections = ["currentCourses", "recent", "historyCourses", "tools"]
-        let defaultSections = ["currentCourses", "recent", "historyCourses", "tools"]
+        let allSections = ["currentCourses", "recent", "otherCourses", "historyCourses", "tools"]
+        let defaultSections = ["currentCourses", "recent", "otherCourses", "historyCourses", "tools"]
         var storedSections = defaults.stringArray(forKey: "settings.moodleSectionOrder") ?? defaultSections
         // Migrate the alpha.12 single "courses" section to current + history.
         storedSections = storedSections.flatMap { $0 == "courses" ? ["currentCourses", "historyCourses"] : [$0] }

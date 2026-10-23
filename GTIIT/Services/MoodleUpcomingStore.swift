@@ -30,7 +30,7 @@ import WebKit
             .appendingPathComponent("MoodleUpcoming", isDirectory: true)
         cacheURL = root.appendingPathComponent("summary.json")
         guard let data = try? Data(contentsOf: cacheURL), data.count < 1_000_000,
-              let cache = try? JSONDecoder().decode(Cache.self, from: data), cache.version == 2, cache.term == Self.termKey(),
+              let cache = try? JSONDecoder().decode(Cache.self, from: data), cache.version == 3, cache.term == Self.termKey(),
               cache.updatedAt <= Date(), Date().timeIntervalSince(cache.updatedAt) < 7 * 86400 else { return }
         items = cache.items.filter { MoodleWork.safeURL($0.url) != nil }
         courseItems = cache.courseList ?? []
@@ -67,7 +67,7 @@ import WebKit
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [.protectionKey: FileProtectionType.complete])
             var values = URLResourceValues(); values.isExcludedFromBackup = true
             try folder.setResourceValues(values)
-            let cache = Cache(version: 2, term: Self.termKey(), items: items, updatedAt: updatedAt, partial: partial, checked: checked, courses: courses, courseList: courseItems)
+            let cache = Cache(version: 3, term: Self.termKey(), items: items, updatedAt: updatedAt, partial: partial, checked: checked, courses: courses, courseList: courseItems)
             try JSONEncoder().encode(cache).write(to: cacheURL, options: [.atomic, .completeFileProtection])
         } catch { /* Retain the current in-memory summary if local storage is unavailable. */ }
     }
