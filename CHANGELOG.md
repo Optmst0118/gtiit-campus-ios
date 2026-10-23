@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.8] - 2026-10-23
+
+### Added
+
+- Live Activity countdown for the next shuttle, with Lock Screen and Dynamic Island presentation in a widget extension.
+- Local shuttle reminders with notification categories/actions, permission onboarding, lead-time selection and a deep link back to the Shuttle tab.
+- Siri App Shortcut to create a shuttle reminder for the next north/south campus bus.
+- App Group sharing for teaching-week, language and preferred shuttle direction.
+- ShuttleSchedule is compiled into the app, widget extension and intents/notification code from the same source file.
+
+### Infrastructure
+
+- Added a WidgetKit extension target, app/extension entitlements and a gtiit://shuttle URL scheme.
+- Added Live Activity support and notification categories to the app target.
+
 ## [2.0.0-alpha.7] - 2026-10-23
 
 ### Added

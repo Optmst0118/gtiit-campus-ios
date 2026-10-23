@@ -70,6 +70,22 @@ final class AppModel: ObservableObject {
             }
         }
         if settings.biometricLockEnabled { lock.lock() }
+        ShuttleNotificationCenter.shared.onOpen = { [weak self] direction in
+            guard let self else { return }
+            self.select(tab: .shuttle)
+            if let direction { self.settings.favoriteShuttleDirection = direction }
+        }
+    }
+
+    /// Handles gtiit://shuttle[?direction=north|south] from a widget or notification.
+    func handleShuttleURL(_ url: URL) {
+        guard url.scheme == "gtiit", url.host == "shuttle" else { return }
+        select(tab: .shuttle)
+        if let raw = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+            .queryItems?.first(where: { $0.name == "direction" })?.value,
+            let direction = ShuttleDirection(rawValue: raw) {
+            settings.favoriteShuttleDirection = direction
+        }
     }
 
     private func warmUpCampusSummaries() {

@@ -70,7 +70,14 @@ enum DownloadRetention: String, SettingChoice {
 
 @MainActor final class AppSettings: ObservableObject {
     @Published var language: AppLanguage {
-        didSet { defaults.set(language.rawValue, forKey: "settings.language"); L10n.language = language }
+        didSet {
+            defaults.set(language.rawValue, forKey: "settings.language")
+            AppGroup.defaults.set(language.rawValue, forKey: AppGroup.Key.language)
+            AppGroup.defaults.set(language.rawValue, forKey: AppGroup.Key.language)
+        AppGroup.defaults.set(shuttleTeachingWeek, forKey: AppGroup.Key.teachingWeek)
+        AppGroup.defaults.set(favoriteShuttleDirection.rawValue, forKey: AppGroup.Key.favoriteDirection)
+        L10n.language = language
+        }
     }
     @Published var yilongUnlocked: Bool {
         didSet { defaults.set(yilongUnlocked, forKey: "settings.yilongUnlocked") }
@@ -93,7 +100,16 @@ enum DownloadRetention: String, SettingChoice {
         didSet { defaults.set(nativeBookingEnabled, forKey: "settings.nativeBookingEnabled") }
     }
     @Published var shuttleTeachingWeek: Bool {
-        didSet { defaults.set(shuttleTeachingWeek, forKey: "settings.shuttleTeachingWeek") }
+        didSet {
+            defaults.set(shuttleTeachingWeek, forKey: "settings.shuttleTeachingWeek")
+            AppGroup.defaults.set(shuttleTeachingWeek, forKey: AppGroup.Key.teachingWeek)
+        }
+    }
+    @Published var favoriteShuttleDirection: ShuttleDirection {
+        didSet {
+            defaults.set(favoriteShuttleDirection.rawValue, forKey: "settings.shuttleFavoriteDirection")
+            AppGroup.defaults.set(favoriteShuttleDirection.rawValue, forKey: AppGroup.Key.favoriteDirection)
+        }
     }
     @Published var hasSeenWelcome: Bool {
         didSet { defaults.set(hasSeenWelcome, forKey: "settings.hasSeenWelcome") }
@@ -148,6 +164,9 @@ enum DownloadRetention: String, SettingChoice {
         preloadSitesOnLaunch = defaults.object(forKey: "settings.preloadSitesOnLaunch") as? Bool ?? true
         nativeBookingEnabled = defaults.object(forKey: "settings.nativeBookingEnabled") as? Bool ?? true
         shuttleTeachingWeek = defaults.object(forKey: "settings.shuttleTeachingWeek") as? Bool ?? true
+        favoriteShuttleDirection = ShuttleDirection(rawValue: defaults.string(forKey: "settings.shuttleFavoriteDirection") ?? "")
+            ?? ShuttleDirection(rawValue: AppGroup.defaults.string(forKey: AppGroup.Key.favoriteDirection) ?? "")
+            ?? .southToNorth
         hasSeenWelcome = defaults.bool(forKey: "settings.hasSeenWelcome")
         biometricLockEnabled = defaults.bool(forKey: "settings.biometricLock")
         appearance = AppAppearance(rawValue: defaults.string(forKey: "settings.appearance") ?? "") ?? .system

@@ -6,6 +6,7 @@ struct ShuttleView: View {
     @EnvironmentObject private var settings: AppSettings
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var timetableDirection: ShuttleDirection?
+    @State private var showReminders = false
     @State private var appeared = false
 
     var body: some View {
@@ -28,6 +29,14 @@ struct ShuttleView: View {
                             Text(clock(context.date)).font(.subheadline.monospacedDigit())
                                 .foregroundStyle(.secondary)
                                 .accessibilityLabel(L10n.format("北京时间 %@", String(describing: clock(context.date))))
+                            Button { showReminders = true } label: {
+                                Image(systemName: "bell.badge")
+                                    .font(.system(size: 17, weight: .medium))
+                                    .frame(width: 36, height: 36)
+                                    .background(Theme.orange.opacity(0.12), in: Circle())
+                                    .foregroundStyle(Theme.orange)
+                            }
+                            .accessibilityLabel(L10n.tr("班车提醒"))
                         }
                         Text(L10n.tr("两座校园，轻松往返。"))
                             .font(.subheadline).foregroundStyle(.secondary).padding(.top, -12)
@@ -35,6 +44,7 @@ struct ShuttleView: View {
                         HStack(alignment: .top, spacing: 12) {
                             ForEach(ShuttleDirection.allCases) { direction in
                                 Button {
+                                    settings.favoriteShuttleDirection = direction
                                     timetableDirection = direction
                                 } label: {
                                     DepartureColumn(
@@ -49,6 +59,13 @@ struct ShuttleView: View {
                         }
                         .opacity(appeared ? 1 : 0)
                         .offset(y: appeared || reduceMotion ? 0 : 10)
+
+                        if let next = ShuttleSchedule.upcoming(
+                            settings.favoriteShuttleDirection, after: context.date,
+                            teachingWeek: settings.shuttleTeachingWeek, limit: 1
+                        ).first {
+                            ShuttleLiveActivityCard(direction: settings.favoriteShuttleDirection, departure: next)
+                        }
 
                         VStack(alignment: .leading, spacing: 12) {
                             Toggle(isOn: $settings.shuttleTeachingWeek) {
@@ -83,6 +100,7 @@ struct ShuttleView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
             .sheet(item: $timetableDirection) { direction in ShuttleTimetableView(initialDirection: direction) }
+            .sheet(isPresented: $showReminders) { ShuttleReminderSettingsView() }
             .onAppear {
                 withAnimation(reduceMotion ? nil : .easeOut(duration: 0.35)) { appeared = true }
             }

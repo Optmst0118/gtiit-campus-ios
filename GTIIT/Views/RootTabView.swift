@@ -18,6 +18,7 @@ struct RootTabView: View {
         }
         .modifier(ContextMenuBackdrop(active: app.contextMenuSource != nil))
         .overlay { YilongOverlay(controller: app.yilong).allowsHitTesting(!app.lock.isLocked) }
+        .onOpenURL { app.handleShuttleURL($0) }
         .modifier(RootLifecycle(app: app, settings: settings))
     }
 

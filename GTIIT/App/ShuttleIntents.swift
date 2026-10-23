@@ -44,6 +44,41 @@ struct ShuttleNextBusIntent: AppIntent {
     }
 }
 
+
+/// Schedules a local reminder for the next shuttle (no server/remote push).
+struct ScheduleShuttleReminderIntent: AppIntent {
+    static var title: LocalizedStringResource = "提醒我赶班车"
+    static var description = IntentDescription("为下一班校车设置本机发车提醒。")
+    static var openAppWhenRun = false
+
+    @Parameter(title: "方向") var destination: ShuttleIntentDestination
+
+    init() { destination = .north }
+    init(destination: ShuttleIntentDestination) { self.destination = destination }
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        L10n.language = AppLanguage(rawValue: UserDefaults.standard.string(forKey: "settings.language") ?? "") ?? .chinese
+        let teachingWeek = UserDefaults.standard.object(forKey: "settings.shuttleTeachingWeek") as? Bool ?? true
+        let direction: ShuttleDirection = destination == .north ? .southToNorth : .northToSouth
+        guard let next = ShuttleSchedule.upcoming(direction, after: Date(), teachingWeek: teachingWeek, limit: 1).first else {
+            return .result(dialog: IntentDialog(stringLiteral: L10n.tr("现在没有符合条件的班车。")))
+        }
+        let center = ShuttleNotificationCenter.shared
+        if center.authorizationStatus == .notDetermined {
+            _ = await center.requestAuthorization()
+        }
+        guard center.authorizationStatus == .authorized || center.authorizationStatus == .provisional else {
+            return .result(dialog: IntentDialog(stringLiteral: L10n.tr("请先在 App 的班车提醒中允许通知。")))
+        }
+        let ok = await center.scheduleReminder(direction: direction, departure: next, leadMinutes: 10)
+        let text = ok
+            ? L10n.format("已设置：%@ 的班车提前 10 分钟提醒。", String(describing: next.trip.time))
+            : L10n.tr("提醒时间已过，未能设置。")
+        return .result(dialog: IntentDialog(stringLiteral: text))
+    }
+}
+
 struct GTIITShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
@@ -69,6 +104,24 @@ struct GTIITShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "南校班车",
             systemImageName: "bus.fill"
+        )
+        AppShortcut(
+            intent: ScheduleShuttleReminderIntent(destination: .north),
+            phrases: [
+                "\(.applicationName) 提醒我赶去北校的班车",
+                "\(.applicationName) 提醒我赶北校班车"
+            ],
+            shortTitle: "北校班车提醒",
+            systemImageName: "bell.badge.fill"
+        )
+        AppShortcut(
+            intent: ScheduleShuttleReminderIntent(destination: .south),
+            phrases: [
+                "\(.applicationName) 提醒我赶去南校的班车",
+                "\(.applicationName) 提醒我赶南校班车"
+            ],
+            shortTitle: "南校班车提醒",
+            systemImageName: "bell.badge.fill"
         )
     }
 }
