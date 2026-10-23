@@ -24,6 +24,7 @@ struct WelcomeView: View {
             footer
         }
         .background(Theme.pageBackground)
+        .onChange(of: page) { _, _ in Haptics.selection() }
         .interactiveDismissDisabled()
         .sheet(isPresented: $showAbout) {
             NavigationStack {
@@ -37,8 +38,8 @@ struct WelcomeView: View {
     }
 
     private var hero: some View {
-        VStack(spacing: 24) {
-            Spacer(minLength: 20)
+        VStack(spacing: 28) {
+            Spacer(minLength: 28)
             ZStack {
                 Circle().fill(Theme.accent.opacity(0.08)).frame(width: 190, height: 190)
                 Circle().fill(Theme.accent.opacity(0.13)).frame(width: 148, height: 148)
@@ -50,13 +51,14 @@ struct WelcomeView: View {
                     .font(.system(size: 45, weight: .semibold)).foregroundStyle(.white)
                     .symbolEffect(.bounce, value: page)
             }
-            VStack(spacing: 8) {
+            VStack(spacing: 10) {
                 Text(AppInfo.displayName).font(.largeTitle.weight(.bold))
                 Text(AppInfo.tagline).font(.title3).foregroundStyle(.secondary)
                 Text(L10n.tr("轻扫查看功能与隐私说明，再开始使用。"))
                     .font(.subheadline).foregroundStyle(.tertiary)
+                    .multilineTextAlignment(.center)
             }
-            HStack(spacing: 12) {
+            HStack(spacing: 14) {
                 ForEach(SiteID.allCases) { site in
                     Image(systemName: site.symbol)
                         .font(.system(size: 15, weight: .semibold)).foregroundStyle(.white)
@@ -64,9 +66,10 @@ struct WelcomeView: View {
                         .background(site.tint, in: RoundedRectangle(cornerRadius: 11, style: .continuous))
                 }
             }
-            Spacer(minLength: 20)
+            Spacer(minLength: 28)
         }
         .padding(.horizontal, 28)
+        .frame(maxWidth: 560)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .topTrailing) {
             if !settings.hasSeenWelcome && page < pageCount - 1 {
@@ -141,12 +144,12 @@ struct WelcomeView: View {
 
     private func pageLayout<Content: View>(symbol: String, title: String, subtitle: String,
                                            @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 18) {
-            HStack(spacing: 14) {
+        VStack(alignment: .leading, spacing: 22) {
+            HStack(spacing: 16) {
                 Image(systemName: symbol)
                     .font(.system(size: 30, weight: .semibold)).foregroundStyle(Theme.accent)
-                    .frame(width: 64, height: 64)
-                    .background(Theme.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 19, style: .continuous))
+                    .frame(width: 68, height: 68)
+                    .background(Theme.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
                     .symbolEffect(.bounce, value: page)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title).font(.title2.weight(.bold))
@@ -157,8 +160,9 @@ struct WelcomeView: View {
             content()
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, 24).padding(.top, 22)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 28).padding(.top, 32).padding(.bottom, 24)
+        .frame(maxWidth: 560, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 
     private func featureRow(_ symbol: String, _ tint: Color, _ title: String, _ detail: String) -> some View {
@@ -176,8 +180,8 @@ struct WelcomeView: View {
     }
 
     private var footer: some View {
-        VStack(spacing: 14) {
-            HStack(spacing: 7) {
+        VStack(spacing: 18) {
+            HStack(spacing: 8) {
                 ForEach(0..<pageCount, id: \.self) { index in
                     Capsule()
                         .fill(index == page ? Theme.accent : Color.secondary.opacity(0.25))
@@ -202,12 +206,15 @@ struct WelcomeView: View {
                 .disabled(page == pageCount - 1 && !hasConfirmed && !settings.hasSeenWelcome)
             }
         }
-        .padding(.horizontal, 20).padding(.top, 12).padding(.bottom, 10)
+        .padding(.horizontal, 28).padding(.top, 16).padding(.bottom, 16)
+        .frame(maxWidth: 560)
+        .frame(maxWidth: .infinity)
         .background(Theme.pageBackground.overlay(alignment: .top) { Divider() })
     }
 
     private func finish() {
         guard hasConfirmed || settings.hasSeenWelcome else { return }
+        Haptics.success()
         settings.markWelcomeSeen()
         app.showWelcome = false
         dismiss()

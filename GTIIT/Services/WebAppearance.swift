@@ -94,7 +94,7 @@ import WebKit
     /// Paint an official booking page with the app's page background. The site
     /// keeps its own layout and controls; only the surrounding canvas changes.
     static func setNativePageBackground(site: SiteID, pageHex: String, on webView: WKWebView) {
-        guard site == .rooms || site == .sports else { return }
+        guard site == .rooms || site == .sports || site == .portal else { return }
         let source = nativePageMarker + """
         (() => {
             const id = 'gtiit-native-page-background';
@@ -104,7 +104,7 @@ import WebKit
                 style.id = id;
                 (document.head || document.documentElement).appendChild(style);
             }
-            style.textContent = 'html, body, #app, #root, #page, #main, .main, .container, .container-fluid, .page, .page-content, .content, .site-content, .app { background-color: \(pageHex) !important; }';
+            style.textContent = 'html, body, #app, #root, #root > div, #page, #main, main, .main, .container, .container-fluid, .page, .page-content, .content, .site-content, .app { background-color: \(pageHex) !important; }';
         })();
         """
         let controller = webView.configuration.userContentController

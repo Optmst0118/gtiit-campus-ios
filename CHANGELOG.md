@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.31] - 2026-10-24
+
+### Fixed
+
+- Creative Introduction and similar current-term courses now match their timetable entry by the numeric course code extracted from the Moodle name, not only by shortname/name.
+- Student portal pages now receive the same light/dark page background as Learning; title bar and nested page share the app canvas.
+- Welcome pages use a wider, more even content column with larger top spacing, icon sizing and footer padding.
+- Welcome Next/Back/Skip page changes and final completion now use haptic feedback.
+
+### Changed
+
+- Course-number extraction now prefers an all-numeric code and ignores term slugs such as 2026Winter.
+
 ## [2.0.0-alpha.30] - 2026-10-24
 
 ### Added

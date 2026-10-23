@@ -5,6 +5,7 @@ struct SiteBrowserView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @Environment(\.scenePhase) private var phase
+    @Environment(\.colorScheme) private var colorScheme
     let site: SiteID
 
     var body: some View {
@@ -12,10 +13,23 @@ struct SiteBrowserView: View {
 
         NavigationStack { BrowserChrome(model: app.browser(for: site)) }
             .id(site)
-            .onAppear { app.browser(for: site).recoverReadOnlyDocumentIfNeeded() }
+            .onAppear {
+                app.browser(for: site).recoverReadOnlyDocumentIfNeeded()
+                applyPortalBackground()
+            }
+            .onChange(of: colorScheme) { _, _ in applyPortalBackground() }
             .onChange(of: phase) { _, value in
                 if value == .active && !app.lock.isLocked { app.browser(for: site).recoverReadOnlyDocumentIfNeeded() }
             }
+    }
+
+    private func applyPortalBackground() {
+        guard site == .portal else { return }
+        WebAppearance.setNativePageBackground(
+            site: .portal,
+            pageHex: Theme.pageHex(for: colorScheme),
+            on: app.browser(for: .portal).webView
+        )
     }
 }
 

@@ -272,9 +272,13 @@ struct MoodleHomeView: View {
         guard !schedule.isEmpty else { return false }
         let codes = Set(schedule.map { normalizedCode($0.code) }.filter { !$0.isEmpty })
         let names = schedule.map { normalizedName($0.name) }.filter { !$0.isEmpty }
-        let courseCodes = [course.shortname, course.name].compactMap { $0 }.map(normalizedCode).filter { !$0.isEmpty }
+        let rawCandidates = [course.shortname, course.name].compactMap { $0 }
+        let tokens = rawCandidates.flatMap { $0.components(separatedBy: CharacterSet.alphanumerics.inverted) }
+        let numericCodes = tokens.filter { $0.count >= 3 && $0.allSatisfy(\.isNumber) }
+        let courseCodes = (rawCandidates + [course.courseNumber ?? ""] + numericCodes)
+            .map(normalizedCode).filter { !$0.isEmpty }
         if courseCodes.contains(where: { codes.contains($0) }) { return true }
-        let courseNames = [course.name, course.shortname].compactMap { $0 }.map(normalizedName).filter { $0.count >= 4 }
+        let courseNames = [course.displayName, course.name, course.shortname].compactMap { $0 }.map(normalizedName).filter { $0.count >= 4 }
         for name in courseNames {
             if names.contains(where: { candidate in
                 candidate == name || (candidate.count >= 5 && name.count >= 5 && (candidate.contains(name) || name.contains(candidate)))

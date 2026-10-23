@@ -52,14 +52,27 @@ struct MoodleCourse: Codable, Identifiable, Hashable {
         return value.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: "-–— ")))
     }
     var courseNumber: String? {
-        for candidate in [shortname ?? "", name] {
+        // Prefer an all-numeric course code (e.g. 00350026). Moodle shortnames
+        // sometimes contain term slugs such as 2026Winter, which must not be
+        // mistaken for a course number.
+        let candidates = [shortname ?? "", name]
+        for candidate in candidates {
+            let parts = candidate.components(separatedBy: CharacterSet.alphanumerics.inverted)
+            for part in parts {
+                let token = part.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard token.count >= 3, token.count <= 16,
+                      token.allSatisfy({ $0.isNumber }) else { continue }
+                if token.count == 4 && token.hasPrefix("20") { continue }
+                return token
+            }
+        }
+        for candidate in candidates {
             let parts = candidate.components(separatedBy: CharacterSet.alphanumerics.inverted)
             for part in parts {
                 let token = part.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard token.count >= 3, token.count <= 16,
                       token.rangeOfCharacter(from: .decimalDigits) != nil,
                       token.allSatisfy({ $0.isLetter || $0.isNumber }) else { continue }
-                // Do not turn a bare semester year into a course code.
                 if token.count == 4 && token.hasPrefix("20") { continue }
                 return token
             }
