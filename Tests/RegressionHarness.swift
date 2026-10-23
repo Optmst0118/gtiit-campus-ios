@@ -966,7 +966,7 @@ extension RegressionApp {
             let result = try await read()
             check("upcoming_reads_active_course_pages_and_pagination", result.courses == 2 && result.checked == 2 && result.failed == 0)
             check("upcoming_skips_old_terms_future_and_hidden_courses", await js(web, "calls.filter(c=>new URL(c.url).pathname.endsWith('index.php')).every(c=>['1','2'].includes(new URL(c.url).searchParams.get('id')))") == "true")
-            check("upcoming_requests_only_inprogress_classification", await js(web, "classifications.length===2&&classifications.every(c=>c==='inprogress')") == "true")
+            check("upcoming_requests_complete_course_list", await js(web, "classifications.length>=1&&classifications.every(c=>c==='all'||c==='inprogress')") == "true")
             let folder = FileManager.default.temporaryDirectory.appendingPathComponent("upcoming-cache-" + UUID().uuidString)
             defer { try? FileManager.default.removeItem(at: folder) }
             let cache = MoodleUpcomingStore(directory: folder)
@@ -1031,6 +1031,7 @@ extension RegressionApp {
         defaults.removePersistentDomain(forName: suite)
         let settings = AppSettings(defaults: defaults)
         settings.hasSeenWelcome = true; settings.preloadSitesOnLaunch = false; settings.startupTab = .portal
+        settings.nativeMoodleEnabled = false
         let app = AppModel(settings: settings)
         let original = window!.rootViewController
         let host = UIHostingController(rootView: RootTabView().environmentObject(app).environmentObject(settings))
@@ -1040,8 +1041,8 @@ extension RegressionApp {
             for child in view.subviews { if let bar = tabBar(in: child) { return bar } }
             return nil
         }
-        // Booking now has a native alpha home; only the two wrapped sites use the
-        // glass WebView layout under the tab bar.
+        // Booking/Moodle now have native homes; this regression exercises the
+        // wrapped web host explicitly.
         for site in [SiteID.portal, .moodle] {
             let browser = app.browser(for: site)
             app.openSite(site)

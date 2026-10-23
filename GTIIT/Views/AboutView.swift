@@ -16,7 +16,7 @@ struct AboutView: View {
                 HStack(spacing: 16) {
                     Image(uiImage: campusMark).resizable().renderingMode(.original).scaledToFit().frame(width: 62, height: 62).accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("YOUR CAMPUS, CONNECTED").font(.system(size: 9, weight: .semibold))
+                        Text(L10n.tr("你的校园，一站连接")).font(.system(size: 9, weight: .semibold))
                             .tracking(1.3).foregroundStyle(Theme.accent)
                         Text(L10n.tr("GTIIT 校园助手")).font(.headline)
                         Text(L10n.tr("学习、生活，一路相连。")).font(.subheadline).foregroundStyle(.secondary)
@@ -115,7 +115,7 @@ private struct AboutDetailsView: View {
                 bullet("square.grid.2x2", L10n.tr("用底部五个标签承载班车、门户、Moodle、预约与我的。"), color: Theme.accent)
                 bullet("bus", L10n.tr("班车按提供的时刻表计算计划发车倒计时，不是实时到站信息。"), color: Theme.orange)
                 bullet("safari", L10n.tr("每个标签加载对应官方网页，页面布局、登录和业务操作都不改造。"), color: Theme.accent)
-                bullet("bolt", L10n.tr("冷启动并行预加载四站，恢复有效会话；密码、验证码及二次验证由你在学校页面完成。"), color: Theme.accent)
+                bullet("bolt", L10n.tr("冷启动只预热启动页网站，其他站点按需加载；密码、验证码及二次验证由你在学校页面完成。"), color: Theme.accent)
                 bullet("arrow.triangle.branch", L10n.tr("主动点击普通跨站链接时切换标签；表单、登录与新窗口保留原认证上下文。"), color: Theme.accent)
                 bullet("lock.shield", L10n.tr("四个站点各自持久保存网页会话，可单独清除，也可用面容 ID 遮挡。"), color: Theme.accent)
             }

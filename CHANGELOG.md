@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.27] - 2026-10-24
+
+### Added
+
+- Native localization regression check (Tools/check_localization.py) in CI, covering 649 L10n keys, 52 format keys, 748 .strings keys and both InfoPlist usage strings.
+- Face ID usage description localization (InfoPlist.strings) and widget configuration strings.
+- Shared NativePageIcon / NativeWebPageView components; booking now uses the same push navigation and loading chrome as Moodle.
+- Staged, startup-tab-aware WebKit warming with a 700ms summary slot, delayed exam probe, low-power skip and a fixed Moodle summary startup race.
+- docs/PERFORMANCE.md and docs/LOCALIZATION.md.
+
+### Fixed
+
+- Room names now show a clean room code with a localized description instead of a Chinese parenthetical in the name.
+- User-facing dates and durations follow the in-app language.
+
 ## [2.0.0-alpha.26] - 2026-10-24
 
 ### Changed

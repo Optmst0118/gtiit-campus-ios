@@ -66,7 +66,7 @@ private final class NoRedirectDelegate: NSObject, URLSessionTaskDelegate, @unche
     var report: String {
         (["GTIIT \(AppInfo.versionText)", L10n.tr("网络连通性检查（不代表已登录或业务可用）")]
             + results.map {
-                "\($0.site.displayName) | \($0.site.host) | \($0.message) | \($0.checkedAt.formatted(date: .numeric, time: .shortened))"
+                "\($0.site.displayName) | \($0.site.host) | \($0.message) | \($0.checkedAt.gtiitFormatted(date: .numeric, time: .shortened))"
             }).joined(separator: "\n")
     }
 }

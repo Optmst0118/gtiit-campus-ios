@@ -56,7 +56,6 @@
 		1E3CCF1B90772377B896875F /* DownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71865DECF3411BC2686A995B /* DownloadsView.swift */; };
 		3F7E4CF2E4C5A389A1139D86 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89577AFC0E3F31DFE26AAFAD /* HelpView.swift */; };
 		08F437CEFDB0E1E97FC364BE /* LanguageSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68A4412041D868E407C90AC /* LanguageSettingsView.swift */; };
-		ED89A1505462C4E57FD89C92 /* LaunchPreloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */; };
 		2B91C1A0D8A5231E97879D2C /* LocalTimetableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FD7E3BAD835CC92FB8D4EB /* LocalTimetableView.swift */; };
 		2083A20EED7A9DA069E3F650 /* LockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FAD011A1658F97414746F9 /* LockScreenView.swift */; };
 		59374B49C8933314B1B20FF8 /* MoodleNativeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C93E1848AA178B0CB63D9B2E /* MoodleNativeView.swift */; };
@@ -76,6 +75,8 @@
 		54782A73FEBE6E2F623D497C /* BrowserComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56F29BD0774926444F8EB287 /* BrowserComponents.swift */; };
 		B6C4C77B7640F9F9E7F00382 /* DownloadFileGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E5A7F2D70C413EEF82C3757 /* DownloadFileGrid.swift */; };
 		11783755FBDAEF486C4F99B2 /* DownloadFloatingPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A76D7E48B5F2AE15724473B /* DownloadFloatingPanel.swift */; };
+		9C5EF93651B62D447B0FFF62 /* NativePageIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBCAD68280660A057726ED /* NativePageIcon.swift */; };
+		02E452BE17D52FF126219730 /* NativeWebPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C29810746CAE463CDB763C21 /* NativeWebPageView.swift */; };
 		C43BD859842F6E666E2C03A3 /* SettingsChoicePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */; };
 		4618A9554615327A3DAB76BA /* TabBarReselectObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FAC255AC342CFFF6772E0D /* TabBarReselectObserver.swift */; };
 		4D20A64E6DA1B8D39585377E /* WebViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */; };
@@ -135,7 +136,6 @@
 		71865DECF3411BC2686A995B /* DownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
 		89577AFC0E3F31DFE26AAFAD /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		B68A4412041D868E407C90AC /* LanguageSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSettingsView.swift; sourceTree = "<group>"; };
-		B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchPreloadView.swift; sourceTree = "<group>"; };
 		17FD7E3BAD835CC92FB8D4EB /* LocalTimetableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalTimetableView.swift; sourceTree = "<group>"; };
 		91FAD011A1658F97414746F9 /* LockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenView.swift; sourceTree = "<group>"; };
 		C93E1848AA178B0CB63D9B2E /* MoodleNativeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodleNativeView.swift; sourceTree = "<group>"; };
@@ -155,6 +155,8 @@
 		56F29BD0774926444F8EB287 /* BrowserComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserComponents.swift; sourceTree = "<group>"; };
 		9E5A7F2D70C413EEF82C3757 /* DownloadFileGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadFileGrid.swift; sourceTree = "<group>"; };
 		7A76D7E48B5F2AE15724473B /* DownloadFloatingPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadFloatingPanel.swift; sourceTree = "<group>"; };
+		2BCBCAD68280660A057726ED /* NativePageIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativePageIcon.swift; sourceTree = "<group>"; };
+		C29810746CAE463CDB763C21 /* NativeWebPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeWebPageView.swift; sourceTree = "<group>"; };
 		7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsChoicePicker.swift; sourceTree = "<group>"; };
 		F9FAC255AC342CFFF6772E0D /* TabBarReselectObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarReselectObserver.swift; sourceTree = "<group>"; };
 		FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContainer.swift; sourceTree = "<group>"; };
@@ -303,7 +305,6 @@
 				71865DECF3411BC2686A995B /* DownloadsView.swift */,
 				89577AFC0E3F31DFE26AAFAD /* HelpView.swift */,
 				B68A4412041D868E407C90AC /* LanguageSettingsView.swift */,
-				B91D34D85CB1C4017B4D2716 /* LaunchPreloadView.swift */,
 				17FD7E3BAD835CC92FB8D4EB /* LocalTimetableView.swift */,
 				91FAD011A1658F97414746F9 /* LockScreenView.swift */,
 				C93E1848AA178B0CB63D9B2E /* MoodleNativeView.swift */,
@@ -330,6 +331,8 @@
 				56F29BD0774926444F8EB287 /* BrowserComponents.swift */,
 				9E5A7F2D70C413EEF82C3757 /* DownloadFileGrid.swift */,
 				7A76D7E48B5F2AE15724473B /* DownloadFloatingPanel.swift */,
+				2BCBCAD68280660A057726ED /* NativePageIcon.swift */,
+				C29810746CAE463CDB763C21 /* NativeWebPageView.swift */,
 				7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */,
 				F9FAC255AC342CFFF6772E0D /* TabBarReselectObserver.swift */,
 				FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */,
@@ -465,7 +468,6 @@
 				1E3CCF1B90772377B896875F /* in Sources */,
 				3F7E4CF2E4C5A389A1139D86 /* in Sources */,
 				08F437CEFDB0E1E97FC364BE /* in Sources */,
-				ED89A1505462C4E57FD89C92 /* in Sources */,
 				2B91C1A0D8A5231E97879D2C /* in Sources */,
 				2083A20EED7A9DA069E3F650 /* in Sources */,
 				59374B49C8933314B1B20FF8 /* in Sources */,
@@ -485,6 +487,8 @@
 				54782A73FEBE6E2F623D497C /* in Sources */,
 				B6C4C77B7640F9F9E7F00382 /* in Sources */,
 				11783755FBDAEF486C4F99B2 /* in Sources */,
+				9C5EF93651B62D447B0FFF62 /* in Sources */,
+				02E452BE17D52FF126219730 /* in Sources */,
 				C43BD859842F6E666E2C03A3 /* in Sources */,
 				4618A9554615327A3DAB76BA /* in Sources */,
 				4D20A64E6DA1B8D39585377E /* in Sources */,
@@ -582,7 +586,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 43;
+				CURRENT_PROJECT_VERSION = 44;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -592,7 +596,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0.0;
-				GTIIT_RELEASE_LABEL = "2.0.0-alpha.26";
+				GTIIT_RELEASE_LABEL = "2.0.0-alpha.27";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -607,7 +611,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 43;
+				CURRENT_PROJECT_VERSION = 44;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -617,7 +621,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0.0;
-				GTIIT_RELEASE_LABEL = "2.0.0-alpha.26";
+				GTIIT_RELEASE_LABEL = "2.0.0-alpha.27";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -788,9 +792,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "43";
+				CURRENT_PROJECT_VERSION = "44";
 				MARKETING_VERSION = "2.0.0";
-				GTIIT_RELEASE_LABEL = "2.0.0-alpha.26";
+				GTIIT_RELEASE_LABEL = "2.0.0-alpha.27";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 			};
@@ -808,9 +812,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "43";
+				CURRENT_PROJECT_VERSION = "44";
 				MARKETING_VERSION = "2.0.0";
-				GTIIT_RELEASE_LABEL = "2.0.0-alpha.26";
+				GTIIT_RELEASE_LABEL = "2.0.0-alpha.27";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 			};

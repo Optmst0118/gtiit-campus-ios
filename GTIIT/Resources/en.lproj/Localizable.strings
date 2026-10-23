@@ -52,7 +52,7 @@
 "Grades / 考试记录" = "Grades / exam records";
 "HTTP %@ · 服务器已响应" = "HTTP %@ · Server responded";
 "Moodle PDF 先进入临时预览，点击下载后才保存。默认保存在本机 Documents/Downloads，可在下载管理更改新文件的保存位置。已有文件不迁移；外部文件夹不参与自动清理。临时预览关闭后清理，断点凭证只留在当前运行内存中。" = "Moodle PDFs open in temporary preview and are saved only when you tap download. New files use Documents/Downloads or your selected folder. Existing files stay in place. External folders are excluded from timed cleanup. Temporary previews are removed when closed; resume credentials remain in memory.";
-"Moodle 临近日程" = "Upcoming on Moodle";
+"Moodle 临近日程" = "Moodle upcoming";
 "Moodle 移动令牌、自有回调尚未验证，因此首版不提供原生课程数据。" = "Moodle mobile tokens and app callbacks remain unverified; registered portal timetable import is an explicit local-only feature.";
 "PCC / PEC / GE / MOE 清单" = "PCC / PEC / GE / MOE checklist";
 "PDF 加载失败，请返回课程后重新打开。%@" = "PDF loading failed. Return to the course and reopen. %@";
@@ -689,7 +689,7 @@
 "通知权限" = "Notification permission";
 "邮箱助手" = "Mail assistant";
 "部分旧缓存尚在被系统释放。新的浏览会话已与旧数据隔离。" = "Some old cache is still being released. New sessions are already isolated from it.";
-"部分更新" = "Partially updated";
+"部分更新" = "Partial update";
 "部分更新，仍有课程未能核对" = "Partially updated; some courses could not be checked";
 "部分页面未能读取，以下结果可能不完整；可重试并在 Moodle 核对。" = "Some pages could not be read. Results may be incomplete; retry and check Moodle.";
 "重新打开上次浏览的页面" = "Restore last visited page";
@@ -741,3 +741,8 @@
 "麦克风" = "Microphone";
 "默认浏览器" = "Default browser";
 "默认预约分类" = "Default booking category";
+"预加载只预热启动页对应网站，其他站点按需加载；不会阻塞启动。" = "Preload only warms the site for the startup tab; other sites load on demand and never block launch.";
+"冷启动只预热启动页网站，其他站点按需加载；密码、验证码及二次验证由你在学校页面完成。" = "Cold launch warms only the startup site. Other sites load on demand; passwords, codes and additional verification remain on the official page.";
+"Shuttle next bus" = "Shuttle next bus";
+"Next bus home or back, based on your campus location." = "Next bus home or back, based on your campus location.";
+"共 %@ 门课程" = "Courses: %@";

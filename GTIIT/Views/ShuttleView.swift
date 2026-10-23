@@ -22,7 +22,7 @@ struct ShuttleView: View {
                         Color.clear.frame(height: 0).id("shuttle.top")
                         HStack(alignment: .firstTextBaseline) {
                             VStack(alignment: .leading, spacing: 7) {
-                                Text("CAMPUS IN MOTION").font(.caption2.weight(.semibold)).tracking(2)
+                                Text(L10n.tr("校园动态")).font(.caption2.weight(.semibold)).tracking(2)
                                     .foregroundStyle(Theme.accent)
                                 Text(L10n.tr("Shuttle Bus时刻表")).font(.largeTitle.weight(.semibold)).tracking(-1)
                                     .lineLimit(1).minimumScaleFactor(0.7)

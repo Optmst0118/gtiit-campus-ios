@@ -40,6 +40,8 @@ final class AppModel: ObservableObject {
     private var lockSubscription: AnyCancellable?
     private var appearanceSubscription: AnyCancellable?
     private var launchSubscription: AnyCancellable?
+    private var didScheduleSummaryWarmup = false
+    private var didScheduleDeferredWarmup = false
 
     private var browsers: [SiteID: BrowserModel] = [:]
     private var toastTask: Task<Void, Never>?
@@ -94,21 +96,68 @@ final class AppModel: ObservableObject {
             guard let self else { return false }
             return !self.lock.isLocked && self.lock.isActive && !self.isClearingData
         }
+        // Moodle's lightweight on-device summary starts first. The exam probe
+        // uses a second hidden WebView, so give it a separate slot instead of
+        // competing with the first portal/Moodle paint.
         upcoming.refresh(browser: browser(for: .moodle), allowed: allowed)
-        exams.refresh(allowed: allowed)
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(650))
+            guard let self, allowed() else { return }
+            self.exams.refresh(allowed: allowed)
+        }
     }
 
     func prepareLaunchIfAllowed() {
         guard settings.hasSeenWelcome, !showWelcome, !lock.isLocked, lock.isActive else { return }
-        // Kick both campus summaries off with launch, not only when My appears;
-        // their progress is then already visible on the first visit.
-        warmUpCampusSummaries()
+        let sites = startupWebSites
+        guard !sites.isEmpty else {
+            // Native startup (Shuttle/Me): keep the first frame free of WebKit.
+            launch.skip()
+            return
+        }
+        scheduleSummaryWarmupIfNeeded()
         guard settings.preloadSitesOnLaunch else { launch.skip(); return }
         guard !launch.hasStarted, !launch.didFinish else { return }
-        launch.start(models: SiteID.allCases.map { browser(for: $0) }, canRestoreSession: { [weak self] in
+        launch.start(models: sites.map { browser(for: $0) }, canRestoreSession: { [weak self] in
             guard let self else { return false }
             return !self.lock.isLocked && self.lock.isActive && !self.isClearingData
         })
+        scheduleDeferredWarmupIfNeeded()
+    }
+
+    private var startupWebSites: [SiteID] {
+        switch settings.startupTab {
+        case .portal: return [.portal]
+        case .learning: return [.moodle]
+        case .booking: return [settings.defaultBooking.site]
+        case .shuttle, .me: return []
+        }
+    }
+
+    private func scheduleSummaryWarmupIfNeeded() {
+        guard !didScheduleSummaryWarmup, !startupWebSites.isEmpty, settings.preloadSitesOnLaunch else { return }
+        didScheduleSummaryWarmup = true
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(700))
+            guard let self, !self.lock.isLocked, self.lock.isActive, !self.isClearingData else { return }
+            self.warmUpCampusSummaries()
+        }
+    }
+
+    private func scheduleDeferredWarmupIfNeeded() {
+        guard !didScheduleDeferredWarmup, !startupWebSites.isEmpty else { return }
+        didScheduleDeferredWarmup = true
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(1_500))
+            guard let self, self.settings.preloadSitesOnLaunch,
+                  !ProcessInfo.processInfo.isLowPowerModeEnabled,
+                  !self.lock.isLocked, self.lock.isActive, !self.isClearingData else { return }
+            _ = self.browser(for: .moodle)
+            try? await Task.sleep(for: .milliseconds(1_200))
+            guard !self.lock.isLocked, self.lock.isActive, !self.isClearingData else { return }
+            _ = self.browser(for: .rooms)
+            _ = self.browser(for: .sports)
+        }
     }
 
     // MARK: - 网页内核

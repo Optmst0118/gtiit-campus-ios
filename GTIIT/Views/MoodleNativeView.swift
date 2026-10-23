@@ -61,7 +61,7 @@ struct MoodleTabView: View {
                     if destination.kind == .course {
                         MoodleCoursePageView(title: destination.title, url: destination.url)
                     } else {
-                        MoodleWebPageView(destination: destination)
+                        NativeWebPageView(site: .moodle, title: destination.title, url: destination.url)
                     }
                 }
         }
@@ -159,13 +159,7 @@ struct MoodleHomeView: View {
     // MARK: Header
 
     private var header: some View {
-        Image(systemName: "book.closed.fill")
-            .font(.system(size: 27, weight: .semibold))
-            .foregroundStyle(Theme.accent)
-            .frame(width: 58, height: 58)
-            .background(Theme.accent.opacity(0.13), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, 14)
+        NativePageIcon(symbol: "book.closed.fill", tint: Theme.accent)
     }
 
     private var visibleSections: [MoodleSection] {
@@ -443,7 +437,7 @@ private struct MoodleWorkRowNative: View {
                 Text(item.name).font(.subheadline.weight(.semibold)).foregroundStyle(.primary).lineLimit(2)
                 Text(item.course).font(.caption).foregroundStyle(.secondary).lineLimit(1)
                 if let due = item.dueDate {
-                    Label(due.formatted(date: .abbreviated, time: .shortened), systemImage: "clock")
+                    Label(due.gtiitFormatted(), systemImage: "clock")
                         .font(.caption).foregroundStyle(Theme.accent)
                 }
             }
@@ -656,28 +650,6 @@ struct MoodleLayoutSettingsView: View {
                 }
             }
         }
-    }
-}
-
-struct MoodleWebPageView: View {
-    @EnvironmentObject private var app: AppModel
-    let destination: MoodleDestination
-
-    var body: some View {
-        WebViewContainer(model: app.browser(for: .moodle))
-            .navigationTitle(destination.title)
-            .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
-                let browser = app.browser(for: .moodle)
-                browser.webView.allowsBackForwardNavigationGestures = false
-                WebAppearance.setMoodleCourseChrome(hidden: false, on: browser.webView)
-                if browser.webView.url?.absoluteString != destination.url.absoluteString {
-                    browser.load(destination.url)
-                }
-            }
-            .onDisappear {
-                app.browser(for: .moodle).webView.allowsBackForwardNavigationGestures = true
-            }
     }
 }
 

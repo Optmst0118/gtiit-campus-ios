@@ -60,7 +60,7 @@ struct MoodleUpcomingView: View {
                 }
                 Text(L10n.tr("自动每 30 分钟更新，也可手动刷新。")).font(.caption).foregroundStyle(.secondary)
                 if let date = store.updatedAt {
-                    LabeledContent(L10n.tr(store.partial ? "部分更新" : "最近更新"), value: date.formatted(date: .abbreviated, time: .shortened))
+                    LabeledContent(L10n.tr(store.partial ? "部分更新" : "最近更新"), value: date.gtiitFormatted())
                         .font(.caption).foregroundStyle(.secondary)
                     Text(L10n.format("已检查 %@／%@ 门课程的作业列表", String(store.checked), String(store.courses)))
                         .font(.caption).foregroundStyle(.secondary)

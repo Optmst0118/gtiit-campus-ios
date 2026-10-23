@@ -10,11 +10,8 @@ struct RootTabView: View {
         let _ = nativeLocale.identifier
 
         ZStack {
-            if settings.hasSeenWelcome && settings.preloadSitesOnLaunch && !app.launch.didFinish {
-                LaunchPreloadView(preparation: app.launch)
-            } else {
-                tabs
-            }
+            // Show the real tabs immediately; prewarming happens in the background.
+            tabs
         }
         .modifier(ContextMenuBackdrop(active: app.contextMenuSource != nil))
         .overlay { YilongOverlay(controller: app.yilong).allowsHitTesting(!app.lock.isLocked) }

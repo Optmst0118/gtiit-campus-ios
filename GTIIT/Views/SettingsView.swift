@@ -109,7 +109,7 @@ private struct GeneralSettingsView: View {
             } header: {
                 Text(L10n.tr("启动"))
             } footer: {
-                Text(L10n.tr("下次启动时使用。预加载会并行准备四站并恢复有效会话，最多等待 10 秒；首次使用仍先显示启动说明。"))
+                Text(L10n.tr("预加载只预热启动页对应网站，其他站点按需加载；不会阻塞启动。"))
             }
             Section {
                 NavigationLink { ShortcutSettingsView() } label: {

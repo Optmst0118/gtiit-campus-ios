@@ -204,7 +204,7 @@ struct DownloadsView: View {
         switch item.state {
         case .completed:
             let size = ByteCountFormatter.string(fromByteCount: item.bytes, countStyle: .file)
-            let date = item.createdAt.formatted(date: .abbreviated, time: .shortened)
+            let date = item.createdAt.gtiitFormatted()
             return "\(item.site.shortName) · \(size) · \(date)"
         case .downloading:
             return L10n.format("下载中 %@%", String(describing: Int((item.progress * 100).rounded())))

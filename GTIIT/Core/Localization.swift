@@ -22,3 +22,14 @@ enum L10n {
         return String(format: template, locale: locale, arguments: arguments)
     }
 }
+
+
+extension Date {
+    /// Native UI dates must follow the in-app language, not the system locale.
+    func gtiitFormatted(
+        date: Date.FormatStyle.DateStyle = .abbreviated,
+        time: Date.FormatStyle.TimeStyle = .shortened
+    ) -> String {
+        formatted(Date.FormatStyle(date: date, time: time).locale(L10n.locale))
+    }
+}

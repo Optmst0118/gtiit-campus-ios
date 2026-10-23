@@ -79,17 +79,26 @@ import WebKit
         guard !refreshing, allowed(), force || (attemptedAt ?? updatedAt).map({ Date().timeIntervalSince($0) >= Self.refreshInterval }) != false else { return }
         guard let path = Bundle.main.url(forResource: "moodle-upcoming", withExtension: "js", subdirectory: "CampusData"),
               let script = try? String(contentsOf: path, encoding: .utf8) else { error = true; return }
-        refreshing = true; error = false; loginRequired = false; attemptedAt = Date()
+        refreshing = true; error = false; loginRequired = false
         webView = browser.webView
         let token = UUID(); generation = token
         task = Task { [weak self] in
             guard let self else { return }
             defer { if self.generation == token { self.refreshing = false; self.task = nil } }
-            for _ in 0..<30 where browser.isLoading {
+            // A freshly created BrowserModel starts with isLoading == false
+            // before navigation begins. Wait for a real first load instead of
+            // evaluating the summary script against an empty document.
+            var waited = 0
+            while (waited < 30) && (!browser.hasLoadedOnce || browser.isLoading) {
                 guard allowed(), !Task.isCancelled else { return }
                 try? await Task.sleep(for: .milliseconds(500))
+                waited += 1
             }
-            guard allowed(), !Task.isCancelled else { return }
+            guard allowed(), !Task.isCancelled, browser.hasLoadedOnce, !browser.isLoading else {
+                self.error = true
+                self.attemptedAt = nil
+                return
+            }
             do {
                 let term = Self.currentTerm()
                 let value = try await browser.webView.callAsyncJavaScript(script, arguments: ["now": Date().timeIntervalSince1970, "jobID": token.uuidString, "termYear": term.year, "termSeason": term.season], in: nil, contentWorld: .page)
@@ -97,9 +106,11 @@ import WebKit
                 guard let string = value as? String, string.utf8.count < 1_000_000 else { throw CocoaError(.coderReadCorrupt) }
                 let result = try JSONDecoder().decode(MoodleUpcomingResult.self, from: Data(string.utf8))
                 self.accept(result)
+                self.attemptedAt = Date()
             } catch {
                 guard self.generation == token, allowed(), !Task.isCancelled else { return }
                 self.error = true
+                self.attemptedAt = nil
             }
         }
     }

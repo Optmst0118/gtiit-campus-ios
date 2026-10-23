@@ -6,7 +6,7 @@ struct BookingTabView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
-    @State private var official: BookingDestination?
+    @State private var path = NavigationPath()
 
     var body: some View {
         let _ = nativeLocale.identifier
@@ -19,16 +19,12 @@ struct BookingTabView: View {
                 SiteBrowserView(site: app.bookingSegment == .rooms ? .rooms : .sports)
             }
         }
-        .sheet(item: $official) { destination in
-            BookingOfficialSheet(destination: destination)
-                .environmentObject(app)
-        }
         .onAppear { consumePendingLink() }
         .onChange(of: app.pendingBookingLink) { _, _ in consumePendingLink() }
     }
 
     private var nativeBooking: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             Group {
                 if app.bookingSegment == .rooms {
                     RoomBookingHomeView(open: open)
@@ -37,12 +33,16 @@ struct BookingTabView: View {
                 }
             }
             .id(app.bookingSegment)
+            .navigationDestination(for: BookingDestination.self) { destination in
+                NativeWebPageView(site: destination.site, title: destination.title, url: destination.url)
+            }
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { BookingSiteMenu() }
             }
         }
+        .onChange(of: app.bookingSegment) { _, _ in path = NavigationPath() }
     }
 
     private var title: String {
@@ -50,7 +50,7 @@ struct BookingTabView: View {
     }
 
     private func open(_ destination: BookingDestination) {
-        official = destination
+        path.append(destination)
     }
 
     /// Shortcuts from My/Settings still open the exact official page, now in a
@@ -58,7 +58,7 @@ struct BookingTabView: View {
     private func consumePendingLink() {
         guard let link = app.pendingBookingLink, let url = link.url else { return }
         app.pendingBookingLink = nil
-        official = BookingDestination(site: link.site, title: link.title, url: url)
+        path.append(BookingDestination(site: link.site, title: link.title, url: url))
     }
 }
 
@@ -88,36 +88,6 @@ private struct BookingSiteMenu: View {
         }
         .accessibilityLabel(L10n.tr("切换预约场所"))
         .menuOrder(.fixed)
-    }
-}
-
-// MARK: - Shared alpha chrome
-
-struct AlphaBadge: View {
-    var body: some View {
-        Text("ALPHA")
-            .font(.caption2.weight(.bold))
-            .tracking(1)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .foregroundStyle(Theme.orange)
-            .background(Theme.orange.opacity(0.14), in: Capsule())
-            .accessibilityLabel(L10n.tr("Alpha 预览版"))
-    }
-}
-
-private struct BookingHeader: View {
-    let symbol: String
-    let tint: Color
-
-    var body: some View {
-        Image(systemName: symbol)
-            .font(.system(size: 26, weight: .semibold))
-            .foregroundStyle(tint)
-            .frame(width: 58, height: 58)
-            .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 17, style: .continuous))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, 14)
     }
 }
 
@@ -215,7 +185,7 @@ struct RoomBookingHomeView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                BookingHeader(symbol: "door.left.hand.open", tint: Theme.accent)
+                NativePageIcon(symbol: "door.left.hand.open", tint: Theme.accent)
 
                 LazyVGrid(columns: dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())] : [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
                     ForEach(actions) { action in
@@ -277,7 +247,7 @@ private struct RoomCategoryDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
                 ForEach(category.rooms) { room in
-                    BookingLinkRow(title: room.name, subtitle: "", symbol: category.symbol, tint: Theme.accent) {
+                    BookingLinkRow(title: room.name, subtitle: room.note, symbol: category.symbol, tint: Theme.accent) {
                         open(BookingDestination(site: .rooms, title: room.name, url: BookingDirectory.roomReservation(room.rid)))
                     }
                 }            }
@@ -303,7 +273,7 @@ struct SportsCenterHomeView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                BookingHeader(symbol: "sportscourt", tint: Theme.orange)
+                NativePageIcon(symbol: "sportscourt", tint: Theme.orange)
 
                 sectionTitle(L10n.tr("场馆预约"), symbol: "square.grid.2x2")
                 LazyVGrid(columns: dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())] : [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
@@ -401,36 +371,11 @@ private struct SportsVenueTile: View {
 
 // MARK: - Official web sheet
 
-struct BookingDestination: Identifiable {
+struct BookingDestination: Identifiable, Hashable {
     let id = UUID()
     let site: SiteID
     let title: String
     let url: URL
-}
-
-private struct BookingOfficialSheet: View {
-    @EnvironmentObject private var app: AppModel
-    @Environment(\.dismiss) private var dismiss
-    let destination: BookingDestination
-
-    var body: some View {
-        NavigationStack {
-            WebViewContainer(model: app.browser(for: destination.site))
-                .navigationTitle(destination.title)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button(L10n.tr("完成")) { dismiss() }
-                    }
-                }
-                .onAppear {
-                    let browser = app.browser(for: destination.site)
-                    if browser.webView.url?.absoluteString != destination.url.absoluteString {
-                        browser.load(destination.url)
-                    }
-                }
-        }
-    }
 }
 
 // MARK: - Local directory (from the 2026-10 public research snapshot)
@@ -485,11 +430,11 @@ enum BookingDirectory {
         RoomCategory(
             id: "practice", title: L10n.tr("练习房"), subtitle: L10n.tr("乐器练习与电子琴房"), symbol: "pianokeys",
             rooms: [
-                room(78, "D4-103-9（电子琴）", L10n.tr("电子琴练习室")),
-                room(77, "D4-103-10（自带乐器）", L10n.tr("乐器练习")),
-                room(80, "D4-103-3（自带乐器）", L10n.tr("乐器练习")),
-                room(79, "D4-103-4（架子鼓）", L10n.tr("架子鼓练习")),
-                room(83, "D5-101-2（钢琴）", L10n.tr("钢琴练习")),
+                room(78, "D4-103-9", L10n.tr("电子琴练习室")),
+                room(77, "D4-103-10", L10n.tr("乐器练习")),
+                room(80, "D4-103-3", L10n.tr("乐器练习")),
+                room(79, "D4-103-4", L10n.tr("架子鼓练习")),
+                room(83, "D5-101-2", L10n.tr("钢琴练习")),
                 room(71, "Dorm B, First floor, NC", L10n.tr("乐器练习")),
                 room(70, "E602", L10n.tr("乐器练习")),
                 room(72, "E604", L10n.tr("乐器练习"))

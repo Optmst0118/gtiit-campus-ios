@@ -38,7 +38,7 @@ struct StudentExamsView: View {
                 if store.loginRequired { Button(L10n.tr("前往 Student 登录")) { app.openSite(.portal) } }
                 if store.failed { Label(L10n.tr("更新失败，请连接校园网或 A Trust 后重试。"), systemImage: "exclamationmark.triangle").foregroundStyle(Theme.orange) }
                 if !store.semester.isEmpty { Text(store.semester).font(.subheadline.weight(.medium)) }
-                if let date = store.updatedAt { LabeledContent(L10n.tr("最近更新"), value: date.formatted(date: .abbreviated, time: .shortened)).font(.caption).foregroundStyle(.secondary) }
+                if let date = store.updatedAt { LabeledContent(L10n.tr("最近更新"), value: date.gtiitFormatted()).font(.caption).foregroundStyle(.secondary) }
                 Text(L10n.tr("自动每 30 分钟更新，也可手动刷新。")).font(.caption).foregroundStyle(.secondary)
             }
             Section {
@@ -61,7 +61,7 @@ private struct StudentExamRow: View {
                 Label { Text(date, format: .dateTime.month().day().weekday().hour().minute().timeZone(.specificName(.short))).monospacedDigit() } icon: { Image(systemName: "calendar") }.font(.subheadline).foregroundStyle(Theme.accent)
             }
             Label(exam.venue.isEmpty ? L10n.tr("地点待定") : exam.venue, systemImage: "mappin.and.ellipse").font(.subheadline).foregroundStyle(.secondary)
-            if exam.duration > 0 { Text(L10n.format("时长 %@ 小时", exam.duration.formatted())).font(.caption).foregroundStyle(.secondary) }
+            if exam.duration > 0 { Text(L10n.format("时长 %@ 小时", String(exam.duration))).font(.caption).foregroundStyle(.secondary) }
         }.environment(\.timeZone, TimeZone(identifier: "Asia/Shanghai")!).accessibilityElement(children: .combine)
     }
 }

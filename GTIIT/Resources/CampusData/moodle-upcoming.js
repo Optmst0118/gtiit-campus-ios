@@ -75,17 +75,17 @@ const courseTerm = c => {
    return season[0].toUpperCase()+season.slice(1)+' '+year;
  return null;
 };
+const termScore = (y,s) => y*3 + (s==='winter'?2:s==='spring'?0:1);
 const currentCourse = c => {
  const terms=courseTerms(c);
- const currentRank=seasonRank[season]??0;
- // Keep this term and every later term (e.g. Winter 2026 -> Spring 2027).
- if(terms.length && !terms.some(t=>t.year>=year))return false;
+ const currentScore=termScore(year,season);
+ // Academic order: Winter 2025 < Spring 2026 < Summer 2026 < Winter 2026 < Spring 2027.
+ // Keep the current term and later terms, while the full course list still
+ // carries older terms into the native history archive.
+ if(terms.length && !terms.some(t=>termScore(t.year,t.season)>=currentScore))return false;
  if(c.visible===false||c.visible===0)return false;
- // Explicit term labels are more reliable than teacher-maintained end dates.
- if(!terms.length) {
-   if(Number(c.startdate)>now+180*86400)return false;
-   if(Number(c.enddate)>0 && Number(c.enddate)<now)return false;
- }
+ if(Number(c.startdate)>now)return false;
+ if(Number(c.enddate)>0 && Number(c.enddate)<now)return false;
  return true;
 };
 const map=new Map();let failed=0,checked=0,courseCount=0,courses=[],allCourses=[];
