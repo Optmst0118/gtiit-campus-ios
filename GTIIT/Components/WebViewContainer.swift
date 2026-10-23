@@ -38,6 +38,7 @@ final class WebViewHostView: UIView {
 
 final class WebViewHostController: UIViewController {
     var startsLargeTitle = false
+    var inlineTitle = false
     private let host = WebViewHostView()
     private weak var pendingWebView: WKWebView?
     private var visible = false
@@ -137,7 +138,7 @@ final class WebViewHostController: UIViewController {
         attach()
         // Switching tabs can inherit a collapsed navigation bar even when the
         // tracked offset is already zero; force the expanded layout once.
-        if startsLargeTitle || navigationScrollView.contentOffset.y <= 0.5 {
+        if !inlineTitle && (startsLargeTitle || navigationScrollView.contentOffset.y <= 0.5) {
             navigationScrollView.setContentOffset(CGPoint(x: 0, y: -1), animated: false)
             navigationScrollView.setContentOffset(.zero, animated: false)
             navigationController?.navigationBar.sizeToFit()
@@ -292,10 +293,12 @@ final class WebViewHostController: UIViewController {
 struct WebViewContainer: UIViewControllerRepresentable {
     let model: BrowserModel
     var startsLargeTitle = false
+    var inlineTitle = false
 
     func makeUIViewController(context: Context) -> WebViewHostController {
         let controller = WebViewHostController()
         controller.startsLargeTitle = startsLargeTitle
+        controller.inlineTitle = inlineTitle
         controller.display(model.webView, portal: model.site == .portal)
         return controller
     }

@@ -710,23 +710,14 @@ struct MoodleCoursePageView: View {
     let url: URL
 
     var body: some View {
-        WebViewContainer(model: app.browser(for: .moodle))
+        WebViewContainer(model: app.browser(for: .moodle), inlineTitle: true)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onAppear {
                     let browser = app.browser(for: .moodle)
                     browser.webView.allowsBackForwardNavigationGestures = false
                     WebAppearance.setMoodleCourseChrome(hidden: true, on: browser.webView, pageHex: Theme.pageHex(for: colorScheme))
-                    browser.webView.scrollView.setContentOffset(.zero, animated: false)
                     if browser.webView.url?.absoluteString != url.absoluteString {
                         browser.load(url)
-                    }
-                    Task { @MainActor in
-                        try? await Task.sleep(for: .milliseconds(80))
-                        browser.webView.scrollView.setContentOffset(.zero, animated: false)
-                        WebViewHostController.resetForCourse(browser.webView)
-                        try? await Task.sleep(for: .milliseconds(350))
-                        browser.webView.scrollView.setContentOffset(.zero, animated: false)
-                        WebViewHostController.resetForCourse(browser.webView)
                     }
                 }
                 .onChange(of: colorScheme) { _, scheme in
@@ -739,6 +730,6 @@ struct MoodleCoursePageView: View {
                 }
                 .background(Theme.pageBackground)
                 .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.large)
+                .navigationBarTitleDisplayMode(.inline)
     }
 }
