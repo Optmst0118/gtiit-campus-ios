@@ -1,0 +1,204 @@
+{
+  "checks" : [
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_glass_host_ready"
+    },
+    {
+      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "passed" : true,
+      "test" : "portal_web_extends_under_tab_bar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_pull_keeps_title_stationary"
+    },
+    {
+      "detail" : "expanded=170.0, compact=118.0",
+      "passed" : true,
+      "test" : "portal_native_title_collapses"
+    },
+    {
+      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
+      "passed" : true,
+      "test" : "portal_native_title_restores_at_top"
+    },
+    {
+      "detail" : "tail=791.0, bar=791.0, inset=0.0",
+      "passed" : true,
+      "test" : "portal_last_action_scrolls_above_bar"
+    },
+    {
+      "detail" : "fixed=791.0, bar=791.0",
+      "passed" : true,
+      "test" : "portal_inner_scroll_fixed_action_above_glass"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_nested_scroll_drives_title"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_nested_scroll_restores_title"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_full_viewport_with_inner_scroll_clearance"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_network_error_available"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_http_error_available"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_glass_host_ready"
+    },
+    {
+      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "passed" : true,
+      "test" : "moodle_web_extends_under_tab_bar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_pull_keeps_title_stationary"
+    },
+    {
+      "detail" : "expanded=170.0, compact=118.0",
+      "passed" : true,
+      "test" : "moodle_native_title_collapses"
+    },
+    {
+      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
+      "passed" : true,
+      "test" : "moodle_native_title_restores_at_top"
+    },
+    {
+      "detail" : "tail=791.0, bar=791.0, inset=83.0",
+      "passed" : true,
+      "test" : "moodle_last_action_scrolls_above_bar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_network_error_available"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_http_error_available"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_glass_host_ready"
+    },
+    {
+      "detail" : "web=(0.0, 214.0, 402.0, 660.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "passed" : true,
+      "test" : "rooms_web_extends_under_tab_bar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_pull_keeps_title_stationary"
+    },
+    {
+      "detail" : "expanded=214.0, compact=162.0",
+      "passed" : true,
+      "test" : "rooms_native_title_collapses"
+    },
+    {
+      "detail" : "expanded=214.0, restored=214.0, tracker=0.0",
+      "passed" : true,
+      "test" : "rooms_native_title_restores_at_top"
+    },
+    {
+      "detail" : "tail=791.0, bar=791.0, inset=83.0",
+      "passed" : true,
+      "test" : "rooms_last_action_scrolls_above_bar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_network_error_available"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_http_error_available"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_glass_host_ready"
+    },
+    {
+      "detail" : "web=(0.0, 162.0, 402.0, 712.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "passed" : true,
+      "test" : "sports_web_extends_under_tab_bar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_pull_keeps_title_stationary"
+    },
+    {
+      "detail" : "expanded=214.0, compact=162.0",
+      "passed" : true,
+      "test" : "sports_native_title_collapses"
+    },
+    {
+      "detail" : "expanded=214.0, restored=214.0, tracker=0.0",
+      "passed" : true,
+      "test" : "sports_native_title_restores_at_top"
+    },
+    {
+      "detail" : "tail=791.0, bar=791.0, inset=83.0",
+      "passed" : true,
+      "test" : "sports_last_action_scrolls_above_bar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_network_error_available"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_http_error_available"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shared_webview_background_updates_do_not_steal_modal"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shared_webview_restored_after_modal_release"
+    },
+    {
+      "detail" : "offset=90.0, delivered=true",
+      "passed" : true,
+      "test" : "restored_host_rebinds_navigation_scroll"
+    }
+  ],
+  "completed" : true,
+  "date" : "2026-10-23T07:27:22Z",
+  "focus" : "layout",
+  "passed" : true,
+  "runID" : "efaa2d8b-8fa7-4be6-9d13-fcc24633d3e7"
+}

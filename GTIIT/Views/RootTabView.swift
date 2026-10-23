@@ -31,6 +31,14 @@ struct RootTabView: View {
                     .tag(tab)
             }
         }
+        .background(
+            TabBarReselectObserver(
+                currentSelection: { app.selectedTab },
+                onReselect: { tab in app.reselect(tab: tab) }
+            )
+            .frame(width: 1, height: 1)
+            .allowsHitTesting(false)
+        )
     }
 }
 

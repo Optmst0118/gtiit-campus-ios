@@ -49,6 +49,7 @@ final class WebViewHostController: UIViewController {
     private weak var trackedWebView: WKWebView?
     private var scrollObservation: NSKeyValueObservation?
     private var innerScrollOffset: CGFloat = 0
+    private var homeObserver: NSObjectProtocol?
     private lazy var scrollMessages = NavigationScrollMessages(owner: self)
     private static let navigationOwners = NSMapTable<WKWebView, WebViewHostController>(keyOptions: .weakMemory, valueOptions: .weakMemory)
     private static let scrollHandler = "gtiitNavigationScroll"
@@ -65,7 +66,13 @@ final class WebViewHostController: UIViewController {
             };
             document.addEventListener('scroll', event => {
                 const target = event.target;
-                if (target && target !== document && target !== document.scrollingElement && target.clientHeight >= innerHeight * 0.45) inner = target;
+                if (!target || target === document || target === document.scrollingElement) {
+                    // The WebView itself is scrolling; the native contentOffset owns
+                    // the title now, so a stale inner value must not pin it open.
+                    inner = null;
+                } else if (target.clientHeight >= innerHeight * 0.45) {
+                    inner = target;
+                }
                 if (!queued) { queued = true; requestAnimationFrame(report); }
             }, {capture:true, passive:true});
             addEventListener('pageshow', report);
@@ -96,6 +103,8 @@ final class WebViewHostController: UIViewController {
     func release() {
         visible = false
         scrollObservation = nil
+        if let homeObserver { NotificationCenter.default.removeObserver(homeObserver) }
+        homeObserver = nil
         if let trackedWebView, Self.navigationOwners.object(forKey: trackedWebView) === self {
             trackedWebView.configuration.userContentController.removeScriptMessageHandler(forName: Self.scrollHandler, contentWorld: .defaultClient)
             Self.navigationOwners.removeObject(forKey: trackedWebView)
@@ -120,12 +129,17 @@ final class WebViewHostController: UIViewController {
         guard let webView = pendingWebView else { return }
         host.host(webView)
         trackNavigation(webView)
-        setContentScrollView(navigationScrollView, for: .top)
+        // Student scrolls a nested <main>, so its title is driven by the proxy
+        // offset. The other three sites scroll the WebKit scroll view itself;
+        // handing that real scroll view to UIKit gives native collapse, the
+        // system animation and reliable expansion when returning to the top.
+        let topScrollView: UIScrollView = fullPortalViewport ? navigationScrollView : webView.scrollView
+        setContentScrollView(topScrollView, for: .top)
         setContentScrollView(webView.scrollView, for: .bottom)
         // The booking segment sits above this child host. Register explicitly
         // on the navigation content controller so that extra sibling cannot
         // prevent UIKit from finding the intended top scroll view.
-        navigationController?.topViewController?.setContentScrollView(navigationScrollView, for: .top)
+        navigationController?.topViewController?.setContentScrollView(topScrollView, for: .top)
         view.setNeedsLayout()
     }
     private func trackNavigation(_ webView: WKWebView) {
@@ -143,25 +157,72 @@ final class WebViewHostController: UIViewController {
             controller.addUserScript(WKUserScript(source: Self.scrollScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: .defaultClient))
         }
         webView.evaluateJavaScript(Self.scrollScript, in: nil, in: .defaultClient) { _ in }
+        if let homeObserver { NotificationCenter.default.removeObserver(homeObserver) }
+        homeObserver = NotificationCenter.default.addObserver(
+            forName: .browserDidRequestHome, object: webView, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in self?.scrollToTop(animated: true) }
+        }
         scrollObservation = webView.scrollView.observe(\.contentOffset, options: [.initial, .new]) { [weak self] _, _ in
             self?.updateNavigationOffset()
         }
     }
     fileprivate func receiveInnerScroll(_ value: CGFloat) {
         guard value.isFinite else { return }
-        innerScrollOffset = max(0, value); updateNavigationOffset()
+        innerScrollOffset = max(0, value)
+        updateNavigationOffset()
+    }
+
+    /// Expanding the large title again is animated by UIKit when the tracked
+    /// offset returns to zero; an explicit animated reset also covers reloads
+    /// and tab re-selection, where WebKit may keep the previous offset briefly.
+    fileprivate func scrollToTop(animated: Bool) {
+        innerScrollOffset = 0
+        if navigationScrollView.contentOffset.y != 0 {
+            navigationScrollView.setContentOffset(.zero, animated: animated)
+        }
+        if !animated {
+            navigationController?.navigationBar.setNeedsLayout()
+        }
     }
     private func updateNavigationOffset() {
         guard visible, let scroll = trackedWebView?.scrollView else { return }
         let outer = max(0, scroll.contentOffset.y + scroll.adjustedContentInset.top)
-        let y = min(120, max(outer, innerScrollOffset))
-        if abs(navigationScrollView.contentOffset.y - y) > 0.25 {
+        let y = min(120, max(0, max(outer, innerScrollOffset)))
+        let previous = navigationScrollView.contentOffset.y
+        if abs(previous - y) > 0.25 {
             navigationScrollView.setContentOffset(CGPoint(x: 0, y: y), animated: false)
         }
+        // At the very top make sure UIKit re-lays out the large title even when
+        // WebKit reports the final offset in one jump at the end of a gesture.
+        if y == 0 && previous > 0.5 {
+            // Nudging through the top edge and re-applying the large-title mode
+            // makes UINavigationBar rebuild its expanded layout; a bare
+            // programmatic zero can leave it collapsed.
+            navigationScrollView.setContentOffset(CGPoint(x: 0, y: -1), animated: false)
+            navigationScrollView.setContentOffset(.zero, animated: true)
+            if let nav = navigationController {
+                nav.navigationBar.sizeToFit()
+                nav.view.setNeedsLayout()
+                nav.view.layoutIfNeeded()
+            }
+        }
     }
+    /// SwiftUI can replace the registered content scroll view while it builds
+    /// the NavigationStack. Re-register on layout so every tab's title follows
+    /// its own WebKit scroll view (or the proxy for the nested Student page).
+    private func registerContentScrollView(_ webView: WKWebView) {
+        guard let navigationController else { return }
+        let topScrollView: UIScrollView = fullPortalViewport ? navigationScrollView : webView.scrollView
+        setContentScrollView(topScrollView, for: .top)
+        navigationController.topViewController?.setContentScrollView(topScrollView, for: .top)
+        navigationController.viewControllers.last?.setContentScrollView(topScrollView, for: .top)
+    }
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         guard visible, let webView = host.hosted, webView.superview === host else { return }
+        registerContentScrollView(webView)
         var bottom = max(0, view.safeAreaInsets.bottom)
         if bottomBar?.window !== view.window, let window = view.window {
             func findBar(_ view: UIView) -> UITabBar? {

@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14] - 2026-10-23
+
+### Fixed
+
+- Navigation bars no longer force an opaque white/dark plate over the page. The top state is transparent (the page background shows through) and the scrolled state uses the system material, restoring the title bar background on My, Settings and every wrapped site.
+- Returning a wrapped site to the top now re-expands the large left-aligned title again, including when scrolling back, reopening home or re-tapping the current tab. The large/compact transition keeps the native animation, with an iOS 26 guard for the scroll-edge appearance slot.
+- The booking navigation titles are now **GTIIT Room Booking** and **GTIIT Sports Center**.
+- Re-tapping the currently selected tab returns wrapped sites to their home URL (and animates the title back); Shuttle and My scroll to the top. Tapping a different tab keeps normal switching.
+
 ## [1.13] - 2026-10-23
 
 ### Fixed

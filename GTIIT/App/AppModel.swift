@@ -15,6 +15,8 @@ final class AppModel: ObservableObject {
     @Published var siteInfo: SiteID?
     @Published var showDownloads = false
     @Published private(set) var storageStates: [SiteID: Bool] = [:]
+    @Published private(set) var tabReselectToken = 0
+    @Published private(set) var tabReselectTarget: AppTab?
 
     @Published private(set) var contextMenuSource: String?
     func showContextMenu(_ source: String) { contextMenuSource = source }
@@ -96,6 +98,24 @@ final class AppModel: ObservableObject {
     func select(tab: AppTab) {
         selectedTab = tab
         visitedTabs.insert(tab)
+    }
+
+    /// Re-tapping the current tab: wrapped sites return to their home URL (the
+    /// native host animates the large title back), native tabs scroll to the top.
+    func reselect(tab: AppTab) {
+        guard selectedTab == tab else { return }
+        tabReselectTarget = tab
+        tabReselectToken &+= 1
+        switch tab {
+        case .portal:
+            browser(for: .portal).loadHome()
+        case .learning:
+            browser(for: .moodle).loadHome()
+        case .booking:
+            browser(for: bookingSegment.site).loadHome()
+        case .shuttle, .me:
+            break
+        }
     }
 
     func switchTo(_ site: SiteID) {

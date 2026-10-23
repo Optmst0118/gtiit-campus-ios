@@ -1063,6 +1063,9 @@ extension RegressionApp {
             scroll.setContentOffset(CGPoint(x: 0, y: 150), animated: false)
             let collapsed = await wait { web.convert(web.bounds, to: self.window).minY < expandedTop - 15 }
             check("\(site.rawValue)_native_title_collapses", collapsed && (tracker?.contentOffset.y ?? 0) > 0, "expanded=\(expandedTop), compact=\(web.convert(web.bounds, to: window).minY)")
+            scroll.setContentOffset(CGPoint(x: 0, y: -scroll.adjustedContentInset.top), animated: false)
+            let restored = await wait { abs(web.convert(web.bounds, to: window).minY - expandedTop) < 1 }
+            check("\(site.rawValue)_native_title_restores_at_top", restored, "expanded=\(expandedTop), restored=\(web.convert(web.bounds, to: window).minY), tracker=\(tracker?.contentOffset.y ?? -1)")
             let y = max(-scroll.adjustedContentInset.top, scroll.contentSize.height - scroll.bounds.height + scroll.adjustedContentInset.bottom)
             scroll.setContentOffset(CGPoint(x: 0, y: y), animated: false)
             try? await Task.sleep(for: .milliseconds(300))
@@ -1184,7 +1187,7 @@ extension RegressionApp {
             check("exam_missing_component_not_empty_success", missing.contains("loading"))
         } catch { check("exam_reader", false, error.localizedDescription) }
         web.stopLoading()
-        check("native_site_titles_fixed", SiteID.allCases.map(\.nativeTitle) == ["Student", "Moodle dashboard", "GTIT room booking service", "GTIT sports center"])
+        check("native_site_titles_fixed", SiteID.allCases.map(\.nativeTitle) == ["Student", "Moodle dashboard", "GTIIT Room Booking", "GTIIT Sports Center"])
     }
 
 }

@@ -197,6 +197,7 @@ final class BrowserModel: NSObject, ObservableObject {
     }
 
     func loadHome() {
+        NotificationCenter.default.post(name: .browserDidRequestHome, object: webView)
         load(site.homeURL)
     }
 
@@ -677,4 +678,10 @@ extension BrowserModel: WKUIDelegate {
         guard message.name == "gtiitDocumentEdited", message.body as? Bool == true else { return }
         owner?.documentWasEdited()
     }
+}
+
+extension Notification.Name {
+    /// Posted when a site asks to return to its home page; the native host uses
+    /// it to animate the large title back into place before the new page loads.
+    static let browserDidRequestHome = Notification.Name("GTIITBrowserDidRequestHome")
 }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ShuttleView: View {
     @Environment(\.locale) private var nativeLocale
+    @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var timetableDirection: ShuttleDirection?
@@ -11,9 +12,11 @@ struct ShuttleView: View {
         let _ = nativeLocale.identifier
 
         NavigationStack {
+            ScrollViewReader { proxy in
             TimelineView(.periodic(from: .now, by: 1)) { context in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
+                        Color.clear.frame(height: 0).id("shuttle.top")
                         HStack(alignment: .firstTextBaseline) {
                             VStack(alignment: .leading, spacing: 7) {
                                 Text("CAMPUS IN MOTION").font(.caption2.weight(.semibold)).tracking(2)
@@ -82,6 +85,13 @@ struct ShuttleView: View {
             .sheet(item: $timetableDirection) { direction in ShuttleTimetableView(initialDirection: direction) }
             .onAppear {
                 withAnimation(reduceMotion ? nil : .easeOut(duration: 0.35)) { appeared = true }
+            }
+            .onChange(of: app.tabReselectToken) { _, _ in
+                guard app.tabReselectTarget == .shuttle else { return }
+                withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3)) {
+                    proxy.scrollTo("shuttle.top", anchor: .top)
+                }
+            }
             }
         }
     }

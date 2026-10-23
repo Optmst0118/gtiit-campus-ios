@@ -25,22 +25,35 @@ enum Theme {
     static let pageBackground = Color(uiColor: pageUIColor)
     static let cardBackground = Color(uiColor: .secondarySystemGroupedBackground)
 
-    /// Consistent navigation surfaces: white in light mode and the existing
-    /// native canvas in dark mode, with matching system title/status contrast.
+    /// Let the system own the navigation surface again: transparent at the top
+    /// (the page background shows through) and the standard material once the
+    /// content scrolls underneath. Forcing an opaque colour made the bar look
+    /// like a coloured plate over the page in several screens.
     @MainActor static func configureNavigationAppearance() {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor { traits in
-            traits.userInterfaceStyle == .dark ? pageUIColor.resolvedColor(with: traits) : .white
-        }
-        appearance.shadowColor = .clear
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.label]
-        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+        let scrollEdge = UINavigationBarAppearance()
+        scrollEdge.configureWithTransparentBackground()
+        scrollEdge.shadowColor = .clear
+        scrollEdge.titleTextAttributes = [.foregroundColor: UIColor.label]
+        scrollEdge.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+
+        let standard = UINavigationBarAppearance()
+        standard.configureWithDefaultBackground()
+        standard.shadowColor = .clear
+        standard.titleTextAttributes = [.foregroundColor: UIColor.label]
+        standard.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+
         let bar = UINavigationBar.appearance()
-        bar.standardAppearance = appearance
-        bar.scrollEdgeAppearance = appearance
-        bar.compactAppearance = appearance
-        bar.compactScrollEdgeAppearance = appearance
+        bar.standardAppearance = standard
+        bar.compactAppearance = standard
+        // iOS 26 has a system bug where assigning a custom scroll-edge slot can
+        // leave the large title permanently collapsed/blank after a transition.
+        // The default scroll-edge appearance is already transparent, so leaving
+        // the slot untouched is both safer and visually identical.
+        if #unavailable(iOS 26.0) {
+            bar.scrollEdgeAppearance = scrollEdge
+            bar.compactScrollEdgeAppearance = scrollEdge
+        }
+        bar.isTranslucent = true
         bar.tintColor = UIColor(accent)
     }
 

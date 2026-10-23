@@ -8,8 +8,10 @@ struct MyTabView: View {
         let _ = nativeLocale.identifier
 
         NavigationStack {
+            ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    Color.clear.frame(height: 0).id("me.top")
                     LocalTimetableEntry(store: app.timetable)
                     MoodleUpcomingEntry(store: app.upcoming)
                     StudentExamsEntry(store: app.exams)
@@ -37,6 +39,13 @@ struct MyTabView: View {
                 #if DEBUG
                     if ProcessInfo.processInfo.environment["GTIIT_SETTINGS"] == "1" { showSettings = true }
                 #endif
+            }
+            .onChange(of: app.tabReselectToken) { _, _ in
+                guard app.tabReselectTarget == .me else { return }
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    proxy.scrollTo("me.top", anchor: .top)
+                }
+            }
             }
         }
     }

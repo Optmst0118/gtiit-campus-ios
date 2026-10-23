@@ -24,8 +24,8 @@ enum SiteID: String, CaseIterable, Identifiable, Codable {
         switch self {
         case .portal: return "Student"
         case .moodle: return "Moodle dashboard"
-        case .rooms: return "GTIT room booking service"
-        case .sports: return "GTIT sports center"
+        case .rooms: return "GTIIT Room Booking"
+        case .sports: return "GTIIT Sports Center"
         }
     }
 
