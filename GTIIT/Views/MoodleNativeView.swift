@@ -334,6 +334,8 @@ enum MoodleDirectory {
         tool("messages", L10n.tr("消息"), L10n.tr("课程与同学消息"), "message.fill", Theme.sky, "https://moodle.gtiit.edu.cn/moodle/message/index.php"),
         tool("notifications", L10n.tr("通知"), L10n.tr("作业、测验与课程提醒"), "bell.fill", Theme.sky, "https://moodle.gtiit.edu.cn/moodle/message/output/popup/notifications.php"),
         tool("timetable", L10n.tr("学校课表"), L10n.tr("GTIIT Calendar 插件"), "tablecells", Theme.orange, "https://moodle.gtiit.edu.cn/moodle/local/calendar/index.php"),
+        tool("files", L10n.tr("私密文件"), L10n.tr("个人文件与上传"), "folder.fill", Theme.accent, "https://moodle.gtiit.edu.cn/moodle/user/files.php"),
+        tool("badges", L10n.tr("徽章"), L10n.tr("我的徽章"), "rosette", Theme.orange, "https://moodle.gtiit.edu.cn/moodle/badges/mybadges.php"),
         tool("profile", L10n.tr("个人资料"), L10n.tr("账号与课程档案"), "person.crop.circle", Theme.accent, "https://moodle.gtiit.edu.cn/moodle/user/profile.php"),
         tool("preferences", L10n.tr("偏好设置"), L10n.tr("通知、时区与编辑器"), "gearshape", .secondary, "https://moodle.gtiit.edu.cn/moodle/user/preferences.php"),
         tool("site", L10n.tr("站点首页"), L10n.tr("Moodle 首页"), "house", Theme.accent, "https://moodle.gtiit.edu.cn/moodle/"),
