@@ -37,10 +37,12 @@
         'main{scroll-padding-bottom:var(--gtiit-bottom-obstruction,env(safe-area-inset-bottom));padding-bottom:calc(.75rem + var(--gtiit-bottom-obstruction,env(safe-area-inset-bottom))) !important}',
         '.bg-gradient-to-b,.bg-gradient-to-t,.bg-gradient-to-r{background-image:none !important}',
         '.from-white,.from-gray-50{--tw-gradient-from:transparent !important}',
-        // Privacy cards: blurred until the student taps them.
-        '.gtiit-private-card{filter:blur(11px) !important;transition:filter .18s ease;cursor:pointer;',
-        '-webkit-user-select:none;user-select:none}',
-        '.gtiit-private-card.gtiit-private-revealed{filter:none !important}'
+        // Privacy cards: blur only their contents. Children carry the blur, so
+        // the card background, border, radius and shadow stay perfectly sharp.
+        '.gtiit-private-card{cursor:pointer;-webkit-user-select:none;user-select:none}',
+        '.gtiit-private-card > *{filter:blur(11px) !important;',
+        'transition:filter .18s ease}',
+        '.gtiit-private-card.gtiit-private-revealed > *{filter:none !important}'
     ].join('') : '';
 
     // Booked：登录页顶部只剩空的品牌条时直接收起。
@@ -167,11 +169,11 @@
         try { visit(document.body); } catch (_) {}
         return roots;
     };
-    // Moodle 的站点导航（左侧栏开关、个人中心、calendar、消息）固定在网页顶端，
-    // 不再随着内容滚动；原生 dashboard 标题仍保留大/小两种形态。
-    const pinMoodleNavigation = () => {
+    // Moodle 的站点导航目前是 sticky/fixed，会一直吸附在界面上方并与
+    // 原生大标题抢位置。把它放回网页内容流，让它随页面一起滚走。
+    const releaseMoodleNavigation = () => {
         if (pageHost !== 'moodle.gtiit.edu.cn' || !document.body) return;
-        if (document.documentElement.dataset.gtiitMoodlePinned) return;
+        if (document.documentElement.dataset.gtiitMoodleReleased) return;
         const candidates = Array.from(document.querySelectorAll(
             'nav.navbar, .navbar.fixed-top, .navbar.sticky-top, #page-header nav, nav[aria-label="Site navigation"]'));
         const bar = candidates.find((element) => {
@@ -179,23 +181,14 @@
             return rect.height > 20 && rect.width > 120;
         });
         if (!bar) return;
-        const style = getComputedStyle(bar);
-        const height = Math.ceil(bar.getBoundingClientRect().height);
-        document.documentElement.dataset.gtiitMoodlePinned = '1';
-        if (style.position !== 'fixed') {
-            bar.dataset.gtiitMoodleNav = '1';
-            bar.style.setProperty('position', 'fixed', 'important');
-            bar.style.setProperty('top', '0', 'important');
-            bar.style.setProperty('left', '0', 'important');
-            bar.style.setProperty('right', '0', 'important');
-            bar.style.setProperty('z-index', '1030', 'important');
-            if (height > 0) {
-                const existing = parseFloat(getComputedStyle(document.body).paddingTop) || 0;
-                if (existing < height) {
-                    document.body.style.setProperty('padding-top', height + 'px', 'important');
-                }
-            }
-        }
+        document.documentElement.dataset.gtiitMoodleReleased = '1';
+        bar.dataset.gtiitMoodleNav = '1';
+        bar.style.setProperty('position', 'static', 'important');
+        bar.style.setProperty('top', 'auto', 'important');
+        // Bootstrap adds body padding for a fixed navbar; it is no longer needed
+        // once the bar is back in the normal flow.
+        const padding = parseFloat(getComputedStyle(document.body).paddingTop) || 0;
+        if (padding > 0) document.body.style.setProperty('padding-top', '0', 'important');
     };
 
     const markPortalPrivateCards = () => {
@@ -263,7 +256,7 @@
         hideCreditBlocks();
         hideBookedLoginHeader();
         hideMoodleOverviewFilters();
-        pinMoodleNavigation();
+        releaseMoodleNavigation();
         markPortalPrivateCards();
     };
 

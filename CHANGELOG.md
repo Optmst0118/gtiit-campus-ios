@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16] - 2026-10-23
+
+### Fixed
+
+- Moodle's own navigation is no longer pinned/sticky: it returns to the page flow and scrolls away with the content, so it cannot fight the native title. The native Moodle dashboard title keeps its movable large and compact forms.
+- Student portal privacy cards keep their border, radius and shadow sharp; only the card contents are blurred, and tapping the card reveals them.
+- Moodle upcoming work and Student exams start loading together with app launch, so My shows running progress instead of starting from idle.
+
 ## [1.15] - 2026-10-23
 
 ### Fixed

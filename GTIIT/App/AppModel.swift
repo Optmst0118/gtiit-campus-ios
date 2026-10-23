@@ -69,8 +69,20 @@ final class AppModel: ObservableObject {
         if settings.biometricLockEnabled { lock.lock() }
     }
 
+    private func warmUpCampusSummaries() {
+        let allowed: () -> Bool = { [weak self] in
+            guard let self else { return false }
+            return !self.lock.isLocked && self.lock.isActive && !self.isClearingData
+        }
+        upcoming.refresh(browser: browser(for: .moodle), allowed: allowed)
+        exams.refresh(allowed: allowed)
+    }
+
     func prepareLaunchIfAllowed() {
         guard settings.hasSeenWelcome, !showWelcome, !lock.isLocked, lock.isActive else { return }
+        // Kick both campus summaries off with launch, not only when My appears;
+        // their progress is then already visible on the first visit.
+        warmUpCampusSummaries()
         guard settings.preloadSitesOnLaunch else { launch.skip(); return }
         guard !launch.hasStarted, !launch.didFinish else { return }
         launch.start(models: SiteID.allCases.map { browser(for: $0) }, canRestoreSession: { [weak self] in
