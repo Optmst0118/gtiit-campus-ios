@@ -11,6 +11,7 @@
 | [ARCHITECTURE.md](ARCHITECTURE.md) | 分层、会话隔离、跨站路由与关键决策 |
 | [MOODLE-NATIVE-SPEC.md](MOODLE-NATIVE-SPEC.md) | Moodle 控件清单、原生信息架构、手机/平板适配与边界 |
 | [PERFORMANCE.md](PERFORMANCE.md) | 启动分阶段预热、摘要错峰、加载外壳与一体化优化 |
+| [BACKGROUND-REFRESH.md](BACKGROUND-REFRESH.md) | 后台任务/Widget/Live Activity/通知/刷新审计 |
 | [LOCALIZATION.md](LOCALIZATION.md) | 原生中英翻译覆盖、CI 检查与本轮修复 |
 | [RESEARCH-SPEC.md](RESEARCH-SPEC.md) | 四个校园站点的能力边界、信息架构与中文文案规格（2026-10-21 快照） |
 | [design/DESIGN.md](design/DESIGN.md) | 配色、图标、动效、设计参考与数据边界 |
