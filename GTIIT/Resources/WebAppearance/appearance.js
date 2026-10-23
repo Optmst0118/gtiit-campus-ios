@@ -152,38 +152,99 @@
 
     // 学生门户首页的 GPA / 成功率 / 学分 / 排名卡片：默认高斯模糊，点按显示。
     const PORTAL_PRIVATE_LABELS = [
-        /overall\s*gpa/i,
-        /success\s*rate/i,
-        /accumulated\s*credits/i,
-        /cohort\s*rank/i
+        /overall\s*gpa/i, /总\s*gpa/i, /平均绩点/i, /\bgpa\b/i,
+        /success\s*rate/i, /成功率/i, /通过率/i,
+        /accumulated\s*credits?/i, /累计学分/i, /已修学分/i,
+        /cohort\s*rank/i, /年级排名/i, /班排名/i
     ];
+    const portalTextRoots = () => {
+        const roots = [document.body];
+        const visit = (root) => {
+            for (const element of root.querySelectorAll('*')) {
+                if (element.shadowRoot) { roots.push(element.shadowRoot); visit(element.shadowRoot); }
+            }
+        };
+        try { visit(document.body); } catch (_) {}
+        return roots;
+    };
+    // Moodle 的站点导航（左侧栏开关、个人中心、calendar、消息）固定在网页顶端，
+    // 不再随着内容滚动；原生 dashboard 标题仍保留大/小两种形态。
+    const pinMoodleNavigation = () => {
+        if (pageHost !== 'moodle.gtiit.edu.cn' || !document.body) return;
+        if (document.documentElement.dataset.gtiitMoodlePinned) return;
+        const candidates = Array.from(document.querySelectorAll(
+            'nav.navbar, .navbar.fixed-top, .navbar.sticky-top, #page-header nav, nav[aria-label="Site navigation"]'));
+        const bar = candidates.find((element) => {
+            const rect = element.getBoundingClientRect();
+            return rect.height > 20 && rect.width > 120;
+        });
+        if (!bar) return;
+        const style = getComputedStyle(bar);
+        const height = Math.ceil(bar.getBoundingClientRect().height);
+        document.documentElement.dataset.gtiitMoodlePinned = '1';
+        if (style.position !== 'fixed') {
+            bar.dataset.gtiitMoodleNav = '1';
+            bar.style.setProperty('position', 'fixed', 'important');
+            bar.style.setProperty('top', '0', 'important');
+            bar.style.setProperty('left', '0', 'important');
+            bar.style.setProperty('right', '0', 'important');
+            bar.style.setProperty('z-index', '1030', 'important');
+            if (height > 0) {
+                const existing = parseFloat(getComputedStyle(document.body).paddingTop) || 0;
+                if (existing < height) {
+                    document.body.style.setProperty('padding-top', height + 'px', 'important');
+                }
+            }
+        }
+    };
+
     const markPortalPrivateCards = () => {
         if (pageHost !== 'students.gtiit.edu.cn' || !document.body) return;
+        const findLabel = (pattern) => {
+            let best = null;
+            let bestScore = Infinity;
+            for (const root of portalTextRoots()) {
+                const elements = root.querySelectorAll('h1,h2,h3,h4,h5,p,span,div');
+                for (const element of elements) {
+                    if (element.querySelectorAll('*').length > 4) continue;
+                    if (element.closest('.gtiit-private-card')) continue;
+                    const text = (element.textContent || '').replace(/\s+/g, ' ').trim();
+                    if (!text || text.length > 60 || !pattern.test(text)) continue;
+                    // Prefer the smallest/deepest match: "Overall GPA" over the
+                    // whole card whose text also contains the value.
+                    const score = text.length + element.querySelectorAll('*').length * 40;
+                    if (score < bestScore) { best = element; bestScore = score; }
+                }
+            }
+            return best;
+        };
         for (const pattern of PORTAL_PRIVATE_LABELS) {
-            const label = Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,p,span,div'))
-                .find((element) => {
-                    if (element.children.length > 2) return false;
-                    if (element.closest('.gtiit-private-card')) return false;
-                    const text = (element.textContent || '').trim();
-                    return text.length > 0 && text.length <= 60 && pattern.test(text);
-                });
+            const label = findLabel(pattern);
             if (!label) continue;
             let card = null;
             let node = label;
-            for (let depth = 0; depth < 6 && node.parentElement && node.parentElement !== document.body; depth += 1) {
+            for (let depth = 0; depth < 8 && node.parentElement && node.parentElement !== document.body; depth += 1) {
                 const parent = node.parentElement;
                 const rect = parent.getBoundingClientRect();
                 const style = getComputedStyle(parent);
                 const radius = parseFloat(style.borderTopLeftRadius) || 0;
-                if (rect.width > 120 && rect.height > 70 &&
-                    (radius >= 8 || style.boxShadow !== 'none' || /card|stat|metric|tile/i.test(parent.className))) {
+                if (rect.width > 100 && rect.height > 55 && rect.height < innerHeight * 0.75 &&
+                    (radius >= 8 || style.boxShadow !== 'none' ||
+                        /card|stat|metric|tile|bg-white|rounded/i.test(parent.className))) {
                     card = parent;
                     break;
                 }
                 if ((parent.textContent || '').trim().length > 500) break;
                 node = parent;
             }
-            if (!card || card.dataset.gtiitPrivate) continue;
+            // Fallback for custom markup without rounded/shadow classes: blur
+            // the smallest container that still holds just this stat.
+            if (!card) {
+                const parent = label.parentElement;
+                if (parent && parent !== document.body &&
+                    (parent.textContent || '').trim().length <= 220) card = parent;
+            }
+            if (!card || card === document.body || card.dataset.gtiitPrivate) continue;
             card.dataset.gtiitPrivate = '1';
             card.classList.add('gtiit-private-card');
             card.setAttribute('role', 'button');
@@ -197,12 +258,12 @@
         }
     };
 
-
     const runCleanup = () => {
         hideBrandingImages();
         hideCreditBlocks();
         hideBookedLoginHeader();
         hideMoodleOverviewFilters();
+        pinMoodleNavigation();
         markPortalPrivateCards();
     };
 
@@ -210,6 +271,14 @@
         runCleanup();
         setTimeout(runCleanup, 800);
         setTimeout(runCleanup, 2500);
+        if (pageHost === 'students.gtiit.edu.cn') {
+            let scans = 0;
+            const timer = setInterval(() => {
+                markPortalPrivateCards();
+                scans += 1;
+                if (scans > 20) clearInterval(timer);
+            }, 1000);
+        }
         if (window.MutationObserver && document.body) {
             let timer = 0;
             const observer = new MutationObserver(() => {

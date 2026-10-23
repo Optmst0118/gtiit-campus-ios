@@ -124,6 +124,13 @@ final class WebViewHostController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         attach()
+        // Switching tabs can inherit a collapsed navigation bar even when the
+        // tracked offset is already zero; force the expanded layout once.
+        if navigationScrollView.contentOffset.y <= 0.5 {
+            navigationScrollView.setContentOffset(CGPoint(x: 0, y: -1), animated: false)
+            navigationScrollView.setContentOffset(.zero, animated: false)
+            navigationController?.navigationBar.sizeToFit()
+        }
     }
     private func attach() {
         guard let webView = pendingWebView else { return }

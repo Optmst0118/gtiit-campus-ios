@@ -106,7 +106,7 @@
       "test" : "rooms_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 214.0, 402.0, 660.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 118.0, 402.0, 756.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "rooms_web_extends_under_tab_bar"
     },
@@ -116,12 +116,12 @@
       "test" : "rooms_pull_keeps_title_stationary"
     },
     {
-      "detail" : "expanded=214.0, compact=162.0",
+      "detail" : "expanded=170.0, compact=118.0",
       "passed" : true,
       "test" : "rooms_native_title_collapses"
     },
     {
-      "detail" : "expanded=214.0, restored=214.0, tracker=0.0",
+      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
       "passed" : true,
       "test" : "rooms_native_title_restores_at_top"
     },
@@ -146,7 +146,7 @@
       "test" : "sports_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 162.0, 402.0, 712.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "sports_web_extends_under_tab_bar"
     },
@@ -156,12 +156,12 @@
       "test" : "sports_pull_keeps_title_stationary"
     },
     {
-      "detail" : "expanded=214.0, compact=162.0",
+      "detail" : "expanded=170.0, compact=118.0",
       "passed" : true,
       "test" : "sports_native_title_collapses"
     },
     {
-      "detail" : "expanded=214.0, restored=214.0, tracker=0.0",
+      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
       "passed" : true,
       "test" : "sports_native_title_restores_at_top"
     },
@@ -197,8 +197,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-23T07:27:22Z",
+  "date" : "2026-10-23T07:57:52Z",
   "focus" : "layout",
   "passed" : true,
-  "runID" : "efaa2d8b-8fa7-4be6-9d13-fcc24633d3e7"
+  "runID" : "97f52e47-7795-4051-b1c6-db1bbf4b6c12"
 }

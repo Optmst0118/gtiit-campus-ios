@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15] - 2026-10-23
+
+### Fixed
+
+- Moodle's own site navigation (drawer control, user menu, calendar, messages) is pinned to the top of the wrapped page while the page scrolls; the native Moodle dashboard title keeps its movable large and compact forms.
+- The Student portal's four privacy cards (Overall GPA, success rate, accumulated credits, cohort rank) now reliably blur by default and reveal on tap, including cards rendered after the first paint.
+- Student portal title scrolling tracks any real inner scroller, so its large title collapses and expands with the same animation as the booking sites.
+
 ## [1.14] - 2026-10-23
 
 ### Fixed

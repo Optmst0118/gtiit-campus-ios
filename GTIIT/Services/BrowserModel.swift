@@ -201,6 +201,7 @@ final class BrowserModel: NSObject, ObservableObject {
         load(site.homeURL)
     }
 
+
     func load(_ url: URL) {
         guard !isResetting else { return }
         needsReloadAfterClear = false

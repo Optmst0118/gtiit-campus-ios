@@ -35,9 +35,7 @@ private struct BrowserChrome: View {
         .background(Theme.pageBackground)
         .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle(model.site.nativeTitle)
-        // Moodle's own sticky menu bar fights a collapsing large title. Keep the
-        // native bar fixed and compact above that page instead.
-        .navigationBarTitleDisplayMode(model.site == .moodle ? .inline : .large)
+        .navigationBarTitleDisplayMode(.large)
         .toolbar {
             if model.site == .rooms || model.site == .sports {
                 ToolbarItem(placement: .topBarLeading) { bookingPicker }
