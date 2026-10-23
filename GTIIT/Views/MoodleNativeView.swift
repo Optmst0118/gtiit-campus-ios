@@ -393,10 +393,10 @@ struct MoodleHomeView: View {
                 HStack(spacing: 6) {
                     if let number = course.courseNumber, !number.isEmpty {
                         Text(number)
-                            .font(.system(.caption2, design: .monospaced).weight(.medium))
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(Theme.accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 4, style: .continuous))
+                            .font(.system(size: 10, weight: .medium, design: .monospaced))
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1.5)
+                            .background(Theme.accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 3, style: .continuous))
                     }
                     Text(course.term ?? L10n.tr("当前学期"))
                         .font(.caption)
@@ -606,10 +606,10 @@ struct MoodleHistoryView: View {
                 HStack(spacing: 6) {
                     if let number = course.courseNumber, !number.isEmpty {
                         Text(number)
-                            .font(.system(.caption2, design: .monospaced).weight(.medium))
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(Theme.accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 4, style: .continuous))
+                            .font(.system(size: 10, weight: .medium, design: .monospaced))
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1.5)
+                            .background(Theme.accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 3, style: .continuous))
                     }
                     Text(course.term ?? L10n.tr("历史课程"))
                         .font(.caption2)

@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.22] - 2026-10-23
+
+### Fixed
+
+- Course-number badge now extracts only the short alphanumeric course code; it never falls back to a full course name.
+- Badge typography and padding are smaller to match the gray term line.
+
 ## [2.0.0-alpha.21] - 2026-10-23
 
 ### Changed

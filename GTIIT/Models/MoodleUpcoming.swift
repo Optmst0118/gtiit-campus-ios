@@ -52,14 +52,19 @@ struct MoodleCourse: Codable, Identifiable, Hashable {
         return value.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: "-–— ")))
     }
     var courseNumber: String? {
-        if let shortname, !shortname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return shortname
+        for candidate in [shortname ?? "", name] {
+            let parts = candidate.components(separatedBy: CharacterSet.alphanumerics.inverted)
+            for part in parts {
+                let token = part.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard token.count >= 3, token.count <= 16,
+                      token.rangeOfCharacter(from: .decimalDigits) != nil,
+                      token.allSatisfy({ $0.isLetter || $0.isNumber }) else { continue }
+                // Do not turn a bare semester year into a course code.
+                if token.count == 4 && token.hasPrefix("20") { continue }
+                return token
+            }
         }
-        let pattern = "^\\s*(\\d{3,})\\s*[-–—]"
-        guard let regex = try? NSRegularExpression(pattern: pattern),
-              let match = regex.firstMatch(in: name, range: NSRange(name.startIndex..., in: name)),
-              let range = Range(match.range(at: 1), in: name) else { return nil }
-        return String(name[range])
+        return nil
     }
     var url: URL? {
         guard id > 0 else { return nil }
