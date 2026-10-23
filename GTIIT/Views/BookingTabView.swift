@@ -131,10 +131,12 @@ private struct BookingHeader: View {
             Text(title)
                 .font(.title2.weight(.bold))
                 .fixedSize(horizontal: false, vertical: true)
-            Text(subtitle)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+            if !subtitle.isEmpty {
+                Text(subtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -204,7 +206,9 @@ private struct BookingLinkRowContent: View {
                 .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
             VStack(alignment: .leading, spacing: 3) {
                 Text(title).font(.body.weight(.semibold)).foregroundStyle(.primary)
-                Text(subtitle).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                if !subtitle.isEmpty {
+                    Text(subtitle).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                }
             }
             Spacer(minLength: 8)
             Image(systemName: accessory).font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
@@ -245,8 +249,8 @@ struct RoomBookingHomeView: View {
                 BookingHeader(
                     symbol: "door.left.hand.open",
                     eyebrow: L10n.tr("GTIIT ROOM BOOKING"),
-                    title: L10n.tr("练习房、讨论室与教学空间"),
-                    subtitle: L10n.tr("原生整理房间与入口；最终预约由学校 Booked 官方页面完成，App 不代提交、不读取账号数据。"),
+                    title: L10n.tr("练习房与讨论室"),
+                    subtitle: "",
                     tint: Theme.accent
                 )
 
@@ -264,7 +268,7 @@ struct RoomBookingHomeView: View {
                         } label: {
                             BookingLinkRowContent(
                                 title: category.title,
-                                subtitle: "\(category.rooms.count) \(L10n.tr("间")) · \(category.subtitle)",
+                                subtitle: "\(category.rooms.count) \(L10n.tr("间"))",
                                 symbol: category.symbol,
                                 tint: Theme.accent,
                                 accessory: "chevron.right"
@@ -274,11 +278,6 @@ struct RoomBookingHomeView: View {
                     }
                 }
 
-                rules
-                Text(L10n.tr("预约、取消、签到与余位均以学校官方页面为准；本页仅提供原生入口与说明。"))
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                    .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, 20)
             .padding(.top, 8)
@@ -298,24 +297,6 @@ struct RoomBookingHomeView: View {
         ]
     }
 
-    private var rules: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label(L10n.tr("练习房规定"), systemImage: "info.circle.fill")
-                .font(.headline)
-                .foregroundStyle(Theme.orange)
-            Text(L10n.tr("工作日 09:00–22:00，周末 09:00–17:00；最多提前两天预约；每天每间房通常最多一小时，且同一天不允许重复预订。"))
-                .font(.subheadline)
-                .fixedSize(horizontal: false, vertical: true)
-            Text(L10n.tr("规定文件未标注生效日期，系统实际执行以官方页面与现场通知为准。"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(18)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .cardBackground()
-    }
-
     private func sectionTitle(_ title: String, symbol: String) -> some View {
         Label(title, systemImage: symbol)
             .font(.title3.weight(.semibold))
@@ -332,20 +313,11 @@ private struct RoomCategoryDetailView: View {
         let _ = nativeLocale.identifier
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                Text(category.subtitle)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .padding(.bottom, 4)
                 ForEach(category.rooms) { room in
-                    BookingLinkRow(title: room.name, subtitle: room.note, symbol: category.symbol, tint: Theme.accent) {
+                    BookingLinkRow(title: room.name, subtitle: "", symbol: category.symbol, tint: Theme.accent) {
                         open(BookingDestination(site: .rooms, title: room.name, url: BookingDirectory.roomReservation(room.rid)))
                     }
-                }
-                Text(L10n.tr("房间目录来自 Booked 公开排程；登录后仅显示本人有权限预约的房间。"))
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                    .padding(.top, 4)
-            }
+                }            }
             .padding(20)
             .frame(maxWidth: 720)
             .frame(maxWidth: .infinity)
@@ -372,7 +344,7 @@ struct SportsCenterHomeView: View {
                     symbol: "sportscourt",
                     eyebrow: L10n.tr("GTIIT SPORTS CENTER"),
                     title: L10n.tr("广东以色列理工学院体育中心"),
-                    subtitle: L10n.tr("篮球、羽毛球、游泳、攀岩、普拉提等场馆入口；会员登录与预约在官方页面完成。"),
+                    subtitle: "",
                     tint: Theme.orange
                 )
 
@@ -387,10 +359,6 @@ struct SportsCenterHomeView: View {
 
                 hours
                 membership
-                Text(L10n.tr("开放时间、会员权限、时段与票券规则均以体育中心官方页面为准。"))
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                    .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, 20)
             .padding(.top, 8)
@@ -416,9 +384,6 @@ struct SportsCenterHomeView: View {
                 }
                 if row.id != BookingDirectory.openingHours.last?.id { Divider() }
             }
-            Text(L10n.tr("以官方页面为准"))
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)

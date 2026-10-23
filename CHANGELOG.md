@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.6] - 2026-10-23
+
+### Changed
+
+- Removed defensive copy and redundant notes from the native booking screens: long disclaimers under the room/venue headers, the practice-room rules card, booking footers and the category-detail footnote are gone. The room directory now shows only the remaining categories and their room counts.
+
 ## [2.0.0-alpha.5] - 2026-10-23
 
 ### Changed
