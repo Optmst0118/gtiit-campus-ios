@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.13] - 2026-10-23
+
+### Changed
+
+- Split Moodle courses into 当前课程 and 历史课程 modules; current-term Winter 2026 courses are first, all other terms are grouped under history.
+- Removed the three summary cards from the Moodle header.
+- Course cards now open their exact course/view.php?id= page, and historical courses are grouped by term.
+- Moodle section layout is fixed so 当前课程 is always the first module; 临近日程, 历史课程 and Moodle 工具 can be reordered or hidden.
+- Courses without an explicit term label are treated as current when their Moodle start/end dates indicate an active current course.
+- Removed remaining defensive captions from the Moodle surface.
+
+### Fixed
+
+- Winter 2026 courses with stale Moodle end dates are retained and classified by their explicit term label.
+
 ## [2.0.0-alpha.12] - 2026-10-23
 
 ### Fixed

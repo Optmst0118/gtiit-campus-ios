@@ -64,9 +64,16 @@ const courseTerms = c => {
 };
 const courseTerm = c => {
  const terms=courseTerms(c);
- if(!terms.length)return null;
- const t=terms.sort((a,b)=>a.year-b.year||(seasonRank[a.season]??0)-(seasonRank[b.season]??0))[0];
- return t.season[0].toUpperCase()+t.season.slice(1)+' '+t.year;
+ if(terms.length){
+   const t=terms.sort((a,b)=>a.year-b.year||(seasonRank[a.season]??0)-(seasonRank[b.season]??0))[0];
+   return t.season[0].toUpperCase()+t.season.slice(1)+' '+t.year;
+ }
+ // Courses without a term label: keep an active course in the current term,
+ // otherwise let it fall into the history module.
+ const start=Number(c.startdate)||0, end=Number(c.enddate)||0;
+ if(start<=now+180*86400 && (end===0 || end>=now-30*86400))
+   return season[0].toUpperCase()+season.slice(1)+' '+year;
+ return null;
 };
 const currentCourse = c => {
  const terms=courseTerms(c);

@@ -815,5 +815,9 @@
   "拖动排序；关闭开关即可收起对应内容。": "Drag to reorder; turn a switch off to hide that section.",
   "显示的内容": "Visible sections",
   "编辑 Moodle 布局": "Edit Moodle layout",
-  "课程、作业、测验与消息。": "Courses, assignments, quizzes and messages."
+  "课程、作业、测验与消息。": "Courses, assignments, quizzes and messages.",
+  "历史课程": "Course history",
+  "当前学期暂无课程。": "No courses in the current term.",
+  "当前课程": "Current courses",
+  "暂无历史课程。": "No course history."
 }

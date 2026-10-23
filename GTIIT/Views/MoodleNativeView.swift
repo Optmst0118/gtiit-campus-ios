@@ -1,19 +1,21 @@
 import SwiftUI
 
 enum MoodleSection: String, CaseIterable, Identifiable {
-    case recent, courses, tools
+    case currentCourses, recent, historyCourses, tools
     var id: String { rawValue }
     var title: String {
         switch self {
+        case .currentCourses: return L10n.tr("当前课程")
         case .recent: return L10n.tr("临近日程")
-        case .courses: return L10n.tr("课程")
+        case .historyCourses: return L10n.tr("历史课程")
         case .tools: return L10n.tr("Moodle 工具")
         }
     }
     var symbol: String {
         switch self {
+        case .currentCourses: return "book.closed.fill"
         case .recent: return "calendar.day.timeline.left"
-        case .courses: return "book.closed"
+        case .historyCourses: return "clock.arrow.circlepath"
         case .tools: return "square.grid.2x2"
         }
     }
@@ -106,7 +108,6 @@ struct MoodleHomeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 header
-                stats
                 ForEach(visibleSections) { section in
                     sectionView(section)
                 }
@@ -172,39 +173,19 @@ struct MoodleHomeView: View {
         }
     }
 
-    private var stats: some View {
-        LazyVGrid(columns: horizontalSizeClass == .regular ? [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())] : [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-            statCard(value: upcoming.count, label: L10n.tr("近期事项"), symbol: "checklist", tint: Theme.accent)
-            statCard(value: store.courses, label: L10n.tr("已核对课程"), symbol: "book.closed", tint: Theme.orange)
-            statCard(value: store.partial ? 1 : 0, label: L10n.tr("部分更新"), symbol: "exclamationmark.circle", tint: store.partial ? Theme.orange : .secondary)
-        }
-    }
-
-    private func statCard(value: Int, label: String, symbol: String, tint: Color) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: symbol).foregroundStyle(tint).font(.headline)
-            VStack(alignment: .leading, spacing: 1) {
-                Text(String(value)).font(.title3.monospacedDigit().weight(.semibold))
-                Text(label).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(13)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .cardBackground(corner: 16)
-    }
-
     private var visibleSections: [MoodleSection] {
         let ordered = settings.moodleSectionOrder.compactMap(MoodleSection.init(rawValue:))
         let missing = MoodleSection.allCases.filter { !ordered.contains($0) }
-        return (ordered + missing).filter { !settings.moodleHiddenSections.contains($0.rawValue) }
+        let visible = (ordered + missing).filter { !settings.moodleHiddenSections.contains($0.rawValue) }
+        return [.currentCourses].filter { visible.contains($0) } + visible.filter { $0 != .currentCourses }
     }
 
     @ViewBuilder
     private func sectionView(_ section: MoodleSection) -> some View {
         switch section {
+        case .currentCourses: currentCoursesSection
         case .recent: dashboard
-        case .courses: courses
+        case .historyCourses: historyCoursesSection
         case .tools: tools
         }
     }
@@ -253,18 +234,56 @@ struct MoodleHomeView: View {
 
     // MARK: Courses
 
-    private var courses: some View {
+    private var currentTermLabel: String {
+        let term = MoodleUpcomingStore.currentTerm()
+        return term.season.capitalized + " " + String(term.year)
+    }
+
+    private var currentCourses: [MoodleCourse] {
+        store.courseItems.filter { ($0.term ?? "").caseInsensitiveCompare(currentTermLabel) == .orderedSame }
+            .sorted { $0.name < $1.name }
+    }
+
+    private var historyCourses: [MoodleCourse] {
+        store.courseItems.filter { ($0.term ?? "").caseInsensitiveCompare(currentTermLabel) != .orderedSame }
+            .sorted { $0.name < $1.name }
+    }
+
+    private var currentCoursesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionTitle(L10n.tr("课程"), symbol: "book.closed")
-            if store.courseItems.isEmpty && courseGroups.isEmpty {
-                Text(L10n.tr("登录后可查看课程与活动。"))
+            sectionTitle(L10n.tr("当前课程"), symbol: "book.closed.fill")
+            if currentCourses.isEmpty {
+                Text(L10n.tr("当前学期暂无课程。"))
                     .font(.subheadline).foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading).padding(16).cardBackground()
-            } else if !store.courseItems.isEmpty {
-                ForEach(termGroups) { group in
+            } else {
+                LazyVGrid(columns: columns, spacing: 12) {
+                    ForEach(currentCourses) { course in
+                        Button {
+                            if let url = course.url {
+                                open(MoodleDestination(title: course.name, url: url))
+                            }
+                        } label: {
+                            courseCard(course)
+                        }.buttonStyle(CardPressStyle())
+                    }
+                }
+            }
+        }
+    }
+
+    private var historyCoursesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionTitle(L10n.tr("历史课程"), symbol: "clock.arrow.circlepath")
+            if historyCourses.isEmpty {
+                Text(L10n.tr("暂无历史课程。"))
+                    .font(.subheadline).foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading).padding(16).cardBackground()
+            } else {
+                ForEach(historyTermGroups) { group in
                     VStack(alignment: .leading, spacing: 8) {
                         if let term = group.term {
-                            Text(term).font(.caption.weight(.semibold)).foregroundStyle(Theme.accent).padding(.leading, 2)
+                            Text(term).font(.caption.weight(.semibold)).foregroundStyle(Theme.orange).padding(.leading, 2)
                         }
                         LazyVGrid(columns: columns, spacing: 12) {
                             ForEach(group.courses) { course in
@@ -277,24 +296,6 @@ struct MoodleHomeView: View {
                                 }.buttonStyle(CardPressStyle())
                             }
                         }
-                    }
-                }
-            } else {
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(courseGroups) { group in
-                        Button { open(MoodleDestination(title: group.name, url: URL(string: "https://moodle.gtiit.edu.cn/moodle/my/")!)) } label: {
-                            HStack(spacing: 12) {
-                                Image(systemName: "book.closed.fill").foregroundStyle(Theme.accent)
-                                    .frame(width: 38, height: 38).background(Theme.accent.opacity(0.11), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(group.name).font(.subheadline.weight(.semibold)).foregroundStyle(.primary).lineLimit(2)
-                                    Text(L10n.format("%@ 项近期内容", String(group.count))).font(.caption).foregroundStyle(.secondary)
-                                }
-                                Spacer(minLength: 4)
-                                Image(systemName: "arrow.up.right").font(.caption).foregroundStyle(.tertiary)
-                            }
-                            .padding(15).frame(maxWidth: .infinity, minHeight: 86, alignment: .leading).cardBackground(corner: 16)
-                        }.buttonStyle(CardPressStyle())
                     }
                 }
             }
@@ -315,30 +316,26 @@ struct MoodleHomeView: View {
         .padding(15).frame(maxWidth: .infinity, minHeight: 86, alignment: .leading).cardBackground(corner: 16)
     }
 
-    private struct CourseGroup: Identifiable {
-        let id: String
-        let name: String
-        let count: Int
-    }
-
-    private var courseGroups: [CourseGroup] {
-        Dictionary(grouping: upcoming, by: \.course)
-            .map { CourseGroup(id: $0.key, name: $0.key, count: $0.value.count) }
-            .sorted { $0.name < $1.name }
-    }
-
     private struct TermGroup: Identifiable {
         let id: String
         let term: String?
         let courses: [MoodleCourse]
     }
 
-    private var termGroups: [TermGroup] {
-        let groups = Dictionary(grouping: store.courseItems, by: { $0.term })
-        return groups.map { term, courses in
-            TermGroup(id: term ?? "current", term: term, courses: courses.sorted { $0.name < $1.name })
-        }
-        .sorted { ($0.term ?? "") < ($1.term ?? "") }
+    private var historyTermGroups: [TermGroup] {
+        Dictionary(grouping: historyCourses, by: { $0.term })
+            .map { term, courses in
+                TermGroup(id: term ?? "history", term: term, courses: courses.sorted { $0.name < $1.name })
+            }
+            .sorted { termKey($0.term) > termKey($1.term) }
+    }
+
+    private func termKey(_ term: String?) -> (Int, Int) {
+        guard let term else { return (0, 0) }
+        let parts = term.split(separator: " ")
+        guard parts.count >= 2, let year = Int(parts.last ?? "") else { return (0, 0) }
+        let order = ["winter": 0, "spring": 1, "summer": 2][String(parts.first ?? "").lowercased()] ?? 3
+        return (year, order)
     }
 
     // MARK: Tools
@@ -465,7 +462,7 @@ struct MoodleLayoutSettingsView: View {
                 }
                 Section {
                     Button(L10n.tr("恢复默认布局")) {
-                        settings.moodleSectionOrder = ["recent", "courses", "tools"]
+                        settings.moodleSectionOrder = ["currentCourses", "recent", "historyCourses", "tools"]
                         settings.moodleHiddenSections = []
                     }
                 }
