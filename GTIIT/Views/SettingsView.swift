@@ -267,6 +267,7 @@ struct StorageSettingsView: View {
     @EnvironmentObject private var app: AppModel
     @ObservedObject private var center: DownloadCoordinator
     @State private var action: ClearAction?
+    @State private var appFootprint = L10n.tr("正在计算…")
     init(center: DownloadCoordinator) { self.center = center }
     enum ClearAction: String, Identifiable {
         case cache, all, downloads
@@ -276,6 +277,9 @@ struct StorageSettingsView: View {
         let _ = nativeLocale.identifier
 
         List {
+            Section {
+                LabeledContent(L10n.tr("App 总占用"), value: appFootprint)
+            }
             Section {
                 NavigationLink {
                     SitesSettingsView()
@@ -309,6 +313,10 @@ struct StorageSettingsView: View {
                 Button(L10n.tr("清除全部登录与网页数据"), role: .destructive) { action = .all }
             }.disabled(app.isClearingData)
         }.navigationTitle(L10n.tr("存储空间")).navigationBarTitleDisplayMode(.inline)
+            .task {
+                let bytes = await Task.detached(priority: .utility) { AppStorageFootprint.totalBytes() }.value
+                appFootprint = ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+            }
             .confirmationDialog(
                 L10n.tr("确认清理？"), isPresented: Binding(get: { action != nil }, set: { if !$0 { action = nil } }),
                 titleVisibility: .visible

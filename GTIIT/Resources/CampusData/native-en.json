@@ -679,5 +679,16 @@
   "礼堂": "Auditorium",
   "创新中心": "Innovation Center",
   "活动室": "Activity room",
-  "房间目录来自 Booked 公开排程；登录后仅显示本人有权限预约的房间。": "Rooms come from Booked's public schedules; after sign-in only rooms you can book are shown."
+  "房间目录来自 Booked 公开排程；登录后仅显示本人有权限预约的房间。": "Rooms come from Booked's public schedules; after sign-in only rooms you can book are shown.",
+  "App 总占用": "Total app size",
+  "GTIIT ROOM BOOKING": "GTIIT ROOM BOOKING",
+  "GTIIT SPORTS CENTER": "GTIIT SPORTS CENTER",
+  "SC E1/E2 教室": "SC E1/E2 classrooms",
+  "北校区讨论室": "North Campus discussion rooms",
+  "南校区学生中心": "South Campus Student Hub",
+  "南校区教室": "South Campus classrooms",
+  "正在计算…": "Calculating…",
+  "练习房与讨论室": "Practice rooms & discussion rooms",
+  "自习与小组讨论": "Study & group discussion",
+  "邮箱助手": "Mail assistant"
 }

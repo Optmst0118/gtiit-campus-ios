@@ -524,7 +524,7 @@ enum BookingDirectory {
     static let sportsHomeURL = URL(string: "https://gtiit.mike-x.com/0x2Rg")!
     static let sportsRegistrationURL = URL(string: "https://gtiit.mike-x.com/VK31S")!
 
-    static let roomCategories: [RoomCategory] = [
+    static var roomCategories: [RoomCategory] { [
         RoomCategory(
             id: "practice", title: L10n.tr("练习房"), subtitle: L10n.tr("乐器练习与电子琴房"), symbol: "pianokeys",
             rooms: [
@@ -538,7 +538,7 @@ enum BookingDirectory {
                 room(72, "E604", L10n.tr("乐器练习"))
             ]),
         RoomCategory(
-            id: "hub", title: L10n.tr("学生中心"), subtitle: L10n.tr("自习与小组讨论"), symbol: "building.2.fill",
+            id: "hub", title: L10n.tr("南校区学生中心"), subtitle: L10n.tr("自习与小组讨论"), symbol: "building.2.fill",
             rooms: [
                 room(84, "SC Student hub-Room 1", L10n.tr("房间")),
                 room(94, "SC Student hub-Room 2-Table 1", L10n.tr("桌位")),
@@ -551,7 +551,7 @@ enum BookingDirectory {
                 room(127, "SC Student hub-Room 5-Table 2", L10n.tr("桌位"))
             ]),
         RoomCategory(
-            id: "discussion-main", title: L10n.tr("主校区讨论室"), subtitle: L10n.tr("E105 小组讨论空间"), symbol: "bubble.left.and.bubble.right.fill",
+            id: "discussion-main", title: L10n.tr("北校区讨论室"), subtitle: L10n.tr("E105 小组讨论空间"), symbol: "bubble.left.and.bubble.right.fill",
             rooms: [
                 room(64, "E105-1", L10n.tr("小组讨论")),
                 room(65, "E105-2", L10n.tr("小组讨论")),
@@ -561,7 +561,7 @@ enum BookingDirectory {
                 room(69, "E105-6", L10n.tr("小组讨论"))
             ]),
         RoomCategory(
-            id: "discussion-sc", title: L10n.tr("学生中心讨论室"), subtitle: L10n.tr("SC E1/E2 小组讨论空间"), symbol: "bubble.left.and.bubble.right.fill",
+            id: "discussion-sc", title: L10n.tr("南校区教室"), subtitle: L10n.tr("SC E1/E2 教室"), symbol: "door.left.hand.open",
             rooms: [
                 room(128, "SC E1-402", L10n.tr("小组讨论")),
                 room(129, "SC E1-403", L10n.tr("小组讨论")),
@@ -582,13 +582,13 @@ enum BookingDirectory {
                 room(81, "D5-101-3", L10n.tr("活动室")),
                 room(82, "D5-101-5", L10n.tr("活动室"))
             ])
-    ]
+    ] }
 
     private static func room(_ rid: Int, _ name: String, _ note: String) -> RoomOption {
         RoomOption(id: "r\(rid)", name: name, note: note, rid: rid)
     }
 
-    static let sports: [SportsVenue] = [
+    static var sports: [SportsVenue] { [
         SportsVenue(id: "north-tt", title: L10n.tr("北校区乒乓球室"), subtitle: "North Campus Table Tennis Room", symbol: "figure.table.tennis", url: URL(string: "https://gtiit.mike-x.com/0TZPp")!),
         SportsVenue(id: "outdoor-tennis", title: L10n.tr("室外网球场"), subtitle: "Outdoor Tennis Court", symbol: "figure.tennis", url: URL(string: "https://gtiit.mike-x.com/ACOAm")!),
         SportsVenue(id: "south-tt", title: L10n.tr("南校区乒乓球台"), subtitle: "South Campus Table Tennis", symbol: "figure.table.tennis", url: URL(string: "https://gtiit.mike-x.com/J8PeH")!),
@@ -604,13 +604,13 @@ enum BookingDirectory {
         SportsVenue(id: "pickleball", title: L10n.tr("匹克球场"), subtitle: "Pickleball Court", symbol: "figure.tennis", url: URL(string: "https://gtiit.mike-x.com/ogyYI")!),
         SportsVenue(id: "main-football", title: L10n.tr("大足球场"), subtitle: "Main Football Pitch", symbol: "figure.soccer", url: URL(string: "https://gtiit.mike-x.com/ypF4B")!),
         SportsVenue(id: "d3-tt", title: L10n.tr("D3 栋乒乓球台"), subtitle: "D3 Table Tennis", symbol: "figure.table.tennis", url: URL(string: "https://gtiit.mike-x.com/yspKN")!)
-    ]
+    ] }
 
-    static let openingHours: [OpeningHourRow] = [
+    static var openingHours: [OpeningHourRow] { [
         OpeningHourRow(id: "courts", title: L10n.tr("球类场地"), value: L10n.tr("周一至周五 11:30–21:30；周六、周日 08:00–21:30")),
         OpeningHourRow(id: "gym", title: L10n.tr("健身房与瑜伽室"), value: L10n.tr("每天 08:00–21:30")),
         OpeningHourRow(id: "pool", title: L10n.tr("游泳馆"), value: L10n.tr("周一关闭；周二至周五 17:00–21:30；周六、周日 15:00–21:00")),
         OpeningHourRow(id: "climb", title: L10n.tr("攀岩墙"), value: L10n.tr("周一至周五关闭；周六 14:00–17:00；周日关闭")),
         OpeningHourRow(id: "pilates", title: L10n.tr("普拉提中心"), value: L10n.tr("周一、周三、周五晚场；其余时间关闭"))
-    ]
+    ] }
 }

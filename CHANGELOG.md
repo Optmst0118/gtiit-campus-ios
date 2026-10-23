@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.7] - 2026-10-23
+
+### Added
+
+- Siri / Shortcuts support for the shuttle countdown. The “north campus shuttle” and “south campus shuttle” App Shortcuts return the next planned departure countdown from the same timetable used in the app.
+- Storage settings now show the app's total on-disk footprint (bundle plus sandbox container) alongside downloads.
+
+### Changed
+
+- Renamed the booking directory groups to 南校区学生中心, 北校区讨论室 and 南校区教室; the South Campus classroom group now uses a classroom icon.
+- Completed the native English localization audit: every L10n key used by the app now has an English translation, and booking directories rebuild their localized text when the language changes.
+
 ## [2.0.0-alpha.6] - 2026-10-23
 
 ### Changed
