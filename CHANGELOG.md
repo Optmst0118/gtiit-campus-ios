@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.28] - 2026-10-24
+
+### Added
+
+- Cached Moodle sessions now auto-click the existing Office 365 SAML link when the Moodle login page appears. The helper never reads or fills an email/password form and never attempts to bypass MFA.
+- Auto-login starts in the background when Moodle has stored session data, and also starts when the Learning tab opens. If the app is locked during the background attempt, it retries after unlock.
+
 ## [2.0.0-alpha.27] - 2026-10-24
 
 ### Added

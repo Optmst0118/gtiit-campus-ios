@@ -40,7 +40,10 @@ struct MoodleTabView: View {
                 SiteBrowserView(site: .moodle)
             }
         }
-        .onAppear { consumePendingURL() }
+        .onAppear {
+            app.prepareMoodleAutoLogin()
+            consumePendingURL()
+        }
         .onChange(of: app.pendingMoodleURL) { _, _ in consumePendingURL() }
     }
 

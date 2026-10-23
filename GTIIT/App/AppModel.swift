@@ -34,6 +34,7 @@ final class AppModel: ObservableObject {
     let launch = LaunchPreparation()
     let downloads = DownloadCoordinator()
     let privacyShield = PrivacyShieldController()
+    let moodleAutoLogin = MoodleAutoLogin()
     let settings: AppSettings
     @Published private(set) var isClearingData = false
     @Published private(set) var storageSummaries: [SiteID: SiteStorageSummary] = [:]
@@ -42,6 +43,8 @@ final class AppModel: ObservableObject {
     private var launchSubscription: AnyCancellable?
     private var didScheduleSummaryWarmup = false
     private var didScheduleDeferredWarmup = false
+    private var didScheduleMoodleAutoLogin = false
+    private var moodleAutoLoginStarted = false
 
     private var browsers: [SiteID: BrowserModel] = [:]
     private var toastTask: Task<Void, Never>?
@@ -109,6 +112,7 @@ final class AppModel: ObservableObject {
 
     func prepareLaunchIfAllowed() {
         guard settings.hasSeenWelcome, !showWelcome, !lock.isLocked, lock.isActive else { return }
+        scheduleMoodleAutoLoginIfNeeded()
         let sites = startupWebSites
         guard !sites.isEmpty else {
             // Native startup (Shuttle/Me): keep the first frame free of WebKit.
@@ -123,6 +127,31 @@ final class AppModel: ObservableObject {
             return !self.lock.isLocked && self.lock.isActive && !self.isClearingData
         })
         scheduleDeferredWarmupIfNeeded()
+    }
+
+    func prepareMoodleAutoLogin() {
+        guard !moodleAutoLoginStarted else { return }
+        moodleAutoLoginStarted = true
+        moodleAutoLogin.start(browser: browser(for: .moodle)) { [weak self] in
+            guard let self else { return false }
+            return !self.lock.isLocked && self.lock.isActive && !self.isClearingData
+        }
+    }
+
+    private func scheduleMoodleAutoLoginIfNeeded() {
+        guard !didScheduleMoodleAutoLogin else { return }
+        didScheduleMoodleAutoLogin = true
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(1_200))
+            guard let self else { return }
+            guard !self.lock.isLocked, self.lock.isActive, !self.isClearingData else {
+                self.didScheduleMoodleAutoLogin = false
+                return
+            }
+            let hasSession = await WebDataStoreRegistry.shared.hasStoredData(for: .moodle)
+            guard hasSession else { return }
+            self.prepareMoodleAutoLogin()
+        }
     }
 
     private var startupWebSites: [SiteID] {
