@@ -11,7 +11,7 @@
 
 把学校的四个官方网页集中到一个 iOS App，配合原生班车倒计时、离线课表、Moodle 临近日程、临近考试、PDF 预览与下载管理。课表需用户确认后保存；日程摘要缓存在本机，校园业务在官方网页完成。
 
-**当前版本：2.0.0-alpha.39（build 56）**。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次验证范围见 [alpha.39 发布记录](docs/RELEASE-2.0.0-alpha.39.md)。
+**当前版本：2.0.0-alpha.40（build 57）**。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次验证范围见 [alpha.40 发布记录](docs/RELEASE-2.0.0-alpha.40.md)。
 
 <p align="center">
   <img src="docs/screenshots/01-welcome.png" width="200" alt="首次启动说明">

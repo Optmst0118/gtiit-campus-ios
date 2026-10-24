@@ -658,17 +658,52 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "timetable_snap_fling_one_week_forward"
+      "test" : "timetable_snap_fling_only_adjacent_forward"
     },
     {
       "detail" : "",
       "passed" : true,
-      "test" : "timetable_snap_fling_one_week_backward"
+      "test" : "timetable_snap_fling_only_adjacent_backward"
     },
     {
       "detail" : "",
       "passed" : true,
       "test" : "timetable_snap_clamps_edges"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_sunday_resists_velocity_without_travel"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_sunday_continued_drag_enters_monday"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_monday_short_reverse_resists"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_monday_reverse_enters_sunday"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_includes_mid_and_final_beyond_summary_window"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_selected_day_exam"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_exam_upcoming_excludes_past"
     },
     {
       "detail" : "",
@@ -1181,7 +1216,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 6697B26F-D6AC-4E9C-990E-F831A703A68E, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-24 06:58:04 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: ABE40C8B-630B-4748-8583-6456C32349BE, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-24 09:40:26 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1603,6 +1638,11 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "exam_reader_keeps_all_midterms_and_finals"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "exam_exports_only_allowlisted_fields"
     },
     {
@@ -1617,8 +1657,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-24T06:58:31Z",
+  "date" : "2026-10-24T09:40:54Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "f8508d4a-a7de-4367-ab16-c57f45e10bf8"
+  "runID" : "690c918c-742f-4c45-a1c2-fa52334ecc6b"
 }

@@ -107,7 +107,7 @@ import UIKit
                 } else if environment["UI_REVIEW_ERROR"] == "1" {
                     LoadErrorView(site: .portal, message: L10n.tr("连接超时。校园站点在校外可能需要较长时间，请稍后重试。"), onRetry: {}, onOpenSafari: {}, onOpenHome: {})
                 } else if environment["UI_REVIEW_CALENDAR"] == "1" {
-                    NavigationStack { AcademicCalendarView() }
+                    NavigationStack { AcademicCalendarView() }.environmentObject(app)
                 } else if environment["UI_REVIEW_WEEK"] == "1" {
                     NavigationStack { LocalTimetableView(store: app.timetable).environmentObject(app) }
                 } else if environment["UI_REVIEW_ABOUT"] == "1" {

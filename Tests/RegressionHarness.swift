@@ -918,9 +918,21 @@ extension RegressionApp {
         check("calendar_last_published_break_has_no_invented_term", AcademicCalendarStore.holidays(year: "2026-2027").contains { $0.start == "2027-07-24" && $0.end == "2027-07-31" })
         check("activity_departure_date_shanghai", ShuttleActivityWords.departure(CampusDate.parse("2026-10-24")!, language: "en") == "Oct 24 · 00:00")
         check("timetable_snap_normal_one_day", TimetableDaySnap.index(original: 10 * 292, proposed: 13 * 292, velocity: 300, step: 292, count: 60) == 11)
-        check("timetable_snap_fling_one_week_forward", TimetableDaySnap.index(original: 10 * 292, proposed: 13 * 292, velocity: 1500, step: 292, count: 60) == 17)
-        check("timetable_snap_fling_one_week_backward", TimetableDaySnap.index(original: 10 * 292, proposed: 8 * 292, velocity: -1500, step: 292, count: 60) == 3)
-        check("timetable_snap_clamps_edges", TimetableDaySnap.index(original: 2 * 292, proposed: 0, velocity: -1500, step: 292, count: 60) == 0 && TimetableDaySnap.index(original: 58 * 292, proposed: 60 * 292, velocity: 1500, step: 292, count: 60) == 59)
+        check("timetable_snap_fling_only_adjacent_forward", TimetableDaySnap.index(original: 10 * 292, proposed: 13 * 292, velocity: 1500, step: 292, count: 60) == 11)
+        check("timetable_snap_fling_only_adjacent_backward", TimetableDaySnap.index(original: 10 * 292, proposed: 8 * 292, velocity: -1500, step: 292, count: 60) == 9)
+        check("timetable_snap_clamps_edges", TimetableDaySnap.index(original: 0, proposed: -292, velocity: -1500, step: 292, count: 60) == 0 && TimetableDaySnap.index(original: 58 * 292, proposed: 60 * 292, velocity: 1500, step: 292, count: 60) == 59)
+        check("timetable_sunday_resists_velocity_without_travel", TimetableDaySnap.index(original: 10 * 292, proposed: 20 * 292, velocity: 5000, step: 292, count: 60, weekday: 1, travel: 100) == 10)
+        check("timetable_sunday_continued_drag_enters_monday", TimetableDaySnap.index(original: 10 * 292, proposed: 20 * 292, velocity: 100, step: 292, count: 60, weekday: 1, travel: 240) == 11)
+        check("timetable_monday_short_reverse_resists", TimetableDaySnap.index(original: 10 * 292, proposed: 0, velocity: -5000, step: 292, count: 60, weekday: 2, travel: -100) == 10)
+        check("timetable_monday_reverse_enters_sunday", TimetableDaySnap.index(original: 10 * 292, proposed: 0, velocity: -5000, step: 292, count: 60, weekday: 2, travel: -240) == 9)
+        let mid = StudentExam(course: "Math", code: "M1", session: "Mid", date: "2026-11-02", time: "09:00", duration: 2, venue: "E101")
+        let final = StudentExam(course: "Math", code: "M1", session: "Final", date: "2027-01-20", time: "14:00", duration: 2, venue: "E102")
+        let invalid = StudentExam(course: "Bad", code: "B", session: "Final", date: "2027-02-30", time: "14:00", duration: 2, venue: "")
+        let examRange = CampusDate.parse("2026-07-01")!...CampusDate.parse("2027-07-31")!
+        check("calendar_includes_mid_and_final_beyond_summary_window", CalendarExamSelection.items([final, mid, invalid], range: examRange).map(\.session) == ["Mid", "Final"])
+        check("calendar_selected_day_exam", CalendarExamSelection.items([mid, final], range: examRange, day: CampusDate.parse("2026-11-02")).map(\.venue) == ["E101"])
+        check("calendar_exam_upcoming_excludes_past", CalendarExamSelection.items([mid, final], range: examRange, from: CampusDate.parse("2027-01-01")).count == 1)
+
 
 
         let course = LocalCourse(name: "Synthetic Physics", code: "S001", group: "L1", weekday: 1, start: "08:00", end: "10:00", room: "TEST-101", building: "Synthetic Building")
@@ -1272,7 +1284,7 @@ extension RegressionApp {
         do {
             let script = try String(contentsOf: Bundle.main.url(forResource: "student-exams", withExtension: "js", subdirectory: "CampusData")!, encoding: .utf8)
             _ = try await web.evaluateJavaScript("""
-                const exams=Array.from({length:12},(_,i)=>({courseCode:'TEST'+i,courseName:'Synthetic course '+i,examSession:'A',date:'2027-01-20T00:00:00',time:'09:00:00',duration:2,venues:[{classNumber:'TEST-101'}]}));
+                const exams=Array.from({length:12},(_,i)=>({courseCode:'TEST'+i,courseName:'Synthetic course '+i,examSession:i%2?'Final':'Mid',date:'2027-01-20T00:00:00',time:'09:00:00',duration:2,venues:[{classNumber:'TEST-101'}]}));
                 document.getElementById('Exams').__reactFiber$fixture={memoizedState:{memoizedState:[exams,[]],next:null},return:null};
                 window.fetch=()=>{throw Error('NO_NETWORK_ALLOWED')};
                 true;
@@ -1281,6 +1293,7 @@ extension RegressionApp {
             let decoded = try JSONSerialization.jsonObject(with: Data(result.utf8)) as? [String: Any]
             let rows = decoded?["items"] as? [[String: Any]] ?? []
             check("exam_reads_full_pre_pagination_list", decoded?["state"] as? String == "ready" && rows.count == 12)
+            check("exam_reader_keeps_all_midterms_and_finals", rows.filter { $0["session"] as? String == "Mid" }.count == 6 && rows.filter { $0["session"] as? String == "Final" }.count == 6)
             check("exam_exports_only_allowlisted_fields", rows.allSatisfy { Set($0.keys) == Set(["course","code","session","date","time","duration","venue"]) })
             _ = try await web.evaluateJavaScript("document.getElementById('Exams').remove()")
             let missing = try await web.callAsyncJavaScript(script, arguments: [:], in: nil, contentWorld: .page) as? String ?? ""

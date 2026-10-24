@@ -107,6 +107,13 @@ struct LocalTimetableView: View {
                 dayColumn(day, snapshot: snapshot, fillHeight: pagerHeight)
             }.buttonStyle(.plain))
         }.frame(height: pagerHeight)
+            .mask {
+                HStack(spacing: 0) {
+                    LinearGradient(colors: [.clear, .black], startPoint: .leading, endPoint: .trailing).frame(width: 18)
+                    Color.black
+                    LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing).frame(width: 18)
+                }
+            }
     }
     private var weekControls: some View {
         HStack {
@@ -165,17 +172,20 @@ struct LocalTimetableView: View {
     }
 }
 
-/// Velocity policy shared by the native scroll delegate and regression checks.
+/// A gesture advances at most one day. Crossing a week requires actual
+/// continued travel, never a high-velocity projection into the following week.
 enum TimetableDaySnap {
-    static func index(original: CGFloat, proposed: CGFloat, velocity: CGFloat, step: CGFloat, count: Int) -> Int {
+    static func index(original: CGFloat, proposed: CGFloat, velocity: CGFloat, step: CGFloat, count: Int,
+                      weekday: Int = 0, travel: CGFloat? = nil) -> Int {
         guard step > 0, count > 0 else { return 0 }
-        let start = Int((original / step).rounded())
-        let candidate: Int
-        if abs(velocity) >= 1200 { candidate = start + (velocity > 0 ? 7 : -7) }
-        else { candidate = min(start + 1, max(start - 1, Int((proposed / step).rounded()))) }
+        let start = min(count - 1, max(0, Int((original / step).rounded())))
+        let distance = travel ?? proposed - original
+        let direction = distance >= 0 ? 1 : -1
+        let boundary = (weekday == 1 && direction > 0) || (weekday == 2 && direction < 0)
+        if boundary && abs(distance) < step * 0.5 { return start }
+        let candidate = boundary ? start + direction : min(start + 1, max(start - 1, Int((proposed / step).rounded())))
         return min(count - 1, max(0, candidate))
     }
-
 }
 
 /// One native scroll view owns dragging, deceleration and programmatic centering.
@@ -195,7 +205,13 @@ private struct TimetableDayCarousel: UIViewControllerRepresentable {
         private var cardWidth: CGFloat { min(280, max(210, width - 56)) }
         private var step: CGFloat { cardWidth + 12 }
         private var startOffset: CGFloat = 0
+        private var dragTravel: CGFloat = 0
+        private var boundaryIntent: (index: Int, direction: Int)?
+        private var trackingDrag = false
+        private var lastDragOffset: CGFloat = 0
         private var targetIndex: Int?
+        private var settling = false
+        private var adjustingResistance = false
         private var positioned = false
         private var selectedKey: String?
         init(owner: TimetableDayCarousel) { self.owner = owner; super.init(nibName: nil, bundle: nil) }
@@ -225,7 +241,7 @@ private struct TimetableDayCarousel: UIViewControllerRepresentable {
             owner = value
             guard isViewLoaded, width > 0 else { return }
             render()
-            if changed, !scroll.isDragging, !scroll.isDecelerating { position(animated: positioned && !owner.reduceMotion) }
+            if changed, !settling, !scroll.isDragging, !scroll.isDecelerating { position(animated: positioned && !owner.reduceMotion) }
         }
         private func render() {
             let inset = max(0, (width - cardWidth) / 2)
@@ -247,23 +263,71 @@ private struct TimetableDayCarousel: UIViewControllerRepresentable {
             selectedKey = owner.selection
             scroll.setContentOffset(CGPoint(x: CGFloat(index) * step, y: 0), animated: animated)
         }
-        func scrollViewWillBeginDragging(_ scrollView: UIScrollView) { startOffset = scrollView.contentOffset.x; targetIndex = nil }
+        func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+            Haptics.prepare()
+            scroll.layer.removeAllAnimations(); settling = false
+            trackingDrag = true; dragTravel = 0; startOffset = scrollView.contentOffset.x; lastDragOffset = startOffset; targetIndex = nil
+        }
+        private var startingWeekday: Int {
+            let index = min(owner.dates.count - 1, max(0, Int((startOffset / step).rounded())))
+            return owner.dates.isEmpty ? 0 : CampusDate.calendar.component(.weekday, from: owner.dates[index])
+        }
+        func scrollViewDidScroll(_ scrollView: UIScrollView) {
+            guard trackingDrag, !adjustingResistance else { return }
+            // Integrate the actual scroll delta. UIScrollView may reset its pan
+            // location/translation while applying an adjusted content offset.
+            dragTravel += scrollView.contentOffset.x - lastDragOffset
+            let travel = dragTravel
+            lastDragOffset = scrollView.contentOffset.x
+            let boundary = (startingWeekday == 1 && travel > 0) || (startingWeekday == 2 && travel < 0)
+            guard boundary else { return }
+            // A continuous rubber band: resistance first, then one adjacent day.
+            let length = abs(travel), threshold = step * 0.5
+            let resisted = min(length, threshold) * 0.45 + max(0, length - threshold) * 0.9
+            adjustingResistance = true
+            scrollView.contentOffset.x = startOffset + (travel > 0 ? 1 : -1) * min(step, resisted)
+            lastDragOffset = scrollView.contentOffset.x
+            adjustingResistance = false
+        }
         func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-            let index = TimetableDaySnap.index(original: startOffset, proposed: targetContentOffset.pointee.x,
-                velocity: velocity.x * 1000, step: step, count: owner.dates.count)
-            targetIndex = index
-            targetContentOffset.pointee = CGPoint(x: CGFloat(index) * step, y: 0)
+            if abs(dragTravel) < 1 { dragTravel = scrollView.contentOffset.x - startOffset }
+            let start = Int((startOffset / step).rounded())
+            let projected = targetContentOffset.pointee.x - startOffset
+            let direction = projected >= 0 ? 1 : -1
+            let boundary = (startingWeekday == 1 && direction > 0) || (startingWeekday == 2 && direction < 0)
+            if boundary, abs(dragTravel) < 1, abs(projected) > 1 {
+                // Scroll-wheel inputs can supply a destination without touch
+                // samples. Require a second deliberate gesture at this boundary.
+                if boundaryIntent?.index == start, boundaryIntent?.direction == direction {
+                    dragTravel = CGFloat(direction) * step
+                } else { boundaryIntent = (start, direction) }
+            } else if !boundary, abs(projected) > 1 { boundaryIntent = nil }
+            targetIndex = TimetableDaySnap.index(original: startOffset, proposed: targetContentOffset.pointee.x,
+                velocity: velocity.x * 1000, step: step, count: owner.dates.count, weekday: startingWeekday,
+                travel: dragTravel)
+            if targetIndex != start { boundaryIntent = nil }
+            // Own the short snap instead of waiting for a long inertial tail.
+            targetContentOffset.pointee = scrollView.contentOffset
         }
         func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-            if !decelerate { settle() }
+            trackingDrag = false
+            DispatchQueue.main.async { [weak self] in self?.settle() }
         }
-        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) { settle() }
-        func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) { publishSelection() }
+        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) { if !settling { settle() } }
+        func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) { if !settling { publishSelection() } }
         private func settle() {
+            guard !settling, !owner.dates.isEmpty else { return }
             let index = targetIndex ?? min(owner.dates.count - 1, max(0, Int((scroll.contentOffset.x / step).rounded())))
-            targetIndex = nil
-            scroll.setContentOffset(CGPoint(x: CGFloat(index) * step, y: 0), animated: false)
-            publishSelection()
+            targetIndex = nil; settling = true
+            let key = CampusDate.key(owner.dates[index])
+            selectedKey = key
+            if owner.selection != key { Haptics.selection(); owner.selection = key }
+            let destination = CGPoint(x: CGFloat(index) * step, y: 0)
+            scroll.setContentOffset(scroll.contentOffset, animated: false)
+            UIView.animate(withDuration: owner.reduceMotion ? 0 : 0.2, delay: 0,
+                options: [.curveEaseOut, .beginFromCurrentState, .allowUserInteraction]) {
+                self.scroll.contentOffset = destination
+            } completion: { [weak self] _ in self?.settling = false }
         }
         private func publishSelection() {
             guard !owner.dates.isEmpty else { return }

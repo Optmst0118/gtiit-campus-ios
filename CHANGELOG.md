@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.40] - 2026-10-24
+
+### Changed
+
+- Morph the PDF download button and saved actions within one persistent Liquid Glass surface, with a trailing anchor and Reduce Motion fallback.
+- Add a persistent calendar exam-visibility option using Student's cached, complete pre-pagination exam list, including midterms and finals, with day markers, time and venue.
+- Replace seven-day fling jumps with adjacent-day snapping and travel-based resistance at Sunday/Monday boundaries; shorten settling, trigger haptics at snap acceptance, and fade carousel edges.
+
 ## [2.0.0-alpha.39] - 2026-10-24
 
 ### Changed

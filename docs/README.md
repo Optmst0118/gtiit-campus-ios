@@ -2,6 +2,7 @@
 
 | 文档 | 内容 |
 | --- | --- |
+| [RELEASE-2.0.0-alpha.40.md](RELEASE-2.0.0-alpha.40.md) | PDF玻璃形变、校历考试开关与课表周边界阻力 |
 | [RELEASE-2.0.0-alpha.39.md](RELEASE-2.0.0-alpha.39.md) | 月份翻页、课表居中吸附与PDF保存操作条 |
 | [RELEASE-2.0.0-alpha.38.md](RELEASE-2.0.0-alpha.38.md) | 月历假期与排版、班车实时活动对齐及轨迹 |
 | [RELEASE-2.0.0-alpha.37.md](RELEASE-2.0.0-alpha.37.md) | 直接删除下载文件、统一Moodle活动页外观 |

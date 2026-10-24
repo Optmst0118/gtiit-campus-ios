@@ -18,6 +18,17 @@ struct StudentExam: Codable, Identifiable, Hashable {
     var valid: Bool { !course.isEmpty && course.count <= 240 && start != nil && duration >= 0 && duration <= 24 }
 }
 
+/// Calendar days remain in campus time, including exams outside the next-14-day summary.
+enum CalendarExamSelection {
+    static func items(_ exams: [StudentExam], range: ClosedRange<Date>, day: Date? = nil, from: Date? = nil) -> [StudentExam] {
+        exams.filter { exam in
+            guard exam.valid, let date = CampusDate.parse(exam.date), range.contains(date) else { return false }
+            if let day { return CampusDate.calendar.isDate(date, inSameDayAs: day) }
+            return from.map { date >= $0 } ?? true
+        }.sorted { $0.start == $1.start ? $0.id < $1.id : $0.start! < $1.start! }
+    }
+}
+
 /// The portal's existing, authenticated read-only Dashboard in its own WebKit
 /// view. Refresh never navigates the user's portal or touches a form.
 @MainActor final class StudentExamStore: NSObject, ObservableObject {

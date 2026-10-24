@@ -27,33 +27,9 @@ struct DocumentPreviewView: View {
                         if let error = session.error {
                             Text(error).font(.caption).padding(12).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14)).frame(maxWidth: 280)
                         }
-                        Group {
-                            if session.state == .saved, let saved = session.savedURL {
-                                HStack(spacing: 8) {
-                                    Label(L10n.tr("已下载"), systemImage: "checkmark.circle.fill")
-                                        .font(.subheadline.weight(.semibold)).padding(.trailing, 4)
-                                    Divider().frame(height: 22).overlay(.white.opacity(0.25))
-                                    ShareLink(item: session.url ?? saved) {
-                                        Image(systemName: "square.and.arrow.up").font(.title3.weight(.semibold)).frame(width: 44, height: 44)
-                                    }.accessibilityLabel(L10n.tr("分享"))
-                                    Button { Haptics.selection(); showFileLocation = true } label: {
-                                        Image(systemName: "folder").font(.title3.weight(.semibold)).frame(width: 44, height: 44)
-                                    }.accessibilityLabel(L10n.tr("在文件中显示"))
-                                }.padding(.horizontal, 14).frame(height: PDFDownloadPlacement.diameter)
-                                    .foregroundStyle(.white).modifier(PDFSavedActionsGlass())
-                                    .buttonStyle(PDFDownloadPressStyle())
-                            } else {
-                                Button { Haptics.medium(); session.saveAction?() } label: {
-                                    Group {
-                                        if session.state == .saving { ProgressView() }
-                                        else { Image(systemName: "arrow.down").font(.system(size: 23, weight: .semibold)) }
-                                    }.frame(width: PDFDownloadPlacement.diameter, height: PDFDownloadPlacement.diameter)
-                                        .foregroundStyle(Theme.accent).modifier(PDFDownloadGlass(saved: false))
-                                        .contentShape(Circle())
-                                }.buttonStyle(PDFDownloadPressStyle()).disabled(!session.canSave)
-                                    .accessibilityLabel(session.state == .saving ? L10n.tr("正在保存") : L10n.tr("下载 PDF"))
-                            }
-                        }.animation(reduceMotion ? nil : .spring(response: 0.32, dampingFraction: 0.85), value: session.state)
+                        PDFSaveControl(session: session, showFileLocation: $showFileLocation,
+                            maximumWidth: geometry.size.width - placement.trailingPadding - 20)
+
 
                     }
                     .padding(.trailing, placement.trailingPadding)
@@ -105,31 +81,60 @@ struct PDFDownloadPlacement {
         bottomPadding = max(0, edge - bottomSafeArea)
     }
 }
-private struct PDFDownloadGlass: ViewModifier {
+/// A persistent glass surface changes width and curvature instead of replacing
+/// two unrelated controls. Content fades inside the same trailing-anchored lens.
+private struct PDFSaveControl: View {
+    @ObservedObject var session: PDFPreviewSession
+    @Binding var showFileLocation: Bool
+    let maximumWidth: CGFloat
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    private var saved: Bool { session.state == .saved && session.savedURL != nil }
+    var body: some View {
+        ZStack {
+            Button { Haptics.medium(); session.saveAction?() } label: {
+                Group {
+                    if session.state == .saving { ProgressView() }
+                    else { Image(systemName: "arrow.down").font(.system(size: 23, weight: .semibold)) }
+                }.frame(width: 60, height: 60)
+            }.disabled(!session.canSave).opacity(saved ? 0 : 1)
+                .allowsHitTesting(!saved).accessibilityHidden(saved)
+                .accessibilityLabel(session.state == .saving ? L10n.tr("正在保存") : L10n.tr("下载 PDF"))
+            HStack(spacing: 8) {
+                Label(L10n.tr("已下载"), systemImage: "checkmark.circle.fill")
+                    .font(.subheadline.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.8)
+                Spacer(minLength: 0)
+                Divider().frame(height: 22)
+                if let url = session.url ?? session.savedURL {
+                    ShareLink(item: url) {
+                        Image(systemName: "square.and.arrow.up").font(.title3.weight(.semibold)).frame(width: 44, height: 44)
+                    }.accessibilityLabel(L10n.tr("分享"))
+                }
+                Button { Haptics.selection(); showFileLocation = true } label: {
+                    Image(systemName: "folder").font(.title3.weight(.semibold)).frame(width: 44, height: 44)
+                }.accessibilityLabel(L10n.tr("在文件中显示"))
+            }.padding(.horizontal, 14).frame(width: min(278, maximumWidth), height: 60)
+                .opacity(saved ? 1 : 0).allowsHitTesting(saved).accessibilityHidden(!saved)
+        }
+        .frame(width: saved ? min(278, maximumWidth) : 60, height: 60)
+        .clipped()
+        .foregroundStyle(saved ? Color.white : Theme.accent)
+        .modifier(PDFMorphingGlass(saved: saved))
+        .buttonStyle(PDFDownloadPressStyle())
+        .animation(reduceMotion ? .easeOut(duration: 0.12) : .spring(response: 0.42, dampingFraction: 0.82), value: saved)
+    }
+}
+private struct PDFMorphingGlass: ViewModifier {
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     let saved: Bool
     @ViewBuilder func body(content: Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: saved ? 22 : 30, style: .continuous)
         if reduceTransparency {
-            content.background(saved ? Theme.accent : Theme.cardBackground, in: Circle())
+            content.background(saved ? Theme.accent : Theme.cardBackground, in: shape)
         } else if #available(iOS 26.0, *) {
-            content.glassEffect(.regular.tint(saved ? Theme.accent : Color.white.opacity(0.15)).interactive(), in: Circle())
+            content.glassEffect(.regular.tint(saved ? Theme.accent : Color.white.opacity(0.15)).interactive(), in: shape)
         } else {
-            content.background(saved ? Theme.accent : Color.white.opacity(0.15), in: Circle())
-                .background(.regularMaterial, in: Circle())
-        }
-    }
-}
-
-private struct PDFSavedActionsGlass: ViewModifier {
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    @ViewBuilder func body(content: Content) -> some View {
-        if reduceTransparency {
-            content.background(Theme.accent, in: RoundedRectangle(cornerRadius: 22))
-        } else if #available(iOS 26.0, *) {
-            content.glassEffect(.regular.tint(Theme.accent).interactive(), in: RoundedRectangle(cornerRadius: 22))
-        } else {
-            content.background(Theme.accent, in: RoundedRectangle(cornerRadius: 22))
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 22))
+            content.background(saved ? Theme.accent : Color.white.opacity(0.15), in: shape)
+                .background(.regularMaterial, in: shape)
         }
     }
 }

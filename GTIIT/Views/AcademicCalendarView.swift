@@ -3,9 +3,12 @@ import SwiftUI
 
 struct AcademicCalendarView: View {
     @Environment(\.locale) private var nativeLocale
+    @EnvironmentObject private var app: AppModel
+    @AppStorage("calendar.showExams") private var showExams = false
     @State private var year = AcademicCalendarStore.defaultYear()
     @State private var mode = 0
     @State private var day = Date()
+    @State private var examRevision = 0
     @State private var showPast = false
     @State private var showPDF = false
     private var events: [AcademicEvent] { AcademicCalendarStore.holidays(year: year) }
@@ -15,8 +18,12 @@ struct AcademicCalendarView: View {
         if showPast { return events }
         return events.filter { ($0.endDate ?? $0.startDate ?? .distantPast) >= today }
     }
+    private var calendarExams: [StudentExam] {
+        showExams ? CalendarExamSelection.items(app.exams.items, range: yearRange, day: mode == 1 ? day : nil, from: showPast ? nil : today) : []
+    }
     var body: some View {
         let _ = nativeLocale.identifier
+        let _ = examRevision
 
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -38,19 +45,28 @@ struct AcademicCalendarView: View {
             }.padding(16).cardBackground()
             if mode == 1 {
                 VStack {
-                    AcademicMonthPicker(day: $day, range: yearRange, year: year, locale: nativeLocale)
+                    AcademicMonthPicker(day: $day, range: yearRange, year: year, locale: nativeLocale, examDates: showExams ? Set(app.exams.items.map(\.date)) : [])
                         .id(year)
                         .padding(20)
                 }.cardBackground()
             }
             Text(mode == 1 ? L10n.tr("当天事项") : L10n.tr("校历安排")).font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
             VStack(alignment: .leading, spacing: 16) {
-                if visible.isEmpty {
+                if visible.isEmpty && calendarExams.isEmpty {
                     if mode == 1, CampusDate.calendar.isDateInWeekend(day) {
                         Label(L10n.tr("周末休息"), systemImage: "sun.max")
                     } else {
                         ContentUnavailableView(L10n.tr("暂无事项"), systemImage: "calendar")
                     }
+                }
+                ForEach(calendarExams) { exam in
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label(exam.course, systemImage: "pencil.and.list.clipboard").font(.headline).foregroundStyle(Theme.accent)
+                        Text("\(exam.session) · \(CampusDate.display(exam.start!, weekday: true)) · \(exam.time)")
+                            .font(.subheadline).monospacedDigit()
+                        Label(exam.venue.isEmpty ? L10n.tr("地点待定") : exam.venue, systemImage: "mappin.and.ellipse")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }.padding(.vertical, 5).accessibilityElement(children: .combine)
                 }
                 ForEach(visible) { event in
                     NavigationLink { AcademicEventView(event: event) } label: {
@@ -74,6 +90,7 @@ struct AcademicCalendarView: View {
         .scrollContentBackground(.hidden).background(Theme.pageBackground)
         .toolbar { ToolbarItem(placement: .topBarTrailing) {
             Menu {
+                Toggle(L10n.tr("显示考试时间"), isOn: $showExams)
                 Toggle(L10n.tr("显示全部事项"), isOn: $showPast)
                 Button(L10n.tr("查看原始 PDF"), systemImage: "doc.richtext") { showPDF = true }
             } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel(L10n.tr("校历选项"))
@@ -82,6 +99,10 @@ struct AcademicCalendarView: View {
             day = max(yearRange.lowerBound, min(Date(), yearRange.upperBound))
             showPast = year != AcademicCalendarStore.defaultYear()
         }
+        .task(id: showExams) {
+            if showExams { app.exams.refresh(allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData }) }
+        }
+        .onReceive(app.exams.objectWillChange) { _ in examRevision += 1 }
         .sheet(isPresented: $showPDF) { CalendarPDFSheet(year: year) }
     }
     private var yearRange: ClosedRange<Date> {
@@ -146,6 +167,7 @@ private struct AcademicMonthPicker: View {
     let range: ClosedRange<Date>
     let year: String
     let locale: Locale
+    let examDates: Set<String>
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var month: Date?
     private var shown: Date { month ?? startOfMonth(max(range.lowerBound, min(day, range.upperBound))) }
@@ -237,10 +259,15 @@ private struct AcademicMonthPicker: View {
                             .frame(width: size, height: size).position(x: proxy.size.width / 2, y: proxy.size.height / 2)
                     }
                 }
+                .overlay(alignment: .bottom) {
+                    if examDates.contains(CampusDate.key(date)) {
+                        Capsule().fill(Theme.accent).frame(width: 14, height: 3).padding(.bottom, 3).accessibilityHidden(true)
+                    }
+                }
                 .contentShape(Rectangle())
         }.buttonStyle(.plain)
             .accessibilityLabel(CampusDate.display(date, weekday: true))
-            .accessibilityValue(holiday ? L10n.tr("放假") : "")
+            .accessibilityValue([holiday ? L10n.tr("放假") : "", examDates.contains(CampusDate.key(date)) ? L10n.tr("考试安排") : ""].filter { !$0.isEmpty }.joined(separator: " · "))
             .accessibilityAddTraits(selected ? [.isSelected] : [])
     }
     private func selectMonth(_ date: Date) {
