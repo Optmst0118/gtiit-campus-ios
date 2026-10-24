@@ -16,21 +16,31 @@ struct ShuttleLiveActivityWidget: Widget {
                         .font(.headline).foregroundStyle(.cyan)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text(context.attributes.departureTime).font(.headline.monospacedDigit())
+                    Text(ShuttleActivityWords.departure(context.state.departureDate, language: context.attributes.languageCode))
+                        .font(.caption.monospacedDigit()).multilineTextAlignment(.trailing)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    HStack {
-                        Text(context.attributes.busLabel).font(.subheadline).foregroundStyle(.secondary)
-                        Spacer(minLength: 12)
-                        ShuttleActivityCountdown(date: context.state.departureDate, expired: context.isStale, language: context.attributes.languageCode)
-                            .font(.title2.monospacedDigit().weight(.semibold)).foregroundStyle(.cyan).frame(width: 110, alignment: .trailing)
+                    VStack(spacing: 6) {
+                        HStack {
+                            Text(context.attributes.busLabel).font(.caption).foregroundStyle(.secondary)
+                            Spacer()
+                            Text(ShuttleActivityWords.planned(context.attributes.languageCode)).font(.caption).foregroundStyle(.secondary)
+                        }
+                        HStack(spacing: 20) {
+                            ShuttleActivityTrack().frame(maxWidth: .infinity).frame(height: 26)
+                            ShuttleActivityCountdown(date: context.state.departureDate, expired: context.isStale, language: context.attributes.languageCode)
+                                .font(.title2.monospacedDigit().weight(.semibold)).foregroundStyle(.cyan)
+                                .frame(width: 110, alignment: .trailing)
+                        }
                     }.padding(.top, 5)
+
                 }
             } compactLeading: {
                 Text(ShuttleActivityWords.compact(context.attributes)).font(.caption2.weight(.semibold)).foregroundStyle(.cyan)
             } compactTrailing: {
                 ShuttleActivityCountdown(date: context.state.departureDate, expired: context.isStale, language: context.attributes.languageCode)
-                    .font(.caption2.monospacedDigit()).frame(maxWidth: 54)
+                    .font(.caption2.monospacedDigit()).frame(width: 54, alignment: .trailing)
             } minimal: {
                 Image(systemName: "bus.fill").foregroundStyle(.cyan)
                     .overlay(alignment: .bottomTrailing) {

@@ -78,6 +78,34 @@ enum AcademicCalendarStore {
         let year = "\(first)-\(first + 1)"
         return years.contains(year) ? year : years[0]
     }
+    /// Weekends follow the source calendar; semester gaps exclude exam-end and term-start days.
+    static func isDayOff(_ date: Date, year: String) -> Bool {
+        CampusDate.calendar.isDateInWeekend(date) || holidays(year: year).contains { $0.contains(date) }
+    }
+    static func holidays(year: String) -> [AcademicEvent] {
+        let explicit = events.filter { $0.year == year && $0.kind == "holiday" && $0.verified }
+        let starts = events.filter { $0.verified && ["Summer semester begins", "Winter semester begins", "Spring semester begins"].contains($0.en) }.compactMap(\.startDate).sorted()
+        var gaps: [AcademicEvent] = []
+        for sourceYear in years {
+            for term in ["Summer", "Winter", "Spring"] {
+                let exams = events.filter { $0.year == sourceYear && $0.verified && $0.en.hasPrefix(term + " exams") }
+                guard let end = exams.compactMap(\.endDate).max(),
+                      let a = CampusDate.calendar.date(byAdding: .day, value: 1, to: end) else { continue }
+                let next = starts.first { $0 > end }
+                // The last published calendar ends in July; do not invent a later term date.
+                guard let upper = next.flatMap({ CampusDate.calendar.date(byAdding: .day, value: -1, to: $0) }) ?? CampusDate.parse(String(sourceYear.suffix(4)) + "-07-31"), a <= upper else { continue }
+                let lowerBound = CampusDate.parse(String(year.prefix(4)) + "-07-01")!
+                let upperBound = CampusDate.parse(String(year.suffix(4)) + "-07-31")!
+                let start = max(a, lowerBound), finish = min(upper, upperBound)
+                guard start <= finish else { continue }
+                gaps.append(AcademicEvent(id: "break-" + sourceYear + "-" + term, year: year,
+                    start: CampusDate.key(start), end: CampusDate.key(finish), kind: "holiday",
+                    zh: "学期间假期", en: "Semester break", raw: CampusDate.key(start) + " – " + CampusDate.key(finish),
+                    verified: true, source: exams.first!.source))
+            }
+        }
+        return (explicit + gaps).sorted { $0.start < $1.start }
+    }
     static func pdfURL(year: String) -> URL? {
         guard years.contains(year) else { return nil }
         return Bundle.main.url(forResource: "academic-calendar-\(year)-original", withExtension: "pdf", subdirectory: "CampusData")

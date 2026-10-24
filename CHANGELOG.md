@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.38] - 2026-10-24
+
+### Changed
+
+- Replace month-calendar event dots with translucent red date backgrounds, regularize inset and grid spacing, and mark weekends and source-derived semester gaps.
+- Align Live Activity dates and countdown text to the trailing edge in Lock Screen and Dynamic Island layouts; add a compact directional bus-track illustration.
+
 ## [2.0.0-alpha.37] - 2026-10-24
 
 ### Changed

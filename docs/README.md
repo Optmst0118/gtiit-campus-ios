@@ -2,6 +2,7 @@
 
 | 文档 | 内容 |
 | --- | --- |
+| [RELEASE-2.0.0-alpha.38.md](RELEASE-2.0.0-alpha.38.md) | 月历假期与排版、班车实时活动对齐及轨迹 |
 | [RELEASE-2.0.0-alpha.37.md](RELEASE-2.0.0-alpha.37.md) | 直接删除下载文件、统一Moodle活动页外观 |
 | [RELEASE-2.0.0-alpha.36.md](RELEASE-2.0.0-alpha.36.md) | 卡片点击修复、统一路由、PDF 反馈、缓存与系统入口 |
 | [RELEASE-1.11.md](RELEASE-1.11.md) | 长按持续放大、圆角与文件轮廓修复；文档和 GitHub 同步 |

@@ -588,6 +588,71 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "calendar_day_off_2026-12-12"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-12-13"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-11-02"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-09-24"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-09-25"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-10-11"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-10-12"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-07-24"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-07-27"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2027-03-01"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_winter_gap_excludes_exam_and_term_boundaries"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_last_published_break_has_no_invented_term"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "activity_departure_date_shanghai"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "local_timetable_monday_with_room"
     },
     {
@@ -1096,7 +1161,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: DD235961-F200-46B1-8581-C53CAF7F0A88, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-24 06:03:50 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 8D60A4B2-CE51-42A2-B4CD-F6CD330649C7, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-24 06:15:00 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1527,8 +1592,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-24T06:04:18Z",
+  "date" : "2026-10-24T06:15:28Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "143b76db-95ca-4cb4-8e70-971fd4930c99"
+  "runID" : "09717fd6-b254-4af7-a6f7-c0c967b8d8a3"
 }

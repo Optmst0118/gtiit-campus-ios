@@ -8,7 +8,7 @@ struct AcademicCalendarView: View {
     @State private var day = Date()
     @State private var showPast = false
     @State private var showPDF = false
-    private var events: [AcademicEvent] { AcademicCalendarStore.events.filter { $0.year == year && $0.kind == "holiday" && $0.verified } }
+    private var events: [AcademicEvent] { AcademicCalendarStore.holidays(year: year) }
     private var today: Date { CampusDate.calendar.startOfDay(for: Date()) }
     private var visible: [AcademicEvent] {
         if mode == 1 { return events.filter { $0.contains(day) || (!$0.verified && $0.start == CampusDate.key(day)) } }
@@ -37,14 +37,19 @@ struct AcademicCalendarView: View {
             }
             if mode == 1 {
                 Section {
-                    AcademicMonthPicker(day: $day, range: yearRange, events: events, locale: nativeLocale)
-                        .frame(minHeight: 370)
-                        .accessibilityLabel(L10n.tr("月历"))
+                    AcademicMonthPicker(day: $day, range: yearRange, year: year, locale: nativeLocale)
+                        .id(year)
+                        .padding(20)
+                        .listRowInsets(EdgeInsets())
                 }
             }
             Section(mode == 1 ? L10n.tr("当天事项") : L10n.tr("校历安排")) {
                 if visible.isEmpty {
-                    ContentUnavailableView(L10n.tr("暂无事项"), systemImage: "calendar", description: Text(mode == 1 ? L10n.tr("原表未列出当天事项。") : L10n.tr("本学年近期事项已结束，可查看全部。")))
+                    if mode == 1, CampusDate.calendar.isDateInWeekend(day) {
+                        Label(L10n.tr("周末休息"), systemImage: "sun.max")
+                    } else {
+                        ContentUnavailableView(L10n.tr("暂无事项"), systemImage: "calendar")
+                    }
                 }
                 ForEach(visible) { event in
                     NavigationLink { AcademicEventView(event: event) } label: {
@@ -60,10 +65,7 @@ struct AcademicCalendarView: View {
                     }
                 }
             }
-            Section {
-                Label(L10n.tr("仅标注原校历中的国内假期与逾越节假期，红点表示放假。"), systemImage: "info.circle")
-                    .font(.footnote).foregroundStyle(.secondary)
-            }
+
         }
         .navigationTitle(L10n.tr("校历")).navigationBarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden).background(Theme.pageBackground)
@@ -135,60 +137,93 @@ struct LocalPDFReader: UIViewRepresentable {
     func updateUIView(_ view: PDFView, context: Context) {}
 }
 
-/// Native month navigation with source-backed event dots, without text crowding date cells.
-private struct AcademicMonthPicker: UIViewRepresentable {
+/// A SwiftUI month grid gives date backgrounds a public, accessible rendering path.
+private struct AcademicMonthPicker: View {
     @Binding var day: Date
     let range: ClosedRange<Date>
-    let events: [AcademicEvent]
+    let year: String
     let locale: Locale
-    func makeCoordinator() -> Coordinator { Coordinator(self) }
-    func makeUIView(context: Context) -> UICalendarView {
-        let view = UICalendarView()
-        view.calendar = CampusDate.calendar; view.timeZone = CampusDate.calendar.timeZone
-        view.locale = locale; view.delegate = context.coordinator
-        view.selectionBehavior = UICalendarSelectionSingleDate(delegate: context.coordinator)
-        context.coordinator.apply(self, to: view)
-        return view
+    @State private var month: Date?
+    private var shown: Date { month ?? startOfMonth(max(range.lowerBound, min(day, range.upperBound))) }
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 2), count: 7)
+    private func startOfMonth(_ date: Date) -> Date { CampusDate.calendar.dateInterval(of: .month, for: date)!.start }
+    private var heading: String {
+        let f = DateFormatter(); f.locale = locale; f.calendar = CampusDate.calendar
+        f.timeZone = CampusDate.calendar.timeZone; f.setLocalizedDateFormatFromTemplate("yyyyMMMM")
+        return f.string(from: shown)
     }
-    func updateUIView(_ view: UICalendarView, context: Context) { context.coordinator.apply(self, to: view) }
-    final class Coordinator: NSObject, UICalendarViewDelegate, UICalendarSelectionSingleDateDelegate {
-        var parent: AcademicMonthPicker
-        private var lower: Date?
-        private var selected: Date?
-        init(_ parent: AcademicMonthPicker) { self.parent = parent }
-        func apply(_ value: AcademicMonthPicker, to view: UICalendarView) {
-            parent = value; view.locale = value.locale
-            if lower != value.range.lowerBound {
-                lower = value.range.lowerBound
-                view.availableDateRange = DateInterval(start: value.range.lowerBound, end: value.range.upperBound.addingTimeInterval(86_399))
-                view.setVisibleDateComponents(CampusDate.calendar.dateComponents([.year, .month, .day], from: value.day), animated: false)
-            }
-            if selected != value.day {
-                selected = value.day
-                (view.selectionBehavior as? UICalendarSelectionSingleDate)?.setSelected(CampusDate.calendar.dateComponents([.year, .month, .day], from: value.day), animated: false)
-            }
-            let dates = value.events.flatMap { event -> [DateComponents] in
-                guard let a = event.startDate, let b = event.endDate, event.verified, event.kind == "holiday" else { return [] }
-                let count = min(60, CampusDate.calendar.dateComponents([.day], from: a, to: b).day ?? 0)
-                return (0...max(0,count)).compactMap { CampusDate.calendar.date(byAdding: .day, value: $0, to: a) }.map { CampusDate.calendar.dateComponents([.year, .month, .day], from: $0) }
-            }
-            view.reloadDecorations(forDateComponents: dates, animated: false)
+    private var weekdays: [String] {
+        let f = DateFormatter(); f.locale = locale; f.calendar = CampusDate.calendar
+        let symbols = f.veryShortStandaloneWeekdaySymbols!
+        return Array(symbols.dropFirst()) + [symbols[0]]
+    }
+    private var cells: [Date?] {
+        let cal = CampusDate.calendar
+        let offset = (cal.component(.weekday, from: shown) + 5) % 7
+        let count = cal.range(of: .day, in: .month, for: shown)!.count
+        return (0..<42).map { index in
+            guard (offset..<(offset + count)).contains(index) else { return nil }
+            return cal.date(byAdding: .day, value: index - offset, to: shown)
         }
-        func calendarView(_ calendarView: UICalendarView, decorationFor dateComponents: DateComponents) -> UICalendarView.Decoration? {
-            guard let date = CampusDate.calendar.date(from: dateComponents) else { return nil }
-            let events = parent.events.filter { $0.kind == "holiday" && $0.contains(date) }
-            guard !events.isEmpty else { return nil }
-            return .customView {
-                let label = UILabel(); label.text = "•"
-                label.font = .systemFont(ofSize: 11, weight: .bold)
-                label.textColor = .systemRed
-                label.accessibilityLabel = events.map(\.title).joined(separator: ", ")
-                return label
+    }
+    private var months: [Date] {
+        let first = startOfMonth(range.lowerBound)
+        return (0...12).compactMap { CampusDate.calendar.date(byAdding: .month, value: $0, to: first) }
+    }
+    var body: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Menu {
+                    ForEach(months, id: \.self) { date in
+                        Button(CampusDate.display(date)) { month = date }
+                    }
+                } label: { HStack(spacing: 6) { Text(heading).font(.headline).lineLimit(1).minimumScaleFactor(0.75); Image(systemName: "chevron.down").font(.caption.weight(.semibold)) } }
+                Spacer(minLength: 4)
+                Button { move(-1) } label: { Image(systemName: "chevron.left").frame(width: 44, height: 44) }
+                    .disabled(shown <= startOfMonth(range.lowerBound)).accessibilityLabel(L10n.tr("上个月"))
+                Button { move(1) } label: { Image(systemName: "chevron.right").frame(width: 44, height: 44) }
+                    .disabled(shown >= startOfMonth(range.upperBound)).accessibilityLabel(L10n.tr("下个月"))
+            }.foregroundStyle(Theme.accent).buttonStyle(.plain)
+            LazyVGrid(columns: columns, spacing: 4) {
+                ForEach(0..<7) { index in
+                    Text(weekdays[index]).font(.caption.weight(.medium))
+                        .foregroundStyle(index >= 5 ? Color.red : Color.secondary)
+                        .frame(maxWidth: .infinity).padding(.bottom, 8).accessibilityHidden(true)
+                }
+                ForEach(0..<42) { index in
+                    if let date = cells[index] {
+                        dateCell(date)
+                    } else { Color.clear.frame(height: 44).accessibilityHidden(true) }
+                }
             }
         }
-        func dateSelection(_ selection: UICalendarSelectionSingleDate, didSelectDate dateComponents: DateComponents?) {
-            guard let components = dateComponents, let value = CampusDate.calendar.date(from: components) else { return }
-            selected = value; parent.day = value
-        }
+    }
+    private func dateCell(_ date: Date) -> some View {
+        let selected = CampusDate.calendar.isDate(date, inSameDayAs: day)
+        let holiday = AcademicCalendarStore.isDayOff(date, year: year)
+        let today = CampusDate.calendar.isDateInToday(date)
+        return Button { day = date; Haptics.selection() } label: {
+            Text(String(CampusDate.calendar.component(.day, from: date)))
+                .font(.body.weight(selected || today ? .bold : .medium)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
+                .foregroundStyle(holiday ? Color(uiColor: .systemRed) : selected || today ? Theme.accent : .primary)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .background {
+                    GeometryReader { proxy in
+                        let size = min(proxy.size.width, proxy.size.height) - 2
+                        Circle().fill(holiday ? Color(uiColor: .systemRed).opacity(0.16) : selected ? Theme.accent.opacity(0.12) : .clear)
+                            .overlay { Circle().strokeBorder(selected ? Theme.accent : .clear, lineWidth: 2) }
+                            .frame(width: size, height: size).position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+                    }
+                }
+                .contentShape(Rectangle())
+        }.buttonStyle(.plain)
+            .accessibilityLabel(CampusDate.display(date, weekday: true))
+            .accessibilityValue(holiday ? L10n.tr("放假") : "")
+            .accessibilityAddTraits(selected ? [.isSelected] : [])
+    }
+    private func move(_ offset: Int) {
+        guard let next = CampusDate.calendar.date(byAdding: .month, value: offset, to: shown) else { return }
+        month = next
+        Haptics.selection()
     }
 }

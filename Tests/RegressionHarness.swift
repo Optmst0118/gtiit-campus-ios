@@ -909,6 +909,14 @@ extension RegressionApp {
         check("calendar_june31_never_normalized", events.filter { $0.end == nil && !$0.verified && $0.raw.contains("31") }.count == 2 && CampusDate.parse("2027-06-31") == nil)
         check("calendar_current_academic_year", AcademicCalendarStore.defaultYear(now: CampusDate.parse("2026-10-22")!) == "2026-2027" && AcademicCalendarStore.defaultYear(now: CampusDate.parse("2026-03-02")!) == "2025-2026")
         check("calendar_festivals_separate_from_holidays", events.contains { $0.en == "Hanukkah" && $0.kind == "festival" } && events.contains { $0.en == "Passover holidays" && $0.kind == "holiday" })
+        for (key, expected) in [("2026-12-12", true), ("2026-12-13", true), ("2026-11-02", false), ("2026-09-24", false), ("2026-09-25", true), ("2026-10-11", true), ("2026-10-12", false), ("2026-07-24", true), ("2026-07-27", false), ("2027-03-01", false)] {
+            check("calendar_day_off_" + key, AcademicCalendarStore.isDayOff(CampusDate.parse(key)!, year: "2026-2027") == expected)
+        }
+        let gaps = AcademicCalendarStore.holidays(year: "2025-2026").filter { $0.en == "Semester break" }
+        check("calendar_winter_gap_excludes_exam_and_term_boundaries", gaps.contains { $0.start == "2026-02-28" && $0.end == "2026-03-01" })
+        check("calendar_last_published_break_has_no_invented_term", AcademicCalendarStore.holidays(year: "2026-2027").contains { $0.start == "2027-07-24" && $0.end == "2027-07-31" })
+        check("activity_departure_date_shanghai", ShuttleActivityWords.departure(CampusDate.parse("2026-10-24")!, language: "en") == "Oct 24 · 00:00")
+
         let course = LocalCourse(name: "Synthetic Physics", code: "S001", group: "L1", weekday: 1, start: "08:00", end: "10:00", room: "TEST-101", building: "Synthetic Building")
         var snapshot = TimetableSnapshot(semester: "2026-27 WINTER", validFrom: "2026-10-12", validUntil: "2027-01-11", courses: [course])
         check("local_timetable_monday_with_room", snapshot.courses(on: CampusDate.parse("2026-10-19")!).first?.room == "TEST-101")
