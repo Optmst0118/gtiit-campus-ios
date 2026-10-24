@@ -18,8 +18,9 @@ struct AcademicCalendarView: View {
     var body: some View {
         let _ = nativeLocale.identifier
 
-        List {
-            Section {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 16) {
                 Picker(L10n.tr("学年"), selection: $year) { ForEach(AcademicCalendarStore.years, id: \.self) { Text($0).tag($0) } }
                 Picker(L10n.tr("显示方式"), selection: $mode) { Text(L10n.tr("近期事项")).tag(0); Text(L10n.tr("月历")).tag(1) }.pickerStyle(.segmented)
                 if mode == 0, let holiday = events.first(where: { $0.kind == "holiday" && $0.verified && ($0.endDate ?? .distantPast) >= today }), let start = holiday.startDate {
@@ -34,16 +35,16 @@ struct AcademicCalendarView: View {
                         }
                     }.padding(.vertical, 8).accessibilityElement(children: .combine)
                 }
-            }
+            }.padding(16).cardBackground()
             if mode == 1 {
-                Section {
+                VStack {
                     AcademicMonthPicker(day: $day, range: yearRange, year: year, locale: nativeLocale)
                         .id(year)
                         .padding(20)
-                        .listRowInsets(EdgeInsets())
-                }
+                }.cardBackground()
             }
-            Section(mode == 1 ? L10n.tr("当天事项") : L10n.tr("校历安排")) {
+            Text(mode == 1 ? L10n.tr("当天事项") : L10n.tr("校历安排")).font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 16) {
                 if visible.isEmpty {
                     if mode == 1, CampusDate.calendar.isDateInWeekend(day) {
                         Label(L10n.tr("周末休息"), systemImage: "sun.max")
@@ -61,11 +62,13 @@ struct AcademicCalendarView: View {
                                 Text(event.verified ? event.category : L10n.tr("原表待核实"))
                                     .font(.caption2.weight(.medium)).foregroundStyle(event.verified ? Color.secondary : Theme.orange)
                             }
-                        }.padding(.vertical, 5)
-                    }
+                        Spacer(minLength: 8)
+                        Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
+                        }.padding(.vertical, 5).foregroundStyle(.primary)
+                    }.buttonStyle(.plain)
                 }
-            }
-
+            }.frame(maxWidth: .infinity, alignment: .leading).padding(16).cardBackground()
+            }.padding(20)
         }
         .navigationTitle(L10n.tr("校历")).navigationBarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden).background(Theme.pageBackground)
@@ -143,27 +146,31 @@ private struct AcademicMonthPicker: View {
     let range: ClosedRange<Date>
     let year: String
     let locale: Locale
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var month: Date?
     private var shown: Date { month ?? startOfMonth(max(range.lowerBound, min(day, range.upperBound))) }
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 2), count: 7)
     private func startOfMonth(_ date: Date) -> Date { CampusDate.calendar.dateInterval(of: .month, for: date)!.start }
-    private var heading: String {
+    private func monthTitle(_ date: Date) -> String {
         let f = DateFormatter(); f.locale = locale; f.calendar = CampusDate.calendar
         f.timeZone = CampusDate.calendar.timeZone; f.setLocalizedDateFormatFromTemplate("yyyyMMMM")
-        return f.string(from: shown)
+        return f.string(from: date)
+    }
+    private var monthSelection: Binding<Date> {
+        Binding(get: { shown }, set: { selectMonth($0) })
     }
     private var weekdays: [String] {
         let f = DateFormatter(); f.locale = locale; f.calendar = CampusDate.calendar
         let symbols = f.veryShortStandaloneWeekdaySymbols!
         return Array(symbols.dropFirst()) + [symbols[0]]
     }
-    private var cells: [Date?] {
+    private func cells(for month: Date) -> [Date?] {
         let cal = CampusDate.calendar
-        let offset = (cal.component(.weekday, from: shown) + 5) % 7
-        let count = cal.range(of: .day, in: .month, for: shown)!.count
+        let offset = (cal.component(.weekday, from: month) + 5) % 7
+        let count = cal.range(of: .day, in: .month, for: month)!.count
         return (0..<42).map { index in
             guard (offset..<(offset + count)).contains(index) else { return nil }
-            return cal.date(byAdding: .day, value: index - offset, to: shown)
+            return cal.date(byAdding: .day, value: index - offset, to: month)
         }
     }
     private var months: [Date] {
@@ -174,10 +181,10 @@ private struct AcademicMonthPicker: View {
         VStack(spacing: 16) {
             HStack {
                 Menu {
-                    ForEach(months, id: \.self) { date in
-                        Button(CampusDate.display(date)) { month = date }
-                    }
-                } label: { HStack(spacing: 6) { Text(heading).font(.headline).lineLimit(1).minimumScaleFactor(0.75); Image(systemName: "chevron.down").font(.caption.weight(.semibold)) } }
+                    Picker(L10n.tr("月份"), selection: monthSelection) {
+                        ForEach(months, id: \.self) { date in Text(monthTitle(date)).tag(date) }
+                    }.pickerStyle(.inline)
+                } label: { HStack(spacing: 6) { Text(monthTitle(shown)).font(.headline).lineLimit(1).minimumScaleFactor(0.75); Image(systemName: "chevron.down").font(.caption.weight(.semibold)) } }
                 Spacer(minLength: 4)
                 Button { move(-1) } label: { Image(systemName: "chevron.left").frame(width: 44, height: 44) }
                     .disabled(shown <= startOfMonth(range.lowerBound)).accessibilityLabel(L10n.tr("上个月"))
@@ -188,14 +195,29 @@ private struct AcademicMonthPicker: View {
                 ForEach(0..<7) { index in
                     Text(weekdays[index]).font(.caption.weight(.medium))
                         .foregroundStyle(index >= 5 ? Color.red : Color.secondary)
-                        .frame(maxWidth: .infinity).padding(.bottom, 8).accessibilityHidden(true)
-                }
-                ForEach(0..<42) { index in
-                    if let date = cells[index] {
-                        dateCell(date)
-                    } else { Color.clear.frame(height: 44).accessibilityHidden(true) }
+                        .frame(maxWidth: .infinity).accessibilityHidden(true)
                 }
             }
+            GeometryReader { geometry in
+                ScrollViewReader { reader in
+                    ScrollView(.horizontal) {
+                        HStack(spacing: 0) {
+                            ForEach(months, id: \.self) { date in
+                                LazyVGrid(columns: columns, spacing: 4) {
+                                    ForEach(0..<42) { index in
+                                        if let cell = cells(for: date)[index] { dateCell(cell) }
+                                        else { Color.clear.frame(height: 44).accessibilityHidden(true) }
+                                    }
+                                }.frame(width: geometry.size.width).id(date)
+                            }
+                        }.scrollTargetLayout()
+                    }.scrollIndicators(.hidden).scrollTargetBehavior(.paging)
+                        .scrollPosition(id: Binding<Date?>(get: { shown }, set: { if let date = $0 { selectMonth(date) } }), anchor: .center)
+                        .task { await Task.yield(); reader.scrollTo(shown, anchor: .center) }
+                }
+            }.frame(height: 284)
+
+
         }
     }
     private func dateCell(_ date: Date) -> some View {
@@ -221,9 +243,13 @@ private struct AcademicMonthPicker: View {
             .accessibilityValue(holiday ? L10n.tr("放假") : "")
             .accessibilityAddTraits(selected ? [.isSelected] : [])
     }
+    private func selectMonth(_ date: Date) {
+        guard date != shown, months.contains(date) else { return }
+        month = date
+        Haptics.selection()
+    }
     private func move(_ offset: Int) {
         guard let next = CampusDate.calendar.date(byAdding: .month, value: offset, to: shown) else { return }
-        month = next
-        Haptics.selection()
+        withAnimation(reduceMotion ? nil : .snappy(duration: 0.3)) { selectMonth(next) }
     }
 }

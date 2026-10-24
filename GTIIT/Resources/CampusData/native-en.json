@@ -861,5 +861,7 @@
   "连接校园网络后重试，或从网页菜单选择“在默认浏览器中打开”。": "Reconnect to the campus network and retry, or choose Open in Default Browser from the page menu.",
   "周末休息": "Weekend",
   "上个月": "Previous month",
-  "下个月": "Next month"
+  "下个月": "Next month",
+  "月份": "Month",
+  "在文件中显示": "Show in Files"
 }

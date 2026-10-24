@@ -14,6 +14,7 @@ import WebKit
     @Published var error: String?
     @Published var document: PDFDocument?
     var url: URL?
+    var savedURL: URL?
     var temporaryFolder: URL?
     var saveAction: (() -> Void)?
     var closeAction: (() -> Void)?
@@ -86,7 +87,8 @@ import WebKit
             session.error = nil
             Task {
                 do {
-                    _ = try await center.savePreview(source, filename: session.filename, site: session.site)
+                    let item = try await center.savePreview(source, filename: session.filename, site: session.site)
+                    session.savedURL = center.fileURL(for: item)
                     session.state = .saved
                 } catch {
                     session.state = .readable
@@ -153,7 +155,7 @@ import WebKit
                 let copy = try await Task.detached { try DownloadFileAccess.readableCopy(url, to: folder) }.value
                 if copy.pathExtension.lowercased() == "pdf" {
                     let session = PDFPreviewSession(site: item.site)
-                    session.filename = item.filename; session.temporaryFolder = folder
+                    session.filename = item.filename; session.temporaryFolder = folder; session.savedURL = url
                     session.read(copy, alreadySaved: true)
                     if !(await showWhenReady(session)) {
                         try? FileManager.default.removeItem(at: folder)

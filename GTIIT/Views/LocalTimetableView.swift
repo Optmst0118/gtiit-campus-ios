@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct TodayTimetableCard: View {
     @Environment(\.locale) private var nativeLocale
@@ -61,7 +62,11 @@ struct TodayTimetableCard: View {
 struct LocalTimetableView: View {
     @Environment(\.locale) private var nativeLocale
     @ObservedObject var store: LocalTimetableStore
-    @State private var anchor = Date()
+    @State private var selectedDay: String? = CampusDate.key(Date())
+    @State private var pagerHeight: CGFloat = 450
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
+    private var anchor: Date { selectedDay.flatMap(CampusDate.parse) ?? Date() }
     @State private var showImport = false
     @Environment(\.dynamicTypeSize) private var typeSize
     private var days: [Date] {
@@ -80,17 +85,8 @@ struct LocalTimetableView: View {
                     if typeSize.isAccessibilitySize {
                         VStack(spacing: 12) { ForEach(days, id: \.self) { day in dayColumn(day, snapshot: snapshot) } }
                     } else {
-                        ScrollViewReader { reader in
-                            ScrollView(.horizontal) {
-                                HStack(alignment: .top, spacing: 12) {
-                                    ForEach(days, id: \.self) { day in dayColumn(day, snapshot: snapshot).frame(width: 210).id(CampusDate.key(day)) }
-                                }.padding(.horizontal, 2)
-                            }.scrollIndicators(.hidden)
-                            .onAppear { reader.scrollTo(CampusDate.key(Date()), anchor: .leading) }
-                            .onChange(of: anchor) { _, _ in
-                                reader.scrollTo(days.contains(where: { CampusDate.calendar.isDateInToday($0) }) ? CampusDate.key(Date()) : CampusDate.key(days[0]), anchor: .leading)
-                            }
-                        }
+                        carousel(snapshot)
+
                     }
                     Text("\(snapshot.semester) · \(snapshot.validFrom) – \(snapshot.validUntil)").font(.caption).foregroundStyle(.secondary)
                     Text(L10n.tr("离线快照；课程变动后需重新提取。已按已核实校历标注假期与调课，具体以学校通知为准。"))
@@ -105,20 +101,44 @@ struct LocalTimetableView: View {
         .toolbar { ToolbarItem(placement: .topBarTrailing) { Button(L10n.tr("更新"), systemImage: "arrow.clockwise") { showImport = true } } }
         .sheet(isPresented: $showImport) { TimetableImportView() }
     }
+    private func carousel(_ snapshot: TimetableSnapshot) -> some View {
+        TimetableDayCarousel(dates: pagerDays, selection: $selectedDay, height: $pagerHeight, reduceMotion: reduceMotion) { day in
+            AnyView(Button { select(day) } label: {
+                dayColumn(day, snapshot: snapshot, fillHeight: pagerHeight)
+            }.buttonStyle(.plain))
+        }.frame(height: pagerHeight)
+    }
     private var weekControls: some View {
         HStack {
             Button { shift(-7) } label: { Image(systemName: "chevron.left").frame(width: 44, height: 44) }.accessibilityLabel(L10n.tr("上一周"))
             Spacer()
             VStack(spacing: 3) {
                 Text(CampusDate.display(days[0])).font(.headline)
-                Button(L10n.tr("回到本周")) { anchor = Date() }.font(.caption)
+                Button(L10n.tr("回到本周")) { select(Date()) }.font(.caption)
             }
             Spacer()
             Button { shift(7) } label: { Image(systemName: "chevron.right").frame(width: 44, height: 44) }.accessibilityLabel(L10n.tr("下一周"))
         }
     }
-    private func shift(_ value: Int) { anchor = CampusDate.calendar.date(byAdding: .day, value: value, to: anchor) ?? anchor }
-    private func dayColumn(_ day: Date, snapshot: TimetableSnapshot) -> some View {
+    private var pagerDays: [Date] {
+        let calendar = CampusDate.calendar
+        let from = min(store.snapshot.flatMap { CampusDate.parse($0.validFrom) } ?? anchor, calendar.startOfDay(for: Date()))
+        let until = max(store.snapshot.flatMap { CampusDate.parse($0.validUntil) } ?? anchor, calendar.startOfDay(for: Date()))
+        let first = calendar.date(byAdding: .day, value: -21, to: from)!
+        let count = min(1100, (calendar.dateComponents([.day], from: first, to: until).day ?? 0) + 43)
+        return (0..<count).compactMap { calendar.date(byAdding: .day, value: $0, to: first) }
+    }
+    private func select(_ date: Date) {
+        let key = CampusDate.key(date)
+        guard pagerDays.contains(where: { CampusDate.key($0) == key }) else { return }
+        Haptics.selection()
+        withAnimation(reduceMotion ? nil : .snappy(duration: 0.3)) { selectedDay = key }
+    }
+    private func shift(_ value: Int) {
+        guard let date = CampusDate.calendar.date(byAdding: .day, value: value, to: anchor) else { return }
+        select(date)
+    }
+    private func dayColumn(_ day: Date, snapshot: TimetableSnapshot, fillHeight: CGFloat? = nil) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(CampusDate.display(day, weekday: true)).font(.headline).foregroundStyle(CampusDate.calendar.isDateInToday(day) ? Theme.accent : .primary)
             let courses = snapshot.courses(on: day)
@@ -138,7 +158,120 @@ struct LocalTimetableView: View {
                 }.frame(maxWidth: .infinity, alignment: .leading).padding(14).cardBackground(corner: 16)
             }
         }.frame(maxWidth: .infinity, alignment: .leading).padding(12)
-            .background(Theme.accent.opacity(0.035), in: RoundedRectangle(cornerRadius: 20))
+            .frame(minHeight: fillHeight, alignment: .top)
+            .background(Theme.accent.opacity(CampusDate.key(day) == selectedDay || CampusDate.calendar.isDateInToday(day) ? (colorScheme == .dark ? 0.22 : 0.14) : 0.035), in: RoundedRectangle(cornerRadius: 20))
+            .overlay { RoundedRectangle(cornerRadius: 20).strokeBorder(Theme.accent.opacity(CampusDate.key(day) == selectedDay ? 0.35 : 0), lineWidth: 1) }
+            .accessibilityAddTraits(CampusDate.key(day) == selectedDay ? [.isSelected] : [])
+    }
+}
+
+/// Velocity policy shared by the native scroll delegate and regression checks.
+enum TimetableDaySnap {
+    static func index(original: CGFloat, proposed: CGFloat, velocity: CGFloat, step: CGFloat, count: Int) -> Int {
+        guard step > 0, count > 0 else { return 0 }
+        let start = Int((original / step).rounded())
+        let candidate: Int
+        if abs(velocity) >= 1200 { candidate = start + (velocity > 0 ? 7 : -7) }
+        else { candidate = min(start + 1, max(start - 1, Int((proposed / step).rounded()))) }
+        return min(count - 1, max(0, candidate))
+    }
+
+}
+
+/// One native scroll view owns dragging, deceleration and programmatic centering.
+private struct TimetableDayCarousel: UIViewControllerRepresentable {
+    let dates: [Date]
+    @Binding var selection: String?
+    @Binding var height: CGFloat
+    let reduceMotion: Bool
+    let content: (Date) -> AnyView
+    func makeUIViewController(context: Context) -> Controller { Controller(owner: self) }
+    func updateUIViewController(_ controller: Controller, context: Context) { controller.update(self) }
+    final class Controller: UIViewController, UIScrollViewDelegate {
+        var owner: TimetableDayCarousel
+        private let scroll = UIScrollView()
+        private let hosting = UIHostingController(rootView: AnyView(EmptyView()))
+        private var width: CGFloat = 0
+        private var cardWidth: CGFloat { min(280, max(210, width - 56)) }
+        private var step: CGFloat { cardWidth + 12 }
+        private var startOffset: CGFloat = 0
+        private var targetIndex: Int?
+        private var positioned = false
+        private var selectedKey: String?
+        init(owner: TimetableDayCarousel) { self.owner = owner; super.init(nibName: nil, bundle: nil) }
+        required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+        override func viewDidLoad() {
+            super.viewDidLoad()
+            view.backgroundColor = .clear
+            scroll.delegate = self; scroll.decelerationRate = .fast
+            scroll.showsHorizontalScrollIndicator = false
+            scroll.contentInsetAdjustmentBehavior = .never
+            view.addSubview(scroll)
+            addChild(hosting); scroll.addSubview(hosting.view); hosting.didMove(toParent: self)
+            hosting.view.backgroundColor = .clear
+            hosting.safeAreaRegions = []
+        }
+        override func viewDidLayoutSubviews() {
+            super.viewDidLayoutSubviews()
+            scroll.frame = view.bounds
+            guard view.bounds.width > 0 else { return }
+            if width != view.bounds.width {
+                width = view.bounds.width; render()
+                position(animated: false); positioned = true
+            }
+        }
+        func update(_ value: TimetableDayCarousel) {
+            let changed = selectedKey != value.selection
+            owner = value
+            guard isViewLoaded, width > 0 else { return }
+            render()
+            if changed, !scroll.isDragging, !scroll.isDecelerating { position(animated: positioned && !owner.reduceMotion) }
+        }
+        private func render() {
+            let inset = max(0, (width - cardWidth) / 2)
+            let totalWidth = max(width, CGFloat(owner.dates.count) * step - 12 + inset * 2)
+            let dates = owner.dates, content = owner.content, itemWidth = cardWidth
+            hosting.rootView = AnyView(HStack(alignment: .top, spacing: 12) {
+                ForEach(dates, id: \.self) { date in content(date).frame(width: itemWidth) }
+            }.padding(.horizontal, inset).fixedSize(horizontal: false, vertical: true))
+            let measured = hosting.sizeThatFits(in: CGSize(width: totalWidth, height: CGFloat.greatestFiniteMagnitude))
+            let height = max(owner.height, measured.height)
+            hosting.view.frame = CGRect(x: 0, y: 0, width: totalWidth, height: height)
+            scroll.contentSize = CGSize(width: totalWidth, height: height)
+            if height > owner.height + 0.5 {
+                DispatchQueue.main.async { [weak self] in self?.owner.height = height }
+            }
+        }
+        private func position(animated: Bool) {
+            guard let index = owner.dates.firstIndex(where: { CampusDate.key($0) == owner.selection }) else { return }
+            selectedKey = owner.selection
+            scroll.setContentOffset(CGPoint(x: CGFloat(index) * step, y: 0), animated: animated)
+        }
+        func scrollViewWillBeginDragging(_ scrollView: UIScrollView) { startOffset = scrollView.contentOffset.x; targetIndex = nil }
+        func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+            let index = TimetableDaySnap.index(original: startOffset, proposed: targetContentOffset.pointee.x,
+                velocity: velocity.x * 1000, step: step, count: owner.dates.count)
+            targetIndex = index
+            targetContentOffset.pointee = CGPoint(x: CGFloat(index) * step, y: 0)
+        }
+        func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+            if !decelerate { settle() }
+        }
+        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) { settle() }
+        func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) { publishSelection() }
+        private func settle() {
+            let index = targetIndex ?? min(owner.dates.count - 1, max(0, Int((scroll.contentOffset.x / step).rounded())))
+            targetIndex = nil
+            scroll.setContentOffset(CGPoint(x: CGFloat(index) * step, y: 0), animated: false)
+            publishSelection()
+        }
+        private func publishSelection() {
+            guard !owner.dates.isEmpty else { return }
+            let index = min(owner.dates.count - 1, max(0, Int((scroll.contentOffset.x / step).rounded())))
+            let key = CampusDate.key(owner.dates[index])
+            selectedKey = key
+            if owner.selection != key { Haptics.selection(); owner.selection = key }
+        }
     }
 }
 

@@ -11,7 +11,7 @@
 
 把学校的四个官方网页集中到一个 iOS App，配合原生班车倒计时、离线课表、Moodle 临近日程、临近考试、PDF 预览与下载管理。课表需用户确认后保存；日程摘要缓存在本机，校园业务在官方网页完成。
 
-**当前版本：2.0.0-alpha.38（build 55）**。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次验证范围见 [alpha.38 发布记录](docs/RELEASE-2.0.0-alpha.38.md)。
+**当前版本：2.0.0-alpha.39（build 56）**。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次验证范围见 [alpha.39 发布记录](docs/RELEASE-2.0.0-alpha.39.md)。
 
 <p align="center">
   <img src="docs/screenshots/01-welcome.png" width="200" alt="首次启动说明">
@@ -79,6 +79,14 @@ GTIIT 的日常学习与预约分散在四个系统里：
 - 校历、班车时刻表等公共数据随版本提供，学期或时刻表变更后需要更新 App。
 
 默认不启用 App Groups。主屏 Widget 可单独选择方向与教学周／仅每日班车；有共享能力时语言跟随 App，没有共享能力时跟随系统。具有 App Groups 能力的开发团队可以按 README 的 GTIIT_APP_GROUPS=1 方式重新生成并签名。
+
+## 本轮更新 · alpha.39
+
+- 月历月份菜单仅显示年月，使用单选勾；月份支持原生横向翻页和箭头动画。
+- 整周课表日期居中吸附，选中日和今天整块加深；普通滑动切一天、快速甩动切一周，并有切换触感。
+- PDF保存成功后展开横向液态玻璃圆角条，提供完成状态、分享与系统文件位置浏览。
+
+交付与验证见 [alpha.39 记录](docs/RELEASE-2.0.0-alpha.39.md)。
 
 ## 本轮更新 · alpha.38
 
@@ -256,7 +264,7 @@ python3 Tools/verify_builds.py
 
 | 验证 | 数量 | 说明 |
 | --- | --- | --- |
-| 集成回归 | 318 项 | 导航策略、WebKit、下载、锁定、暗色、校历、课表、当前学期过滤、日程缓存与入口配置；最终版本结果见交付记录 |
+| 集成回归 | 323 项 | 导航策略、WebKit、下载、锁定、暗色、校历、课表、当前学期过滤、日程缓存与入口配置；最终版本结果见交付记录 |
 | 班车检查 | 40 项 | 时刻表解析、跨日、教学周、末班 |
 | 构建 | 3 种 | Debug 模拟器、Release 模拟器、Release 真机目标（`CODE_SIGNING_ALLOWED=NO`） |
 

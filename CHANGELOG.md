@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.39] - 2026-10-24
+
+### Changed
+
+- Use month-only menu labels and a single selection checkmark; page through calendar months with native horizontal swipes and animated arrows.
+- Center timetable day cards with snapping, selection haptics and stronger whole-card highlighting; faster flings advance seven days.
+- Expand the saved PDF control into a horizontal glass action bar with share and Files-location actions, retaining the permanent saved-file URL separately from the temporary preview.
+
 ## [2.0.0-alpha.38] - 2026-10-24
 
 ### Changed

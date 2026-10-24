@@ -17,6 +17,7 @@ subprocess.run(['xcrun','swiftc','-sdk',sdk,'-target','arm64-apple-ios17.0-simul
     'CFBundleVersion':str(json.loads((ROOT/'Tools/version.json').read_text())['build']),'CFBundleShortVersionString':json.loads((ROOT/'Tools/version.json').read_text())['marketing'],'UIDeviceFamily':[1,2],'LSRequiresIPhoneOS':True,'UILaunchScreen':{},
     'UIApplicationSceneManifest':{'UIApplicationSupportsMultipleScenes':False},'UISupportedInterfaceOrientations':['UIInterfaceOrientationPortrait','UIInterfaceOrientationLandscapeLeft','UIInterfaceOrientationLandscapeRight'],
     'LSApplicationQueriesSchemes':['atrust'],
+    'UIFileSharingEnabled':True,'LSSupportsOpeningDocumentsInPlace':True,
     'NSSupportsLiveActivities':True,'NSLocationWhenInUseUsageDescription':'Suggest shuttle directions in the review app.','NSFaceIDUsageDescription':'Visual review of local app-lock UI.',
     'NSAppTransportSecurity':{'NSAllowsArbitraryLoadsInWebContent':True}
 }))

@@ -151,7 +151,7 @@ import UIKit
                                 session.saveAction = {
                                     guard session.canSave else { return }; session.state = .saving
                                     Task {
-                                        do { _ = try await app.downloads.savePreview(url, filename: session.filename, site: .moodle); session.state = .saved }
+                                        do { let saved = try await app.downloads.savePreview(url, filename: session.filename, site: .moodle); session.savedURL = app.downloads.fileURL(for: saved); session.state = .saved }
                                         catch { session.state = .readable; session.error = error.localizedDescription }
                                     }
                                 }

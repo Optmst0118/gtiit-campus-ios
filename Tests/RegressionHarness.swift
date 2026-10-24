@@ -707,6 +707,7 @@ private final class RetiredViewReference {
             check("preview_survives_float_dismissal", preview.document != nil && window?.rootViewController?.presentedViewController != nil)
             preview.saveAction?(); preview.saveAction?()
             check("preview_explicit_save_once", await wait { preview.state == .saved && app.downloads.items.count == before + 1 })
+            check("preview_saved_location_points_to_permanent_file", preview.savedURL != nil && preview.savedURL != preview.url && preview.savedURL.map { FileManager.default.fileExists(atPath: $0.path) } == true)
             preview.closeAction?()
             check("preview_closes_and_cleans_temporary", await wait { app.downloads.activePreview == nil && temporary.map { !FileManager.default.fileExists(atPath: $0.path) } == true })
         }
@@ -916,6 +917,11 @@ extension RegressionApp {
         check("calendar_winter_gap_excludes_exam_and_term_boundaries", gaps.contains { $0.start == "2026-02-28" && $0.end == "2026-03-01" })
         check("calendar_last_published_break_has_no_invented_term", AcademicCalendarStore.holidays(year: "2026-2027").contains { $0.start == "2027-07-24" && $0.end == "2027-07-31" })
         check("activity_departure_date_shanghai", ShuttleActivityWords.departure(CampusDate.parse("2026-10-24")!, language: "en") == "Oct 24 · 00:00")
+        check("timetable_snap_normal_one_day", TimetableDaySnap.index(original: 10 * 292, proposed: 13 * 292, velocity: 300, step: 292, count: 60) == 11)
+        check("timetable_snap_fling_one_week_forward", TimetableDaySnap.index(original: 10 * 292, proposed: 13 * 292, velocity: 1500, step: 292, count: 60) == 17)
+        check("timetable_snap_fling_one_week_backward", TimetableDaySnap.index(original: 10 * 292, proposed: 8 * 292, velocity: -1500, step: 292, count: 60) == 3)
+        check("timetable_snap_clamps_edges", TimetableDaySnap.index(original: 2 * 292, proposed: 0, velocity: -1500, step: 292, count: 60) == 0 && TimetableDaySnap.index(original: 58 * 292, proposed: 60 * 292, velocity: 1500, step: 292, count: 60) == 59)
+
 
         let course = LocalCourse(name: "Synthetic Physics", code: "S001", group: "L1", weekday: 1, start: "08:00", end: "10:00", room: "TEST-101", building: "Synthetic Building")
         var snapshot = TimetableSnapshot(semester: "2026-27 WINTER", validFrom: "2026-10-12", validUntil: "2027-01-11", courses: [course])
