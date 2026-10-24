@@ -72,7 +72,7 @@ private struct NativeWebPageContent: View {
         .onChange(of: colorScheme) { _, _ in applyAppearance() }
         .onDisappear {
             model.webView.allowsBackForwardNavigationGestures = true
-            if courseChrome { WebAppearance.setMoodleCourseChrome(hidden: false, on: model.webView) }
+            if site == .moodle { WebAppearance.setMoodleCourseChrome(hidden: false, on: model.webView) }
         }
     }
     private func goBack() {
@@ -82,7 +82,7 @@ private struct NativeWebPageContent: View {
         } else { dismiss() }
     }
     private func applyAppearance() {
-        if courseChrome {
+        if site == .moodle {
             WebAppearance.setMoodleCourseChrome(hidden: true, on: model.webView, pageHex: Theme.pageHex(for: colorScheme))
         } else if site == .rooms || site == .sports || site == .portal {
             WebAppearance.setNativePageBackground(site: site, pageHex: Theme.pageHex(for: colorScheme), on: model.webView)

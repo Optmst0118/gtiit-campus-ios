@@ -124,13 +124,17 @@ import WebKit
         webView.evaluateJavaScript("document.getElementById('gtiit-native-page-background')?.remove()", in: nil, in: world) { _ in }
     }
 
-    /// Course detail pages supply their own native title; strip Moodle's site chrome
-    /// while keeping the course content and activity controls intact.
+    /// Native Moodle routes share a canvas and hide redundant site navigation.
+    /// Keep activity content, assignment submission forms and quiz controls intact.
     static func setMoodleCourseChrome(hidden: Bool, on webView: WKWebView, pageHex: String = "#f2f7fa") {
         let source = courseChromeMarker + """
         (() => {
             const id = 'gtiit-moodle-course-chrome';
-            if (location.hostname !== 'moodle.gtiit.edu.cn' || location.pathname !== '/moodle/course/view.php') {
+            let host = location.hostname, path = location.pathname;
+            try { if (location.href === 'about:blank') { const base = new URL(document.baseURI); host = base.hostname; path = base.pathname; } } catch (_) {}
+            const course = path === '/moodle/course/view.php';
+            const activity = path.startsWith('/moodle/mod/');
+            if (host !== 'moodle.gtiit.edu.cn' || (!course && !activity)) {
                 document.getElementById(id)?.remove(); return;
             }
             let style = document.getElementById(id);
@@ -139,7 +143,7 @@ import WebKit
                 style.id = id;
                 (document.head || document.documentElement).appendChild(style);
             }
-            style.textContent = 'nav.navbar, .navbar, #page-navbar, .breadcrumb, .drawer, .drawer-toggles, #page-header, #page-footer, .secondary-navigation, .tertiary-navigation, .page-context-header { display: none !important; } body, #page-wrapper, #page { padding-top: 0 !important; margin-top: 0 !important; } html, body, #page, #page-wrapper, #page-content, #region-main, .course-content, .main-inner, .course-content-item, .coursebox { background-color: \(pageHex) !important; }';
+            style.textContent = 'nav.navbar, .navbar, #page-navbar, .breadcrumb, .drawer, .drawer-toggles, #page-header, #page-footer, .secondary-navigation, .tertiary-navigation, .page-context-header { display: none !important; } body, #page-wrapper, #page { padding-top: 0 !important; margin-top: 0 !important; } html, body, #page, #page-wrapper, #page-content, #region-main, #region-main-box, .course-content, .main-inner, .course-content-item, .coursebox, .activity-header, .activity-navigation { background-color: \(pageHex) !important; }';
         })();
         """
         let controller = webView.configuration.userContentController

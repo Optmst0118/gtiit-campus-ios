@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.37] - 2026-10-24
+
+### Changed
+
+- Delete downloaded files directly from the list swipe action and list/grid context menus without a second confirmation.
+- Apply the native Moodle chrome and canvas to activity routes as well as courses, including assignment and submission pages, preserving activity controls and login navigation.
+
 ## [2.0.0-alpha.36] - 2026-10-24
 
 ### Fixed

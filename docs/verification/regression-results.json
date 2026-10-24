@@ -508,6 +508,61 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "native_moodle_course_unified_chrome"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_course_activity_controls_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_assignment_unified_chrome"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_assignment_activity_controls_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_submission_unified_chrome"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_submission_activity_controls_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_quiz_unified_chrome"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_quiz_activity_controls_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_activity_dark_canvas"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_chrome_removed_on_exit"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_login_navigation_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "calendar_both_years_and_bundled_originals"
     },
     {
@@ -1041,7 +1096,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 41AC887D-7D83-42D9-BF77-0541C203572D, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-23 19:11:14 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: DD235961-F200-46B1-8581-C53CAF7F0A88, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-24 06:03:50 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1472,8 +1527,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-23T19:11:42Z",
+  "date" : "2026-10-24T06:04:18Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "b744bb1f-20fa-4197-b000-c59aaad4eb1d"
+  "runID" : "143b76db-95ca-4cb4-8e70-971fd4930c99"
 }

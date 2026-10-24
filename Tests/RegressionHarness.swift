@@ -656,7 +656,39 @@ private final class RetiredViewReference {
         _ = await wait { excluded.webView.title == "External auth fixture" && !excluded.isLoading }
         check("external_auth_page_no_dark_theme_or_js_proxy", (await js(excluded.webView, "getComputedStyle(document.body).backgroundColor==='rgb(255, 255, 255)' && !document.querySelector('style.darkreader')")) == "true")
         _ = await excluded.prepareForDataClear(); excluded.releaseDataStoreView()
+        await verifyMoodleNativeChrome()
         defaults.removePersistentDomain(forName: suite)
+    }
+
+    private func verifyMoodleNativeChrome() async {
+        let config = WKWebViewConfiguration()
+        WebAppearance.install(on: config, enabled: true)
+        let web = WKWebView(frame: window!.bounds, configuration: config)
+        window!.rootViewController!.view.addSubview(web)
+        web.overrideUserInterfaceStyle = .light
+        WebAppearance.setMoodleCourseChrome(hidden: true, on: web)
+        let fixture = """
+        <title>Native activity fixture</title><style>body,#region-main,.activity-header{background:white}body{padding-top:60px}nav{height:50px}</style>
+        <nav class="navbar">Site navigation</nav><header id="page-header">Duplicate title</header>
+        <main id="region-main"><div class="activity-header">Homework 2 · Due tomorrow</div>
+        <form><textarea name="submission">Draft answer</textarea><button type="button" onclick="this.textContent='Accepted'">Save draft</button></form></main>
+        """
+        for (name, path) in [("course", "course/view.php?id=1"), ("assignment", "mod/assign/view.php?id=2"), ("submission", "mod/assign/view.php?id=2&action=editsubmission"), ("quiz", "mod/quiz/view.php?id=3")] {
+            web.loadHTMLString(fixture, baseURL: URL(string: "https://moodle.gtiit.edu.cn/moodle/" + path)!)
+            check("native_moodle_\(name)_unified_chrome", await wait {
+                await self.js(web, "document.title==='Native activity fixture' && getComputedStyle(document.querySelector('nav')).display==='none' && getComputedStyle(document.querySelector('#region-main')).backgroundColor==='rgb(242, 247, 250)'") == "true"
+            })
+            check("native_moodle_\(name)_activity_controls_preserved", await js(web, "getComputedStyle(document.querySelector('.activity-header')).display!=='none' && document.querySelector('textarea').value==='Draft answer' && (document.querySelector('button').click(),document.querySelector('button').textContent==='Accepted')") == "true")
+        }
+        web.overrideUserInterfaceStyle = .dark
+        WebAppearance.setMoodleCourseChrome(hidden: true, on: web, pageHex: Theme.darkCanvasHex)
+        check("native_moodle_activity_dark_canvas", await wait { await self.js(web, "getComputedStyle(document.querySelector('#region-main')).backgroundColor==='rgb(14, 20, 28)' && getComputedStyle(document.querySelector('.activity-header')).backgroundColor==='rgb(14, 20, 28)'") == "true" })
+        WebAppearance.setMoodleCourseChrome(hidden: false, on: web)
+        check("native_moodle_chrome_removed_on_exit", await wait { await self.js(web, "document.getElementById('gtiit-moodle-course-chrome')===null") == "true" })
+        WebAppearance.setMoodleCourseChrome(hidden: true, on: web)
+        web.loadHTMLString(fixture.replacingOccurrences(of: "Native activity fixture", with: "Login fixture"), baseURL: URL(string: "https://moodle.gtiit.edu.cn/moodle/login/index.php")!)
+        check("native_moodle_login_navigation_preserved", await wait { await self.js(web, "document.title==='Login fixture' && getComputedStyle(document.querySelector('nav')).display!=='none' && !document.getElementById('gtiit-moodle-course-chrome')") == "true" })
+        web.removeFromSuperview()
     }
 
     private func verifyPreviewAndLocations(_ app: AppModel) async {

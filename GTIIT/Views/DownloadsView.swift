@@ -11,7 +11,6 @@ struct DownloadsView: View {
     @AppStorage("downloads.grid") private var grid = false
     @AppStorage("downloads.sort") private var sortRaw = DownloadSort.time.rawValue
     @AppStorage("downloads.ascending") private var ascending = false
-    @State private var pendingDelete: UUID?
     @State private var chooseFolder = false
     private var sortedItems: [DownloadItem] {
         (DownloadSort(rawValue: sortRaw) ?? .time).ordered(center.items, ascending: ascending)
@@ -34,7 +33,7 @@ struct DownloadsView: View {
                     ContentUnavailableView(L10n.tr("暂无下载"), systemImage: "arrow.down.circle")
                 } else if grid {
                     DownloadFileGrid(items: sortedItems, center: center,
-                        activate: activate, delete: { pendingDelete = $0.id },
+                        activate: activate, delete: delete,
                         share: { url in app.browserPresentShare(items: [url]) },
                         openSource: { app.openSite($0.site) })
                 } else { listContent }
@@ -76,17 +75,6 @@ struct DownloadsView: View {
                 catch { center.reportError(L10n.format("无法使用此文件夹，请重新选择。%@", String(describing: error.localizedDescription))) }
             }
         }
-        .confirmationDialog(
-            L10n.tr("删除此下载文件？"),
-            isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } }),
-            titleVisibility: .visible
-        ) {
-            Button(L10n.tr("删除文件"), role: .destructive) {
-                if let id = pendingDelete { Task { await center.removeFile(id) } }
-                pendingDelete = nil
-            }
-            Button(L10n.tr("取消"), role: .cancel) { pendingDelete = nil }
-        } message: { Text(L10n.tr("仅删除这条记录对应的文件，其他文件及另存副本不受影响。")) }
         .alert(L10n.tr("文件操作未完成"), isPresented: Binding(get: { center.locationError != nil }, set: { if !$0 { center.locationError = nil } })) {
             Button(L10n.tr("好")) { center.locationError = nil }
         } message: { Text(center.locationError ?? "") }
@@ -99,7 +87,7 @@ struct DownloadsView: View {
                     .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
                     .listRowBackground(Color.clear)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        Button(role: .destructive) { pendingDelete = item.id } label: {
+                        Button(role: .destructive) { delete(item) } label: {
                             Label(L10n.tr("删除"), systemImage: "trash")
                         }.tint(Color(uiColor: .systemRed))
                     }
@@ -183,7 +171,11 @@ struct DownloadsView: View {
         } else {
             Button(L10n.tr("打开来源站点"), systemImage: "safari") { app.openSite(item.site) }
         }
-        Button(L10n.tr("删除"), systemImage: "trash", role: .destructive) { pendingDelete = item.id }
+        Button(L10n.tr("删除"), systemImage: "trash", role: .destructive) { delete(item) }
+    }
+
+    private func delete(_ item: DownloadItem) {
+        Task { await center.removeFile(item.id) }
     }
 
     private func activate(_ item: DownloadItem) {
