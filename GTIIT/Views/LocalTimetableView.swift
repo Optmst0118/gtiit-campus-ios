@@ -138,7 +138,9 @@ struct LocalTimetableView: View {
         let key = CampusDate.key(date)
         guard pagerDays.contains(where: { CampusDate.key($0) == key }) else { return }
         Haptics.selection()
-        withAnimation(reduceMotion ? nil : .snappy(duration: 0.3)) { selectedDay = key }
+        var transaction = Transaction(animation: nil)
+        transaction.disablesAnimations = true
+        withTransaction(transaction) { selectedDay = key }
     }
     private func shift(_ value: Int) {
         guard let date = CampusDate.calendar.date(byAdding: .day, value: value, to: anchor) else { return }
@@ -154,9 +156,9 @@ struct LocalTimetableView: View {
             ForEach(courses) { course in
                 HStack(alignment: .center, spacing: 10) {
                     VStack(spacing: 3) {
-                        Text(course.start).font(.subheadline.weight(.semibold))
-                        Text(course.end).font(.caption).foregroundStyle(.secondary)
-                    }.monospacedDigit().foregroundStyle(Theme.accent).frame(width: 47)
+                        Text(course.start).font(.subheadline.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.7).allowsTightening(true)
+                        Text(course.end).font(.caption).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.7).allowsTightening(true)
+                    }.monospacedDigit().foregroundStyle(Theme.accent).frame(width: typeSize.isAccessibilitySize ? 96 : 55)
                     Capsule().fill(Theme.accent.opacity(0.32)).frame(width: 2, height: 32)
                     VStack(alignment: .leading, spacing: 3) {
                         Text(course.name).font(.subheadline.weight(.semibold)).lineLimit(typeSize.isAccessibilitySize ? nil : 2)
@@ -172,7 +174,7 @@ struct LocalTimetableView: View {
             Spacer(minLength: 0)
         }.frame(maxWidth: .infinity, alignment: .leading).padding(10)
             .frame(minHeight: fillHeight, maxHeight: fillHeight, alignment: .top)
-            .background(Theme.accent.opacity(CampusDate.key(day) == selectedDay || CampusDate.calendar.isDateInToday(day) ? (colorScheme == .dark ? 0.22 : 0.14) : 0.035), in: RoundedRectangle(cornerRadius: 20))
+            .background(Theme.accent.opacity(CampusDate.key(day) == selectedDay ? (colorScheme == .dark ? 0.22 : 0.14) : 0.035), in: RoundedRectangle(cornerRadius: 20))
             .overlay { RoundedRectangle(cornerRadius: 20).strokeBorder(Theme.accent.opacity(CampusDate.key(day) == selectedDay ? 0.35 : 0), lineWidth: 1) }
             .accessibilityAddTraits(CampusDate.key(day) == selectedDay ? [.isSelected] : [])
     }
@@ -251,7 +253,11 @@ private struct TimetableDayCarousel: UIViewControllerRepresentable {
             guard let cell, owner.dates.indices.contains(path.item) else { return }
             let content = owner.content, date = owner.dates[path.item]
             cell.backgroundColor = .clear
-            cell.contentConfiguration = UIHostingConfiguration { content(date) }.margins(.all, 0)
+            UIView.performWithoutAnimation {
+                cell.contentConfiguration = UIHostingConfiguration {
+                    content(date).transaction { $0.animation = nil; $0.disablesAnimations = true }
+                }.margins(.all, 0)
+            }
         }
         override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { owner.dates.count }
         override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -297,6 +303,9 @@ private struct TimetableDayCarousel: UIViewControllerRepresentable {
                 step: step, count: owner.dates.count, weekday: weekday, travel: dragTravel)
             if index != start { boundaryIntent = nil }
             targetContentOffset.pointee = CGPoint(x: CGFloat(index) * step, y: 0)
+            // Resolve the highlight and haptic at release, not after the final
+            // deceleration callback. Scrolling still uses UIKit's native curve.
+            commitSelection(index)
         }
         override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) { tracking = false; if !decelerate { publish() } }
         override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) { publish() }
@@ -304,8 +313,16 @@ private struct TimetableDayCarousel: UIViewControllerRepresentable {
         private func publish() {
             guard !owner.dates.isEmpty else { return }
             let index = min(owner.dates.count - 1, max(0, Int((collectionView.contentOffset.x / step).rounded())))
+            commitSelection(index)
+        }
+        private func commitSelection(_ index: Int) {
+            guard owner.dates.indices.contains(index) else { return }
             let key = CampusDate.key(owner.dates[index]); selectedKey = key
-            if owner.selection != key { Haptics.selection(); owner.selection = key }
+            guard owner.selection != key else { return }
+            Haptics.selection()
+            var transaction = Transaction(animation: nil)
+            transaction.disablesAnimations = true
+            withTransaction(transaction) { owner.selection = key }
         }
     }
 }

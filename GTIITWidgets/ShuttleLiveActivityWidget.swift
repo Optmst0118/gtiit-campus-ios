@@ -17,7 +17,7 @@ struct ShuttleLiveActivityWidget: Widget {
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     Text(ShuttleActivityWords.departure(context.state.departureDate, language: context.attributes.languageCode))
-                        .font(.caption.monospacedDigit()).multilineTextAlignment(.trailing)
+                        .font(.caption.monospacedDigit()).lineLimit(1).minimumScaleFactor(0.75).multilineTextAlignment(.trailing)
                         .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 DynamicIslandExpandedRegion(.bottom) {

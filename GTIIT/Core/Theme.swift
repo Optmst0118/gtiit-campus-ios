@@ -32,9 +32,7 @@ enum Theme {
             : UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1)
     }
     static let pageBackground = Color(uiColor: pageUIColor)
-    static let navigationUIColor = UIColor { traits in
-        traits.userInterfaceStyle == .dark ? pageUIColor.resolvedColor(with: traits) : .white
-    }
+    static let navigationUIColor = pageUIColor
     static let navigationBackground = Color(uiColor: navigationUIColor)
     static func pageHex(for scheme: ColorScheme) -> String {
         scheme == .dark ? "#0e141c" : "#f2f7fa"
@@ -45,34 +43,22 @@ enum Theme {
             : .white
     })
 
-    /// Let the system own the navigation surface again: transparent at the top
-    /// (the page background shows through) and the standard material once the
-    /// content scrolls underneath. Forcing an opaque colour made the bar look
-    /// like a coloured plate over the page in several screens.
+    /// iOS 26 owns the Liquid Glass/scroll-edge transition. Older systems use
+    /// UIKit's transparent edge and default material rather than an opaque plate.
     @MainActor static func configureNavigationAppearance() {
-        let scrollEdge = UINavigationBarAppearance()
-        scrollEdge.configureWithTransparentBackground()
-        scrollEdge.shadowColor = .clear
-        scrollEdge.titleTextAttributes = [.foregroundColor: UIColor.label]
-        scrollEdge.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
-
-        let standard = UINavigationBarAppearance()
-        standard.configureWithOpaqueBackground()
-        standard.backgroundColor = navigationUIColor
-        standard.shadowColor = .clear
-        standard.titleTextAttributes = [.foregroundColor: UIColor.label]
-        standard.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
-
         let bar = UINavigationBar.appearance()
-        bar.standardAppearance = standard
-        bar.compactAppearance = standard
-        // iOS 26 has a system bug where assigning a custom scroll-edge slot can
-        // leave the large title permanently collapsed/blank after a transition.
-        // The default scroll-edge appearance is already transparent, so leaving
-        // the slot untouched is both safer and visually identical.
         if #unavailable(iOS 26.0) {
-            bar.scrollEdgeAppearance = scrollEdge
-            bar.compactScrollEdgeAppearance = scrollEdge
+            let standard = UINavigationBarAppearance()
+            standard.configureWithDefaultBackground()
+            standard.backgroundColor = pageUIColor.withAlphaComponent(0.16)
+            standard.shadowColor = .clear
+            let edge = UINavigationBarAppearance()
+            edge.configureWithTransparentBackground()
+            edge.shadowColor = .clear
+            bar.standardAppearance = standard
+            bar.compactAppearance = standard
+            bar.scrollEdgeAppearance = edge
+            bar.compactScrollEdgeAppearance = edge
         }
         bar.isTranslucent = true
         bar.tintColor = UIColor(accent)
@@ -82,16 +68,12 @@ enum Theme {
 }
 
 extension View {
-    @ViewBuilder func nativeNavigationSurface(large: Bool = false) -> some View {
-        if large {
-            // iOS 26 can suppress the large title if its scroll-edge surface is
-            // forced visible. Keep that slot system-owned; the dark canvas is
-            // identical to the collapsed navigation surface.
-            self
-        } else {
-            toolbarBackground(Theme.navigationBackground, for: .navigationBar)
-                .toolbarBackground(.visible, for: .navigationBar)
-        }
+    func nativeNavigationSurface(large: Bool = false) -> some View {
+        // Automatic visibility lets native scroll tracking progressively reveal
+        // the system material. The same canvas also covers the status-bar area.
+        self.scrollContentBackground(.hidden)
+            .background(Theme.pageBackground.ignoresSafeArea())
+            .toolbarBackground(.automatic, for: .navigationBar)
     }
 
     /// 统一的卡片外观，供「我的」等原生页面使用。

@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1-beta · build 60] - 2026-10-26
+
+### Fixed
+
+- Restore system-owned scroll-edge navigation materials, using the same canvas at rest throughout native pages, including Language, Yilong, Help and reminder settings.
+- Match Student's nested dark canvas to the native surface, including late styles and light/dark changes, without changing business controls.
+- Commit timetable selection/haptics at the release target instead of waiting for deceleration; remove implicit cell/highlight fades and persistent highlighting on today's unselected card.
+- Keep timetable times on one line with a wider column, tightening/scaling and an accessible-size layout; keep Dynamic Island departure text on one line.
+- Verify 338 regression checks, isolated visual checks and Release signing. Cover-install build 60 on iPhone and confirm launch.
+
 ## [2.0.1-beta · build 59] - 2026-10-26
 
 ### Fixed

@@ -379,12 +379,12 @@
     // Keep the page canvas consistent with native Me, while preserving elevated
     // cards, booking status colors, media, authentication and original-color opt-out.
     const canvasSelectors = ['html', 'body', '#root', '#app'];
-    if (pageHost === 'students.gtiit.edu.cn') canvasSelectors.push('.app-bg');
+    if (pageHost === 'students.gtiit.edu.cn') canvasSelectors.push('.app-bg', '#root > div', 'main', '.page-content', '.site-content');
     if (pageHost === 'moodle.gtiit.edu.cn') canvasSelectors.push('#page', '#page-wrapper', '#page-content');
     if (pageHost === 'roombooking.gtiit.edu.cn') canvasSelectors.push('#page', '#page-wrapper');
     if (pageHost === 'gtiit.mike-x.com') canvasSelectors.push('.main', '.page-package', '.page-group', '.page', '.page > .content');
     // Dark Reader's final override is deliberately not color-transformed again.
-    fixes.css = canvasSelectors.join(',') + '{background-color:GTIIT_DARK_CANVAS !important;background-image:none !important;}';
+    fixes.css = canvasSelectors.map(selector => selector === 'html' ? 'html:root' : ':root ' + selector).join(',') + '{background-color:GTIIT_DARK_CANVAS !important;background-image:none !important;}';
     const apply = () => {
         try {
             const pdf = (document.contentType || '').toLowerCase().includes('pdf');

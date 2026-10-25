@@ -105,6 +105,10 @@ import UIKit
                     NavigationStack { TimetableSettingsView() }.environmentObject(app).environmentObject(settings)
                 } else if environment["UI_REVIEW_BOOKING_HOME"] == "1" {
                     BookingTabView().environmentObject(app).environmentObject(settings)
+                } else if environment["UI_REVIEW_SETTINGS"] == "1" {
+                    NavigationStack { SettingsView() }.environmentObject(app).environmentObject(settings)
+                } else if environment["UI_REVIEW_YILONG"] == "1" {
+                    NavigationStack { YilongSettingsView() }.environmentObject(app).environmentObject(settings)
                 } else if environment["UI_REVIEW_ME_SETTINGS"] == "1" {
                     NavigationStack { MyEntrySettingsView() }.environmentObject(settings)
                 } else if environment["UI_REVIEW_UPCOMING"] == "1" {

@@ -1,4 +1,4 @@
-# 2.0.1 beta · build 59
+# 2.0.1 beta · build 60
 
 2026-10-26；基线 `64b6faf`（2.0.0-alpha.40）。
 
@@ -52,3 +52,21 @@
 - 本次仅调整资源及版本，沿用 build 58 的 334 项业务回归结果，未重复运行业务测试。
 
 ![桌面尺寸检查：下方为新版无图纸线图标](design/beta-2.0.1/icon-build59-home.png)
+
+
+## Build 60 · 原生标题栏、背景与课表反馈
+
+- 原生标题栏在顶端显示页面本色，滚动由系统处理 scroll-edge/材质过渡。iOS 26 不再设置不透明外观；较早系统使用默认材质和透明 scroll-edge。实现依据 [Apple UINavigationBar 外观说明](https://developer.apple.com/documentation/technotes/tn3106-customizing-uinavigationbar-appearance)。
+- 统一 nativeNavigationSurface 的背景与列表画布，覆盖以龙、语言、帮助、班车提醒等原先遗漏的页面；“我的”根页面也采用同一策略。
+- Student 的 Dark Reader 最终画布覆盖补充 main、根节点内层及页面容器；提高画布选择器优先级，避免网站后加载背景覆盖或颜色被再次转换。
+- 整周课表在松手目标确定时更新选中态和触感，去除收尾的隐式淡变，并仅高亮选中日期。时间列从 47pt 扩为 55pt，无障碍字号扩为 96pt，约束单行且允许适度缩放；灵动岛发车时间也约束单行。
+
+验证：338/338 回归通过，新增 Student 嵌套画布、后加载样式、深浅切换检查；最终 UIReview 与真机 Release 编译通过，工程、双语、扩展版本和签名检查通过。独立 iPhone 17 模拟器检查浅色设置顶端、深色设置/以龙背景、英文五节课首屏和单行时间，并通过按钮验证周切换选中态。最后两处纯布局调整（“我的”根标题栏及时间列缩放）经过最终编译/界面复核，未重复业务回归。
+
+验证范围：Student 使用可控的 WebKit 页面夹具，未登录真实门户复核。设备预览的坐标滚动/拖动操作返回 noWindowsAvailable，因此连续手势过程中标题栏渐变及松手触感未完成自动化录屏核对；没有把静态截图当作连续动画证据。
+
+iPhone 已覆盖安装并确认 **2.0.1 (60)**，远程启动成功，未卸载或清理用户数据。
+
+![浅色设置顶端](design/beta-2.0.1/settings-build60-light.png)
+![以龙深色背景](design/beta-2.0.1/yilong-build60-dark.png)
+![英文整周课表单行时间](design/beta-2.0.1/timetable-build60-dark-en.png)

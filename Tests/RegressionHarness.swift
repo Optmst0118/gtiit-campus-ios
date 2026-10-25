@@ -656,8 +656,32 @@ private final class RetiredViewReference {
         _ = await wait { excluded.webView.title == "External auth fixture" && !excluded.isLoading }
         check("external_auth_page_no_dark_theme_or_js_proxy", (await js(excluded.webView, "getComputedStyle(document.body).backgroundColor==='rgb(255, 255, 255)' && !document.querySelector('style.darkreader')")) == "true")
         _ = await excluded.prepareForDataClear(); excluded.releaseDataStoreView()
+        await verifyPortalNativeCanvas()
         await verifyMoodleNativeChrome()
         defaults.removePersistentDomain(forName: suite)
+    }
+
+    private func verifyPortalNativeCanvas() async {
+        let config = WKWebViewConfiguration()
+        WebAppearance.install(on: config, enabled: true)
+        let web = WKWebView(frame: window!.bounds, configuration: config)
+        web.overrideUserInterfaceStyle = .dark
+        window!.rootViewController!.view.addSubview(web)
+        WebAppearance.setNativePageBackground(site: .portal, pageHex: Theme.darkCanvasHex, on: web)
+        web.loadHTMLString("""
+            <html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Portal canvas fixture</title>
+            <style>body{margin:0;background:white;color:black}.app-bg{background:linear-gradient(white,#f8fafc)}main{background:#f3f4f6;min-height:100vh}.surface{background:white;padding:16px}</style></head>
+            <body><div id="root"><div class="app-bg"><main><article class="surface">Course card <button>Open</button></article></main></div></div></body></html>
+            """, baseURL: SiteID.portal.homeURL)
+        check("portal_nested_canvas_fixture_loaded", await wait { web.title == "Portal canvas fixture" })
+        let dark = "['html','body','#root > div','main'].every(s=>getComputedStyle(document.querySelector(s)).backgroundColor==='rgb(14, 20, 28)')"
+        check("portal_nested_canvas_matches_dark_navigation", await wait { await self.js(web, dark) == "true" })
+        _ = await js(web, "const style=document.createElement('style');style.textContent='main{background:#fafafa !important}';document.head.appendChild(style);'added'")
+        check("portal_late_styles_keep_dark_canvas", await wait { await self.js(web, dark) == "true" })
+        web.overrideUserInterfaceStyle = .light
+        WebAppearance.setNativePageBackground(site: .portal, pageHex: Theme.pageHex(for: .light), on: web)
+        check("portal_light_canvas_updates_with_native_navigation", await wait { await self.js(web, "getComputedStyle(document.body).backgroundColor==='rgb(242, 247, 250)' && getComputedStyle(document.querySelector('main')).backgroundColor==='rgb(242, 247, 250)'") == "true" })
+        web.stopLoading(); web.removeFromSuperview()
     }
 
     private func verifyMoodleNativeChrome() async {

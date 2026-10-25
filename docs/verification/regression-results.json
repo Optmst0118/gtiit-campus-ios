@@ -508,6 +508,26 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "portal_nested_canvas_fixture_loaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_nested_canvas_matches_dark_navigation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_late_styles_keep_dark_canvas"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_light_canvas_updates_with_native_navigation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "native_moodle_course_unified_chrome"
     },
     {
@@ -1231,7 +1251,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: FD40483D-D042-46F2-9714-DFD903632D07, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-25 17:18:33 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 1B1EE217-AC7D-44C9-8FAC-94DC5AF35335, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-25 18:06:43 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1672,8 +1692,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-25T17:19:01Z",
+  "date" : "2026-10-25T18:07:11Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "7d2ee9f5-5695-403b-9974-b5728d250b23"
+  "runID" : "8519a07c-6c2e-4773-b83e-b1d6c89197b7"
 }

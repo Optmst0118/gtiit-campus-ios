@@ -105,7 +105,7 @@ import WebKit
                 style.id = id;
                 (document.head || document.documentElement).appendChild(style);
             }
-            style.textContent = 'html, body, #app, #root, #root > div, #page, #main, main, .main, .container, .container-fluid, .page, .page-content, .content, .site-content, .app { background-color: \(pageHex) !important; }';
+            style.textContent = ':root, :root body, :root #app, :root #root, :root #root > div, :root #page, :root #main, :root main, :root .main, :root .container, :root .container-fluid, :root .page, :root .page-content, :root .content, :root .site-content, :root .app { background-color: \(pageHex) !important; }';
         })();
         """
         let controller = webView.configuration.userContentController

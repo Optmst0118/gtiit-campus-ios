@@ -31,6 +31,7 @@ struct MyTabView: View {
             }
             .background(Theme.pageBackground)
             .navigationTitle(L10n.tr("我的"))
+            .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
             .onAppear { app.downloads.dismissCompletedPresentation() }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
