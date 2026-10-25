@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1-beta · build 59] - 2026-10-26
+
+### Fixed
+
+- Normalize the oversized app emblem to 800px visible height on a 1024px canvas, center its visible bounds and keep equal 112px vertical clearance. Synchronize native Icon Composer, light/dark fallback and About assets from an immutable source.
+- Confirm Release/device and Debug/simulator builds, install build 59 over the existing iPhone app and verify successful launch.
+
 ## [2.0.1-beta] - 2026-10-26
 
 ### Changed
