@@ -65,7 +65,7 @@ struct SettingsView: View {
         .scrollContentBackground(.hidden)
         .background(Theme.pageBackground)
         .navigationTitle(L10n.tr("设置"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
     }
 }
 struct SettingsLabel: View {
@@ -111,6 +111,7 @@ private struct GeneralSettingsView: View {
                 Text(L10n.tr("启动"))
             }
             Section {
+                NavigationLink { MyEntrySettingsView() } label: { SettingsLabel(L10n.tr("管理“我的”入口"), symbol: "rectangle.grid.1x2") }
                 NavigationLink { ShortcutSettingsView() } label: {
                     SettingsLabel(L10n.tr("管理常用入口"), symbol: "square.grid.2x2")
                 }
@@ -118,7 +119,8 @@ private struct GeneralSettingsView: View {
             Section {
                 Button(L10n.tr("重新查看启动说明")) { app.showWelcome = true }
             }
-        }.navigationTitle(L10n.tr("通用")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(L10n.tr("通用")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+            .scrollContentBackground(.hidden).background(Theme.pageBackground)
     }
 }
 private struct PrivacySettingsView: View {
@@ -153,7 +155,8 @@ private struct PrivacySettingsView: View {
                 Text(L10n.tr("开启锁定时始终遮挡后台内容，包括分享面板和网页窗口。"))
             }
             Section { NavigationLink(L10n.tr("隐私与安全说明")) { PrivacyAndSafetyView() } }
-        }.navigationTitle(L10n.tr("隐私与锁定")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(L10n.tr("隐私与锁定")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+            .scrollContentBackground(.hidden).background(Theme.pageBackground)
     }
 }
 private struct BrowsingSettingsView: View {
@@ -190,7 +193,8 @@ private struct BrowsingSettingsView: View {
             } footer: {
                 Text(L10n.tr("关闭后回到旧版 Moodle 网页；新版为原生课程与工具入口，课程内容和提交仍在官方页面完成。"))
             }
-        }.navigationTitle(L10n.tr("网页浏览")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(L10n.tr("网页浏览")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+            .scrollContentBackground(.hidden).background(Theme.pageBackground)
     }
 }
 struct SitesSettingsView: View {
@@ -228,7 +232,8 @@ struct SitesSettingsView: View {
             } footer: {
                 Text(L10n.tr("网页数据不代表当前已登录。四个站点分别管理登录状态。"))
             }
-        }.navigationTitle(L10n.tr("站点与登录")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(L10n.tr("站点与登录")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+            .scrollContentBackground(.hidden).background(Theme.pageBackground)
             .task { await app.refreshStorageStates() }
     }
 }
@@ -267,7 +272,8 @@ struct SiteDataView: View {
             } footer: {
                 Text(L10n.tr("删除本站 Cookie、缓存、本地存储及 App 内浏览历史，停止本站下载。其他站点和已完成的下载文件不受影响。"))
             }
-        }.navigationTitle(site.displayName).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(site.displayName).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+            .scrollContentBackground(.hidden).background(Theme.pageBackground)
             .task { await app.refreshStorageStates() }
             .confirmationDialog(
                 L10n.format("清除%@的数据？", String(describing: site.displayName)), isPresented: $confirmClear, titleVisibility: .visible
@@ -329,7 +335,8 @@ struct StorageSettingsView: View {
                 Button(L10n.tr("清理本机下载"), role: .destructive) { action = .downloads }
                 Button(L10n.tr("清除全部登录与网页数据"), role: .destructive) { action = .all }
             }.disabled(app.isClearingData)
-        }.navigationTitle(L10n.tr("存储空间")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(L10n.tr("存储空间")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+            .scrollContentBackground(.hidden).background(Theme.pageBackground)
             .task {
                 let bytes = await Task.detached(priority: .utility) { AppStorageFootprint.totalBytes() }.value
                 appFootprint = ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
@@ -378,7 +385,8 @@ struct ShortcutSettingsView: View {
                 }
             } footer: { Text(L10n.tr("开启以添加到我的页面；关闭仅移除快捷入口，不影响网站和数据。")) }
             Section { Button(L10n.tr("恢复默认入口")) { settings.shortcutIDs = CampusShortcut.defaults } }
-        }.navigationTitle(L10n.tr("管理常用入口")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(L10n.tr("管理常用入口")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+            .scrollContentBackground(.hidden).background(Theme.pageBackground)
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
     }
 }
@@ -388,7 +396,28 @@ struct LearningSettingsView: View {
         List {
             NavigationLink { TimetableSettingsView() } label: { SettingsLabel(L10n.tr("课表"), symbol: "calendar") }
             NavigationLink { MoodleLayoutSettingsView(embedded: true) } label: { SettingsLabel(L10n.tr("Moodle 布局"), symbol: "square.grid.2x2") }
-        }.navigationTitle(L10n.tr("学习与课表")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(L10n.tr("学习与课表")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+            .scrollContentBackground(.hidden).background(Theme.pageBackground)
+            .scrollContentBackground(.hidden).background(Theme.pageBackground)
+    }
+}
+
+struct MyEntrySettingsView: View {
+    @EnvironmentObject private var settings: AppSettings
+    var body: some View {
+        List {
+            ForEach(settings.mySectionOrder, id: \.self) { id in
+                if let section = MyPageSection(rawValue: id) {
+                    Toggle(isOn: Binding(get: { !settings.hiddenMySections.contains(id) }, set: { enabled in
+                        if enabled { settings.hiddenMySections.remove(id) } else { settings.hiddenMySections.insert(id) }
+                    })) { SettingsLabel(section.title, symbol: section.symbol) }
+                }
+            }.onMove { source, destination in settings.mySectionOrder.move(fromOffsets: source, toOffset: destination) }
+            Button(L10n.tr("恢复默认布局")) {
+                settings.mySectionOrder = MyPageSection.allCases.map(\.rawValue); settings.hiddenMySections = []
+            }.moveDisabled(true)
+        }.environment(\.editMode, .constant(.active))
+            .navigationTitle(L10n.tr("管理“我的”入口")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
     }
 }

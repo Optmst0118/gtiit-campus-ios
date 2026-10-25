@@ -58,7 +58,7 @@ struct ShuttleReminderSettingsView: View {
                 }
             }
             .navigationTitle(L10n.tr("班车提醒"))
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(L10n.tr("完成")) { dismiss() }

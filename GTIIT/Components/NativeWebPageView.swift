@@ -21,6 +21,7 @@ private struct NativeWebPageContent: View {
     let title: String
     let url: URL
     let courseChrome: Bool
+    @State private var showSiteInfo = false
     @State private var started = false
     @State private var entry: WKBackForwardListItem?
     @State private var confirmLeave = false
@@ -43,9 +44,19 @@ private struct NativeWebPageContent: View {
         }
         .background(Theme.pageBackground)
         .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
         .navigationBarBackButtonHidden(handlesBack)
         .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { model.reload() } label: { Image(systemName: "arrow.clockwise") }.accessibilityLabel(L10n.tr("刷新"))
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button(L10n.tr("在 Safari 中打开"), systemImage: "safari") { model.openInSystemBrowser() }
+                    ShareLink(item: model.webView.url ?? url) { Label(L10n.tr("分享"), systemImage: "square.and.arrow.up") }
+                    Button(L10n.tr("站点与登录"), systemImage: "info.circle") { showSiteInfo = true }
+                } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel(L10n.tr("更多"))
+            }
             if handlesBack {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -54,6 +65,7 @@ private struct NativeWebPageContent: View {
                 }
             }
         }
+        .sheet(isPresented: $showSiteInfo) { SiteInfoView(site: site) }
         .confirmationDialog(L10n.tr("离开此页面？"), isPresented: $confirmLeave, titleVisibility: .visible) {
             Button(L10n.tr("离开"), role: .destructive) { goBack() }
             Button(L10n.tr("继续编辑"), role: .cancel) { }

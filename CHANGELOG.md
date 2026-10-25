@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1-beta] - 2026-10-26
+
+### Changed
+
+- Clean the GTIIT icon foreground and ship sky-blue/light and navy/dark appearances with Icon Composer assets and legacy fallbacks.
+- Fit five daily classes in a full-screen portrait timetable, retaining time, course and room; reuse native collection cells instead of creating the whole date range, and reduce week-boundary drag resistance.
+- Use native collection drag/drop and context menus for shortcuts, matching the continuous corner outline without a separately enlarged preview; edit and remove shortcuts inline.
+- Persist the visibility and order of all My-page sections in General → Manage My sections, independently of shortcut selection and order.
+- Rename upcoming Moodle work to Upcoming assignments and move the update time below the work section, removing the permanent status card.
+- Add refresh and More controls to room/sports booking and embedded detail pages, and standardize native navigation surfaces in both appearances.
+- Complete new English labels and add accessible shortcut reordering actions.
+
 ## [2.0.0-alpha.40] - 2026-10-24
 
 ### Changed

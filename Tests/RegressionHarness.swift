@@ -1101,6 +1101,14 @@ extension RegressionApp {
             check("shortcut_default_entries_preserved", choices.shortcutIDs == CampusShortcut.defaults)
             choices.shortcutIDs.remove("native.calendar"); choices.shortcutIDs.insert("portal.apps")
             check("shortcut_changes_survive_restart", !AppSettings(defaults: prefs).shortcutIDs.contains("native.calendar") && AppSettings(defaults: prefs).shortcutIDs.contains("portal.apps"))
+            choices.shortcutOrder.reverse()
+            choices.mySectionOrder = ["exams", "assignments", "timetable", "shortcuts"]
+            choices.hiddenMySections = ["timetable", "shortcuts"]
+            let restoredEntries = AppSettings(defaults: prefs)
+            check("my_entry_order_and_visibility_survive_restart", restoredEntries.mySectionOrder == ["exams", "assignments", "timetable", "shortcuts"] && restoredEntries.hiddenMySections == ["timetable", "shortcuts"])
+            check("shortcut_reorder_survives_restart", restoredEntries.shortcutOrder == choices.shortcutOrder)
+            prefs.set(["exams", "unknown", "exams"], forKey: "settings.mySectionOrder")
+            check("my_entry_order_migrates_unknown_duplicate_and_missing", AppSettings(defaults: prefs).mySectionOrder == ["exams", "timetable", "assignments", "shortcuts"])
             choices.shortcutIDs = []
             check("shortcut_empty_selection_is_preserved", AppSettings(defaults: prefs).shortcutIDs.isEmpty)
             let robotics = result.items.first { $0.course == "Synthetic Robotics" }

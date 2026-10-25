@@ -124,7 +124,7 @@
   "班车": "Shuttle",
   "预约": "Booking",
   "我的": "Me",
-  "练习房 / 讨论室": "Practice / discussion rooms",
+  "练习房 / 讨论室": "Room booking",
   "体育场馆": "Sports venues",
   "收起下载窗口": "Dismiss download panel",
   "正在连接…": "Connecting…",
@@ -811,7 +811,7 @@
   "我的徽章": "My badges",
   "Moodle 布局": "Moodle layout",
   "当前学期": "Current term",
-  "恢复默认布局": "Restore default layout",
+  "恢复默认布局": "Reset layout",
   "拖动排序；关闭开关即可收起对应内容。": "Drag to reorder; turn a switch off to hide that section.",
   "显示的内容": "Visible sections",
   "编辑 Moodle 布局": "Edit Moodle layout",
@@ -864,5 +864,12 @@
   "下个月": "Next month",
   "月份": "Month",
   "在文件中显示": "Show in Files",
-  "显示考试时间": "Show exam times"
+  "显示考试时间": "Show exam times",
+  "临近作业": "Upcoming assignments",
+  "管理“我的”入口": "Manage My sections",
+  "打开官网": "Open website",
+  "刷新": "Refresh",
+  "更多": "More",
+  "向前移动": "Move earlier",
+  "向后移动": "Move later"
 }

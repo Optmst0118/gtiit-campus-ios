@@ -593,7 +593,7 @@
 "系统仍在释放旧缓存，请稍后重试" = "The system is still releasing old cache. Try later.";
 "系统验证暂不可用。请在系统设置中检查设备密码或生物识别，再返回重试。" = "System authentication is unavailable. Check your device passcode or biometrics in Settings, then retry.";
 "练习房" = "Rooms";
-"练习房 / 讨论室" = "Practice / discussion rooms";
+"练习房 / 讨论室" = "Room booking";
 "练习房、讨论室与教学空间" = "Practice rooms, discussion rooms and teaching spaces";
 "练习房与讨论室" = "Practice rooms & discussion rooms";
 "练习房的时间窗与配额以官方管理规定文件为准，文件未标注生效日期。" = "Time limits and quotas follow the official practice room rules; no effective date is stated.";
@@ -882,3 +882,17 @@
 "在文件中显示" = "Show in Files";
 
 "显示考试时间" = "Show exam times";
+
+"临近作业" = "Upcoming assignments";
+
+"管理“我的”入口" = "Manage My sections";
+
+"打开官网" = "Open website";
+
+"刷新" = "Refresh";
+
+"更多" = "More";
+
+"向前移动" = "Move earlier";
+
+"向后移动" = "Move later";

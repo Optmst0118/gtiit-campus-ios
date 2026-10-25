@@ -18,6 +18,6 @@ struct LanguageSettingsView: View {
                     }.accessibilityAddTraits(settings.language == language ? .isSelected : [])
                 }
             } footer: { Text(L10n.tr("只切换 App 界面语言，学校网页保持原语言。")) }
-        }.navigationTitle(L10n.tr("语言")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(L10n.tr("语言")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
     }
 }

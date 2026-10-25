@@ -12,6 +12,9 @@ enum Theme {
             ? UIColor(red: 1, green: 0.66, blue: 0.36, alpha: 1)
             : UIColor(red: 0.71, green: 0.29, blue: 0.06, alpha: 1)
     })
+    static let iconBackground = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark ? UIColor(red: 0.028, green: 0.118, blue: 0.275, alpha: 1) : UIColor(red: 0.71, green: 0.89, blue: 0.98, alpha: 1)
+    })
     static let sky = Color(red: 0.30, green: 0.73, blue: 0.96)
 
     static let corner: CGFloat = 24
@@ -29,6 +32,10 @@ enum Theme {
             : UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1)
     }
     static let pageBackground = Color(uiColor: pageUIColor)
+    static let navigationUIColor = UIColor { traits in
+        traits.userInterfaceStyle == .dark ? pageUIColor.resolvedColor(with: traits) : .white
+    }
+    static let navigationBackground = Color(uiColor: navigationUIColor)
     static func pageHex(for scheme: ColorScheme) -> String {
         scheme == .dark ? "#0e141c" : "#f2f7fa"
     }
@@ -50,7 +57,8 @@ enum Theme {
         scrollEdge.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
 
         let standard = UINavigationBarAppearance()
-        standard.configureWithDefaultBackground()
+        standard.configureWithOpaqueBackground()
+        standard.backgroundColor = navigationUIColor
         standard.shadowColor = .clear
         standard.titleTextAttributes = [.foregroundColor: UIColor.label]
         standard.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
@@ -74,6 +82,18 @@ enum Theme {
 }
 
 extension View {
+    @ViewBuilder func nativeNavigationSurface(large: Bool = false) -> some View {
+        if large {
+            // iOS 26 can suppress the large title if its scroll-edge surface is
+            // forced visible. Keep that slot system-owned; the dark canvas is
+            // identical to the collapsed navigation surface.
+            self
+        } else {
+            toolbarBackground(Theme.navigationBackground, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
+        }
+    }
+
     /// 统一的卡片外观，供「我的」等原生页面使用。
     func cardBackground(corner: CGFloat = Theme.corner) -> some View {
         self

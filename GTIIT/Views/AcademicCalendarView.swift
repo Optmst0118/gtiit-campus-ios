@@ -86,7 +86,7 @@ struct AcademicCalendarView: View {
             }.frame(maxWidth: .infinity, alignment: .leading).padding(16).cardBackground()
             }.padding(20)
         }
-        .navigationTitle(L10n.tr("校历")).navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(L10n.tr("校历")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
         .scrollContentBackground(.hidden).background(Theme.pageBackground)
         .toolbar { ToolbarItem(placement: .topBarTrailing) {
             Menu {
@@ -132,7 +132,7 @@ private struct AcademicEventView: View {
                 Button(L10n.tr("查看原始 PDF")) { showPDF = true }
             }
             if event.kind == "festival" { Section { Text(L10n.tr("此条为节日或说明，不自动视为放假。")) } }
-        }.navigationTitle(L10n.tr("事项详情")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(L10n.tr("事项详情")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .sheet(isPresented: $showPDF) { CalendarPDFSheet(year: event.year) }
     }
 }
@@ -147,7 +147,7 @@ private struct CalendarPDFSheet: View {
             Group {
                 if let url = AcademicCalendarStore.pdfURL(year: year) { LocalPDFReader(url: url) }
                 else { ContentUnavailableView(L10n.tr("原件不可用"), systemImage: "doc") }
-            }.navigationTitle(year).navigationBarTitleDisplayMode(.inline)
+            }.navigationTitle(year).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
                 .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L10n.tr("完成")) { dismiss() } } }
         }
     }

@@ -3,19 +3,19 @@
     "specular-location"
   ],
   "fill": {
-    "solid": "srgb:0.93,0.975,1,1"
+    "solid": "srgb:0.71,0.89,0.98,1"
   },
   "fill-specializations": [
     {
       "appearance": "dark",
       "value": {
-        "solid": "srgb:0.055,0.105,0.16,1"
+        "solid": "srgb:0.028,0.118,0.275,1"
       }
     }
   ],
   "groups": [
     {
-      "name": "Campus · Blueprint",
+      "name": "Campus · Clean",
       "layers": [
         {
           "name": "GTIIT · Sky / Orange",

@@ -240,7 +240,7 @@ private struct ShuttleTimetableView: View {
                     Text(L10n.format("1 号车每日运行；2 号车仅教学周在标注星期运行。同一时间的两行代表两辆车。19:30 后南校区 9 号门关闭，请使用其他校门。\n%@，以校方最新通知为准。", String(describing: ShuttleSchedule.effectiveLabel)))
                 }
             }
-            .navigationTitle(L10n.tr("班车时刻表")).navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(L10n.tr("班车时刻表")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L10n.tr("完成")) { dismiss() } } }
         }.tint(Theme.accent)
     }

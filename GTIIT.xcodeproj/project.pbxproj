@@ -89,6 +89,7 @@
 		4D20A64E6DA1B8D39585377E /* WebViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */; };
 		98E9014021A2D1D103CF64A5 /* WebAppearance in Resources */ = {isa = PBXBuildFile; fileRef = EE3FA5B18333AF022DDBDFD8 /* WebAppearance */; };
 		24632A86BE1621343A567F0A /* CampusData in Resources */ = {isa = PBXBuildFile; fileRef = 03C35614971D5F506DC6159E /* CampusData */; };
+		1C8CA7D267FCA2FBAAC1BEED /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = BF502227C43E265CAD1A2037 /* AppIcon.icon */; };
 		DB249DB9D0FF833647E29581 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F9973165E2B0FD4A3AAC566 /* Assets.xcassets */; };
 		7506060A154BFBC166F7764F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F839CA9D2B95AC144B1AA000 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
@@ -176,6 +177,7 @@
 		FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContainer.swift; sourceTree = "<group>"; };
 		EE3FA5B18333AF022DDBDFD8 /* WebAppearance */ = {isa = PBXFileReference; lastKnownFileType = folder; path = WebAppearance; sourceTree = "<group>"; };
 		03C35614971D5F506DC6159E /* CampusData */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CampusData; sourceTree = "<group>"; };
+		BF502227C43E265CAD1A2037 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer; path = AppIcon.icon; sourceTree = "<group>"; };
 		6F9973165E2B0FD4A3AAC566 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7625B5B2FEA398F8912F62D8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F839CA9D2B95AC144B1AA000 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -232,6 +234,7 @@
 			isa = PBXGroup;
 			children = (
 				6F9973165E2B0FD4A3AAC566 /* Assets.xcassets */,
+				BF502227C43E265CAD1A2037 /* AppIcon.icon */,
 				F839CA9D2B95AC144B1AA000 /* PrivacyInfo.xcprivacy */,
 				EE3FA5B18333AF022DDBDFD8 /* WebAppearance */,
 				03C35614971D5F506DC6159E /* CampusData */,
@@ -424,7 +427,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DB249DB9D0FF833647E29581 /* Assets.xcassets in Resources */,
-
+                1C8CA7D267FCA2FBAAC1BEED /* AppIcon.icon in Resources */,
 				7506060A154BFBC166F7764F /* PrivacyInfo.xcprivacy in Resources */,
                 98E9014021A2D1D103CF64A5 /* WebAppearance in Resources */,
                 24632A86BE1621343A567F0A /* CampusData in Resources */,
@@ -614,7 +617,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 57;
+				CURRENT_PROJECT_VERSION = 58;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -623,8 +626,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.0;
-				GTIIT_RELEASE_LABEL = "2.0.0-alpha.40";
+				MARKETING_VERSION = 2.0.1;
+				GTIIT_RELEASE_LABEL = "2.0.1-beta";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -639,7 +642,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 57;
+				CURRENT_PROJECT_VERSION = 58;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -648,8 +651,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.0;
-				GTIIT_RELEASE_LABEL = "2.0.0-alpha.40";
+				MARKETING_VERSION = 2.0.1;
+				GTIIT_RELEASE_LABEL = "2.0.1-beta";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -830,9 +833,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "57";
-				MARKETING_VERSION = "2.0.0";
-				GTIIT_RELEASE_LABEL = "2.0.0-alpha.40";
+				CURRENT_PROJECT_VERSION = "58";
+				MARKETING_VERSION = "2.0.1";
+				GTIIT_RELEASE_LABEL = "2.0.1-beta";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 			};
@@ -850,9 +853,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "57";
-				MARKETING_VERSION = "2.0.0";
-				GTIIT_RELEASE_LABEL = "2.0.0-alpha.40";
+				CURRENT_PROJECT_VERSION = "58";
+				MARKETING_VERSION = "2.0.1";
+				GTIIT_RELEASE_LABEL = "2.0.1-beta";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 			};

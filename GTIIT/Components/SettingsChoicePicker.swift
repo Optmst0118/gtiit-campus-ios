@@ -60,6 +60,6 @@ private struct SettingsChoiceList<Selection: Hashable & Identifiable>: View {
                     }
                 }.padding(.vertical, 6).frame(minHeight: 44)
             }.buttonStyle(.plain).accessibilityAddTraits(choice == selection ? .isSelected : [])
-        }.navigationTitle(name).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(name).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
     }
 }

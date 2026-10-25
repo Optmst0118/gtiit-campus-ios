@@ -45,7 +45,7 @@ struct DownloadsView: View {
         .padding(.horizontal, 20).padding(.top, 16).padding(.bottom, 12)
         .background(Theme.pageBackground)
         .navigationTitle(L10n.tr("下载管理"))
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button { grid.toggle() } label: {

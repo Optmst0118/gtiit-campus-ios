@@ -23,10 +23,11 @@ import UIKit
         _settings = StateObject(wrappedValue: settings)
         let model = AppModel(settings: settings)
         if ProcessInfo.processInfo.environment["UI_REVIEW_TIMETABLE"] == "1" {
-            let classes = (1...5).flatMap { day in [
-                LocalCourse(name: "Engineering Mechanics", code: "TEST1001", group: "L10", weekday: day, start: "08:00", end: "09:45", room: "SC E1-201", building: "Education Building 1"),
-                LocalCourse(name: "Design Studio", code: "TEST2002", group: "Lab20", weekday: day, start: "14:00", end: "16:00", room: "SC E2-302", building: "Education Building 2")
-            ] }
+            let classes = (1...5).flatMap { day in
+                (0..<5).map { index in
+                    LocalCourse(name: ["Engineering Mechanics", "Introduction to Robotics", "Linear Algebra", "Design Studio", "Academic English"][index], code: "TEST\(1001 + index)", group: "L10", weekday: day, start: ["08:00", "10:00", "13:00", "15:00", "17:00"][index], end: ["09:45", "11:45", "14:45", "16:45", "18:45"][index], room: "SC E1-20\(index + 1)", building: "Education Building 1")
+                }
+            }
             try? model.timetable.save(TimetableSnapshot(semester: "Synthetic review semester", validFrom: "2026-10-12", validUntil: "2027-01-11", courses: classes))
         }
         if ProcessInfo.processInfo.environment["UI_REVIEW_EMPTY_TIMETABLE"] == "1" { try? model.timetable.clear() }
@@ -66,6 +67,10 @@ import UIKit
                 browser.webView.loadHTMLString("<html><head><meta name='viewport' content='width=device-width, initial-scale=1'></head><body style='font:18px -apple-system;padding:24px'><h1>\(site.displayName)</h1><p>Synthetic signed-in page</p></body></html>", baseURL: site.homeURL)
             }
         }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_UPCOMING"] == "1" {
+            model.upcoming.accept(MoodleUpcomingResult(loginRequired: false, items: [MoodleWork(url: "https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=1", name: "Homework 2", course: "Introduction to Robotics · 2026 Winter", due: Date().addingTimeInterval(86400).timeIntervalSince1970, opened: nil, status: "notSubmitted", source: "assignment", kind: "assignment")], courses: 1, checked: 1, failed: 0, courseList: nil, directoryRefreshed: false))
+        }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_BOOKING_KIND"] == "sports" { model.bookingSegment = .sports }
         _app = StateObject(wrappedValue: model)
         let lock = AppLockController(authenticator: PreviewUnavailableAuthenticator())
         lock.lock()
@@ -98,6 +103,12 @@ import UIKit
                     }.environmentObject(app).environmentObject(settings)
                 } else if environment["UI_REVIEW_TIMETABLE_SETTINGS"] == "1" {
                     NavigationStack { TimetableSettingsView() }.environmentObject(app).environmentObject(settings)
+                } else if environment["UI_REVIEW_BOOKING_HOME"] == "1" {
+                    BookingTabView().environmentObject(app).environmentObject(settings)
+                } else if environment["UI_REVIEW_ME_SETTINGS"] == "1" {
+                    NavigationStack { MyEntrySettingsView() }.environmentObject(settings)
+                } else if environment["UI_REVIEW_UPCOMING"] == "1" {
+                    NavigationStack { MoodleUpcomingView(store: app.upcoming) }.environmentObject(app)
                 } else if environment["UI_REVIEW_SHORTCUT_SETTINGS"] == "1" {
                     NavigationStack { ShortcutSettingsView() }.environmentObject(app).environmentObject(settings)
                 } else if environment["UI_REVIEW_IMPORT"] == "1" {

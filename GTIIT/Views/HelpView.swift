@@ -48,7 +48,7 @@ struct HelpView: View {
             }.font(.subheadline)
             Section { NavigationLink(L10n.tr("技术日志")) { TechnicalDiagnosticsView() } }
             Section { NavigationLink(L10n.tr("版本与隐私说明")) { AboutView() } }
-        }.navigationTitle(L10n.tr("帮助与诊断")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(L10n.tr("帮助与诊断")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .onDisappear { diagnostics.cancel() }
     }
 }
@@ -60,7 +60,7 @@ struct TechnicalDiagnosticsView: View {
         List {
             Text(diagnostics.report).font(.caption.monospaced()).textSelection(.enabled)
             ShareLink(item: diagnostics.report) { Label(L10n.tr("分享诊断摘要"), systemImage: "square.and.arrow.up") }
-        }.navigationTitle(L10n.tr("技术日志")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(L10n.tr("技术日志")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
     }
 }

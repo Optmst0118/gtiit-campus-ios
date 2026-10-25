@@ -49,7 +49,7 @@ private struct BrowserChrome: View {
         .background(Theme.pageBackground)
         .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle(model.site.nativeTitle)
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
         .toolbar {
             if model.site == .rooms || model.site == .sports {
                 ToolbarItem(placement: .topBarLeading) { bookingPicker }

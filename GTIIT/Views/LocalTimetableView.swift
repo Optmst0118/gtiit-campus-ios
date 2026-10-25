@@ -63,7 +63,7 @@ struct LocalTimetableView: View {
     @Environment(\.locale) private var nativeLocale
     @ObservedObject var store: LocalTimetableStore
     @State private var selectedDay: String? = CampusDate.key(Date())
-    @State private var pagerHeight: CGFloat = 450
+    @State private var pagerHeight: CGFloat = 520
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
     private var anchor: Date { selectedDay.flatMap(CampusDate.parse) ?? Date() }
@@ -78,8 +78,9 @@ struct LocalTimetableView: View {
     var body: some View {
         let _ = nativeLocale.identifier
 
+        GeometryReader { geometry in
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 12) {
                 weekControls
                 if let snapshot = store.snapshot {
                     if typeSize.isAccessibilitySize {
@@ -88,16 +89,14 @@ struct LocalTimetableView: View {
                         carousel(snapshot)
 
                     }
-                    Text("\(snapshot.semester) · \(snapshot.validFrom) – \(snapshot.validUntil)").font(.caption).foregroundStyle(.secondary)
-                    Text(L10n.tr("离线快照；课程变动后需重新提取。已按已核实校历标注假期与调课，具体以学校通知为准。"))
-                        .font(.footnote).foregroundStyle(.secondary)
-                    Text(L10n.format("上次提取：%@", CampusDate.display(snapshot.importedAt))).font(.caption).foregroundStyle(.secondary)
+                    Text("\(snapshot.semester) · \(snapshot.validFrom) – \(snapshot.validUntil)").font(.caption).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.8)
                 } else {
                     ContentUnavailableView(L10n.tr("尚无本地课表"), systemImage: "calendar", description: Text(store.loadError ?? L10n.tr("从设置中提取门户课表后，即可离线查看。")))
                     Button(L10n.tr("提取课表")) { showImport = true }.buttonStyle(.borderedProminent).frame(maxWidth: .infinity)
                 }
-            }.padding(20)
-        }.background(Theme.pageBackground).navigationTitle(L10n.tr("整周课表")).navigationBarTitleDisplayMode(.inline)
+            }.padding(16)
+        }.onChange(of: geometry.size.height, initial: true) { _, height in pagerHeight = max(380, height - 114) }
+        }.background(Theme.pageBackground).navigationTitle(L10n.tr("整周课表")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
         .toolbar { ToolbarItem(placement: .topBarTrailing) { Button(L10n.tr("更新"), systemImage: "arrow.clockwise") { showImport = true } } }
         .sheet(isPresented: $showImport) { TimetableImportView() }
     }
@@ -146,26 +145,33 @@ struct LocalTimetableView: View {
         select(date)
     }
     private func dayColumn(_ day: Date, snapshot: TimetableSnapshot, fillHeight: CGFloat? = nil) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(CampusDate.display(day, weekday: true)).font(.headline).foregroundStyle(CampusDate.calendar.isDateInToday(day) ? Theme.accent : .primary)
-            let courses = snapshot.courses(on: day)
+        let courses = snapshot.courses(on: day)
+        let rowHeight = fillHeight.map { max(72, ($0 - 64 - CGFloat(max(4, courses.count - 1)) * 8) / CGFloat(max(5, courses.count))) }
+        return VStack(alignment: .leading, spacing: 8) {
+            Text(CampusDate.display(day, weekday: true)).font(.subheadline.weight(.semibold))
+                .foregroundStyle(CampusDate.calendar.isDateInToday(day) ? Theme.accent : .primary).padding(.bottom, 4)
             if courses.isEmpty { Text(L10n.tr("无课程")).font(.subheadline).foregroundStyle(.secondary).padding(.vertical, 20) }
             ForEach(courses) { course in
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("\(course.start) – \(course.end)").font(.subheadline.weight(.semibold).monospacedDigit()).foregroundStyle(Theme.accent)
-                    Text(course.name).font(.headline).fixedSize(horizontal: false, vertical: true)
-                    Text([course.code, course.group].filter { !$0.isEmpty }.joined(separator: " · ")).font(.caption).foregroundStyle(.secondary)
-                    Label {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(course.room.isEmpty ? L10n.tr("教室待确认") : course.room).font(.subheadline.weight(.medium))
-                            if !course.building.isEmpty { Text(course.building).font(.caption).foregroundStyle(.secondary) }
-                        }.fixedSize(horizontal: false, vertical: true)
-                    } icon: { Image(systemName: "mappin.and.ellipse") }
-                    .fixedSize(horizontal: false, vertical: true)
-                }.frame(maxWidth: .infinity, alignment: .leading).padding(14).cardBackground(corner: 16)
+                HStack(alignment: .center, spacing: 10) {
+                    VStack(spacing: 3) {
+                        Text(course.start).font(.subheadline.weight(.semibold))
+                        Text(course.end).font(.caption).foregroundStyle(.secondary)
+                    }.monospacedDigit().foregroundStyle(Theme.accent).frame(width: 47)
+                    Capsule().fill(Theme.accent.opacity(0.32)).frame(width: 2, height: 32)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(course.name).font(.subheadline.weight(.semibold)).lineLimit(typeSize.isAccessibilitySize ? nil : 2)
+                        Text([course.room.isEmpty ? L10n.tr("教室待确认") : course.room, course.building].filter { !$0.isEmpty }.joined(separator: " · "))
+                            .font(.caption).foregroundStyle(.secondary).lineLimit(typeSize.isAccessibilitySize ? nil : 2)
+                        Text([course.code, course.group].filter { !$0.isEmpty }.joined(separator: " · "))
+                            .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                    }.frame(maxWidth: .infinity, alignment: .leading)
+                }.padding(.horizontal, 10).padding(.vertical, 6)
+                    .frame(minHeight: rowHeight, maxHeight: rowHeight, alignment: .center)
+                    .cardBackground(corner: 14).accessibilityElement(children: .combine)
             }
-        }.frame(maxWidth: .infinity, alignment: .leading).padding(12)
-            .frame(minHeight: fillHeight, alignment: .top)
+            Spacer(minLength: 0)
+        }.frame(maxWidth: .infinity, alignment: .leading).padding(10)
+            .frame(minHeight: fillHeight, maxHeight: fillHeight, alignment: .top)
             .background(Theme.accent.opacity(CampusDate.key(day) == selectedDay || CampusDate.calendar.isDateInToday(day) ? (colorScheme == .dark ? 0.22 : 0.14) : 0.035), in: RoundedRectangle(cornerRadius: 20))
             .overlay { RoundedRectangle(cornerRadius: 20).strokeBorder(Theme.accent.opacity(CampusDate.key(day) == selectedDay ? 0.35 : 0), lineWidth: 1) }
             .accessibilityAddTraits(CampusDate.key(day) == selectedDay ? [.isSelected] : [])
@@ -182,13 +188,14 @@ enum TimetableDaySnap {
         let distance = travel ?? proposed - original
         let direction = distance >= 0 ? 1 : -1
         let boundary = (weekday == 1 && direction > 0) || (weekday == 2 && direction < 0)
-        if boundary && abs(distance) < step * 0.5 { return start }
+        if boundary && abs(distance) < step * 0.38 { return start }
         let candidate = boundary ? start + direction : min(start + 1, max(start - 1, Int((proposed / step).rounded())))
         return min(count - 1, max(0, candidate))
     }
 }
 
-/// One native scroll view owns dragging, deceleration and programmatic centering.
+/// Reusable cells render only visible dates. UIKit owns finger tracking,
+/// velocity and deceleration; selection updates never rebuild a year of views.
 private struct TimetableDayCarousel: UIViewControllerRepresentable {
     let dates: [Date]
     @Binding var selection: String?
@@ -197,143 +204,107 @@ private struct TimetableDayCarousel: UIViewControllerRepresentable {
     let content: (Date) -> AnyView
     func makeUIViewController(context: Context) -> Controller { Controller(owner: self) }
     func updateUIViewController(_ controller: Controller, context: Context) { controller.update(self) }
-    final class Controller: UIViewController, UIScrollViewDelegate {
+    final class Controller: UICollectionViewController, UICollectionViewDelegateFlowLayout {
         var owner: TimetableDayCarousel
-        private let scroll = UIScrollView()
-        private let hosting = UIHostingController(rootView: AnyView(EmptyView()))
         private var width: CGFloat = 0
-        private var cardWidth: CGFloat { min(280, max(210, width - 56)) }
+        private var cardWidth: CGFloat { min(350, max(240, width - 44)) }
         private var step: CGFloat { cardWidth + 12 }
         private var startOffset: CGFloat = 0
         private var dragTravel: CGFloat = 0
-        private var boundaryIntent: (index: Int, direction: Int)?
-        private var trackingDrag = false
-        private var lastDragOffset: CGFloat = 0
-        private var targetIndex: Int?
-        private var settling = false
-        private var adjustingResistance = false
-        private var positioned = false
+        private var lastOffset: CGFloat = 0
+        private var tracking = false
+        private var adjusting = false
         private var selectedKey: String?
-        init(owner: TimetableDayCarousel) { self.owner = owner; super.init(nibName: nil, bundle: nil) }
+        private var boundaryIntent: (Int, Int)?
+        init(owner: TimetableDayCarousel) {
+            self.owner = owner
+            let layout = UICollectionViewFlowLayout(); layout.scrollDirection = .horizontal
+            layout.minimumLineSpacing = 12; layout.minimumInteritemSpacing = 0
+            super.init(collectionViewLayout: layout)
+        }
         required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
         override func viewDidLoad() {
-            super.viewDidLoad()
-            view.backgroundColor = .clear
-            scroll.delegate = self; scroll.decelerationRate = .fast
-            scroll.showsHorizontalScrollIndicator = false
-            scroll.contentInsetAdjustmentBehavior = .never
-            view.addSubview(scroll)
-            addChild(hosting); scroll.addSubview(hosting.view); hosting.didMove(toParent: self)
-            hosting.view.backgroundColor = .clear
-            hosting.safeAreaRegions = []
+            super.viewDidLoad(); collectionView.backgroundColor = .clear
+            collectionView.showsHorizontalScrollIndicator = false; collectionView.decelerationRate = .fast
+            collectionView.contentInsetAdjustmentBehavior = .never
+            collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "day")
         }
         override func viewDidLayoutSubviews() {
             super.viewDidLayoutSubviews()
-            scroll.frame = view.bounds
-            guard view.bounds.width > 0 else { return }
-            if width != view.bounds.width {
-                width = view.bounds.width; render()
-                position(animated: false); positioned = true
+            if abs(width - collectionView.bounds.width) > 0.5 {
+                width = collectionView.bounds.width; collectionView.collectionViewLayout.invalidateLayout()
+                collectionView.layoutIfNeeded(); position(animated: false)
             }
         }
         func update(_ value: TimetableDayCarousel) {
             let changed = selectedKey != value.selection
+            let datesChanged = owner.dates != value.dates, heightChanged = owner.height != value.height
             owner = value
-            guard isViewLoaded, width > 0 else { return }
-            render()
-            if changed, !settling, !scroll.isDragging, !scroll.isDecelerating { position(animated: positioned && !owner.reduceMotion) }
+            guard isViewLoaded else { return }
+            if datesChanged { collectionView.reloadData() }
+            if heightChanged { collectionView.collectionViewLayout.invalidateLayout() }
+            // Only the two/three visible cells need updated selection colour.
+            for path in collectionView.indexPathsForVisibleItems { configure(collectionView.cellForItem(at: path), at: path) }
+            if changed, !collectionView.isDragging, !collectionView.isDecelerating { position(animated: !owner.reduceMotion) }
         }
-        private func render() {
-            let inset = max(0, (width - cardWidth) / 2)
-            let totalWidth = max(width, CGFloat(owner.dates.count) * step - 12 + inset * 2)
-            let dates = owner.dates, content = owner.content, itemWidth = cardWidth
-            hosting.rootView = AnyView(HStack(alignment: .top, spacing: 12) {
-                ForEach(dates, id: \.self) { date in content(date).frame(width: itemWidth) }
-            }.padding(.horizontal, inset).fixedSize(horizontal: false, vertical: true))
-            let measured = hosting.sizeThatFits(in: CGSize(width: totalWidth, height: CGFloat.greatestFiniteMagnitude))
-            let height = max(owner.height, measured.height)
-            hosting.view.frame = CGRect(x: 0, y: 0, width: totalWidth, height: height)
-            scroll.contentSize = CGSize(width: totalWidth, height: height)
-            if height > owner.height + 0.5 {
-                DispatchQueue.main.async { [weak self] in self?.owner.height = height }
-            }
+        private func configure(_ cell: UICollectionViewCell?, at path: IndexPath) {
+            guard let cell, owner.dates.indices.contains(path.item) else { return }
+            let content = owner.content, date = owner.dates[path.item]
+            cell.backgroundColor = .clear
+            cell.contentConfiguration = UIHostingConfiguration { content(date) }.margins(.all, 0)
+        }
+        override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { owner.dates.count }
+        override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "day", for: indexPath); configure(cell, at: indexPath); return cell
+        }
+        func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize { CGSize(width: cardWidth, height: max(1, collectionView.bounds.height)) }
+        func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+            let edge = max(0, (width - cardWidth) / 2); return UIEdgeInsets(top: 0, left: edge, bottom: 0, right: edge)
         }
         private func position(animated: Bool) {
             guard let index = owner.dates.firstIndex(where: { CampusDate.key($0) == owner.selection }) else { return }
             selectedKey = owner.selection
-            scroll.setContentOffset(CGPoint(x: CGFloat(index) * step, y: 0), animated: animated)
+            collectionView.setContentOffset(CGPoint(x: CGFloat(index) * step, y: 0), animated: animated)
         }
-        func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-            Haptics.prepare()
-            scroll.layer.removeAllAnimations(); settling = false
-            trackingDrag = true; dragTravel = 0; startOffset = scrollView.contentOffset.x; lastDragOffset = startOffset; targetIndex = nil
+        override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+            Haptics.prepare(); tracking = true; dragTravel = 0
+            startOffset = scrollView.contentOffset.x; lastOffset = startOffset
         }
-        private var startingWeekday: Int {
+        private var weekday: Int {
+            guard !owner.dates.isEmpty else { return 0 }
             let index = min(owner.dates.count - 1, max(0, Int((startOffset / step).rounded())))
-            return owner.dates.isEmpty ? 0 : CampusDate.calendar.component(.weekday, from: owner.dates[index])
+            return CampusDate.calendar.component(.weekday, from: owner.dates[index])
         }
-        func scrollViewDidScroll(_ scrollView: UIScrollView) {
-            guard trackingDrag, !adjustingResistance else { return }
-            // Integrate the actual scroll delta. UIScrollView may reset its pan
-            // location/translation while applying an adjusted content offset.
-            dragTravel += scrollView.contentOffset.x - lastDragOffset
-            let travel = dragTravel
-            lastDragOffset = scrollView.contentOffset.x
-            let boundary = (startingWeekday == 1 && travel > 0) || (startingWeekday == 2 && travel < 0)
-            guard boundary else { return }
-            // A continuous rubber band: resistance first, then one adjacent day.
-            let length = abs(travel), threshold = step * 0.5
-            let resisted = min(length, threshold) * 0.45 + max(0, length - threshold) * 0.9
-            adjustingResistance = true
-            scrollView.contentOffset.x = startOffset + (travel > 0 ? 1 : -1) * min(step, resisted)
-            lastDragOffset = scrollView.contentOffset.x
-            adjustingResistance = false
+        override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+            guard tracking, !adjusting else { return }
+            dragTravel += scrollView.contentOffset.x - lastOffset; lastOffset = scrollView.contentOffset.x
+            guard (weekday == 1 && dragTravel > 0) || (weekday == 2 && dragTravel < 0) else { return }
+            let length = abs(dragTravel), threshold = step * 0.38
+            let distance = min(length, threshold) * 0.82 + max(0, length - threshold)
+            adjusting = true
+            scrollView.contentOffset.x = startOffset + (dragTravel > 0 ? 1 : -1) * min(step, distance)
+            lastOffset = scrollView.contentOffset.x; adjusting = false
         }
-        func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-            if abs(dragTravel) < 1 { dragTravel = scrollView.contentOffset.x - startOffset }
-            let start = Int((startOffset / step).rounded())
+        override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
             let projected = targetContentOffset.pointee.x - startOffset
-            let direction = projected >= 0 ? 1 : -1
-            let boundary = (startingWeekday == 1 && direction > 0) || (startingWeekday == 2 && direction < 0)
+            let direction = projected >= 0 ? 1 : -1, start = Int((startOffset / step).rounded())
+            let boundary = (weekday == 1 && direction > 0) || (weekday == 2 && direction < 0)
             if boundary, abs(dragTravel) < 1, abs(projected) > 1 {
-                // Scroll-wheel inputs can supply a destination without touch
-                // samples. Require a second deliberate gesture at this boundary.
-                if boundaryIntent?.index == start, boundaryIntent?.direction == direction {
-                    dragTravel = CGFloat(direction) * step
-                } else { boundaryIntent = (start, direction) }
+                if boundaryIntent?.0 == start, boundaryIntent?.1 == direction { dragTravel = CGFloat(direction) * step }
+                else { boundaryIntent = (start, direction) }
             } else if !boundary, abs(projected) > 1 { boundaryIntent = nil }
-            targetIndex = TimetableDaySnap.index(original: startOffset, proposed: targetContentOffset.pointee.x,
-                velocity: velocity.x * 1000, step: step, count: owner.dates.count, weekday: startingWeekday,
-                travel: dragTravel)
-            if targetIndex != start { boundaryIntent = nil }
-            // Own the short snap instead of waiting for a long inertial tail.
-            targetContentOffset.pointee = scrollView.contentOffset
+            let index = TimetableDaySnap.index(original: startOffset, proposed: targetContentOffset.pointee.x, velocity: velocity.x * 1000,
+                step: step, count: owner.dates.count, weekday: weekday, travel: dragTravel)
+            if index != start { boundaryIntent = nil }
+            targetContentOffset.pointee = CGPoint(x: CGFloat(index) * step, y: 0)
         }
-        func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-            trackingDrag = false
-            DispatchQueue.main.async { [weak self] in self?.settle() }
-        }
-        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) { if !settling { settle() } }
-        func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) { if !settling { publishSelection() } }
-        private func settle() {
-            guard !settling, !owner.dates.isEmpty else { return }
-            let index = targetIndex ?? min(owner.dates.count - 1, max(0, Int((scroll.contentOffset.x / step).rounded())))
-            targetIndex = nil; settling = true
-            let key = CampusDate.key(owner.dates[index])
-            selectedKey = key
-            if owner.selection != key { Haptics.selection(); owner.selection = key }
-            let destination = CGPoint(x: CGFloat(index) * step, y: 0)
-            scroll.setContentOffset(scroll.contentOffset, animated: false)
-            UIView.animate(withDuration: owner.reduceMotion ? 0 : 0.2, delay: 0,
-                options: [.curveEaseOut, .beginFromCurrentState, .allowUserInteraction]) {
-                self.scroll.contentOffset = destination
-            } completion: { [weak self] _ in self?.settling = false }
-        }
-        private func publishSelection() {
+        override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) { tracking = false; if !decelerate { publish() } }
+        override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) { publish() }
+        override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) { publish() }
+        private func publish() {
             guard !owner.dates.isEmpty else { return }
-            let index = min(owner.dates.count - 1, max(0, Int((scroll.contentOffset.x / step).rounded())))
-            let key = CampusDate.key(owner.dates[index])
-            selectedKey = key
+            let index = min(owner.dates.count - 1, max(0, Int((collectionView.contentOffset.x / step).rounded())))
+            let key = CampusDate.key(owner.dates[index]); selectedKey = key
             if owner.selection != key { Haptics.selection(); owner.selection = key }
         }
     }
@@ -364,7 +335,7 @@ struct TimetableSettingsView: View {
             if let error { Text(error).foregroundStyle(Theme.orange) }
         }
         .scrollContentBackground(.hidden).background(Theme.pageBackground)
-        .navigationTitle(L10n.tr("课表")).navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(L10n.tr("课表")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
         .sheet(isPresented: $importing) { TimetableImportView(automatic: true) }
         .confirmationDialog(L10n.tr("删除本机保存的课表？"), isPresented: $clear, titleVisibility: .visible) {
             Button(L10n.tr("删除课表"), role: .destructive) {
@@ -426,7 +397,7 @@ struct TimetableImportView: View {
                     }
                 }
             }
-            .navigationTitle(L10n.tr("提取课表到本地")).navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(L10n.tr("提取课表到本地")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .toolbar { ToolbarItem(placement: .cancellationAction) { backButton { dismiss() } } }
             .navigationDestination(for: Step.self) { step in
                 switch step {
@@ -462,7 +433,7 @@ struct TimetableImportView: View {
                     }
                 }.padding(12).background(.regularMaterial)
             }
-            .navigationTitle(L10n.tr("门户课表")).navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(L10n.tr("门户课表")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .navigationBarBackButtonHidden()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { backButton { shouldRecognize = false; path = [] } }
@@ -501,7 +472,7 @@ struct TimetableImportView: View {
                 footer: { Text(L10n.tr("这是所选学期的每周快照。请核对课程、教室及适用日期；假期和调课依已核实校历处理，临时停课仍以校方通知为准。")) }
             }
         }
-        .navigationTitle(L10n.tr("核对课表")).navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(L10n.tr("核对课表")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolbarItem(placement: .topBarLeading) { backButton { _ = path.popLast() } }

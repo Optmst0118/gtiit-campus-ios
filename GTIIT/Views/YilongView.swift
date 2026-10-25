@@ -63,6 +63,6 @@ struct YilongSettingsView: View {
                 }
                 Button(L10n.tr("收起以龙")) { app.yilong.close() }
             } footer: { Text(L10n.tr("正面、侧面和背面的以龙会弹跳碰撞。减弱动态效果开启时，改为静态展示。")) }
-        }.navigationTitle(L10n.tr("以龙")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(L10n.tr("以龙")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
     }
 }

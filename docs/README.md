@@ -2,6 +2,7 @@
 
 | 文档 | 内容 |
 | --- | --- |
+| [RELEASE-2.0.1-beta.md](RELEASE-2.0.1-beta.md) | 五课首屏、原生拖动入口、我的布局、双外观图标和英文检查 |
 | [RELEASE-2.0.0-alpha.40.md](RELEASE-2.0.0-alpha.40.md) | PDF玻璃形变、校历考试开关与课表周边界阻力 |
 | [RELEASE-2.0.0-alpha.39.md](RELEASE-2.0.0-alpha.39.md) | 月份翻页、课表居中吸附与PDF保存操作条 |
 | [RELEASE-2.0.0-alpha.38.md](RELEASE-2.0.0-alpha.38.md) | 月历假期与排版、班车实时活动对齐及轨迹 |

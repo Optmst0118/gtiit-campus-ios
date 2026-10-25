@@ -37,7 +37,7 @@ struct DocumentPreviewView: View {
                 }
                 }
             }
-            .navigationTitle(session.filename).navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(session.filename).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L10n.tr("完成")) { session.closeAction?() }.disabled(session.state == .saving) } }
         }.tint(Theme.accent)
             .sheet(isPresented: $showFileLocation) {

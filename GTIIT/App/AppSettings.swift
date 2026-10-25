@@ -68,6 +68,28 @@ enum DownloadRetention: String, SettingChoice {
     }
 }
 
+enum MyPageSection: String, CaseIterable, Identifiable {
+    case timetable, assignments, exams, shortcuts
+    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .timetable: return L10n.tr("本地课表")
+        case .assignments: return L10n.tr("临近作业")
+        case .exams: return L10n.tr("临近考试")
+        case .shortcuts: return L10n.tr("常用入口")
+        }
+    }
+    var symbol: String {
+        switch self { case .timetable: return "calendar"; case .assignments: return "checklist"; case .exams: return "pencil.and.list.clipboard"; case .shortcuts: return "square.grid.2x2" }
+    }
+}
+enum EntryOrder {
+    static func normalized(_ stored: [String], allowed: [String]) -> [String] {
+        var seen = Set<String>()
+        return (stored + allowed).filter { allowed.contains($0) && seen.insert($0).inserted }
+    }
+}
+
 @MainActor final class AppSettings: ObservableObject {
     @Published var language: AppLanguage {
         didSet { defaults.set(language.rawValue, forKey: "settings.language"); AppGroup.defaults.set(language.rawValue, forKey: AppGroup.Key.language); L10n.language = language }
@@ -82,6 +104,9 @@ enum DownloadRetention: String, SettingChoice {
         didSet { defaults.set(yilongUnlocked, forKey: "settings.yilongUnlocked") }
     }
     private let defaults: UserDefaults
+    @Published var mySectionOrder: [String] { didSet { defaults.set(mySectionOrder, forKey: "settings.mySectionOrder") } }
+    @Published var hiddenMySections: Set<String> { didSet { defaults.set(hiddenMySections.sorted(), forKey: "settings.hiddenMySections") } }
+    @Published var shortcutOrder: [String] { didSet { defaults.set(shortcutOrder, forKey: "settings.shortcutOrder") } }
     @Published var shortcutIDs: Set<String> {
         didSet { defaults.set(shortcutIDs.sorted(), forKey: "settings.shortcutIDs") }
     }
@@ -167,6 +192,10 @@ enum DownloadRetention: String, SettingChoice {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        let sections = MyPageSection.allCases.map(\.rawValue)
+        mySectionOrder = EntryOrder.normalized(defaults.stringArray(forKey: "settings.mySectionOrder") ?? [], allowed: sections)
+        hiddenMySections = Set((defaults.stringArray(forKey: "settings.hiddenMySections") ?? []).filter(sections.contains))
+        shortcutOrder = EntryOrder.normalized(defaults.stringArray(forKey: "settings.shortcutOrder") ?? [], allowed: CampusShortcut.all.map(\.id))
         let storedLead = defaults.integer(forKey: "settings.shuttleReminderLead")
         shuttleReminderLead = [5, 10, 15].contains(storedLead) ? storedLead : 10
         privateShuttleReminders = defaults.bool(forKey: "settings.privateShuttleReminders")

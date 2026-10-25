@@ -13,7 +13,7 @@ struct MoodleUpcomingEntry: View {
         } label: {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Label(L10n.tr("Moodle 临近日程"), systemImage: "checklist").font(.headline)
+                    Label(L10n.tr("临近作业"), systemImage: "checklist").font(.headline)
                     Spacer()
                     if store.refreshing { ProgressView().controlSize(.small) }
                 }.foregroundStyle(Theme.accent)
@@ -48,26 +48,10 @@ struct MoodleUpcomingView: View {
     var body: some View {
         let _ = nativeLocale.identifier
         List {
-            Section {
-                if store.refreshing {
-                    HStack(spacing: 12) { ProgressView(); Text(L10n.tr("正在逐课程核对作业…")) }
-                }
-                if store.loginRequired {
-                    Button(L10n.tr("前往 Moodle 登录")) { app.openWeb(SiteID.moodle.homeURL, site: .moodle, title: L10n.tr("Moodle 登录")) }
-                } else if store.error {
-                    Label(L10n.tr("更新失败，请确认学习页面已登录后重试。"), systemImage: "exclamationmark.triangle").foregroundStyle(Theme.orange)
-                }
-                Text(L10n.tr("自动每 30 分钟更新，也可手动刷新。")).font(.caption).foregroundStyle(.secondary)
-                if let date = store.updatedAt {
-                    LabeledContent(L10n.tr(store.partial ? "部分更新" : "最近更新"), value: date.gtiitFormatted())
-                        .font(.caption).foregroundStyle(.secondary)
-                    Text(L10n.format("已检查 %@／%@ 门课程的作业列表", String(store.checked), String(store.courses)))
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-                if store.partial {
-                    Text(L10n.tr("部分页面未能读取，以下结果可能不完整；可重试并在 Moodle 核对。"))
-                        .font(.footnote).foregroundStyle(Theme.orange)
-                }
+            if store.loginRequired {
+                Section { Button(L10n.tr("前往 Moodle 登录")) { app.openWeb(SiteID.moodle.homeURL, site: .moodle, title: L10n.tr("Moodle 登录")) } }
+            } else if store.error {
+                Section { Button(L10n.tr("更新未完成，点按重试")) { refresh() } }
             }
             Section {
                 if upcoming.isEmpty && !store.refreshing {
@@ -84,8 +68,10 @@ struct MoodleUpcomingView: View {
                         }.padding(.vertical, 6)
                     }.buttonStyle(CardPressStyle())
                 }
-            } header: { Text(L10n.tr("即将截止与最近开放")) }
-        }.navigationTitle(L10n.tr("Moodle 临近日程")).navigationBarTitleDisplayMode(.inline)
+            } header: { Text(L10n.tr("即将截止与最近开放")) } footer: {
+                if let date = store.updatedAt { Text(L10n.tr("最近更新") + " · " + date.gtiitFormatted()).font(.caption) }
+            }
+        }.navigationTitle(L10n.tr("临近作业")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
             .toolbar { ToolbarItem(placement: .topBarTrailing) {
                 Button { refresh() } label: { Image(systemName: "arrow.clockwise") }

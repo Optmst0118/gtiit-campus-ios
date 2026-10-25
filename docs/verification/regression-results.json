@@ -918,6 +918,21 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "my_entry_order_and_visibility_survive_restart"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shortcut_reorder_survives_restart"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "my_entry_order_migrates_unknown_duplicate_and_missing"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "shortcut_empty_selection_is_preserved"
     },
     {
@@ -1216,7 +1231,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: ABE40C8B-630B-4748-8583-6456C32349BE, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-24 09:40:26 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: FD40483D-D042-46F2-9714-DFD903632D07, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-25 17:18:33 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1657,8 +1672,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-24T09:40:54Z",
+  "date" : "2026-10-25T17:19:01Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "690c918c-742f-4c45-a1c2-fa52334ecc6b"
+  "runID" : "7d2ee9f5-5695-403b-9974-b5728d250b23"
 }

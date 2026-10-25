@@ -56,7 +56,7 @@ struct StudentExamsView: View {
                 ForEach(store.upcoming) { exam in StudentExamRow(exam: exam).padding(.vertical, 6) }
             } header: { Text(L10n.tr("考试安排")) }
             Button(L10n.tr("在 Student 核对")) { app.switchTo(.portal); app.browser(for: .portal).loadHome() }
-        }.navigationTitle(L10n.tr("临近考试")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(L10n.tr("临近考试")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
             .toolbar { ToolbarItem(placement: .topBarTrailing) { Button { store.refresh(force: true, allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData }) } label: { Image(systemName: "arrow.clockwise") }.disabled(store.refreshing).accessibilityLabel(L10n.tr("更新考试安排")) } }
     }

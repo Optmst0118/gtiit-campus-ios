@@ -6,7 +6,7 @@ enum MoodleSection: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .currentCourses: return L10n.tr("当前课程")
-        case .recent: return L10n.tr("临近日程")
+        case .recent: return L10n.tr("临近作业")
         case .otherCourses: return L10n.tr("其他课程")
         case .historyCourses: return L10n.tr("历史课程")
         case .tools: return L10n.tr("Moodle 工具")
@@ -52,7 +52,7 @@ struct MoodleTabView: View {
         NavigationStack(path: $path) {
             MoodleHomeView(store: app.upcoming, timetable: app.timetable, open: open)
                 .navigationTitle("Moodle")
-                .navigationBarTitleDisplayMode(.large)
+                .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button { refresh(force: true) } label: {
@@ -195,7 +195,7 @@ struct MoodleHomeView: View {
 
     private var dashboard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionTitle(L10n.tr("临近日程"), symbol: "calendar.day.timeline.left")
+            sectionTitle(L10n.tr("临近作业"), symbol: "calendar.day.timeline.left")
             if store.refreshing && store.updatedAt == nil {
                 HStack(spacing: 10) { ProgressView(); Text(L10n.tr("正在刷新课程与作业…")).font(.subheadline).foregroundStyle(.secondary) }
                     .padding(16).cardBackground()
@@ -315,7 +315,7 @@ struct MoodleHomeView: View {
             ScrollView {
                 otherCourseGrid.padding(20)
             }.background(Theme.pageBackground)
-                .navigationTitle(L10n.tr("其他课程")).navigationBarTitleDisplayMode(.inline)
+                .navigationTitle(L10n.tr("其他课程")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
         } label: {
             HStack {
                 Label(L10n.tr("其他课程"), systemImage: "square.grid.2x2")
@@ -413,7 +413,7 @@ struct MoodleHomeView: View {
         NavigationLink {
             ScrollView { toolGrid.padding(20) }
                 .background(Theme.pageBackground).navigationTitle(L10n.tr("Moodle 工具"))
-                .navigationBarTitleDisplayMode(.inline)
+                .navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
         } label: {
             HStack {
                 Label(L10n.tr("Moodle 工具"), systemImage: "square.grid.2x2")
@@ -577,7 +577,7 @@ struct MoodleHistoryView: View {
         }
         .background(Theme.pageBackground)
         .navigationTitle(L10n.tr("历史课程"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -673,7 +673,7 @@ struct MoodleLayoutSettingsView: View {
             }
             .environment(\.editMode, $editMode)
             .navigationTitle(L10n.tr("Moodle 布局"))
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { EditButton() }
                 if !embedded {

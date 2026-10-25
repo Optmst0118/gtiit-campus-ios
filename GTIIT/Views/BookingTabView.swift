@@ -6,6 +6,7 @@ struct BookingTabView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
+    @State private var showSiteInfo = false
     @State private var path = NavigationPath()
     @State private var navigationEpoch = UUID()
 
@@ -38,17 +39,30 @@ struct BookingTabView: View {
                 NativeWebPageView(site: destination.site, title: destination.title, url: destination.url)
             }
             .navigationTitle(title)
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { BookingSiteMenu() }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { Haptics.selection(); app.browser(for: currentSite).reload() } label: { Image(systemName: "arrow.clockwise") }
+                        .accessibilityLabel(L10n.tr("刷新"))
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button(L10n.tr("打开官网"), systemImage: "safari") { open(BookingDestination(site: currentSite, title: title, url: currentSite.homeURL)) }
+                        ShareLink(item: currentSite.homeURL) { Label(L10n.tr("分享"), systemImage: "square.and.arrow.up") }
+                        Button(L10n.tr("站点与登录"), systemImage: "info.circle") { showSiteInfo = true }
+                    } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel(L10n.tr("更多"))
+                }
             }
         }
+        .sheet(isPresented: $showSiteInfo) { SiteInfoView(site: currentSite) }
         .id(navigationEpoch)
         .onChange(of: app.tabReselectToken) { _, _ in
             if app.tabReselectTarget == .booking { path = NavigationPath(); navigationEpoch = UUID() }
         }
     }
 
+    private var currentSite: SiteID { app.bookingSegment == .rooms ? .rooms : .sports }
     private var title: String {
         app.bookingSegment == .rooms ? L10n.tr("练习房 / 讨论室") : L10n.tr("体育场馆")
     }
@@ -268,7 +282,7 @@ private struct RoomCategoryDetailView: View {
         }
         .background(Theme.pageBackground)
         .navigationTitle(category.title)
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
     }
 }
 
@@ -364,12 +378,11 @@ private struct SportsVenueTile: View {
                 Text(venue.title)
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                Text(venue.subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
                     .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                if venue.subtitle.caseInsensitiveCompare(venue.title) != .orderedSame {
+                    Text(venue.subtitle).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                }
             }
             .frame(maxWidth: .infinity, minHeight: 120, alignment: .topLeading)
             .padding(15)
