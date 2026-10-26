@@ -2,9 +2,9 @@
 
 更新时间：2026-10-26  
 仓库：/Users/zhufengyi/Documents/ChatGPT/探索/GTIIT-iOS-App  
-当前基线提交：1093963（main）  
-当前版本：2.0.1-beta，build 67  
-本机已安装：iPhone Air，2.0.1 (67)  
+当前基线提交：20ecd76（main）  
+当前版本：2.0.1-beta，build 68  
+本机已安装：iPhone Air，2.0.1 (68)  
 工作区状态：干净（交接文档提交前）
 
 ## 0. 先读什么
@@ -77,8 +77,8 @@
 
 - 学习/预约顶部只有一个 58pt 图标，和 20pt 内容边距对齐，不再有大标题卡。
 - Student/Learning/Booking 的右上角图标使用同样的系统 SF Symbol 呈现；Student 网页圆角卡使用 22pt 圆角。
-- 页面 canvas 通过 RootTabView 顶部的“page canvas + 轻量玻璃 tint”补齐延伸到状态栏/Dynamic Island；没有额外导航底板。
-- Attendance 页面在 WebAppearance 中隐藏新增控件/分隔线，并把 Attendance rules 默认折叠为 22pt 圆角 details 卡。
+- 页面 canvas 通过 RootTabView 顶部的纯色 page canvas 延伸到状态栏/Dynamic Island；没有 material、没有额外导航底板。
+- Attendance 页面在 WebAppearance 中反复清理新增控件/分隔线，并把 Attendance rules 默认折叠为 22pt 圆角 details 卡。
 - 所有原生卡片 push 到右侧页面；网页页面保留原生返回。
 - 触感反馈集中在 Core/Haptics.swift，Settings 可关。
 - App 支持浅色/深色/系统，网页 Dark Reader 适配四站；Apple 登录页不注入暗色。
@@ -182,7 +182,7 @@ python3 Tools/check_project.py
 - Tools/check_localization.py 通过：664 tr、46 format、890 .strings、2 Info.plist keys
 - Tools/run_regression.py：352 checks passed
 - 模拟器 Debug 构建成功
-- iPhone 安装 2.0.1 (67) 并启动
+- iPhone 安装 2.0.1 (68) 并启动
 
 未验证/需要真实账号的部分：
 
