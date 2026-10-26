@@ -8,4 +8,4 @@ WebViewHostView / WebViewContainer 没有设置边框。修改官方域名隔离
 
 工程结构、本地化检查、Release 构建及 App／Widget 签名与版本校验通过；完整回归 [401/401](../regression-results.json) 通过。
 
-真机安装尝试被 CoreDevice 拒绝（4016，设备 unavailable），本次 build 73 尚未安装。此前 build 72 的共享玻璃导航已覆盖安装并成功启动；待恢复设备连接后安装 build 73，保留已有数据。
+真机交付：最初无线连接被 CoreDevice 拒绝（4016，设备 unavailable）；用户恢复有线连接后，build 73 已成功覆盖安装至 iPhone Air，devicectl 确认启动成功。未卸载或清理登录、下载数据。
