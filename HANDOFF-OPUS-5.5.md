@@ -2,9 +2,9 @@
 
 更新时间：2026-10-26  
 仓库：/Users/zhufengyi/Documents/ChatGPT/探索/GTIIT-iOS-App  
-当前基线提交：3db8620（main）  
-当前版本：2.0.1-beta，build 66  
-本机已安装：iPhone Air，2.0.1 (66)  
+当前基线提交：1093963（main）  
+当前版本：2.0.1-beta，build 67  
+本机已安装：iPhone Air，2.0.1 (67)  
 工作区状态：干净（交接文档提交前）
 
 ## 0. 先读什么
@@ -77,7 +77,8 @@
 
 - 学习/预约顶部只有一个 58pt 图标，和 20pt 内容边距对齐，不再有大标题卡。
 - Student/Learning/Booking 的右上角图标使用同样的系统 SF Symbol 呈现；Student 网页圆角卡使用 22pt 圆角。
-- 页面 canvas 通过 RootTabView 顶部的纯色安全区补齐延伸到状态栏/Dynamic Island；没有额外 material 或导航底板。
+- 页面 canvas 通过 RootTabView 顶部的“page canvas + 轻量玻璃 tint”补齐延伸到状态栏/Dynamic Island；没有额外导航底板。
+- Attendance 页面在 WebAppearance 中隐藏新增控件/分隔线，并把 Attendance rules 默认折叠为 22pt 圆角 details 卡。
 - 所有原生卡片 push 到右侧页面；网页页面保留原生返回。
 - 触感反馈集中在 Core/Haptics.swift，Settings 可关。
 - App 支持浅色/深色/系统，网页 Dark Reader 适配四站；Apple 登录页不注入暗色。
@@ -181,7 +182,7 @@ python3 Tools/check_project.py
 - Tools/check_localization.py 通过：664 tr、46 format、890 .strings、2 Info.plist keys
 - Tools/run_regression.py：352 checks passed
 - 模拟器 Debug 构建成功
-- iPhone 安装 2.0.1 (66) 并启动
+- iPhone 安装 2.0.1 (67) 并启动
 
 未验证/需要真实账号的部分：
 
@@ -195,7 +196,7 @@ python3 Tools/check_project.py
 
 ### 高优先级
 
-1. appearance.js 中 Student 菜单隐藏使用了较宽的 header/nav/aside/[class*=menu] 规则；需要在真实登录页确认没有误伤内容、表单和 Checklist steps。
+1. appearance.js 中 Student 菜单隐藏使用了较宽的 header/nav/aside/[class*=menu] 规则；需要在真实登录页确认没有误伤内容、表单和 Checklist steps。Attendance 的添加控件隐藏使用尺寸/文本/aria 启发式，也需要真实页面复核。
 2. Sidebar toggle 现在用 window safeAreaInsets 手工 frame 定位；需要在 iPhone 横屏、竖屏、iPad 和旋转过程确认不被圆角/Dynamic Island 遮挡。状态栏补齐使用纯色 canvas，不应被误改成 material。
 3. Homework 标题通过第一个 1–3 位数字 token 归一化；可能误识别名字中先出现的教室/编号；当前测试覆盖常见形式，但应抽真实课程名验证。
 4. App Groups 未启用：Widget 的教学周/语言可能 fallback；不要假设跨 target 状态同步。
