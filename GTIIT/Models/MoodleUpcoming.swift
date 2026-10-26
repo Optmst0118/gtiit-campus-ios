@@ -6,7 +6,7 @@ struct MoodleWork: Codable, Identifiable {
     let course: String
     /// Canonical title for numbered homework while retaining the raw Moodle name in storage.
     var displayName: String {
-        guard kind == "assign" || kind == "assignment" || source == "assignment" else { return name }
+        guard kind == "assign" || kind == "assignment" || source == "assignment" || url.contains("/mod/assign/") else { return name }
         guard let number = Self.homeworkNumber(in: name) else { return name }
         return "Homework \(number) Assignment"
     }
@@ -15,10 +15,14 @@ struct MoodleWork: Codable, Identifiable {
     /// the same title: Homework 2 Assignment. Unnumbered assignments keep the
     /// official name rather than inventing a number.
     private static func homeworkNumber(in value: String) -> String? {
-        for part in value.components(separatedBy: CharacterSet.decimalDigits.inverted) {
-            guard part.count >= 1, part.count <= 3 else { continue }
-            if part.count == 2 && part.hasPrefix("20") { continue }
-            return part
+        let lower = value.lowercased()
+        for keyword in ["homework", "assignment", "hw"] {
+            guard let range = lower.range(of: keyword) else { continue }
+            let tail = lower[range.upperBound...]
+            for part in tail.components(separatedBy: CharacterSet.decimalDigits.inverted) {
+                guard part.count >= 1, part.count <= 3 else { continue }
+                return part
+            }
         }
         return nil
     }

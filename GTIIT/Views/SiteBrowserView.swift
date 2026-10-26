@@ -112,7 +112,7 @@ private struct BrowserChrome: View {
             Button { model.reloadFromOrigin() } label: { Label(L10n.tr("强制刷新（忽略缓存）"), systemImage: "arrow.trianglehead.2.clockwise.rotate.90") }
             Button { app.siteInfo = model.site } label: { Label(L10n.tr("站点说明"), systemImage: "info.circle") }
         } label: {
-            Image(systemName: "ellipsis.circle").font(.system(size: 17)).frame(width: 44, height: 44).contentShape(Rectangle())
+            Image(systemName: "ellipsis.circle")
         }.accessibilityLabel(L10n.tr("更多操作")).menuOrder(.fixed)
     }
 

@@ -53,6 +53,7 @@
         'main{scroll-padding-bottom:var(--gtiit-bottom-obstruction,env(safe-area-inset-bottom));padding-bottom:calc(.75rem + var(--gtiit-bottom-obstruction,env(safe-area-inset-bottom))) !important}',
         '.bg-gradient-to-b,.bg-gradient-to-t,.bg-gradient-to-r{background-image:none !important}',
         '.from-white,.from-gray-50{--tw-gradient-from:transparent !important}',
+        '.rounded,.rounded-md,.rounded-lg,.rounded-xl,.rounded-2xl,.rounded-3xl,.card,.gtiit-private-card{border-radius:22px !important}',
         // Student web actions are represented by native chrome.
         '[aria-label*=\"notification\" i],[aria-label*=\"通知\"],[title*=\"notification\" i],[title*=\"通知\"],[data-testid*=\"notification\" i]{display:none !important}',
         '[aria-label*=\"error\" i],[aria-label*=\"故障\"],[title*=\"error\" i],[title*=\"故障\"],[data-testid*=\"error\" i]{display:none !important}',

@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1-beta · build 66] - 2026-10-26
+
+### Fixed
+
+- The page canvas now continues through the status-bar and Dynamic Island area on every tab; no separate navigation plate or material is introduced.
+- Student toolbar refresh/more icons use the same SF Symbol presentation as Learning and Booking.
+- Student portal card and rounded-container corners are increased to 22pt.
+- Numbered assignment extraction prefers the number after Homework/Assignment/HW, avoiding earlier course numbers in the title.
+
 ## [2.0.1-beta · build 65] - 2026-10-26
 
 ### Fixed

@@ -36,6 +36,16 @@ struct RootTabView: View {
                     }.ignoresSafeArea()
                 }
             }
+            .overlay(alignment: .top) {
+                // The page canvas continues behind the status bar / Dynamic Island;
+                // no separate material or extra navigation plate is introduced.
+                Rectangle()
+                    .fill(Theme.pageBackground)
+                    .frame(height: geometry.safeAreaInsets.top)
+                    .ignoresSafeArea(edges: .top)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
             .modifier(ContextMenuBackdrop(active: app.contextMenuSource != nil))
             .overlay { YilongOverlay(controller: app.yilong).allowsHitTesting(!app.lock.isLocked) }
             .onOpenURL { app.handleShuttleURL($0) }
