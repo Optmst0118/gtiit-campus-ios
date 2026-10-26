@@ -56,6 +56,16 @@
         // Student web actions are represented by native chrome.
         '[aria-label*=\"notification\" i],[aria-label*=\"通知\"],[title*=\"notification\" i],[title*=\"通知\"],[data-testid*=\"notification\" i]{display:none !important}',
         '[aria-label*=\"error\" i],[aria-label*=\"故障\"],[title*=\"error\" i],[title*=\"故障\"],[data-testid*=\"error\" i]{display:none !important}',
+        // Student page navigation/menu chrome is native now. Keep the actual
+        // page content and the checklist step bar, remove every other menu.
+        'header, nav:not([aria-label="Checklist steps"]), aside,',
+        '[role="navigation"]:not([aria-label="Checklist steps"]), [role="menu"],',
+        '[class*="sidebar" i],[class*="side-nav" i],[class*="sidenav" i],',
+        '[class*="topbar" i],[class*="top-bar" i],[class*="app-header" i],',
+        '[class*="site-header" i],[class*="page-header" i],[class*="main-menu" i],',
+        '[class*="menu-bar" i],[class*="nav-bar" i],',
+        '[class*="drawer" i],[class*="menu" i],[class*="navigation" i],',
+        '[class*="breadcrumb" i]{display:none !important}',
         // Privacy cards: blur only their contents. Children carry the blur, so
         // the card background, border, radius and shadow stay perfectly sharp.
         '.gtiit-private-card{cursor:pointer;-webkit-user-select:none;user-select:none}',

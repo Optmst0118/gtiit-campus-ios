@@ -1013,6 +1013,11 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "upcoming_homework_title_canonical"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "upcoming_chinese_date_and_submitted_status"
     },
     {
@@ -1076,7 +1081,7 @@
       "test" : "portal_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 180.0, 402.0, 694.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "portal_web_extends_under_tab_bar"
     },
@@ -1086,12 +1091,12 @@
       "test" : "portal_pull_keeps_title_stationary"
     },
     {
-      "detail" : "expanded=170.0, compact=118.0",
+      "detail" : "expanded=180.0, compact=128.0",
       "passed" : true,
       "test" : "portal_native_title_collapses"
     },
     {
-      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
+      "detail" : "expanded=180.0, restored=180.0, tracker=0.0",
       "passed" : true,
       "test" : "portal_native_title_restores_at_top"
     },
@@ -1136,7 +1141,7 @@
       "test" : "moodle_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 180.0, 402.0, 694.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "moodle_web_extends_under_tab_bar"
     },
@@ -1146,12 +1151,12 @@
       "test" : "moodle_pull_keeps_title_stationary"
     },
     {
-      "detail" : "expanded=170.0, compact=118.0",
+      "detail" : "expanded=180.0, compact=128.0",
       "passed" : true,
       "test" : "moodle_native_title_collapses"
     },
     {
-      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
+      "detail" : "expanded=180.0, restored=180.0, tracker=0.0",
       "passed" : true,
       "test" : "moodle_native_title_restores_at_top"
     },
@@ -1316,7 +1321,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 1E89FF5D-5DC5-4440-9638-059B60EC947D, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-26 00:52:20 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: CE52A51B-4A01-4CFD-A554-B525D69F0FCC, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-26 04:26:25 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1757,8 +1762,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-26T00:52:48Z",
+  "date" : "2026-10-26T04:26:53Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "cd6c4f05-4d45-4135-9e2b-11a03e61429e"
+  "runID" : "87752f57-1706-4d72-bd6d-2d0e070a6d3b"
 }

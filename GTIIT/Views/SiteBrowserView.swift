@@ -83,19 +83,25 @@ private struct BrowserChrome: View {
     private var portalMenu: some View {
         Menu {
             Button { model.loadHome() } label: { Label(L10n.tr("首页"), systemImage: "house") }
-            portalLink("成绩", "/grades")
-            portalLink("选课与周课表", "/enrollments")
-            portalLink("刷卡考勤", "/attendance")
-            portalLink("申请与下载", "/apps")
-            portalLink("教学评价", "/evaluations")
-            portalLink("培养计划", "/checklist")
-        } label: { Label(L10n.tr("Student"), systemImage: "person.text.rectangle.fill") }
-            .menuOrder(.fixed)
+            portalLink("成绩", "/grades", "chart.bar.fill")
+            portalLink("选课与周课表", "/enrollments", "calendar")
+            portalLink("刷卡考勤", "/attendance", "clock.badge.checkmark")
+            portalLink("申请与下载", "/apps", "doc.badge.arrow.up")
+            portalLink("教学评价", "/evaluations", "star.bubble.fill")
+            portalLink("培养计划", "/checklist", "checklist")
+        } label: {
+            Image(systemName: "person.text.rectangle.fill")
+                .font(.system(size: 17, weight: .medium))
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        }
+        .accessibilityLabel(L10n.tr("Student 菜单"))
+        .menuOrder(.fixed)
     }
 
-    private func portalLink(_ title: String, _ path: String) -> some View {
+    private func portalLink(_ title: String, _ path: String, _ symbol: String) -> some View {
         Button { if let url = URL(string: "https://students.gtiit.edu.cn" + path) { model.load(url) } }
-            label: { Label(L10n.tr(title), systemImage: "chevron.right") }
+            label: { Label(L10n.tr(title), systemImage: symbol) }
     }
 
     private var menu: some View {

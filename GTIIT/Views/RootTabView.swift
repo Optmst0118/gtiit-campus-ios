@@ -123,10 +123,6 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
         detailHost.view.backgroundColor = Theme.pageUIColor
         detailNavigation.view.backgroundColor = Theme.pageUIColor
         detailNavigation.setNavigationBarHidden(true, animated: false)
-        sidebarHost.navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "sidebar.left"), style: .plain,
-            target: self, action: #selector(collapseSidebar))
-        sidebarHost.navigationItem.rightBarButtonItem?.accessibilityLabel = L10n.tr("收起侧栏")
         setViewController(UINavigationController(rootViewController: sidebarHost), for: .primary)
         minimumPrimaryColumnWidth = 180
         maximumPrimaryColumnWidth = 280
@@ -139,8 +135,8 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
         configuration.image = UIImage(systemName: "sidebar.left")
         revealSidebarButton.configuration = configuration
         revealSidebarButton.tintColor = UIColor(Theme.accent)
-        revealSidebarButton.accessibilityLabel = L10n.tr("展开侧栏")
-        revealSidebarButton.addTarget(self, action: #selector(expandSidebar), for: .touchUpInside)
+        revealSidebarButton.accessibilityLabel = L10n.tr("收起侧栏")
+        revealSidebarButton.addTarget(self, action: #selector(toggleSidebarVisibility), for: .touchUpInside)
         view.addSubview(revealSidebarButton)
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -154,6 +150,10 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
         show(.primary)
         view.setNeedsLayout()
     }
+    @objc private func toggleSidebarVisibility() {
+        if wide == true && displayMode != .secondaryOnly { collapseSidebar() }
+        else { expandSidebar() }
+    }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         let expanded = wide == true && displayMode != .secondaryOnly
@@ -161,17 +161,21 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
             reportedVisibility = expanded
             DispatchQueue.main.async { [weak self] in self?.onVisibilityChange?(expanded) }
         }
-        revealSidebarButton.isHidden = wide != true || expanded
-        // The collapsed affordance follows the screen corner, not the bottom edge.
-        revealSidebarButton.frame = CGRect(x: view.safeAreaInsets.left + 8,
-            y: view.safeAreaInsets.top + 8, width: 44, height: 44)
+        revealSidebarButton.isHidden = wide != true
+        // Keep the single toggle at the physical top-leading corner, inside the
+        // window safe area. In landscape the left safe area is created by the
+        // Dynamic Island; using the window insets keeps the button off the
+        // rounded hardware corner instead of drifting with the split view.
+        let insets = view.window?.safeAreaInsets ?? view.safeAreaInsets
+        let left = max(view.safeAreaInsets.left, insets.left)
+        let top = max(view.safeAreaInsets.top, insets.top)
+        revealSidebarButton.frame = CGRect(x: left + 8, y: top + 8, width: 44, height: 44)
+        revealSidebarButton.accessibilityLabel = expanded ? L10n.tr("收起侧栏") : L10n.tr("展开侧栏")
         view.bringSubviewToFront(revealSidebarButton)
     }
     func update(wide: Bool, sidebar: Sidebar, content: Content) {
         sidebarHost.rootView = sidebar
         detailHost.rootView = content
-        sidebarHost.navigationItem.rightBarButtonItem?.accessibilityLabel = L10n.tr("收起侧栏")
-        revealSidebarButton.accessibilityLabel = L10n.tr("展开侧栏")
         guard self.wide != wide else { return }
         self.wide = wide
         if wide {

@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1-beta · build 65] - 2026-10-26
+
+### Fixed
+
+- Sidebar collapse/expand is now one floating control anchored to the physical top-left safe area, including the landscape Dynamic Island inset; the duplicate sidebar navigation button is removed.
+- Student native toolbar menu is icon-only and its items use semantic icons instead of trailing chevrons.
+- Student web navigation/menu/header chrome is removed more thoroughly while preserving the main page and checklist step bar.
+- Every numbered assignment object, including calendar and assignment-detail sources, is normalized to Homework N Assignment; unnumbered assignments keep their official name.
+
 ## [2.0.1-beta · build 64] - 2026-10-26
 
 ### Changed

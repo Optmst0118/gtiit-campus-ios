@@ -7,11 +7,20 @@ struct MoodleWork: Codable, Identifiable {
     /// Canonical title for numbered homework while retaining the raw Moodle name in storage.
     var displayName: String {
         guard kind == "assign" || kind == "assignment" || source == "assignment" else { return name }
-        let pattern = "^\\s*Homework\\s*#?\\s*(\\d+)(?:\\s+Assignment)?\\s*$"
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]),
-              let match = regex.firstMatch(in: name, range: NSRange(name.startIndex..., in: name)),
-              let range = Range(match.range(at: 1), in: name) else { return name }
-        return "Homework (\(name[range])) Assignment"
+        guard let number = Self.homeworkNumber(in: name) else { return name }
+        return "Homework \(number) Assignment"
+    }
+
+    /// All numbered assignment objects, including calendar-generated ones, use
+    /// the same title: Homework 2 Assignment. Unnumbered assignments keep the
+    /// official name rather than inventing a number.
+    private static func homeworkNumber(in value: String) -> String? {
+        for part in value.components(separatedBy: CharacterSet.decimalDigits.inverted) {
+            guard part.count >= 1, part.count <= 3 else { continue }
+            if part.count == 2 && part.hasPrefix("20") { continue }
+            return part
+        }
+        return nil
     }
     var due: TimeInterval?
     var opened: TimeInterval?
