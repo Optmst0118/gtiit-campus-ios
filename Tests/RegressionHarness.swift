@@ -1209,6 +1209,14 @@ extension RegressionApp {
             }
             return controller.children.reversed().compactMap(visibleNavigation).first
         }
+        func controls(in view: UIView) -> [UIControl] {
+            if let control = view as? UIControl { return [control] }
+            return view.subviews.flatMap { controls(in: $0) }
+        }
+        func revealButton(in view: UIView) -> UIButton? {
+            if let button = view as? UIButton, button.accessibilityIdentifier == "sidebar.reveal" { return button }
+            return view.subviews.compactMap { revealButton(in: $0) }.first
+        }
         let originalStyle = window!.overrideUserInterfaceStyle
         let originalNativeMoodle = settings.nativeMoodleEnabled
         let browsers = Dictionary(uniqueKeysWithValues: SiteID.allCases.map { ($0, app.browser(for: $0).webView) })
@@ -1237,6 +1245,31 @@ extension RegressionApp {
                 let bar = navigation.navigationBar.convert(navigation.navigationBar.bounds, to: window)
                 check("\(tab.rawValue)_\(mode)_controls_respect_top_safe_area",
                       navigation.isNavigationBarHidden || bar.minY >= window!.safeAreaInsets.top - 1, "bar=\(bar), intentionallyHidden=\(navigation.isNavigationBarHidden)")
+            }
+            if window!.traitCollection.userInterfaceIdiom == .phone, window!.bounds.width > window!.bounds.height,
+               let button = revealButton(in: host.view) {
+                // Exercise collapsed split-view layout, including the island-side inset.
+                // Find the split via the native button's controller hierarchy instead
+                // of relying on SwiftUI wrapper depth.
+                var owner: UIResponder? = button
+                while let next = owner, !(next is UISplitViewController) { owner = next.next }
+                if let split = owner as? UISplitViewController {
+                    split.preferredDisplayMode = .secondaryOnly; split.hide(.primary)
+                    try? await Task.sleep(for: .milliseconds(500))
+                    host.view.layoutIfNeeded()
+                    let frame = button.convert(button.bounds, to: window)
+                    check("sidebar_\(mode)_single_safe_inset", abs(frame.minX - (window!.safeAreaInsets.left + 20)) < 1, "button=\(frame)")
+                    if let nav = visibleNavigation(host), !nav.isNavigationBarHidden {
+                        let bar = nav.navigationBar.convert(nav.navigationBar.bounds, to: window)
+                        let trailing = controls(in: nav.navigationBar).filter {
+                            !$0.isHidden && $0.alpha > 0 && $0.bounds.height > 0 && $0.convert($0.bounds, to: window).midX > bar.midX
+                        }.max { $0.convert($0.bounds, to: window).maxX < $1.convert($1.bounds, to: window).maxX }
+                        let center = trailing.map { $0.convert($0.bounds, to: window).midY } ?? bar.midY
+                        check("sidebar_\(mode)_toolbar_center_alignment", abs(frame.midY - center) < 1, "button=\(frame), trailingCenter=\(center)")
+                    }
+                    split.preferredDisplayMode = .oneBesideSecondary; split.show(.primary)
+                    try? await Task.sleep(for: .milliseconds(350))
+                }
             }
             for site in [SiteID.moodle, .rooms, .sports] {
                 let title = "Canvas push \(site.rawValue)"

@@ -147,6 +147,7 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
         revealSidebarButton.configuration = configuration
         revealSidebarButton.tintColor = UIColor(Theme.accent)
         revealSidebarButton.accessibilityLabel = L10n.tr("收起侧栏")
+        revealSidebarButton.accessibilityIdentifier = "sidebar.reveal"
         revealSidebarButton.addTarget(self, action: #selector(toggleSidebarVisibility), for: .touchUpInside)
         view.addSubview(revealSidebarButton)
     }
@@ -180,9 +181,42 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
         let insets = view.window?.safeAreaInsets ?? view.safeAreaInsets
         let left = max(view.safeAreaInsets.left, insets.left)
         let top = max(view.safeAreaInsets.top, insets.top)
-        revealSidebarButton.frame = CGRect(x: left + 20, y: top + 8, width: 44, height: 44)
+        var origin = CGPoint(x: left + 20, y: top + 8)
+        if traitCollection.userInterfaceIdiom == .phone, let window = view.window,
+           window.bounds.width > window.bounds.height {
+            // The split view can already be inset by the island. Convert the
+            // window safe area once instead of adding that inset a second time.
+            let safeFrame = view.convert(window.safeAreaLayoutGuide.layoutFrame, from: window)
+            origin.x = safeFrame.minX + 20
+            if let bar = activeNavigationBar(in: detailHost) {
+                let frame = bar.convert(bar.bounds, to: view)
+                // On iOS 26 the glass item can sit off the bar's geometric
+                // center. Align to the actual trailing control when present.
+                let trailing = toolbarControls(in: bar).filter {
+                    !$0.isHidden && $0.alpha > 0 && $0.bounds.height > 0 &&
+                    $0.convert($0.bounds, to: bar).midX > bar.bounds.midX
+                }.max { $0.convert($0.bounds, to: bar).maxX < $1.convert($1.bounds, to: bar).maxX }
+                origin.y = (trailing.map { $0.convert($0.bounds, to: view).midY } ?? frame.midY) - 22
+            }
+        }
+        revealSidebarButton.frame = CGRect(origin: origin, size: CGSize(width: 44, height: 44))
         revealSidebarButton.accessibilityLabel = L10n.tr("展开侧栏")
         view.bringSubviewToFront(revealSidebarButton)
+    }
+    private func toolbarControls(in view: UIView) -> [UIControl] {
+        if let control = view as? UIControl { return [control] }
+        return view.subviews.flatMap { toolbarControls(in: $0) }
+    }
+    private func activeNavigationBar(in controller: UIViewController) -> UINavigationBar? {
+        if let tabs = controller as? UITabBarController, let selected = tabs.selectedViewController {
+            return activeNavigationBar(in: selected)
+        }
+        if let navigation = controller as? UINavigationController {
+            if let visible = navigation.visibleViewController,
+               let nested = activeNavigationBar(in: visible) { return nested }
+            return navigation.isNavigationBarHidden ? nil : navigation.navigationBar
+        }
+        return controller.children.reversed().compactMap { activeNavigationBar(in: $0) }.first
     }
     func update(wide: Bool, sidebar: Sidebar, content: Content) {
         sidebarHost.rootView = sidebar

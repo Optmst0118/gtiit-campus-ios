@@ -24,6 +24,8 @@
 
 ---
 
+横屏收起侧栏开关已修正：移除重复的灵动岛安全距离，按右侧原生操作按钮中心线对齐；见[验证记录](docs/verification/sidebar-alignment/README.md)。
+
 ## 目录
 
 - [它是什么](#它是什么)
