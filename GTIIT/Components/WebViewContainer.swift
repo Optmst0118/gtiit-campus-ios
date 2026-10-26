@@ -201,13 +201,34 @@ final class WebViewHostController: UIViewController {
     /// and tab re-selection, where WebKit may keep the previous offset briefly.
     fileprivate func scrollToTop(animated: Bool) {
         innerScrollOffset = 0
-        if navigationScrollView.contentOffset.y != 0 {
-            navigationScrollView.setContentOffset(.zero, animated: animated)
+        guard let webView = trackedWebView else { return }
+        let animate = animated && !UIAccessibility.isReduceMotionEnabled
+        let move = {
+            let inset = webView.scrollView.adjustedContentInset
+            webView.scrollView.setContentOffset(CGPoint(x: -inset.left, y: -inset.top), animated: false)
+            self.navigationScrollView.setContentOffset(.zero, animated: false)
         }
-        if !animated {
-            navigationController?.navigationBar.setNeedsLayout()
-        }
+        if animate {
+            UIView.animate(withDuration: PrimaryNavigationMotion.duration, delay: 0,
+                options: [.curveEaseInOut, .beginFromCurrentState, .allowUserInteraction], animations: move)
+        } else { move() }
+        webView.evaluateJavaScript("""
+            (() => {
+                cancelAnimationFrame(globalThis.__gtiitTopFrame || 0);
+                const nodes = [...new Set([document.scrollingElement, document.querySelector('main')])].filter(Boolean);
+                const starts = nodes.map(node => node.scrollTop), began = performance.now();
+                const tick = now => {
+                    const t = \(animate ? "Math.min(1,(now-began)/300)" : "1");
+                    const eased = t*t*(3-2*t);
+                    nodes.forEach((node,index) => node.scrollTop = starts[index]*(1-eased));
+                    if(t<1)globalThis.__gtiitTopFrame=requestAnimationFrame(tick);
+                };
+                globalThis.__gtiitTopFrame=requestAnimationFrame(tick);
+            })();
+            """, in: nil, in: .defaultClient) { _ in }
+        navigationController?.navigationBar.setNeedsLayout()
     }
+
     private func updateNavigationOffset() {
         guard visible, let scroll = trackedWebView?.scrollView else { return }
         let outer = max(0, scroll.contentOffset.y + scroll.adjustedContentInset.top)

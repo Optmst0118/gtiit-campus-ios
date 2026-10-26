@@ -871,5 +871,8 @@
   "刷新": "Refresh",
   "更多": "More",
   "向前移动": "Move earlier",
-  "向后移动": "Move later"
+  "向后移动": "Move later",
+  "回到今天": "Today",
+  "收起侧栏": "Hide sidebar",
+  "展开侧栏": "Show sidebar"
 }

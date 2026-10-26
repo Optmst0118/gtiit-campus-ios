@@ -945,6 +945,10 @@ extension RegressionApp {
         check("timetable_snap_fling_only_adjacent_forward", TimetableDaySnap.index(original: 10 * 292, proposed: 13 * 292, velocity: 1500, step: 292, count: 60) == 11)
         check("timetable_snap_fling_only_adjacent_backward", TimetableDaySnap.index(original: 10 * 292, proposed: 8 * 292, velocity: -1500, step: 292, count: 60) == 9)
         check("timetable_snap_clamps_edges", TimetableDaySnap.index(original: 0, proposed: -292, velocity: -1500, step: 292, count: 60) == 0 && TimetableDaySnap.index(original: 58 * 292, proposed: 60 * 292, velocity: 1500, step: 292, count: 60) == 59)
+        check("primary_phone_portrait_uses_bottom_tabs", !PrimaryNavigationLayout.usesSidebar(CGSize(width: 393, height: 852)))
+        check("primary_phone_landscape_uses_sidebar", PrimaryNavigationLayout.usesSidebar(CGSize(width: 852, height: 393)))
+        check("primary_large_portrait_uses_sidebar", PrimaryNavigationLayout.usesSidebar(CGSize(width: 1024, height: 1366)))
+        check("primary_narrow_window_keeps_tabs", !PrimaryNavigationLayout.usesSidebar(CGSize(width: 500, height: 400)))
         check("portal_landscape_hides_navigation", PortalNavigationPolicy.hidesBar(site: .portal, viewport: CGSize(width: 844, height: 390)))
         check("portal_portrait_restores_navigation", !PortalNavigationPolicy.hidesBar(site: .portal, viewport: CGSize(width: 390, height: 844)))
         check("other_sites_keep_landscape_navigation", SiteID.allCases.filter { $0 != .portal }.allSatisfy { !PortalNavigationPolicy.hidesBar(site: $0, viewport: CGSize(width: 844, height: 390)) })
@@ -1054,9 +1058,14 @@ extension RegressionApp {
         let fixture = #"""
         <html><head><title>Upcoming fixture</title></head><body><input id="guard" value="UNCHANGED"><script>
         window.M={cfg:{wwwroot:'https://moodle.gtiit.edu.cn/moodle',sesskey:'SYNTHETIC_ONLY'}};
-        window.calls=[];window.testFail=false;window.classifications=[];window.noActive=false;
+        window.calls=[];window.testFail=false;window.classifications=[];window.noActive=false;window.inflight=0;window.peakRequests=0;window.progressBeforeDetails=false;
         window.fetch=async function(url,options={}){
+          window.inflight++;window.peakRequests=Math.max(window.peakRequests,window.inflight);
+          try {
+          await new Promise(resolve=>setTimeout(resolve,20));
+          if(options.signal?.aborted)throw Error('CANCELLED');
           calls.push({url,method:options.method||'GET'});
+          if(new URL(url,location.href).pathname.endsWith('view.php'))window.progressBeforeDetails=!!window.__gtiitUpcomingDirectory?.courses?.length;
           let body=''; const u=new URL(url,location.href);
           if(u.pathname.endsWith('service.php')){
             const q=JSON.parse(options.body)[0];let data;
@@ -1076,6 +1085,7 @@ extension RegressionApp {
             body='<div class="submissionstatustable"><table><tr><td>Submission status</td><td>'+(submitted?'Submitted for grading':'No attempt')+'</td></tr><tr><td>Due date</td><td>'+(submitted?'2026年10月25日 23:59':'Sunday, 25 October 2026, 11:59 PM')+'</td></tr></table></div>';
           }
           return {ok:true,url:u.href,text:async()=>body};
+          } finally {window.inflight--;}
         };
         </script></body></html>
         """#
@@ -1149,6 +1159,16 @@ extension RegressionApp {
             let safeRequests = await js(web,"calls.every(c=>c.method==='GET'||new URL(c.url).pathname==='/moodle/lib/ajax/service.php')")
             let guardValue = await js(web,"document.getElementById('guard').value")
             check("upcoming_read_only_requests", safeRequests == "true" && guardValue == "UNCHANGED")
+            check("upcoming_directory_published_before_assignment_details", await js(web, "progressBeforeDetails") == "true")
+            _ = await js(web, "window.peakRequests=0;'reset'")
+            let stressDirectory = (100...111).map { MoodleCourse(id: $0, name: "Concurrent course", shortname: nil, category: nil, term: "Winter 2026", active: true) }
+            let stressJSON = String(data: try JSONEncoder().encode(stressDirectory), encoding: .utf8)!
+            let stressRaw = try await web.callAsyncJavaScript(script, arguments: ["now": 1792620000, "jobID": "concurrency-fixture", "cachedDirectoryJSON": stressJSON, "refreshDirectory": false, "cachedItemsJSON": "[]"], in: nil, contentWorld: .page)
+            let stressResult = try JSONDecoder().decode(MoodleUpcomingResult.self, from: Data((stressRaw as! String).utf8))
+            let peakBounded = await js(web, "peakRequests===6")
+            check("upcoming_six_requests_parallel_bounded_and_complete", stressResult.checked == 12 && stressResult.courses == 12 && peakBounded == "true")
+            check("upcoming_job_progress_and_requests_cleaned_up", await js(web, "inflight===0 && !window.__gtiitUpcomingJob && !window.__gtiitUpcomingDirectory") == "true")
+
             check("upcoming_submitted_not_in_todo", result.items.filter { $0.relevant(now: Date(timeIntervalSince1970: 1792620000)) }.count == 2)
             _ = await js(web,"testFail=true")
             let partial = try await read()

@@ -693,6 +693,26 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "primary_phone_portrait_uses_bottom_tabs"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "primary_phone_landscape_uses_sidebar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "primary_large_portrait_uses_sidebar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "primary_narrow_window_keeps_tabs"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "portal_landscape_hides_navigation"
     },
     {
@@ -1013,6 +1033,21 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "upcoming_directory_published_before_assignment_details"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_six_requests_parallel_bounded_and_complete"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_job_progress_and_requests_cleaned_up"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "upcoming_submitted_not_in_todo"
     },
     {
@@ -1281,7 +1316,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 121D8CF9-6252-4D96-9AE0-A92702F5F1C2, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-26 00:06:26 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 1E89FF5D-5DC5-4440-9638-059B60EC947D, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-26 00:52:20 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1722,8 +1757,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-26T00:06:54Z",
+  "date" : "2026-10-26T00:52:48Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "6a822528-89b5-4068-a970-aabeb483636c"
+  "runID" : "cd6c4f05-4d45-4135-9e2b-11a03e61429e"
 }

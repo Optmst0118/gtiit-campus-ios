@@ -1,34 +1,69 @@
 import SwiftUI
 import WidgetKit
+import UIKit
 
 struct RootTabView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var sidebarVisible = true
 
     var body: some View {
         let _ = nativeLocale.identifier
 
-        ZStack {
-            // Lay out the WebKit views behind the UI so pages can restore
-            // sessions/render without a blocking launch screen.
-            if !app.launch.didFinish {
-                WebPrewarmHost(models: app.launch.models)
-                    .opacity(0.01)
+        GeometryReader { geometry in
+            let sidebar = PrimaryNavigationLayout.usesSidebar(geometry.size)
+            ZStack {
+                if !app.launch.didFinish {
+                    WebPrewarmHost(models: app.launch.models).opacity(0.01)
+                }
+                NativePrimaryNavigation(wide: sidebar, onVisibilityChange: { sidebarVisible = $0 },
+                    sidebar: sidebarContent.environmentObject(app).environmentObject(settings)
+                        .environment(\.locale, nativeLocale).preferredColorScheme(colorScheme),
+                    content: tabs(sidebar: sidebar).environmentObject(app).environmentObject(settings)
+                        .environment(\.locale, nativeLocale).environment(\.campusSidebarNavigation, sidebar)
+                        .preferredColorScheme(colorScheme))
+                    .ignoresSafeArea(.container, edges: .bottom)
             }
-            tabs
-        }
-        .modifier(ContextMenuBackdrop(active: app.contextMenuSource != nil))
-        .overlay { YilongOverlay(controller: app.yilong).allowsHitTesting(!app.lock.isLocked) }
-        .onOpenURL { app.handleShuttleURL($0) }
-        .modifier(RootLifecycle(app: app, settings: settings))
+            .background {
+                if sidebar && sidebarVisible && UIDevice.current.userInterfaceIdiom == .phone {
+                    HStack(spacing: 0) {
+                        Color(uiColor: Theme.sidebarSurroundUIColor)
+                            .frame(width: geometry.safeAreaInsets.leading + 12)
+                        Color.clear
+                    }.ignoresSafeArea()
+                }
+            }
+            .modifier(ContextMenuBackdrop(active: app.contextMenuSource != nil))
+            .overlay { YilongOverlay(controller: app.yilong).allowsHitTesting(!app.lock.isLocked) }
+            .onOpenURL { app.handleShuttleURL($0) }
+            .modifier(RootLifecycle(app: app, settings: settings))
+            .environment(\.campusSidebarNavigation, sidebar)
+        }.background(Theme.pageBackground.ignoresSafeArea())
     }
 
-    private var tabs: some View {
+    private var sidebarContent: some View {
+        List(selection: Binding<AppTab?>(
+            get: { app.selectedTab },
+            set: { value in
+                guard let tab = value else { return }
+                if app.selectedTab == tab { app.reselect(tab: tab) }
+                else { app.select(tab: tab) }
+            }
+        )) {
+            ForEach(AppTab.allCases) { tab in
+                Label(tab.title, systemImage: tab.symbol).tag(tab)
+            }
+        }.listStyle(.sidebar)
+    }
+
+    private func tabs(sidebar: Bool) -> some View {
         TabView(selection: $app.selectedTab) {
             ForEach(AppTab.allCases) { tab in
                 tabContent(for: tab)
+                    .toolbar(sidebar ? .hidden : .visible, for: .tabBar)
                     .tabItem {
                         Label(tab.title, systemImage: tab.symbol)
                     }
@@ -46,10 +81,146 @@ struct RootTabView: View {
     }
 }
 
+/// Keep one hosting controller for the tabs through rotation. The split view
+/// and sidebar are genuine system components, including their iOS 26 material.
+private struct NativePrimaryNavigation<Sidebar: View, Content: View>: UIViewControllerRepresentable {
+    let wide: Bool
+    let onVisibilityChange: (Bool) -> Void
+    let sidebar: Sidebar
+    let content: Content
+    func makeUIViewController(context: Context) -> NativePrimaryController<Sidebar, Content> {
+        let controller = NativePrimaryController(sidebar: sidebar, content: content)
+        controller.onVisibilityChange = onVisibilityChange
+        controller.update(wide: wide, sidebar: sidebar, content: content)
+        return controller
+    }
+    func updateUIViewController(_ controller: NativePrimaryController<Sidebar, Content>, context: Context) {
+        controller.onVisibilityChange = onVisibilityChange
+        controller.update(wide: wide, sidebar: sidebar, content: content)
+    }
+}
+private final class NativePrimaryController<Sidebar: View, Content: View>: UISplitViewController, UISplitViewControllerDelegate {
+    private let sidebarHost: UIHostingController<Sidebar>
+    private let detailHost: UIHostingController<Content>
+    private let detailNavigation: UINavigationController
+    private let revealSidebarButton = UIButton(type: .system)
+    var onVisibilityChange: ((Bool) -> Void)?
+    private var reportedVisibility: Bool?
+    private var wide: Bool?
+    init(sidebar: Sidebar, content: Content) {
+        sidebarHost = UIHostingController(rootView: sidebar)
+        detailHost = UIHostingController(rootView: content)
+        detailNavigation = UINavigationController(rootViewController: PrimaryDetailContainer(host: detailHost))
+        super.init(style: .doubleColumn)
+        delegate = self
+        sidebarHost.title = "GTIIT"
+        sidebarHost.view.backgroundColor = .clear
+        view.backgroundColor = .clear
+        detailHost.view.backgroundColor = Theme.pageUIColor
+        detailNavigation.view.backgroundColor = Theme.pageUIColor
+        detailNavigation.setNavigationBarHidden(true, animated: false)
+        sidebarHost.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "sidebar.left"), style: .plain,
+            target: self, action: #selector(collapseSidebar))
+        sidebarHost.navigationItem.rightBarButtonItem?.accessibilityLabel = L10n.tr("收起侧栏")
+        setViewController(UINavigationController(rootViewController: sidebarHost), for: .primary)
+        minimumPrimaryColumnWidth = 180
+        maximumPrimaryColumnWidth = 280
+        preferredPrimaryColumnWidthFraction = 0.25
+        preferredSplitBehavior = .tile
+        displayModeButtonVisibility = .never
+        var configuration: UIButton.Configuration
+        if #available(iOS 26.0, *) { configuration = .glass() }
+        else { configuration = .plain() }
+        configuration.image = UIImage(systemName: "sidebar.left")
+        revealSidebarButton.configuration = configuration
+        revealSidebarButton.tintColor = UIColor(Theme.accent)
+        revealSidebarButton.accessibilityLabel = L10n.tr("展开侧栏")
+        revealSidebarButton.addTarget(self, action: #selector(expandSidebar), for: .touchUpInside)
+        view.addSubview(revealSidebarButton)
+    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    @objc private func collapseSidebar() {
+        preferredDisplayMode = .secondaryOnly
+        hide(.primary)
+        view.setNeedsLayout()
+    }
+    @objc private func expandSidebar() {
+        preferredDisplayMode = .oneBesideSecondary
+        show(.primary)
+        view.setNeedsLayout()
+    }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let expanded = wide == true && displayMode != .secondaryOnly
+        if reportedVisibility != expanded {
+            reportedVisibility = expanded
+            DispatchQueue.main.async { [weak self] in self?.onVisibilityChange?(expanded) }
+        }
+        revealSidebarButton.isHidden = wide != true || expanded
+        revealSidebarButton.frame = CGRect(x: view.safeAreaInsets.left + 12,
+            y: max(view.safeAreaInsets.top + 8, view.bounds.height - view.safeAreaInsets.bottom - 56),
+            width: 44, height: 44)
+        view.bringSubviewToFront(revealSidebarButton)
+    }
+    func update(wide: Bool, sidebar: Sidebar, content: Content) {
+        sidebarHost.rootView = sidebar
+        detailHost.rootView = content
+        sidebarHost.navigationItem.rightBarButtonItem?.accessibilityLabel = L10n.tr("收起侧栏")
+        revealSidebarButton.accessibilityLabel = L10n.tr("展开侧栏")
+        guard self.wide != wide else { return }
+        self.wide = wide
+        if wide {
+            setViewController(nil, for: .compact)
+            traitOverrides.horizontalSizeClass = .regular
+            setViewController(detailNavigation, for: .secondary)
+            preferredDisplayMode = .oneBesideSecondary
+        } else {
+            // A dedicated compact column avoids stacking the entire TabView
+            // on the sidebar navigation controller (and an unwanted back bar).
+            setViewController(nil, for: .secondary)
+            setViewController(detailNavigation, for: .compact)
+            traitOverrides.horizontalSizeClass = .compact
+            preferredDisplayMode = .secondaryOnly
+        }
+        detailNavigation.setNavigationBarHidden(true, animated: false)
+        view.setNeedsLayout()
+    }
+    func splitViewController(_ svc: UISplitViewController, topColumnForCollapsingToProposedTopColumn proposedTopColumn: UISplitViewController.Column) -> UISplitViewController.Column { .secondary }
+    func splitViewController(_ svc: UISplitViewController, displayModeForExpandingToProposedDisplayMode proposedDisplayMode: UISplitViewController.DisplayMode) -> UISplitViewController.DisplayMode { .oneBesideSecondary }
+}
+
+/// iOS 26 can extend the secondary column underneath its floating sidebar.
+/// Give nested SwiftUI navigation its actual usable horizontal bounds so its
+/// back buttons stay in the detail column; keep vertical scroll-edge coverage.
+private final class PrimaryDetailContainer: UIViewController {
+    private let host: UIViewController
+    init(host: UIViewController) {
+        self.host = host
+        super.init(nibName: nil, bundle: nil)
+    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = Theme.pageUIColor
+        addChild(host)
+        host.view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(host.view)
+        NSLayoutConstraint.activate([
+            host.view.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            host.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            host.view.topAnchor.constraint(equalTo: view.topAnchor),
+            host.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        host.didMove(toParent: self)
+    }
+}
+
 /// 放在启动页与主界面外层，切换界面不会重复显示引导、重置锁或启动网络请求。
 private struct RootLifecycle: ViewModifier {
     @ObservedObject var app: AppModel
     @ObservedObject var settings: AppSettings
+    @Environment(\.campusSidebarNavigation) private var sidebar
     @Environment(\.scenePhase) private var scenePhase
     func body(content: Content) -> some View {
         content.tint(Theme.accent)
@@ -75,7 +246,7 @@ private struct RootLifecycle: ViewModifier {
         .overlay(alignment: .bottomTrailing) {
             BrowserFeedbackOverlay(center: app.downloads, toastText: app.toastText)
                 .padding(.horizontal, 16)
-                .padding(.bottom, 72)
+                .padding(.bottom, sidebar ? 16 : 72)
                 .allowsHitTesting(!app.lock.isLocked && !app.isClearingData)
                 .accessibilityHidden(app.lock.isLocked)
         }

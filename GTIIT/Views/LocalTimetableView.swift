@@ -120,7 +120,7 @@ struct LocalTimetableView: View {
             Spacer()
             VStack(spacing: 3) {
                 Text(CampusDate.display(days[0])).font(.headline)
-                Button(L10n.tr("回到本周")) { select(Date()) }.font(.caption)
+                Button(L10n.tr("回到今天")) { select(Date()) }.font(.caption)
             }
             Spacer()
             Button { shift(7) } label: { Image(systemName: "chevron.right").frame(width: 44, height: 44) }.accessibilityLabel(L10n.tr("下一周"))

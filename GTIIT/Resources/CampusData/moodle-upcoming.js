@@ -18,8 +18,18 @@ const safeURL = (value, kind) => {
     return u.origin+u.pathname+'?id='+u.searchParams.get('id');
   } catch { return null; }
 };
+// A single request budget covers calendar RPCs, course pages and assignments.
+// Cancellation drains queued work as well as aborting in-flight fetches.
+const requestLimit=6, waiters=[];let activeRequests=0;
+const acquire=()=>new Promise((resolve,reject)=>{
+ const run=()=>{if(signal.aborted){reject(Error('CANCELLED'));return;}
+  activeRequests++;resolve(()=>{activeRequests--;waiters.shift()?.();});};
+ if(signal.aborted)reject(Error('CANCELLED'));else if(activeRequests<requestLimit)run();else waiters.push(run);
+});
+signal.addEventListener('abort',()=>{for(const run of waiters.splice(0))run();},{once:true});
 const request = async (url, options={}) => {
   if(signal.aborted) throw Error('CANCELLED');
+  const release=await acquire();
   const local = new AbortController();
   const stop=()=>local.abort(); signal.addEventListener('abort',stop,{once:true});
   const timer=setTimeout(stop,12000);
@@ -27,7 +37,7 @@ const request = async (url, options={}) => {
     if(!response.ok || new URL(response.url).origin!==base.origin || /\/login\//.test(new URL(response.url).pathname)) throw Error('UNAVAILABLE');
     const body = await response.text();
     return {text:async()=>body,json:async()=>JSON.parse(body)};
-  } finally {clearTimeout(timer);signal.removeEventListener('abort',stop);}
+  } finally {clearTimeout(timer);signal.removeEventListener('abort',stop);release();}
 };
 const rpc=async(methodname,args)=>{
  const r=await request(base.href.replace(/\/$/,'')+'/lib/ajax/service.php?sesskey='+encodeURIComponent(M.cfg.sesskey),{
@@ -94,20 +104,21 @@ const merge = item => {
  const old=map.get(item.url);
  if(!old)map.set(item.url,item);
  else if(item.source==='assignment' && item.checkedAt===now){const opened=item.opened??old.opened;Object.assign(old,item,{opened});}
+ else if(old.source==='assignment' && old.checkedAt===now && item.source==='calendar'){if(!old.opened&&item.opened)old.opened=item.opened;}
  else {for(const k of ['due','opened'])if(item[k])old[k]=item[k];if(item.status&&item.status!=='unknown')old.status=item.status;if(item.source==='assignment')old.source='assignment';}
 };
 try {
  const start=Math.floor(now)-2*86400,end=Math.floor(now)+14*86400;
- for(const [method,args] of [
+ const calendarJob=Promise.all([
   ['core_calendar_get_action_events_by_timesort',{timesortfrom:start,timesortto:end,limitnum:50}],
   ['core_calendar_get_calendar_upcoming_view',{}]
- ]) {try {const data=await rpc(method,args);if((data.events||[]).length>=50)failed++;for(const e of data.events||[]){
+ ].map(async([method,args])=>{try {const data=await rpc(method,args);if((data.events||[]).length>=50)failed++;for(const e of data.events||[]){
    const kind=e.modulename;if(!['assign','quiz'].includes(kind))continue;
    if(e.course && !currentCourse(e.course))continue;
    const url=safeURL(e.url,kind);const type=String(e.eventtype||'');
    if(!['open','due','close'].includes(type))continue;
    merge({url,name:clean(e.name),course:clean(e.course?.fullname),courseID:Number(e.course?.id)||null,due:type==='open'?null:Number(e.timestart)||null,opened:type==='open'?Number(e.timestart)||null:null,status:'unknown',source:'calendar',kind});
- }}catch {failed++;}}
+ }}catch {failed++;}}));
  const cachedDirectory = typeof cachedDirectoryJSON === 'string' ? JSON.parse(cachedDirectoryJSON) : [];
  const directoryRefreshed = typeof refreshDirectory !== 'boolean' || refreshDirectory || !cachedDirectory.length || cachedDirectory.some(c=>typeof c.active!=='boolean');
  if (!directoryRefreshed) {
@@ -130,11 +141,12 @@ try {
  allCourses=[...new Map(allCourses.map(c=>[c.id,c])).values()].slice(0,150);
  courses=[...new Map(courses.map(c=>[c.id,c])).values()];courseCount=courses.length;
  if(courses.length>100){failed+=courses.length-100;courses=courses.slice(0,100);}
+ window.__gtiitUpcomingDirectory={jobID,courses:allCourses};
  const priority=new Set(typeof priorityIDs !== 'undefined' ? priorityIDs : []);
  courses.sort((a,b)=>Number(priority.has(b.id))-Number(priority.has(a.id)));
  const cachedWork=new Map((typeof cachedItemsJSON==='string'?JSON.parse(cachedItemsJSON):[]).map(w=>[w.url,w]));
  const assignments=new Map();
- const pool=async(values,work)=>{let i=0;await Promise.all(Array.from({length:2},async()=>{while(i<values.length&&!signal.aborted){const v=values[i++];try{await work(v);}catch{failed++;}}}));};
+ const pool=async(values,work)=>{let i=0;await Promise.all(Array.from({length:6},async()=>{while(i<values.length&&!signal.aborted){const v=values[i++];try{await work(v);}catch{failed++;}}}));};
  await pool(courses,async(c)=>{
    const doc=await html(base.origin+'/moodle/mod/assign/index.php?id='+c.id);
    // Index includes assignments from every section, including collapsed sections.
@@ -171,7 +183,8 @@ try {
    if(!sawDue&&!doc.querySelector('.submissionstatustable'))failed++;
    merge({...a,due,opened,status,source:'assignment',kind:'assign',checkedAt:now});
  });
+ await calendarJob;
  if(signal.aborted)throw Error('CANCELLED');
  const activeIDs=new Set(courses.map(c=>c.id));
  return JSON.stringify({loginRequired:false,items:[...map.values()].filter(x=>(!x.courseID||activeIDs.has(x.courseID))).map(({courseID,...item})=>item),courses:courseCount,courseList:allCourses,directoryRefreshed,checked,failed});
-} finally {clearTimeout(deadline);if(window.__gtiitUpcomingJob===controller)delete window.__gtiitUpcomingJob;}
+} finally {controller.abort();clearTimeout(deadline);if(window.__gtiitUpcomingDirectory?.jobID===jobID)delete window.__gtiitUpcomingDirectory;if(window.__gtiitUpcomingJob===controller)delete window.__gtiitUpcomingJob;}

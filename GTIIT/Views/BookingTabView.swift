@@ -8,6 +8,7 @@ struct BookingTabView: View {
     @EnvironmentObject private var settings: AppSettings
     @State private var showSiteInfo = false
     @State private var path = NavigationPath()
+    @State private var rootVisible = true
     @State private var navigationEpoch = UUID()
 
     var body: some View {
@@ -34,6 +35,7 @@ struct BookingTabView: View {
                     SportsCenterHomeView(open: open)
                 }
             }
+            .onAppear { rootVisible = true }.onDisappear { rootVisible = false }
             .id(app.bookingSegment)
             .navigationDestination(for: BookingDestination.self) { destination in
                 NativeWebPageView(site: destination.site, title: destination.title, url: destination.url)
@@ -58,7 +60,7 @@ struct BookingTabView: View {
         .sheet(isPresented: $showSiteInfo) { SiteInfoView(site: currentSite) }
         .id(navigationEpoch)
         .onChange(of: app.tabReselectToken) { _, _ in
-            if app.tabReselectTarget == .booking { path = NavigationPath(); navigationEpoch = UUID() }
+            if app.tabReselectTarget == .booking, !rootVisible { path = NavigationPath(); navigationEpoch = UUID() }
         }
     }
 
@@ -237,6 +239,7 @@ struct RoomBookingHomeView: View {
                 }
 
             }
+            .id("booking.top")
             .padding(.horizontal, 20)
             .padding(.top, 8)
             .padding(.bottom, 28)
@@ -244,6 +247,7 @@ struct RoomBookingHomeView: View {
             .frame(maxWidth: .infinity)
         }
         .background(Theme.pageBackground)
+        .modifier(PrimaryPageScrollToTop(tab: .booking, anchor: "booking.top"))
     }
 
     private var actions: [BookingAction] {
@@ -312,6 +316,7 @@ struct SportsCenterHomeView: View {
                 hours
                 membership
             }
+            .id("booking.top")
             .padding(.horizontal, 20)
             .padding(.top, 8)
             .padding(.bottom, 28)
@@ -319,6 +324,7 @@ struct SportsCenterHomeView: View {
             .frame(maxWidth: .infinity)
         }
         .background(Theme.pageBackground)
+        .modifier(PrimaryPageScrollToTop(tab: .booking, anchor: "booking.top"))
     }
 
     private var hours: some View {

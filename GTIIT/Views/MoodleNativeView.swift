@@ -30,6 +30,7 @@ struct MoodleTabView: View {
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
     @State private var path = NavigationPath()
+    @State private var rootVisible = true
     @State private var navigationEpoch = UUID()
 
     var body: some View {
@@ -51,6 +52,7 @@ struct MoodleTabView: View {
     private var native: some View {
         NavigationStack(path: $path) {
             MoodleHomeView(store: app.upcoming, timetable: app.timetable, open: open)
+                .onAppear { rootVisible = true }.onDisappear { rootVisible = false }
                 .navigationTitle("Moodle")
                 .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
                 .toolbar {
@@ -74,7 +76,7 @@ struct MoodleTabView: View {
             if count == 0 { refresh() }
         }
         .onChange(of: app.tabReselectToken) { _, _ in
-            if app.tabReselectTarget == .learning { path = NavigationPath(); navigationEpoch = UUID() }
+            if app.tabReselectTarget == .learning, !rootVisible { path = NavigationPath(); navigationEpoch = UUID() }
         }
     }
 
@@ -139,6 +141,7 @@ struct MoodleHomeView: View {
                     sectionView(section)
                 }
             }
+            .id("moodle.top")
             .padding(.horizontal, horizontalSizeClass == .regular ? 28 : 20)
             .padding(.top, 8)
             .padding(.bottom, 30)
@@ -146,6 +149,7 @@ struct MoodleHomeView: View {
             .frame(maxWidth: .infinity)
         }
         .background(Theme.pageBackground)
+        .modifier(PrimaryPageScrollToTop(tab: .learning, anchor: "moodle.top"))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {

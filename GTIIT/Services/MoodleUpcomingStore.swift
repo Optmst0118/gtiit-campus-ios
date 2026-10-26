@@ -125,6 +125,10 @@ import WebKit
                 let directoryJSON = String(data: try JSONEncoder().encode(self.courseItems), encoding: .utf8) ?? "[]"
                 let itemsJSON = String(data: try JSONEncoder().encode(self.items), encoding: .utf8) ?? "[]"
                 let refreshDirectory = force || (self.directoryUpdatedAt.map { Date().timeIntervalSince($0) >= 6 * 3600 } ?? true)
+                let progress = Task { [weak self] in
+                    await self?.observeDirectory(browser: browser, token: token, allowed: allowed)
+                }
+                defer { progress.cancel() }
                 let value = try await browser.webView.callAsyncJavaScript(script, arguments: [
                     "now": Date().timeIntervalSince1970, "jobID": token.uuidString,
                     "termYear": term.year, "termSeason": term.season,
@@ -140,6 +144,26 @@ import WebKit
                 guard self.generation == token, allowed(), !Task.isCancelled else { return }
                 self.failedAttempt()
             }
+        }
+    }
+    /// A token-scoped, one-shot course preview; it never marks work as fresh.
+    /// The parent refresh owns cancellation and the final atomic cache update.
+    private func observeDirectory(browser: BrowserModel, token: UUID, allowed: () -> Bool) async {
+        while generation == token, !Task.isCancelled, allowed() {
+            do {
+                let value = try await browser.webView.callAsyncJavaScript("""
+                    const p=window.__gtiitUpcomingDirectory;
+                    return p?.jobID===jobID ? JSON.stringify(p.courses) : null;
+                    """, arguments: ["jobID": token.uuidString], in: nil, contentWorld: .page)
+                guard generation == token, !Task.isCancelled, allowed() else { return }
+                if let text = value as? String, text.utf8.count < 200_000,
+                   let list = try? JSONDecoder().decode([MoodleCourse].self, from: Data(text.utf8)),
+                   list.count <= 150, list.allSatisfy({ $0.id > 0 && !$0.name.isEmpty }) {
+                    courseItems = list
+                    return
+                }
+            } catch { }
+            try? await Task.sleep(for: .milliseconds(250))
         }
     }
     func invalidate() { attemptedAt = nil; updatedAt = nil; retryAfter = nil }

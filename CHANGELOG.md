@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1-beta · build 64] - 2026-10-26
+
+### Changed
+
+- Re-selecting a primary native page scrolls to its top with the shuttle page's 0.3s ease-in-out animation and Reduce Motion support; navigation stacks reset only when returning from a secondary route.
+- Re-selecting an official site's home scrolls the current page rather than reloading it, including Student's nested main scroller.
+- Use a native UISplitViewController and system sidebar List in wide/landscape layouts, retaining the same TabView/page instances through rotation. The system owns materials, selection and sidebar controls.
+- Run calendar/course-directory work concurrently and raise course/detail workers to six under one global six-request budget, with cancellation and timeouts. Publish a token-scoped course-directory preview before assignment checks finish; retain final cache updates and authoritative assignment dates.
+- Unify the split-view canvas and safe areas with the light/dark page theme; adapt iPadOS navigation to available window width. Match the iPhone landscape leading inset to the sidebar base, with native collapse and glass reveal controls.
+- Rename the weekly timetable action to Today / 回到今天.
+
 ## [2.0.1-beta · build 61] - 2026-10-26
 
 ### Fixed

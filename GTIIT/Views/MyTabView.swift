@@ -6,6 +6,8 @@ struct MyTabView: View {
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
     @State private var showSettings = false
+    @State private var rootVisible = true
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var navigationEpoch = UUID()
     var body: some View {
         let _ = nativeLocale.identifier
@@ -32,7 +34,8 @@ struct MyTabView: View {
             .background(Theme.pageBackground)
             .navigationTitle(L10n.tr("我的"))
             .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
-            .onAppear { app.downloads.dismissCompletedPresentation() }
+            .onAppear { rootVisible = true; app.downloads.dismissCompletedPresentation() }
+            .onDisappear { rootVisible = false }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -50,8 +53,8 @@ struct MyTabView: View {
                 #endif
             }
             .onChange(of: app.tabReselectToken) { _, _ in
-                guard app.tabReselectTarget == .me else { return }
-                withAnimation(.easeInOut(duration: 0.3)) {
+                guard app.tabReselectTarget == .me, rootVisible else { return }
+                withAnimation(PrimaryNavigationMotion.animation(reduceMotion: reduceMotion)) {
                     proxy.scrollTo("me.top", anchor: .top)
                 }
             }
@@ -59,7 +62,7 @@ struct MyTabView: View {
         }
         .id(navigationEpoch)
         .onChange(of: app.tabReselectToken) { _, _ in
-            if app.tabReselectTarget == .me { showSettings = false; navigationEpoch = UUID() }
+            if app.tabReselectTarget == .me, !rootVisible { showSettings = false; navigationEpoch = UUID() }
         }
     }
 }

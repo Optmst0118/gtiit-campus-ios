@@ -197,6 +197,13 @@ final class BrowserModel: NSObject, ObservableObject {
         webView.url ?? URL(string: currentURLString)
     }
 
+    func returnHomeOrScrollToTop() {
+        if let current = webView.url, current.host == site.homeURL.host,
+           current.path.trimmingCharacters(in: CharacterSet(charactersIn: "/")) == site.homeURL.path.trimmingCharacters(in: CharacterSet(charactersIn: "/")),
+           current.query == site.homeURL.query {
+            NotificationCenter.default.post(name: .browserDidRequestHome, object: webView)
+        } else { loadHome() }
+    }
     func loadHome() {
         NotificationCenter.default.post(name: .browserDidRequestHome, object: webView)
         load(site.homeURL)

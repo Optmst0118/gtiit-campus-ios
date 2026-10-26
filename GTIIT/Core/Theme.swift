@@ -32,6 +32,11 @@ enum Theme {
             : UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1)
     }
     static let pageBackground = Color(uiColor: pageUIColor)
+    static let sidebarSurroundUIColor = UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 19/255, green: 24/255, blue: 30/255, alpha: 1)
+            : UIColor(red: 244/255, green: 249/255, blue: 251/255, alpha: 1)
+    }
     static let navigationUIColor = pageUIColor
     static let navigationBackground = Color(uiColor: navigationUIColor)
     static func pageHex(for scheme: ColorScheme) -> String {
@@ -146,5 +151,40 @@ struct PortalLandscapeNavigation: ViewModifier {
                 }.allowsHitTesting(false)
             }
             .toolbar(hideBar ? .hidden : .automatic, for: .navigationBar)
+    }
+}
+
+enum PrimaryNavigationLayout {
+    static func usesSidebar(_ size: CGSize) -> Bool {
+        size.width >= 700 || (size.width >= 600 && size.width > size.height)
+    }
+}
+enum PrimaryNavigationMotion {
+    static let duration = 0.3
+    static func animation(reduceMotion: Bool) -> Animation? {
+        reduceMotion ? nil : .easeInOut(duration: duration)
+    }
+}
+struct PrimaryPageScrollToTop: ViewModifier {
+    @EnvironmentObject private var app: AppModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    let tab: AppTab
+    let anchor: String
+    func body(content: Content) -> some View {
+        ScrollViewReader { proxy in
+            content.onChange(of: app.tabReselectToken) { _, _ in
+                guard app.tabReselectTarget == tab else { return }
+                withAnimation(PrimaryNavigationMotion.animation(reduceMotion: reduceMotion)) {
+                    proxy.scrollTo(anchor, anchor: .top)
+                }
+            }
+        }
+    }
+}
+private struct CampusSidebarKey: EnvironmentKey { static let defaultValue = false }
+extension EnvironmentValues {
+    var campusSidebarNavigation: Bool {
+        get { self[CampusSidebarKey.self] }
+        set { self[CampusSidebarKey.self] = newValue }
     }
 }

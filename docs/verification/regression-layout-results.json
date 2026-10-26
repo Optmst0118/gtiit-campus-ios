@@ -3,10 +3,80 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "South Campus omits unavailable rooms 402–409"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "South Campus keeps available 202–205"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome permits explicit confirmation on ready campus page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks confirmation while loading"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks failed page confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks unvisited page confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks SSO redirect confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks Moodle login page confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks another site's confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "summary_route_targets_visible_native_moodle"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "cross_site_route_uses_native_destination"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_route_rejects_wrong_origin"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_booking_route_preserves_target"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "followed_courses_persist"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "portal_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 180.0, 402.0, 694.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "portal_web_extends_under_tab_bar"
     },
@@ -16,12 +86,12 @@
       "test" : "portal_pull_keeps_title_stationary"
     },
     {
-      "detail" : "expanded=170.0, compact=118.0",
+      "detail" : "expanded=180.0, compact=128.0",
       "passed" : true,
       "test" : "portal_native_title_collapses"
     },
     {
-      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
+      "detail" : "expanded=180.0, restored=180.0, tracker=0.0",
       "passed" : true,
       "test" : "portal_native_title_restores_at_top"
     },
@@ -66,7 +136,7 @@
       "test" : "moodle_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 180.0, 402.0, 694.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "moodle_web_extends_under_tab_bar"
     },
@@ -76,12 +146,12 @@
       "test" : "moodle_pull_keeps_title_stationary"
     },
     {
-      "detail" : "expanded=170.0, compact=118.0",
+      "detail" : "expanded=180.0, compact=128.0",
       "passed" : true,
       "test" : "moodle_native_title_collapses"
     },
     {
-      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
+      "detail" : "expanded=180.0, restored=180.0, tracker=0.0",
       "passed" : true,
       "test" : "moodle_native_title_restores_at_top"
     },
@@ -117,8 +187,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-23T08:43:30Z",
+  "date" : "2026-10-26T01:09:54Z",
   "focus" : "layout",
   "passed" : true,
-  "runID" : "16312bbc-06c1-482a-aabc-4368ed526a4b"
+  "runID" : "f3853f5c-38b1-45b7-9322-3924450d588a"
 }

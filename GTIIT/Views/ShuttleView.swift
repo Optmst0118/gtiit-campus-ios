@@ -113,7 +113,7 @@ struct ShuttleView: View {
             .onChange(of: scenePhase) { _, phase in if phase == .active { proximity.activate() } else { proximity.deactivate() } }
             .onChange(of: app.tabReselectToken) { _, _ in
                 guard app.tabReselectTarget == .shuttle else { return }
-                withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3)) {
+                withAnimation(PrimaryNavigationMotion.animation(reduceMotion: reduceMotion)) {
                     proxy.scrollTo("shuttle.top", anchor: .top)
                 }
             }

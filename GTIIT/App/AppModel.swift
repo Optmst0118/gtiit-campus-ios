@@ -181,11 +181,11 @@ final class AppModel: ObservableObject {
         tabReselectToken &+= 1
         switch tab {
         case .portal:
-            browser(for: .portal).loadHome()
+            browser(for: .portal).returnHomeOrScrollToTop()
         case .learning:
-            if !settings.nativeMoodleEnabled { browser(for: .moodle).loadHome() }
+            if !settings.nativeMoodleEnabled { browser(for: .moodle).returnHomeOrScrollToTop() }
         case .booking:
-            if !settings.nativeBookingEnabled { browser(for: bookingSegment.site).loadHome() }
+            if !settings.nativeBookingEnabled { browser(for: bookingSegment.site).returnHomeOrScrollToTop() }
         case .shuttle, .me:
             break
         }
