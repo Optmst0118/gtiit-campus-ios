@@ -39,11 +39,9 @@ struct RootTabView: View {
             .overlay(alignment: .top) {
                 // The page canvas continues behind the status bar / Dynamic Island;
                 // no separate material or extra navigation plate is introduced.
-                ZStack {
-                    Rectangle().fill(.ultraThinMaterial)
-                    Theme.pageBackground.opacity(0.72)
-                }
-                .frame(height: geometry.safeAreaInsets.top)
+                Rectangle()
+                    .fill(Theme.pageBackground)
+                    .frame(height: geometry.safeAreaInsets.top)
                 .ignoresSafeArea(edges: .top)
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)

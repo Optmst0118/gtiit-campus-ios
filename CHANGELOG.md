@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1-beta · build 68] - 2026-10-26
+
+### Fixed
+
+- Attendance add control cleanup now runs repeatedly while the page settles, recognizes text/aria/small blue circular controls, clears their separator borders and hides the horizontal rule.
+- Attendance rules are discovered more broadly and inserted as a default-collapsed 22pt rounded card.
+- Status bar / Dynamic Island uses the previous solid page canvas again; the gray material overlay was removed.
+
 ## [2.0.1-beta · build 67] - 2026-10-26
 
 ### Fixed
