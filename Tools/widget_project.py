@@ -2,6 +2,10 @@
 import json, os
 from pathlib import Path
 
+
+def release_label(version):
+    prerelease = str(version.get("prerelease", "")).strip()
+    return version["marketing"] + (f"-{prerelease}" if prerelease else "")
 def extend(text, root, uid, team):
     version=json.loads((root/'Tools/version.json').read_text())
     text=text.replace('__GTIIT_BUILD__',str(version['build']))
@@ -38,7 +42,7 @@ def extend(text, root, uid, team):
     framework=phase('widget:frameworks','PBXFrameworksBuildPhase',[])
     configs=[]
     for name in ['Debug','Release']:
-        settings={'PRODUCT_BUNDLE_IDENTIFIER':'io.github.optmst0118.gtiit.widgets','PRODUCT_NAME':'$(TARGET_NAME)','INFOPLIST_FILE':'GTIITWidgets/Info.plist','GENERATE_INFOPLIST_FILE':'NO','APPLICATION_EXTENSION_API_ONLY':'YES','SKIP_INSTALL':'YES','SWIFT_VERSION':'5.0','IPHONEOS_DEPLOYMENT_TARGET':'17.0','TARGETED_DEVICE_FAMILY':'1,2','CURRENT_PROJECT_VERSION':str(version['build']),'MARKETING_VERSION':version['marketing'],'GTIIT_RELEASE_LABEL':version['marketing']+'-'+version['prerelease'],'CODE_SIGN_STYLE':'Automatic','LD_RUNPATH_SEARCH_PATHS':'$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks'}
+        settings={'PRODUCT_BUNDLE_IDENTIFIER':'io.github.optmst0118.gtiit.widgets','PRODUCT_NAME':'$(TARGET_NAME)','INFOPLIST_FILE':'GTIITWidgets/Info.plist','GENERATE_INFOPLIST_FILE':'NO','APPLICATION_EXTENSION_API_ONLY':'YES','SKIP_INSTALL':'YES','SWIFT_VERSION':'5.0','IPHONEOS_DEPLOYMENT_TARGET':'17.0','TARGETED_DEVICE_FAMILY':'1,2','CURRENT_PROJECT_VERSION':str(version['build']),'MARKETING_VERSION':version['marketing'],'GTIIT_RELEASE_LABEL':release_label(version),'CODE_SIGN_STYLE':'Automatic','LD_RUNPATH_SEARCH_PATHS':'$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks'}
         if team:settings['DEVELOPMENT_TEAM']=team
         if os.environ.get('GTIIT_APP_GROUPS')=='1': settings['CODE_SIGN_ENTITLEMENTS']='GTIITWidgets/GTIITWidgets.entitlements'
         body='\n'.join(f'\t\t\t\t{k} = "{v}";' for k,v in settings.items())
@@ -52,7 +56,7 @@ def extend(text, root, uid, team):
     text=text.replace(f'{uid("phase:resources")} /* Resources */,',f'{uid("phase:resources")} /* Resources */,\n\t\t\t\t{embed},',1)
     text=text.replace('\t\t\tdependencies = (\n\t\t\t);',f'\t\t\tdependencies = {arr([dep])};',1)
     text=text.replace(f'{uid("target:app")} /* GTIIT */,',f'{uid("target:app")} /* GTIIT */,\n\t\t\t\t{target},',1)
-    label=version['marketing']+'-'+version['prerelease']
+    label=release_label(version)
     text=text.replace('MARKETING_VERSION = '+version['marketing']+';',f'MARKETING_VERSION = {version["marketing"]};\n\t\t\t\tGTIIT_RELEASE_LABEL = "{label}";')
     if os.environ.get('GTIIT_APP_GROUPS')=='1':text=text.replace('ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;','ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;\n\t\t\t\tCODE_SIGN_ENTITLEMENTS = GTIIT/GTIIT.entitlements;')
     return text.replace('\n\t};\n\trootObject','\n'+'\n'.join(objects)+'\n\t};\n\trootObject')
