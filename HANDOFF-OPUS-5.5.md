@@ -2,9 +2,9 @@
 
 更新时间：2026-10-26  
 仓库：/Users/zhufengyi/Documents/ChatGPT/探索/GTIIT-iOS-App  
-当前基线提交：20ecd76（main）  
-当前版本：2.0.1-beta，build 68  
-本机已安装：iPhone Air，2.0.1 (68)  
+当前基线提交：242ecb2（main）  
+当前版本：2.0.1-beta，build 69  
+本机已安装：iPhone Air，2.0.1 (69)  
 工作区状态：干净（交接文档提交前）
 
 ## 0. 先读什么
@@ -182,7 +182,7 @@ python3 Tools/check_project.py
 - Tools/check_localization.py 通过：664 tr、46 format、890 .strings、2 Info.plist keys
 - Tools/run_regression.py：352 checks passed
 - 模拟器 Debug 构建成功
-- iPhone 安装 2.0.1 (68) 并启动
+- iPhone 安装 2.0.1 (69) 并启动
 
 未验证/需要真实账号的部分：
 
