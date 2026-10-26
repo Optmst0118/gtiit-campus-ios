@@ -332,7 +332,7 @@
             const radius = parseFloat(style.borderTopLeftRadius) || 0;
             const blue = /rgb\((?:0|1?[0-9]|2[0-9]|3[0-9]),\s*(?:[6-9][0-9]|1[0-9][0-9]),\s*(?:1[3-9][0-9]|2[0-5][0-9])\)/.test(style.backgroundColor);
             const plus = text === '+' || /add|attendance|新增|考勤/i.test(label) ||
-                (rect.width <= 56 && rect.height <= 56 && radius >= 18 && blue && element.querySelector('svg'));
+                (rect.width <= 56 && rect.height <= 56 && radius >= 18 && blue);
             if (!plus) continue;
             element.style.setProperty('display', 'none', 'important');
             element.setAttribute('data-gtiit-attendance-hidden', '1');
@@ -358,6 +358,17 @@
             const style = getComputedStyle(element);
             if (style.backgroundColor !== 'rgba(0, 0, 0, 0)' || parseFloat(style.borderTopWidth) > 0) {
                 element.style.setProperty('display', 'none', 'important');
+            }
+        }
+        // Some portals draw the separator as a border on a short wrapper
+        // rather than as an element with its own height.
+        for (const element of document.querySelectorAll('div,section')) {
+            const rect = element.getBoundingClientRect();
+            if (rect.width < innerWidth * 0.5 || rect.height > 24) continue;
+            const style = getComputedStyle(element);
+            if (parseFloat(style.borderTopWidth) > 0 || parseFloat(style.borderBottomWidth) > 0) {
+                element.style.setProperty('border-top', 'none', 'important');
+                element.style.setProperty('border-bottom', 'none', 'important');
             }
         }
     };
