@@ -24,6 +24,7 @@ struct RootTabView: View {
                         .environment(\.locale, nativeLocale).preferredColorScheme(colorScheme),
                     content: tabs(sidebar: sidebar).environmentObject(app).environmentObject(settings)
                         .environment(\.locale, nativeLocale).environment(\.campusSidebarNavigation, sidebar)
+                        .environment(\.campusSidebarRevealVisible, sidebar && !sidebarVisible)
                         .preferredColorScheme(colorScheme))
                     // UIKit must own the full vertical window, including the
                     // status bar. Otherwise its native scroll-edge backdrop

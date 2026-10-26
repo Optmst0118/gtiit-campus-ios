@@ -32,7 +32,6 @@ private struct BrowserChrome: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var app: AppModel
-    @Environment(\.campusSidebarNavigation) private var campusSidebarNavigation
     @ObservedObject var model: BrowserModel
 
     var body: some View {
@@ -48,11 +47,7 @@ private struct BrowserChrome: View {
         .nativeNavigationSurface(large: true)
         .modifier(PortalLandscapeNavigation(site: model.site))
         .toolbar {
-            if campusSidebarNavigation {
-                ToolbarItem(placement: .topBarLeading) {
-                    Color.clear.frame(width: 64).accessibilityHidden(true)
-                }
-            }
+            SidebarRevealToolbarSpace()
             if model.site == .rooms || model.site == .sports {
                 ToolbarItem(placement: .topBarLeading) { bookingPicker }
             } else if model.site == .portal {
@@ -80,7 +75,7 @@ private struct BrowserChrome: View {
                 Image(systemName: app.bookingSegment == .rooms ? "door.left.hand.open" : "sportscourt").font(.system(size: 15, weight: .medium))
                 Text(app.bookingSegment == .rooms ? L10n.tr("练习房") : L10n.tr("体育场馆")).font(.subheadline.weight(.medium)).lineLimit(1)
                 Image(systemName: "chevron.up.chevron.down").font(.system(size: 10, weight: .semibold))
-            }.frame(minHeight: 44).contentShape(Rectangle())
+            }.fixedSize(horizontal: true, vertical: false).frame(minHeight: 44).contentShape(Rectangle())
         }
         .accessibilityLabel(L10n.tr("切换预约场所"))
         .menuOrder(.fixed)

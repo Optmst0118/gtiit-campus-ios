@@ -188,3 +188,30 @@ extension EnvironmentValues {
         set { self[CampusSidebarKey.self] = newValue }
     }
 }
+
+private struct CampusSidebarRevealKey: EnvironmentKey { static let defaultValue = false }
+extension EnvironmentValues {
+    var campusSidebarRevealVisible: Bool {
+        get { self[CampusSidebarRevealKey.self] }
+        set { self[CampusSidebarRevealKey.self] = newValue }
+    }
+}
+
+/// Reserve room only for the collapsed floating reveal button. An empty native
+/// toolbar item must not join the booking selector's shared glass background.
+struct SidebarRevealToolbarSpace: ToolbarContent {
+    @Environment(\.campusSidebarRevealVisible) private var visible
+    var body: some ToolbarContent {
+        if visible {
+            if #available(iOS 26.0, *) {
+                ToolbarItem(placement: .topBarLeading) {
+                    Color.clear.frame(width: 24).accessibilityHidden(true)
+                }.sharedBackgroundVisibility(.hidden)
+            } else {
+                ToolbarItem(placement: .topBarLeading) {
+                    Color.clear.frame(width: 64).accessibilityHidden(true)
+                }
+            }
+        }
+    }
+}

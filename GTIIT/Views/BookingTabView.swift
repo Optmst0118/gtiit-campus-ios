@@ -6,7 +6,6 @@ struct BookingTabView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
-    @Environment(\.campusSidebarNavigation) private var campusSidebarNavigation
     @State private var showSiteInfo = false
     @State private var path = NavigationPath()
     @State private var rootVisible = true
@@ -44,11 +43,7 @@ struct BookingTabView: View {
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
             .toolbar {
-                if campusSidebarNavigation {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Color.clear.frame(width: 64).accessibilityHidden(true)
-                    }
-                }
+                SidebarRevealToolbarSpace()
                 ToolbarItem(placement: .topBarLeading) { BookingSiteMenu() }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { Haptics.selection(); app.browser(for: currentSite).reload() } label: { Image(systemName: "arrow.clockwise") }
@@ -116,7 +111,7 @@ private struct BookingSiteMenu: View {
                 Image(systemName: "chevron.up.chevron.down")
                     .font(.system(size: 10, weight: .semibold))
             }
-            .frame(minHeight: 44)
+            .fixedSize(horizontal: true, vertical: false).frame(minHeight: 44)
             .contentShape(Rectangle())
         }
         .accessibilityLabel(L10n.tr("切换预约场所"))

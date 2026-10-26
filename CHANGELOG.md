@@ -8,6 +8,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- Remove expanded-sidebar toolbar reservations from Booking and wrapped sites; keep the collapsed reveal reservation outside the selector’s shared glass background and reduce iOS 26 spacing to account for native item margins. Keep booking labels at their intrinsic width.
+
 - Align the collapsed iPhone landscape sidebar reveal button with the trailing native toolbar control; convert the window safe area once to avoid doubling the Dynamic Island inset. iPad and expanded sidebar placement are preserved.
 
 - Extend the native navigation container through the status-bar / Dynamic Island region and remove the separate top canvas overlay. Preserve horizontal safe areas and let the existing system scroll-edge effect cover the full top region without adding material. [Hierarchy evidence and validation](docs/verification/top-canvas/README.md): 385 full regression checks plus four 47-check orientation runs.
