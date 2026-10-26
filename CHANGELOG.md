@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1-beta · build 61] - 2026-10-26
+
+### Fixed
+
+- Hide native navigation in landscape for Student home and native Student detail routes; restore it in portrait without recreating WebKit or reloading the page.
+- Strengthen Sunday/Monday resistance in both directions: half-speed initial travel and a 60% physical-drag threshold. Measure the finger directly instead of accumulating the modified content offset; velocity or repeated short flicks cannot bypass the boundary.
+
 ## [2.0.1-beta · build 60] - 2026-10-26
 
 ### Fixed

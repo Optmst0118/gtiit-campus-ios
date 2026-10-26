@@ -183,6 +183,13 @@ struct LocalTimetableView: View {
 /// A gesture advances at most one day. Crossing a week requires actual
 /// continued travel, never a high-velocity projection into the following week.
 enum TimetableDaySnap {
+    static let boundaryTravelFraction: CGFloat = 0.60
+    static func boundaryOffset(travel: CGFloat, step: CGFloat) -> CGFloat {
+        guard step > 0 else { return 0 }
+        let length = abs(travel), threshold = step * boundaryTravelFraction
+        let distance = min(length, threshold) * 0.50 + max(0, length - threshold)
+        return (travel >= 0 ? 1 : -1) * min(step, distance)
+    }
     static func index(original: CGFloat, proposed: CGFloat, velocity: CGFloat, step: CGFloat, count: Int,
                       weekday: Int = 0, travel: CGFloat? = nil) -> Int {
         guard step > 0, count > 0 else { return 0 }
@@ -190,7 +197,7 @@ enum TimetableDaySnap {
         let distance = travel ?? proposed - original
         let direction = distance >= 0 ? 1 : -1
         let boundary = (weekday == 1 && direction > 0) || (weekday == 2 && direction < 0)
-        if boundary && abs(distance) < step * 0.38 { return start }
+        if boundary && abs(distance) < step * boundaryTravelFraction { return start }
         let candidate = boundary ? start + direction : min(start + 1, max(start - 1, Int((proposed / step).rounded())))
         return min(count - 1, max(0, candidate))
     }
@@ -213,11 +220,9 @@ private struct TimetableDayCarousel: UIViewControllerRepresentable {
         private var step: CGFloat { cardWidth + 12 }
         private var startOffset: CGFloat = 0
         private var dragTravel: CGFloat = 0
-        private var lastOffset: CGFloat = 0
         private var tracking = false
         private var adjusting = false
         private var selectedKey: String?
-        private var boundaryIntent: (Int, Int)?
         init(owner: TimetableDayCarousel) {
             self.owner = owner
             let layout = UICollectionViewFlowLayout(); layout.scrollDirection = .horizontal
@@ -274,7 +279,7 @@ private struct TimetableDayCarousel: UIViewControllerRepresentable {
         }
         override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
             Haptics.prepare(); tracking = true; dragTravel = 0
-            startOffset = scrollView.contentOffset.x; lastOffset = startOffset
+            startOffset = scrollView.contentOffset.x
         }
         private var weekday: Int {
             guard !owner.dates.isEmpty else { return 0 }
@@ -283,25 +288,18 @@ private struct TimetableDayCarousel: UIViewControllerRepresentable {
         }
         override func scrollViewDidScroll(_ scrollView: UIScrollView) {
             guard tracking, !adjusting else { return }
-            dragTravel += scrollView.contentOffset.x - lastOffset; lastOffset = scrollView.contentOffset.x
+            // Measure the finger directly: feeding our resisted contentOffset back
+            // into the next sample amplified travel and weakened the barrier.
+            dragTravel = -scrollView.panGestureRecognizer.translation(in: scrollView).x
             guard (weekday == 1 && dragTravel > 0) || (weekday == 2 && dragTravel < 0) else { return }
-            let length = abs(dragTravel), threshold = step * 0.38
-            let distance = min(length, threshold) * 0.82 + max(0, length - threshold)
             adjusting = true
-            scrollView.contentOffset.x = startOffset + (dragTravel > 0 ? 1 : -1) * min(step, distance)
-            lastOffset = scrollView.contentOffset.x; adjusting = false
+            scrollView.contentOffset.x = startOffset + TimetableDaySnap.boundaryOffset(travel: dragTravel, step: step)
+            adjusting = false
         }
         override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-            let projected = targetContentOffset.pointee.x - startOffset
-            let direction = projected >= 0 ? 1 : -1, start = Int((startOffset / step).rounded())
-            let boundary = (weekday == 1 && direction > 0) || (weekday == 2 && direction < 0)
-            if boundary, abs(dragTravel) < 1, abs(projected) > 1 {
-                if boundaryIntent?.0 == start, boundaryIntent?.1 == direction { dragTravel = CGFloat(direction) * step }
-                else { boundaryIntent = (start, direction) }
-            } else if !boundary, abs(projected) > 1 { boundaryIntent = nil }
+            dragTravel = -scrollView.panGestureRecognizer.translation(in: scrollView).x
             let index = TimetableDaySnap.index(original: startOffset, proposed: targetContentOffset.pointee.x, velocity: velocity.x * 1000,
                 step: step, count: owner.dates.count, weekday: weekday, travel: dragTravel)
-            if index != start { boundaryIntent = nil }
             targetContentOffset.pointee = CGPoint(x: CGFloat(index) * step, y: 0)
             // Resolve the highlight and haptic at release, not after the final
             // deceleration callback. Scrolling still uses UIKit's native curve.

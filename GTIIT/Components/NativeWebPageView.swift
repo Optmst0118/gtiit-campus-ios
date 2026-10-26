@@ -45,6 +45,7 @@ private struct NativeWebPageContent: View {
         .background(Theme.pageBackground)
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+        .modifier(PortalLandscapeNavigation(site: site))
         .navigationBarBackButtonHidden(handlesBack)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

@@ -50,6 +50,7 @@ private struct BrowserChrome: View {
         .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle(model.site.nativeTitle)
         .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
+        .modifier(PortalLandscapeNavigation(site: model.site))
         .toolbar {
             if model.site == .rooms || model.site == .sports {
                 ToolbarItem(placement: .topBarLeading) { bookingPicker }

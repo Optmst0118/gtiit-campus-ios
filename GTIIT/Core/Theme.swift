@@ -125,3 +125,26 @@ struct ContextMenuBackdrop: ViewModifier {
             .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: active)
     }
 }
+
+/// Observe the actual viewport so rotation, iPad and split-window layouts share
+/// one rule. Keep the existing browser/WebKit instance alive across rotations.
+enum PortalNavigationPolicy {
+    static func hidesBar(site: SiteID, viewport: CGSize) -> Bool {
+        site == .portal && viewport.width > viewport.height && viewport.height > 0
+    }
+}
+struct PortalLandscapeNavigation: ViewModifier {
+    let site: SiteID
+    @State private var hideBar = false
+    func body(content: Content) -> some View {
+        content
+            .background {
+                GeometryReader { geometry in
+                    Color.clear.onChange(of: geometry.size, initial: true) { _, size in
+                        hideBar = PortalNavigationPolicy.hidesBar(site: site, viewport: size)
+                    }
+                }.allowsHitTesting(false)
+            }
+            .toolbar(hideBar ? .hidden : .automatic, for: .navigationBar)
+    }
+}

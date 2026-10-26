@@ -79,7 +79,9 @@ import UIKit
     var body: some Scene {
         WindowGroup {
             Group {
-                if environment["UI_REVIEW_WELCOME"] == "1" {
+                if environment["UI_REVIEW_PORTAL"] == "1" {
+                    SiteBrowserView(site: .portal).environmentObject(app).environmentObject(settings)
+                } else if environment["UI_REVIEW_WELCOME"] == "1" {
                     WelcomeView().environmentObject(app).environmentObject(settings)
                 } else if environment["UI_REVIEW_ACTIVITY"] == "1" {
                     VStack(spacing: 24) {

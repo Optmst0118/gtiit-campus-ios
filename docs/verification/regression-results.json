@@ -693,6 +693,36 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "portal_landscape_hides_navigation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_portrait_restores_navigation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "other_sites_keep_landscape_navigation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_boundary_drag_halves_initial_motion"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_boundary_medium_drag_stays_in_week"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_boundary_reverse_medium_drag_stays_in_week"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "timetable_sunday_resists_velocity_without_travel"
     },
     {
@@ -1251,7 +1281,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 1B1EE217-AC7D-44C9-8FAC-94DC5AF35335, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-25 18:06:43 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 121D8CF9-6252-4D96-9AE0-A92702F5F1C2, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-26 00:06:26 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1692,8 +1722,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-25T18:07:11Z",
+  "date" : "2026-10-26T00:06:54Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "8519a07c-6c2e-4773-b83e-b1d6c89197b7"
+  "runID" : "6a822528-89b5-4068-a970-aabeb483636c"
 }
