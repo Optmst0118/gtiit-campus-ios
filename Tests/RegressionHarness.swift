@@ -166,7 +166,7 @@ private final class RetiredViewReference {
         check("followed_courses_persist", AppSettings(defaults: routeDefaults).followedMoodleCourseIDs == [12, 21])
 
         Theme.configureNavigationAppearance()
-        if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "layout" {
+        if ["layout", "top-canvas"].contains(ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] ?? "") {
             await verifyGlassWebLayout(); finish(); return
         }
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "download" {
@@ -1193,6 +1193,74 @@ extension RegressionApp {
 }
 
 extension RegressionApp {
+    func verifyTopCanvas(host: UIViewController, app: AppModel, settings: AppSettings) async {
+        // The native backdrop can only reach the status area if the navigation
+        // container itself starts at window y=0. This failed at y=62 on build 71.
+        func visibleNavigation(_ controller: UIViewController) -> UINavigationController? {
+            if let split = controller as? UISplitViewController,
+               let detail = split.viewController(for: split.isCollapsed ? .compact : .secondary) {
+                return visibleNavigation(detail)
+            }
+            if let tabs = controller as? UITabBarController, let selected = tabs.selectedViewController {
+                return visibleNavigation(selected)
+            }
+            if let nav = controller as? UINavigationController {
+                return nav.visibleViewController.flatMap(visibleNavigation) ?? (nav.isViewLoaded && nav.view.window === window ? nav : nil)
+            }
+            return controller.children.reversed().compactMap(visibleNavigation).first
+        }
+        let originalStyle = window!.overrideUserInterfaceStyle
+        let originalNativeMoodle = settings.nativeMoodleEnabled
+        let browsers = Dictionary(uniqueKeysWithValues: SiteID.allCases.map { ($0, app.browser(for: $0).webView) })
+        for (site, web) in browsers {
+            web.loadHTMLString("<title>Top canvas fixture</title><p>Independent test content</p>", baseURL: site.homeURL)
+        }
+        settings.nativeMoodleEnabled = true
+        for style in [UIUserInterfaceStyle.light, .dark] {
+            window!.overrideUserInterfaceStyle = style
+            let mode = style == .dark ? "dark" : "light"
+            for tab in AppTab.allCases {
+                app.select(tab: tab)
+                _ = await wait {
+                    guard let nav = visibleNavigation(host), nav.view.window === self.window else { return false }
+                    if nav.isNavigationBarHidden { return nav.view.safeAreaInsets.top >= self.window!.safeAreaInsets.top - 1 }
+                    let bar = nav.navigationBar.convert(nav.navigationBar.bounds, to: self.window)
+                    return bar.minY >= self.window!.safeAreaInsets.top - 1
+                }
+                host.view.layoutIfNeeded()
+                guard let navigation = visibleNavigation(host) else {
+                    check("\(tab.rawValue)_\(mode)_top_canvas_present", false); continue
+                }
+                let frame = navigation.view.convert(navigation.view.bounds, to: window)
+                check("\(tab.rawValue)_\(mode)_navigation_reaches_window_top", abs(frame.minY) < 1,
+                      "navigation=\(frame), window=\(window!.bounds)")
+                let bar = navigation.navigationBar.convert(navigation.navigationBar.bounds, to: window)
+                check("\(tab.rawValue)_\(mode)_controls_respect_top_safe_area",
+                      navigation.isNavigationBarHidden || bar.minY >= window!.safeAreaInsets.top - 1, "bar=\(bar), intentionallyHidden=\(navigation.isNavigationBarHidden)")
+            }
+            for site in [SiteID.moodle, .rooms, .sports] {
+                let title = "Canvas push \(site.rawValue)"
+                // Establish the destination tab before exercising its push.
+                // Otherwise this layout test also races tab-transition route
+                // consumption, especially across iPad appearance changes.
+                app.select(tab: AppTab.tab(for: site))
+                try? await Task.sleep(for: .milliseconds(350))
+                app.openWeb(site.homeURL, site: site, title: title)
+                let pushed = await wait { visibleNavigation(host)?.navigationBar.topItem?.title == title }
+                check("\(site.rawValue)_\(mode)_push_present", pushed)
+                if let nav = visibleNavigation(host) {
+                    check("\(site.rawValue)_\(mode)_push_reaches_window_top",
+                          abs(nav.view.convert(nav.view.bounds, to: window).minY) < 1)
+                }
+                app.reselect(tab: AppTab.tab(for: site))
+                try? await Task.sleep(for: .milliseconds(350))
+            }
+        }
+        check("top_canvas_keeps_all_webview_sessions", browsers.allSatisfy { app.browser(for: $0.key).webView === $0.value })
+        window!.overrideUserInterfaceStyle = originalStyle
+        settings.nativeMoodleEnabled = originalNativeMoodle
+    }
+
     func verifyGlassWebLayout() async {
         let suite = "regression.glass." + UUID().uuidString
         let defaults = UserDefaults(suiteName: suite)!
@@ -1204,6 +1272,11 @@ extension RegressionApp {
         let original = window!.rootViewController
         let host = UIHostingController(rootView: RootTabView().environmentObject(app).environmentObject(settings))
         window!.rootViewController = host; window!.makeKeyAndVisible()
+        await verifyTopCanvas(host: host, app: app, settings: settings)
+        if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "top-canvas" {
+            window!.rootViewController = original
+            return
+        }
         func tabBar(in view: UIView) -> UITabBar? {
             if let bar = view as? UITabBar { return bar }
             for child in view.subviews { if let bar = tabBar(in: child) { return bar } }

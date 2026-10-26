@@ -13,6 +13,8 @@
 
 **当前版本：2.0.2-beta.2（build 71）**。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次验证范围见 [2.0.1 beta 发布记录](docs/RELEASE-2.0.1-beta.md)。
 
+状态栏／Dynamic Island 连续原生背景修复已完成：导航容器延伸到窗口顶部，移除独立顶端覆盖层，不叠加材质。完整回归 **385/385**，另完成 iPhone 横屏左右方向及 iPad 横竖屏专项检查；见[视图层级证据与验证记录](docs/verification/top-canvas/README.md)。
+
 <p align="center">
   <img src="docs/screenshots/01-welcome.png" width="200" alt="首次启动说明">
   <img src="docs/screenshots/02-portal.png" width="200" alt="学生门户跳转 Microsoft 登录">

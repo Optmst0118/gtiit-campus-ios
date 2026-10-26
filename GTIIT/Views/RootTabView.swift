@@ -25,7 +25,11 @@ struct RootTabView: View {
                     content: tabs(sidebar: sidebar).environmentObject(app).environmentObject(settings)
                         .environment(\.locale, nativeLocale).environment(\.campusSidebarNavigation, sidebar)
                         .preferredColorScheme(colorScheme))
-                    .ignoresSafeArea(.container, edges: .bottom)
+                    // UIKit must own the full vertical window, including the
+                    // status bar. Otherwise its native scroll-edge backdrop
+                    // starts below the island and cannot cover the top inset.
+                    // Keep horizontal safe areas for the landscape sidebar.
+                    .ignoresSafeArea(.container, edges: .vertical)
             }
             .background {
                 if sidebar && sidebarVisible && UIDevice.current.userInterfaceIdiom == .phone {
@@ -35,16 +39,6 @@ struct RootTabView: View {
                         Color.clear
                     }.ignoresSafeArea()
                 }
-            }
-            .overlay(alignment: .top) {
-                // The page canvas continues behind the status bar / Dynamic Island;
-                // no separate material or extra navigation plate is introduced.
-                Rectangle()
-                    .fill(Theme.pageBackground)
-                    .frame(height: geometry.safeAreaInsets.top)
-                    .ignoresSafeArea(edges: .top)
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
             }
             .modifier(ContextMenuBackdrop(active: app.contextMenuSource != nil))
             .overlay { YilongOverlay(controller: app.yilong).allowsHitTesting(!app.lock.isLocked) }

@@ -1076,12 +1076,177 @@
       "test" : "upcoming_url_rejects_actions_and_other_hosts"
     },
     {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "shuttle_light_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, -54.0, 402.0, 54.0), intentionallyHidden=true",
+      "passed" : true,
+      "test" : "shuttle_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "portal_light_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, -106.0, 402.0, 44.0), intentionallyHidden=true",
+      "passed" : true,
+      "test" : "portal_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "learning_light_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "passed" : true,
+      "test" : "learning_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "booking_light_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "passed" : true,
+      "test" : "booking_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "me_light_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "passed" : true,
+      "test" : "me_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_light_push_present"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_light_push_reaches_window_top"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_light_push_present"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_light_push_reaches_window_top"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_light_push_present"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_light_push_reaches_window_top"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "shuttle_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, -106.0, 402.0, 44.0), intentionallyHidden=true",
+      "passed" : true,
+      "test" : "shuttle_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "portal_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "passed" : true,
+      "test" : "portal_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "learning_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "passed" : true,
+      "test" : "learning_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "booking_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, -106.0, 402.0, 44.0), intentionallyHidden=true",
+      "passed" : true,
+      "test" : "booking_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "me_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "passed" : true,
+      "test" : "me_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_dark_push_present"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_dark_push_reaches_window_top"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_dark_push_present"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_dark_push_reaches_window_top"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_dark_push_present"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_dark_push_reaches_window_top"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "top_canvas_keeps_all_webview_sessions"
+    },
+    {
       "detail" : "",
       "passed" : true,
       "test" : "portal_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 180.0, 402.0, 694.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "portal_web_extends_under_tab_bar"
     },
@@ -1091,12 +1256,12 @@
       "test" : "portal_pull_keeps_title_stationary"
     },
     {
-      "detail" : "expanded=180.0, compact=128.0",
+      "detail" : "expanded=170.0, compact=118.0",
       "passed" : true,
       "test" : "portal_native_title_collapses"
     },
     {
-      "detail" : "expanded=180.0, restored=180.0, tracker=0.0",
+      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
       "passed" : true,
       "test" : "portal_native_title_restores_at_top"
     },
@@ -1141,7 +1306,7 @@
       "test" : "moodle_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 180.0, 402.0, 694.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "moodle_web_extends_under_tab_bar"
     },
@@ -1151,12 +1316,12 @@
       "test" : "moodle_pull_keeps_title_stationary"
     },
     {
-      "detail" : "expanded=180.0, compact=128.0",
+      "detail" : "expanded=170.0, compact=118.0",
       "passed" : true,
       "test" : "moodle_native_title_collapses"
     },
     {
-      "detail" : "expanded=180.0, restored=180.0, tracker=0.0",
+      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
       "passed" : true,
       "test" : "moodle_native_title_restores_at_top"
     },
@@ -1291,7 +1456,7 @@
       "test" : "browser_has_history_before_clear"
     },
     {
-      "detail" : "cookies=2",
+      "detail" : "cookies=8",
       "passed" : true,
       "test" : "cache_clear_preserves_login_and_storage"
     },
@@ -1321,7 +1486,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 90457449-BE6C-4F7E-AF42-6F259341117E, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-26 05:24:36 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: CE4BC4C9-5F18-4AD4-B385-26004A14755F, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-26 05:57:52 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1762,8 +1927,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-26T05:25:04Z",
+  "date" : "2026-10-26T05:58:20Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "2541e092-a38c-424e-a6c3-d87eb9d049a4"
+  "runID" : "b464f0cb-dc10-434f-8b37-502b4b30ebfe"
 }

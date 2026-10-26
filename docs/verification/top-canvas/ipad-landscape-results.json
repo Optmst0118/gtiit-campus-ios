@@ -1,0 +1,244 @@
+{
+  "checks": [
+    {
+      "detail": "",
+      "passed": true,
+      "test": "South Campus omits unavailable rooms 402–409"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "South Campus keeps available 202–205"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "Welcome permits explicit confirmation on ready campus page"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "Welcome blocks confirmation while loading"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "Welcome blocks failed page confirmation"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "Welcome blocks unvisited page confirmation"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "Welcome blocks SSO redirect confirmation"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "Welcome blocks Moodle login page confirmation"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "Welcome blocks another site's confirmation"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "summary_route_targets_visible_native_moodle"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "cross_site_route_uses_native_destination"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "native_route_rejects_wrong_origin"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "native_booking_route_preserves_target"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "followed_courses_persist"
+    },
+    {
+      "detail": "navigation=(290.0, 0.0, 1086.0, 1032.0), window=(0.0, 0.0, 1376.0, 1032.0)",
+      "passed": true,
+      "test": "shuttle_light_navigation_reaches_window_top"
+    },
+    {
+      "detail": "bar=(290.0, -54.0, 1086.0, 54.0), intentionallyHidden=true",
+      "passed": true,
+      "test": "shuttle_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail": "navigation=(0.0, 0.0, 1376.0, 1032.0), window=(0.0, 0.0, 1376.0, 1032.0)",
+      "passed": true,
+      "test": "portal_light_navigation_reaches_window_top"
+    },
+    {
+      "detail": "bar=(0.0, -82.0, 1376.0, 50.0), intentionallyHidden=true",
+      "passed": true,
+      "test": "portal_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail": "navigation=(290.0, 0.0, 1086.0, 1032.0), window=(0.0, 0.0, 1376.0, 1032.0)",
+      "passed": true,
+      "test": "learning_light_navigation_reaches_window_top"
+    },
+    {
+      "detail": "bar=(290.0, 32.0, 1086.0, 106.0), intentionallyHidden=false",
+      "passed": true,
+      "test": "learning_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail": "navigation=(290.0, 0.0, 1086.0, 1032.0), window=(0.0, 0.0, 1376.0, 1032.0)",
+      "passed": true,
+      "test": "booking_light_navigation_reaches_window_top"
+    },
+    {
+      "detail": "bar=(290.0, 32.0, 1086.0, 106.0), intentionallyHidden=false",
+      "passed": true,
+      "test": "booking_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail": "navigation=(290.0, 0.0, 1086.0, 1032.0), window=(0.0, 0.0, 1376.0, 1032.0)",
+      "passed": true,
+      "test": "me_light_navigation_reaches_window_top"
+    },
+    {
+      "detail": "bar=(290.0, 32.0, 1086.0, 106.0), intentionallyHidden=false",
+      "passed": true,
+      "test": "me_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "moodle_light_push_present"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "moodle_light_push_reaches_window_top"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "rooms_light_push_present"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "rooms_light_push_reaches_window_top"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "sports_light_push_present"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "sports_light_push_reaches_window_top"
+    },
+    {
+      "detail": "navigation=(0.0, 0.0, 1376.0, 1032.0), window=(0.0, 0.0, 1376.0, 1032.0)",
+      "passed": true,
+      "test": "shuttle_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail": "bar=(0.0, -82.0, 1376.0, 50.0), intentionallyHidden=true",
+      "passed": true,
+      "test": "shuttle_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail": "navigation=(290.0, 0.0, 1086.0, 1032.0), window=(0.0, 0.0, 1376.0, 1032.0)",
+      "passed": true,
+      "test": "portal_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail": "bar=(0.0, -106.0, 1086.0, 106.0), intentionallyHidden=true",
+      "passed": true,
+      "test": "portal_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail": "navigation=(290.0, 0.0, 1086.0, 1032.0), window=(0.0, 0.0, 1376.0, 1032.0)",
+      "passed": true,
+      "test": "learning_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail": "bar=(290.0, 32.0, 1086.0, 106.0), intentionallyHidden=false",
+      "passed": true,
+      "test": "learning_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail": "navigation=(0.0, 0.0, 1376.0, 1032.0), window=(0.0, 0.0, 1376.0, 1032.0)",
+      "passed": true,
+      "test": "booking_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail": "bar=(0.0, -82.0, 1376.0, 50.0), intentionallyHidden=true",
+      "passed": true,
+      "test": "booking_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail": "navigation=(290.0, 0.0, 1086.0, 1032.0), window=(0.0, 0.0, 1376.0, 1032.0)",
+      "passed": true,
+      "test": "me_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail": "bar=(290.0, 32.0, 1086.0, 106.0), intentionallyHidden=false",
+      "passed": true,
+      "test": "me_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "moodle_dark_push_present"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "moodle_dark_push_reaches_window_top"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "rooms_dark_push_present"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "rooms_dark_push_reaches_window_top"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "sports_dark_push_present"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "sports_dark_push_reaches_window_top"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "top_canvas_keeps_all_webview_sessions"
+    }
+  ],
+  "completed": true,
+  "date": "2026-10-26T06:00:25Z",
+  "focus": "top-canvas",
+  "passed": true,
+  "runID": "c82a2385-f62a-4af5-a947-d24311a32de9"
+}

@@ -71,6 +71,9 @@ import UIKit
             model.upcoming.accept(MoodleUpcomingResult(loginRequired: false, items: [MoodleWork(url: "https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=1", name: "Homework (2) Assignment", course: "Introduction to Robotics · 2026 Winter", due: Date().addingTimeInterval(86400).timeIntervalSince1970, opened: nil, status: "notSubmitted", source: "assignment", kind: "assignment")], courses: 1, checked: 1, failed: 0, courseList: nil, directoryRefreshed: false))
         }
         if ProcessInfo.processInfo.environment["UI_REVIEW_BOOKING_KIND"] == "sports" { model.bookingSegment = .sports }
+        if let raw = ProcessInfo.processInfo.environment["UI_REVIEW_TAB"], let tab = AppTab(rawValue: raw) {
+            model.select(tab: tab)
+        }
         _app = StateObject(wrappedValue: model)
         let lock = AppLockController(authenticator: PreviewUnavailableAuthenticator())
         lock.lock()
