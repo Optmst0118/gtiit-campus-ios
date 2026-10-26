@@ -2,9 +2,9 @@
 
 更新时间：2026-10-26  
 仓库：/Users/zhufengyi/Documents/ChatGPT/探索/GTIIT-iOS-App  
-当前基线提交：242ecb2（main）  
-当前版本：2.0.1-beta，build 69  
-本机已安装：iPhone Air，2.0.1 (69)  
+当前基线提交：dbfab00（main）  
+当前版本：2.0.2-beta.2，build 71  
+本机已安装：iPhone Air，2.0.2 (71)  
 工作区状态：干净（交接文档提交前）
 
 ## 0. 先读什么
@@ -77,7 +77,7 @@
 
 - 学习/预约顶部只有一个 58pt 图标，和 20pt 内容边距对齐，不再有大标题卡。
 - Student/Learning/Booking 的右上角图标使用同样的系统 SF Symbol 呈现；Student 网页圆角卡使用 22pt 圆角。
-- 页面 canvas 通过 RootTabView 顶部的纯色 page canvas 延伸到状态栏/Dynamic Island；没有 material、没有额外导航底板。
+- 页面 canvas 通过 RootTabView 顶部的纯色 page canvas 延伸到状态栏/Dynamic Island；当前仍不是液态玻璃，专门任务见 HANDOFF-LIQUID-GLASS.md。
 - Attendance 页面在 WebAppearance 中反复清理新增控件/分隔线，并把 Attendance rules 默认折叠为 22pt 圆角 details 卡。
 - 所有原生卡片 push 到右侧页面；网页页面保留原生返回。
 - 触感反馈集中在 Core/Haptics.swift，Settings 可关。
@@ -182,7 +182,7 @@ python3 Tools/check_project.py
 - Tools/check_localization.py 通过：664 tr、46 format、890 .strings、2 Info.plist keys
 - Tools/run_regression.py：352 checks passed
 - 模拟器 Debug 构建成功
-- iPhone 安装 2.0.1 (69) 并启动
+- iPhone 安装 2.0.2 (71) 并启动
 
 未验证/需要真实账号的部分：
 
@@ -263,3 +263,8 @@ python3 Tools/check_project.py
 - Build 全局递增，不随版本归零。
 - 一次交付只升一次；同一代码重装不升级。
 - 当前 2.0.1-beta build 69 是规则生效前的历史记录；下一次实际代码交付若是修复，使用 2.0.2-beta.1（build 70 起）；若含新功能，使用 2.1.0-beta.1（build 70 起）。
+
+
+## 12. 液态玻璃未完成项
+
+状态栏/Dynamic Island 的液态玻璃仍未达到目标。已尝试 SwiftUI material、UINavigationBarAppearance、SwiftUI glassEffect、UIKit UIGlassEffect，均出现灰白、洗色或空白。当前安全基线是纯 page canvas。详细任务、失败记录和验收要求见 HANDOFF-LIQUID-GLASS.md。
