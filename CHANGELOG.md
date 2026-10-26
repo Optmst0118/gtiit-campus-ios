@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3-beta.2 · build 73] - 2026-10-26
+
+### Fixed
+
+- Remove borders, outlines and shadows on the outer official-site page canvases, including Moodle activity wrappers. Preserve interior card/table borders, form controls and actions; apply the same chrome rule in light/dark and portrait/landscape.
+
 ## [2.0.3-beta.1 · build 72] - 2026-10-26
 
 ### Fixed

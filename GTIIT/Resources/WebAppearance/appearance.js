@@ -31,6 +31,14 @@
     const shellCSS = [
         'footer,#footer,.footer,#page-footer,#course-footer,[class*="footer" i],[id*="footer" i],',
         '[class*="copyright" i],[class*="powered-by" i]{display:none !important}',
+        // Strip the website's outer page frame, not borders on cards, forms,
+        // tables or focusable controls inside the page.
+        'html,body,body > #root,body > #app,#root > .app,#app > .app,',
+        '#page-wrapper,#page,#page-content,#region-main-box,#region-main,.main-inner,',
+        'body > #main,body > #content,body > .main,body > .container,body > .container-fluid,',
+        '#root > div,#app > div,#root main,#app main,.main > .page-content',
+        '{border:0 !important;box-shadow:none !important;outline:0 !important}',
+        'body > iframe,#region-main > iframe,#page-content > iframe{border:0 !important}',
         'body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}',
         '::-webkit-scrollbar{width:0;height:0}'
     ].join('');

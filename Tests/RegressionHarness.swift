@@ -169,6 +169,9 @@ private final class RetiredViewReference {
         if ["layout", "top-canvas"].contains(ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] ?? "") {
             await verifyGlassWebLayout(); finish(); return
         }
+        if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "shell-borders" {
+            await verifyShellBorders(); finish(); return
+        }
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "download" {
             await downloadSmoke()
             finish()
@@ -208,6 +211,7 @@ private final class RetiredViewReference {
         check("disable_restore_removes_locations", settings.initialURL(for: .portal) == SiteID.portal.homeURL)
         await verifyLaunchPreparation()
         await verifyWebAppearance()
+        await verifyShellBorders()
         await verifyCampusFeatures()
         await verifyUpcomingReader()
         await verifyGlassWebLayout()
@@ -682,6 +686,33 @@ private final class RetiredViewReference {
         WebAppearance.setNativePageBackground(site: .portal, pageHex: Theme.pageHex(for: .light), on: web)
         check("portal_light_canvas_updates_with_native_navigation", await wait { await self.js(web, "getComputedStyle(document.body).backgroundColor==='rgb(242, 247, 250)' && getComputedStyle(document.querySelector('main')).backgroundColor==='rgb(242, 247, 250)'") == "true" })
         web.stopLoading(); web.removeFromSuperview()
+    }
+
+    private func verifyShellBorders() async {
+        let config = WKWebViewConfiguration()
+        WebAppearance.install(on: config, enabled: true)
+        let web = WKWebView(frame: CGRect(x: 0, y: 0, width: 874, height: 402), configuration: config)
+        window!.rootViewController!.view.addSubview(web)
+        for site in SiteID.allCases {
+            for style in [UIUserInterfaceStyle.light, .dark] {
+                web.overrideUserInterfaceStyle = style
+                let mode = style == .dark ? "dark" : "light"
+                web.loadHTMLString("""
+                <title>Shell border fixture</title><style>
+                html,body,#root,#page,#region-main,.main-inner{border:1px solid #ccc;box-shadow:0 0 0 1px #ddd;outline:1px solid #ddd}
+                input,.content-card,td{border:2px solid #345}
+                </style><div id="root"><div id="page"><main id="region-main"><div class="main-inner">
+                <form><input value="preserved"><button type="button" onclick="this.textContent='Accepted'">Submit</button></form>
+                <div class="content-card">Content</div><table><tr><td>Cell</td></tr></table>
+                </div></main></div></div>
+                """, baseURL: site.homeURL)
+                check("\(site.rawValue)_\(mode)_outer_web_frame_removed", await wait {
+                    await self.js(web, "document.title==='Shell border fixture' && ['html','body','#root','#page','#region-main','.main-inner'].every(s=>{const c=getComputedStyle(document.querySelector(s));return c.borderTopWidth==='0px' && c.boxShadow==='none' && c.outlineWidth==='0px'})") == "true"
+                })
+                check("\(site.rawValue)_\(mode)_inner_borders_and_actions_preserved", await js(web, "['input','.content-card','td'].every(s=>getComputedStyle(document.querySelector(s)).borderTopWidth==='2px') && document.querySelector('input').value==='preserved' && (document.querySelector('button').click(),document.querySelector('button').textContent==='Accepted')") == "true")
+            }
+        }
+        web.removeFromSuperview()
     }
 
     private func verifyMoodleNativeChrome() async {

@@ -583,6 +583,86 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "portal_light_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_light_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_dark_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_dark_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_light_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_light_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_dark_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_dark_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_light_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_light_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_dark_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_dark_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_light_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_light_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_dark_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_dark_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "calendar_both_years_and_bundled_originals"
     },
     {
@@ -1486,7 +1566,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 9D136C53-1FBE-49E9-B838-0914E2CD637F, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-26 06:50:13 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 1EB3D95B-3B0F-4FB2-BD08-12572A6E702C, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-26 07:07:21 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1927,8 +2007,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-26T06:50:41Z",
+  "date" : "2026-10-26T07:07:49Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "2629683e-1c70-4cf9-9e72-586b3e674577"
+  "runID" : "0ec34f17-b001-4355-b070-026c7fe0b057"
 }
