@@ -39,7 +39,7 @@ import UIKit
               const u=new URL(url);let body='';
               if(u.pathname.endsWith('service.php')){
                 const q=JSON.parse(options.body)[0];body=JSON.stringify([{error:false,data:q.methodname.includes('enrolled_courses')?{courses:[{id:1,fullname:'Introduction to Robotics'}],nextoffset:0}:{events:[]}}]);
-              }else if(u.pathname.endsWith('index.php'))body='<a href="https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=1">Homework 2</a>';
+              }else if(u.pathname.endsWith('index.php'))body='<a href="https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=1">Homework (2) Assignment</a>';
               else body='<div class="submissionstatustable"><table><tr><td>Submission status</td><td>No attempt</td></tr><tr><td>Due date</td><td>Sunday, 25 October 2026, 11:59 PM</td></tr></table></div>';
               return {ok:true,url:u.href,text:async()=>body};
             };
@@ -68,7 +68,7 @@ import UIKit
             }
         }
         if ProcessInfo.processInfo.environment["UI_REVIEW_UPCOMING"] == "1" {
-            model.upcoming.accept(MoodleUpcomingResult(loginRequired: false, items: [MoodleWork(url: "https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=1", name: "Homework 2", course: "Introduction to Robotics · 2026 Winter", due: Date().addingTimeInterval(86400).timeIntervalSince1970, opened: nil, status: "notSubmitted", source: "assignment", kind: "assignment")], courses: 1, checked: 1, failed: 0, courseList: nil, directoryRefreshed: false))
+            model.upcoming.accept(MoodleUpcomingResult(loginRequired: false, items: [MoodleWork(url: "https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=1", name: "Homework (2) Assignment", course: "Introduction to Robotics · 2026 Winter", due: Date().addingTimeInterval(86400).timeIntervalSince1970, opened: nil, status: "notSubmitted", source: "assignment", kind: "assignment")], courses: 1, checked: 1, failed: 0, courseList: nil, directoryRefreshed: false))
         }
         if ProcessInfo.processInfo.environment["UI_REVIEW_BOOKING_KIND"] == "sports" { model.bookingSegment = .sports }
         _app = StateObject(wrappedValue: model)

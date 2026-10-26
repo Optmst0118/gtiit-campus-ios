@@ -56,7 +56,11 @@ struct RootTabView: View {
             ForEach(AppTab.allCases) { tab in
                 Label(tab.title, systemImage: tab.symbol).tag(tab)
             }
-        }.listStyle(.sidebar)
+        }
+        .listStyle(.sidebar)
+        // Keep the menu canvas distinct from the detail page in every size class.
+        .scrollContentBackground(.hidden)
+        .background(Color(uiColor: Theme.sidebarSurroundUIColor).ignoresSafeArea())
     }
 
     private func tabs(sidebar: Bool) -> some View {
@@ -158,9 +162,9 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
             DispatchQueue.main.async { [weak self] in self?.onVisibilityChange?(expanded) }
         }
         revealSidebarButton.isHidden = wide != true || expanded
-        revealSidebarButton.frame = CGRect(x: view.safeAreaInsets.left + 12,
-            y: max(view.safeAreaInsets.top + 8, view.bounds.height - view.safeAreaInsets.bottom - 56),
-            width: 44, height: 44)
+        // The collapsed affordance follows the screen corner, not the bottom edge.
+        revealSidebarButton.frame = CGRect(x: view.safeAreaInsets.left + 8,
+            y: view.safeAreaInsets.top + 8, width: 44, height: 44)
         view.bringSubviewToFront(revealSidebarButton)
     }
     func update(wide: Bool, sidebar: Sidebar, content: Content) {
@@ -195,6 +199,8 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
 /// back buttons stay in the detail column; keep vertical scroll-edge coverage.
 private final class PrimaryDetailContainer: UIViewController {
     private let host: UIViewController
+    private var safeTrailingConstraint: NSLayoutConstraint!
+    private var edgeTrailingConstraint: NSLayoutConstraint!
     init(host: UIViewController) {
         self.host = host
         super.init(nibName: nil, bundle: nil)
@@ -206,13 +212,26 @@ private final class PrimaryDetailContainer: UIViewController {
         addChild(host)
         host.view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(host.view)
+        safeTrailingConstraint = host.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
+        edgeTrailingConstraint = host.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         NSLayoutConstraint.activate([
             host.view.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            host.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            safeTrailingConstraint,
             host.view.topAnchor.constraint(equalTo: view.topAnchor),
             host.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         host.didMove(toParent: self)
+    }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let screenBounds = view.window?.bounds ?? view.bounds
+        let edgeToEdge = traitCollection.userInterfaceIdiom == .phone && screenBounds.width > screenBounds.height
+        // Preserve tablet and portrait sizing while releasing the phone's right
+        // landscape gutter. Leading safe-area protection still belongs to the menu.
+        if safeTrailingConstraint.isActive == edgeToEdge {
+            NSLayoutConstraint.deactivate([safeTrailingConstraint, edgeTrailingConstraint])
+            (edgeToEdge ? edgeTrailingConstraint : safeTrailingConstraint)?.isActive = true
+        }
     }
 }
 

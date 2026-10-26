@@ -208,7 +208,7 @@ struct MoodleHomeView: View {
             } else {
                 VStack(spacing: 8) {
                     ForEach(upcoming.prefix(5)) { item in
-                        Button { open(MoodleDestination(title: item.name, url: URL(string: item.url)!)) } label: {
+                        Button { open(MoodleDestination(title: item.displayName, url: URL(string: item.url)!)) } label: {
                             MoodleWorkRowNative(item: item)
                         }.buttonStyle(CardPressStyle())
                     }
@@ -466,7 +466,7 @@ private struct MoodleWorkRowNative: View {
                 .foregroundStyle(item.kind == "quiz" ? Theme.orange : Theme.accent)
                 .frame(width: 24)
             VStack(alignment: .leading, spacing: 4) {
-                Text(item.name).font(.subheadline.weight(.semibold)).foregroundStyle(.primary).lineLimit(2)
+                Text(item.displayName).font(.subheadline.weight(.semibold)).foregroundStyle(.primary).lineLimit(2)
                 Text(item.course).font(.caption).foregroundStyle(.secondary).lineLimit(1)
                 if let due = item.dueDate {
                     Label(due.gtiitFormatted(), systemImage: "clock")

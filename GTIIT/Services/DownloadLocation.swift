@@ -8,7 +8,9 @@ final class ScopedDownloadFolder {
         var stale = false
         url = try URL(resolvingBookmarkData: bookmark, options: [], relativeTo: nil, bookmarkDataIsStale: &stale)
         scoped = url.startAccessingSecurityScopedResource()
-        guard FileManager.default.fileExists(atPath: url.path) else {
+        // Cloud providers such as OneDrive may materialize a directory lazily; the
+        // security-scoped bookmark is the authorization source, not fileExists.
+        guard url.isFileURL else {
             if scoped { url.stopAccessingSecurityScopedResource() }
             throw CocoaError(.fileNoSuchFile)
         }

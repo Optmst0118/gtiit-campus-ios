@@ -4,6 +4,15 @@ struct MoodleWork: Codable, Identifiable {
     let url: String
     let name: String
     let course: String
+    /// Canonical title for numbered homework while retaining the raw Moodle name in storage.
+    var displayName: String {
+        guard kind == "assign" || kind == "assignment" || source == "assignment" else { return name }
+        let pattern = "^\\s*Homework\\s*#?\\s*(\\d+)(?:\\s+Assignment)?\\s*$"
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]),
+              let match = regex.firstMatch(in: name, range: NSRange(name.startIndex..., in: name)),
+              let range = Range(match.range(at: 1), in: name) else { return name }
+        return "Homework (\(name[range])) Assignment"
+    }
     var due: TimeInterval?
     var opened: TimeInterval?
     let status: String

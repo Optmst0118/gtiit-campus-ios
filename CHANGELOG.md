@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- Student portal navigation is exposed in native leading controls while secondary official pages remain in the persistent WebKit session; native refresh and actions align with booking controls.
+- iPhone landscape detail content reaches the physical right edge, while the collapsed sidebar control stays at the safe-area top-left corner and the sidebar canvas matches the page theme.
+- Homework titles such as `Homework 2` display consistently as `Homework (2) Assignment` without mutating cached source names.
+- Security-scoped download folders no longer reject lazily materialized cloud-provider directories such as OneDrive.
 - Re-selecting a primary native page scrolls to its top with the shuttle page's 0.3s ease-in-out animation and Reduce Motion support; navigation stacks reset only when returning from a secondary route.
 - Re-selecting an official site's home scrolls the current page rather than reloading it, including Student's nested main scroller.
 - Use a native UISplitViewController and system sidebar List in wide/landscape layouts, retaining the same TabView/page instances through rotation. The system owns materials, selection and sidebar controls.

@@ -84,7 +84,7 @@ struct MoodleUpcomingView: View {
     }
     private func open(_ item: MoodleWork) {
         guard let url = MoodleWork.safeURL(item.url) else { return }
-        app.openWeb(url, site: .moodle, title: item.name)
+        app.openWeb(url, site: .moodle, title: item.displayName)
     }
 }
 private struct MoodleWorkRow: View {
@@ -93,7 +93,7 @@ private struct MoodleWorkRow: View {
     var body: some View {
         let _ = nativeLocale.identifier
         VStack(alignment: .leading, spacing: 5) {
-            Text(item.name).font(.headline).foregroundStyle(.primary).fixedSize(horizontal: false, vertical: true)
+            Text(item.displayName).font(.headline).foregroundStyle(.primary).fixedSize(horizontal: false, vertical: true)
             Text(item.course).font(.caption).foregroundStyle(.secondary).lineLimit(2)
             if let date = item.dueDate {
                 Label(L10n.format(date < Date() ? "已截止 · %@" : "截止 · %@", dateLabel(date)), systemImage: "clock")

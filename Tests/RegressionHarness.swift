@@ -694,7 +694,7 @@ private final class RetiredViewReference {
         let fixture = """
         <title>Native activity fixture</title><style>body,#region-main,.activity-header{background:white}body{padding-top:60px}nav{height:50px}</style>
         <nav class="navbar">Site navigation</nav><header id="page-header">Duplicate title</header>
-        <main id="region-main"><div class="activity-header">Homework 2 · Due tomorrow</div>
+        <main id="region-main"><div class="activity-header">Homework (2) Assignment · Due tomorrow</div>
         <form><textarea name="submission">Draft answer</textarea><button type="button" onclick="this.textContent='Accepted'">Save draft</button></form></main>
         """
         for (name, path) in [("course", "course/view.php?id=1"), ("assignment", "mod/assign/view.php?id=2"), ("submission", "mod/assign/view.php?id=2&action=editsubmission"), ("quiz", "mod/quiz/view.php?id=3")] {
@@ -1153,6 +1153,10 @@ extension RegressionApp {
             check("shortcut_empty_selection_is_preserved", AppSettings(defaults: prefs).shortcutIDs.isEmpty)
             let robotics = result.items.first { $0.course == "Synthetic Robotics" }
             check("upcoming_assignment_missing_from_timeline_found", robotics?.due == 1792943940 && robotics?.status == "notSubmitted" && robotics?.source == "assignment")
+            let homework = MoodleWork(url: "https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=99", name: "Homework 2", course: "Synthetic Robotics", due: nil, opened: nil, status: "notSubmitted", source: "assignment", kind: "assignment")
+            let alreadyCanonical = MoodleWork(url: homework.url, name: "Homework (3) Assignment", course: homework.course, due: nil, opened: nil, status: homework.status, source: homework.source, kind: homework.kind)
+            let ordinary = MoodleWork(url: homework.url, name: "Homework 2 - Lab notes", course: homework.course, due: nil, opened: nil, status: homework.status, source: homework.source, kind: homework.kind)
+            check("upcoming_homework_title_canonical", homework.displayName == "Homework (2) Assignment" && alreadyCanonical.displayName == "Homework (3) Assignment" && ordinary.displayName == ordinary.name)
             check("upcoming_chinese_date_and_submitted_status", result.items.first { $0.url.hasSuffix("id=2") }?.due == 1792943940 && result.items.first { $0.url.hasSuffix("id=2") }?.isSubmitted == true)
             check("upcoming_calendar_open_and_dedup", result.items.filter { $0.kind == "quiz" }.count == 1 && result.items.count == 3)
             check("upcoming_unsafe_links_rejected", result.items.allSatisfy { MoodleWork.safeURL($0.url) != nil })

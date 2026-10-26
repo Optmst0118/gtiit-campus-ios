@@ -246,7 +246,6 @@ struct DownloadItem: Identifiable, Codable {
     }
     func folderURL(_ bookmark: Data) throws -> URL {
         if let folder = folders[bookmark] {
-            guard FileManager.default.fileExists(atPath: folder.url.path) else { throw CocoaError(.fileNoSuchFile) }
             return folder.url
         }
         let folder = try ScopedDownloadFolder(bookmark: bookmark)
