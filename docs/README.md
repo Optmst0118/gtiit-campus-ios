@@ -20,6 +20,7 @@
 | [HAPTICS.md](HAPTICS.md) | 触感反馈触发点、强度与总开关 |
 | [BACKGROUND-REFRESH.md](BACKGROUND-REFRESH.md) | 后台任务/Widget/Live Activity/通知/刷新审计 |
 | [LOCALIZATION.md](LOCALIZATION.md) | 原生中英翻译覆盖、CI 检查与本轮修复 |
+| [VERSIONING.md](VERSIONING.md) | 版本号递增、测试阶段与 build 规则 |
 | [RESEARCH-SPEC.md](RESEARCH-SPEC.md) | 四个校园站点的能力边界、信息架构与中文文案规格（2026-10-21 快照） |
 | [design/DESIGN.md](design/DESIGN.md) | 配色、图标、动效、设计参考与数据边界 |
 | [RELEASE-1.4.md](RELEASE-1.4.md) | 1.4 变更、验收与回溯 |
