@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1-beta · build 67] - 2026-10-26
+
+### Fixed
+
+- Attendance page: hide the stray add control and horizontal separator, and replace the long attendance rules block with a default-collapsed, 22pt rounded Attendance rules card.
+- The status-bar/Dynamic Island area now gets a subtle glass tint over the page canvas instead of a flat separate plate.
+
 ## [2.0.1-beta · build 66] - 2026-10-26
 
 ### Fixed

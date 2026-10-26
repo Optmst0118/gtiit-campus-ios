@@ -39,12 +39,14 @@ struct RootTabView: View {
             .overlay(alignment: .top) {
                 // The page canvas continues behind the status bar / Dynamic Island;
                 // no separate material or extra navigation plate is introduced.
-                Rectangle()
-                    .fill(Theme.pageBackground)
-                    .frame(height: geometry.safeAreaInsets.top)
-                    .ignoresSafeArea(edges: .top)
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
+                ZStack {
+                    Rectangle().fill(.ultraThinMaterial)
+                    Theme.pageBackground.opacity(0.72)
+                }
+                .frame(height: geometry.safeAreaInsets.top)
+                .ignoresSafeArea(edges: .top)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
             }
             .modifier(ContextMenuBackdrop(active: app.contextMenuSource != nil))
             .overlay { YilongOverlay(controller: app.yilong).allowsHitTesting(!app.lock.isLocked) }

@@ -54,6 +54,12 @@
         '.bg-gradient-to-b,.bg-gradient-to-t,.bg-gradient-to-r{background-image:none !important}',
         '.from-white,.from-gray-50{--tw-gradient-from:transparent !important}',
         '.rounded,.rounded-md,.rounded-lg,.rounded-xl,.rounded-2xl,.rounded-3xl,.card,.gtiit-private-card{border-radius:22px !important}',
+        'details.gtiit-attendance-rules{background:Canvas;color:CanvasText;border-radius:22px;padding:16px 18px;margin:0 0 16px;box-shadow:0 1px 2px rgba(0,0,0,.06)}',
+        'details.gtiit-attendance-rules summary{display:flex;align-items:center;justify-content:space-between;list-style:none;cursor:pointer;font-size:17px;font-weight:600}',
+        'details.gtiit-attendance-rules summary::-webkit-details-marker{display:none}',
+        'details.gtiit-attendance-rules summary::after{content:"⌄";font-size:17px;color:#6b7280;transition:transform .18s ease}',
+        'details.gtiit-attendance-rules[open] summary::after{transform:rotate(180deg)}',
+        '.gtiit-attendance-rules-body{padding-top:10px;font-size:14px;line-height:1.45;color:CanvasText}',
         // Student web actions are represented by native chrome.
         '[aria-label*=\"notification\" i],[aria-label*=\"通知\"],[title*=\"notification\" i],[title*=\"通知\"],[data-testid*=\"notification\" i]{display:none !important}',
         '[aria-label*=\"error\" i],[aria-label*=\"故障\"],[title*=\"error\" i],[title*=\"故障\"],[data-testid*=\"error\" i]{display:none !important}',
@@ -310,6 +316,62 @@
         }
     };
 
+    const isAttendancePage = () => pageHost === 'students.gtiit.edu.cn' && /^\/attendance(?:\/|$)/.test(location.pathname);
+
+    const hideAttendanceChrome = () => {
+        if (!isAttendancePage() || !document.body) return;
+        for (const element of document.querySelectorAll('hr')) element.style.setProperty('display', 'none', 'important');
+        for (const element of document.querySelectorAll('button,[role="button"]')) {
+            const rect = element.getBoundingClientRect();
+            if (rect.width > 64 || rect.height > 64) continue;
+            const text = (element.textContent || '').trim();
+            const label = (element.getAttribute('aria-label') || '') + ' ' + String(element.className || '');
+            if (text === '+' || /add|attendance|新增|考勤/i.test(label)) {
+                element.style.setProperty('display', 'none', 'important');
+                const parent = element.parentElement;
+                if (parent && parent !== document.body && parent.children.length === 1) parent.style.setProperty('display', 'none', 'important');
+            }
+        }
+        // A thin horizontal rule under the add button is not page content.
+        for (const element of document.querySelectorAll('div,span')) {
+            const rect = element.getBoundingClientRect();
+            if (rect.height > 2 || rect.width < innerWidth * 0.55) continue;
+            const style = getComputedStyle(element);
+            if (style.backgroundColor !== 'rgba(0, 0, 0, 0)' || parseFloat(style.borderTopWidth) > 0) {
+                element.style.setProperty('display', 'none', 'important');
+            }
+        }
+    };
+
+    const setupAttendanceRules = () => {
+        if (!isAttendancePage() || !document.body || document.querySelector('.gtiit-attendance-rules')) return;
+        const candidates = Array.from(document.querySelectorAll('div,section,article')).filter((element) => {
+            if (element.closest('.gtiit-attendance-rules')) return false;
+            const text = (element.textContent || '').replace(/\s+/g, ' ').trim();
+            return /it is the responsibility of the students/i.test(text) && text.length < 2500;
+        });
+        if (!candidates.length) return;
+        candidates.sort((a, b) => a.textContent.length - b.textContent.length);
+        let card = candidates[0];
+        for (let depth = 0; depth < 4 && card.parentElement && card.parentElement !== document.body; depth += 1) {
+            const parent = card.parentElement;
+            const rect = parent.getBoundingClientRect();
+            if (rect.width < 250 || rect.height < 60 || rect.height > 700) break;
+            card = parent;
+        }
+        const details = document.createElement('details');
+        details.className = 'gtiit-attendance-rules';
+        const summary = document.createElement('summary');
+        summary.textContent = 'Attendance rules';
+        const body = document.createElement('div');
+        body.className = 'gtiit-attendance-rules-body';
+        body.innerHTML = card.innerHTML;
+        details.appendChild(summary);
+        details.appendChild(body);
+        card.style.setProperty('display', 'none', 'important');
+        card.parentElement.insertBefore(details, card);
+    };
+
     const runCleanup = () => {
         prefillMicrosoftEmail();
         hideBrandingImages();
@@ -319,6 +381,8 @@
         releaseMoodleNavigation();
         removeMoodleCustomizeCard();
         markPortalPrivateCards();
+        hideAttendanceChrome();
+        setupAttendanceRules();
     };
 
     const scheduleCleanup = () => {
