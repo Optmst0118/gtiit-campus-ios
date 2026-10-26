@@ -108,11 +108,12 @@ private struct NativePrimaryNavigation<Sidebar: View, Content: View>: UIViewCont
         controller.update(wide: wide, sidebar: sidebar, content: content)
     }
 }
-private final class NativePrimaryController<Sidebar: View, Content: View>: UISplitViewController, UISplitViewControllerDelegate {
+private final class NativePrimaryController<Sidebar: View, Content: View>: UISplitViewController, UISplitViewControllerDelegate, SidebarNavigationHosting {
     private let sidebarHost: UIHostingController<Sidebar>
     private let detailHost: UIHostingController<Content>
     private let detailNavigation: UINavigationController
-    private let revealSidebarButton = UIButton(type: .system)
+    private let navigationGlass = SidebarNavigationGlass()
+    private var revealSidebarButton: UIButton { navigationGlass.sidebar }
     private let sidebarToggleItem = UIBarButtonItem()
     var onVisibilityChange: ((Bool) -> Void)?
     private var reportedVisibility: Bool?
@@ -141,16 +142,8 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
         preferredPrimaryColumnWidthFraction = 0.25
         preferredSplitBehavior = .tile
         displayModeButtonVisibility = .never
-        var configuration: UIButton.Configuration
-        if #available(iOS 26.0, *) { configuration = .glass() }
-        else { configuration = .plain() }
-        configuration.image = UIImage(systemName: "sidebar.left")
-        revealSidebarButton.configuration = configuration
-        revealSidebarButton.tintColor = UIColor(Theme.accent)
-        revealSidebarButton.accessibilityLabel = L10n.tr("收起侧栏")
-        revealSidebarButton.accessibilityIdentifier = "sidebar.reveal"
-        revealSidebarButton.addTarget(self, action: #selector(toggleSidebarVisibility), for: .touchUpInside)
-        view.addSubview(revealSidebarButton)
+        navigationGlass.onSidebar = { [weak self] in self?.toggleSidebarVisibility() }
+        view.addSubview(navigationGlass)
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     @objc private func collapseSidebar() {
@@ -177,7 +170,7 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
         // Open: use the sidebar's own leading navigation item, exactly aligned
         // with the title bar and clear of GTIIT. Collapsed: float at the detail
         // leading edge; detail toolbars reserve a 44pt slot for it.
-        revealSidebarButton.isHidden = wide != true || expanded
+        navigationGlass.isHidden = wide != true || expanded
         sidebarToggleItem.accessibilityLabel = expanded ? L10n.tr("收起侧栏") : L10n.tr("展开侧栏")
         let insets = view.window?.safeAreaInsets ?? view.safeAreaInsets
         let left = max(view.safeAreaInsets.left, insets.left)
@@ -200,9 +193,16 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
                 origin.y = (trailing.map { $0.convert($0.bounds, to: view).midY } ?? frame.midY) - 22
             }
         }
-        revealSidebarButton.frame = CGRect(origin: origin, size: CGSize(width: 44, height: 44))
+        navigationGlass.frame = CGRect(origin: origin, size: CGSize(width: 100, height: 44))
         revealSidebarButton.accessibilityLabel = L10n.tr("展开侧栏")
-        view.bringSubviewToFront(revealSidebarButton)
+        navigationGlass.back.accessibilityLabel = L10n.tr("返回")
+        view.bringSubviewToFront(navigationGlass)
+    }
+    func toggleSidebarNavigation() { toggleSidebarVisibility() }
+    func updateSidebarBack(_ visible: Bool, action: @escaping () -> Void,
+                           coordinator: UIViewControllerTransitionCoordinator?) {
+        navigationGlass.onBack = action
+        navigationGlass.setBackVisible(visible, coordinator: coordinator)
     }
     private func toolbarControls(in view: UIView) -> [UIControl] {
         if let control = view as? UIControl { return [control] }

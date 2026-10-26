@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3-beta.1 · build 72] - 2026-10-26
+
+### Fixed
+
+- Coordinate collapsed-sidebar and back controls in one persistent Liquid Glass container. Back separates to the right on push and merges on return; deep navigation keeps one pair rather than overlapping native back and floating sidebar controls.
+- Share navigation-surface registration across native pages, keep modal stacks independent, preserve web-history/unsaved-form back actions and native interactive pop with a forwarding gesture delegate. Unwrap delegates on page changes to prevent proxy cycles.
+- Preserve the existing canvas, session, Tab and expanded-sidebar behavior; use non-morphing system-material controls on older iOS and honor Reduce Motion.
+
 ## [2.0.2-beta.2 · build 71] - 2026-10-26
 
 ### Fixed

@@ -73,12 +73,13 @@ enum Theme {
 }
 
 extension View {
-    func nativeNavigationSurface(large: Bool = false) -> some View {
+    func nativeNavigationSurface(large: Bool = false, sidebarBack: (() -> Void)? = nil) -> some View {
         // Automatic visibility lets native scroll tracking progressively reveal
         // the system material. The same canvas also covers the status-bar area.
         self.scrollContentBackground(.hidden)
             .background(Theme.pageBackground.ignoresSafeArea())
             .toolbarBackground(.automatic, for: .navigationBar)
+            .modifier(SidebarNavigationSurface(customBack: sidebarBack))
     }
 
     /// 统一的卡片外观，供「我的」等原生页面使用。

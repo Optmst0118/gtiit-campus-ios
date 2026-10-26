@@ -84,6 +84,7 @@
 		9C5EF93651B62D447B0FFF62 /* NativePageIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBCAD68280660A057726ED /* NativePageIcon.swift */; };
 		02E452BE17D52FF126219730 /* NativeWebPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C29810746CAE463CDB763C21 /* NativeWebPageView.swift */; };
 		C43BD859842F6E666E2C03A3 /* SettingsChoicePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */; };
+		6A3FFAEEC1D834EF220EB4A1 /* SidebarNavigationChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6901DC71E09D0143FA9F3C5D /* SidebarNavigationChrome.swift */; };
 		4618A9554615327A3DAB76BA /* TabBarReselectObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FAC255AC342CFFF6772E0D /* TabBarReselectObserver.swift */; };
 		37896C8017E412D34FF32B69 /* WebPrewarmHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5EF8C998D54C53A87CA361 /* WebPrewarmHost.swift */; };
 		4D20A64E6DA1B8D39585377E /* WebViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */; };
@@ -172,6 +173,7 @@
 		2BCBCAD68280660A057726ED /* NativePageIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativePageIcon.swift; sourceTree = "<group>"; };
 		C29810746CAE463CDB763C21 /* NativeWebPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeWebPageView.swift; sourceTree = "<group>"; };
 		7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsChoicePicker.swift; sourceTree = "<group>"; };
+		6901DC71E09D0143FA9F3C5D /* SidebarNavigationChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarNavigationChrome.swift; sourceTree = "<group>"; };
 		F9FAC255AC342CFFF6772E0D /* TabBarReselectObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarReselectObserver.swift; sourceTree = "<group>"; };
 		EB5EF8C998D54C53A87CA361 /* WebPrewarmHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebPrewarmHost.swift; sourceTree = "<group>"; };
 		FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContainer.swift; sourceTree = "<group>"; };
@@ -357,6 +359,7 @@
 				2BCBCAD68280660A057726ED /* NativePageIcon.swift */,
 				C29810746CAE463CDB763C21 /* NativeWebPageView.swift */,
 				7B9FD27025276154C8FF10A7 /* SettingsChoicePicker.swift */,
+				6901DC71E09D0143FA9F3C5D /* SidebarNavigationChrome.swift */,
 				F9FAC255AC342CFFF6772E0D /* TabBarReselectObserver.swift */,
 				EB5EF8C998D54C53A87CA361 /* WebPrewarmHost.swift */,
 				FE9814CEC2710B2DCDFE6D32 /* WebViewContainer.swift */,
@@ -520,6 +523,7 @@
 				9C5EF93651B62D447B0FFF62 /* in Sources */,
 				02E452BE17D52FF126219730 /* in Sources */,
 				C43BD859842F6E666E2C03A3 /* in Sources */,
+				6A3FFAEEC1D834EF220EB4A1 /* in Sources */,
 				4618A9554615327A3DAB76BA /* in Sources */,
 				37896C8017E412D34FF32B69 /* in Sources */,
 				4D20A64E6DA1B8D39585377E /* in Sources */,
@@ -617,7 +621,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 71;
+				CURRENT_PROJECT_VERSION = 72;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -626,8 +630,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.2;
-				GTIIT_RELEASE_LABEL = "2.0.2-beta.2";
+				MARKETING_VERSION = 2.0.3;
+				GTIIT_RELEASE_LABEL = "2.0.3-beta.1";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -642,7 +646,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 71;
+				CURRENT_PROJECT_VERSION = 72;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -651,8 +655,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.2;
-				GTIIT_RELEASE_LABEL = "2.0.2-beta.2";
+				MARKETING_VERSION = 2.0.3;
+				GTIIT_RELEASE_LABEL = "2.0.3-beta.1";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -833,9 +837,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "71";
-				MARKETING_VERSION = "2.0.2";
-				GTIIT_RELEASE_LABEL = "2.0.2-beta.2";
+				CURRENT_PROJECT_VERSION = "72";
+				MARKETING_VERSION = "2.0.3";
+				GTIIT_RELEASE_LABEL = "2.0.3-beta.1";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 			};
@@ -853,9 +857,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "71";
-				MARKETING_VERSION = "2.0.2";
-				GTIIT_RELEASE_LABEL = "2.0.2-beta.2";
+				CURRENT_PROJECT_VERSION = "72";
+				MARKETING_VERSION = "2.0.3";
+				GTIIT_RELEASE_LABEL = "2.0.3-beta.1";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 			};

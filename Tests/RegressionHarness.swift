@@ -1213,9 +1213,9 @@ extension RegressionApp {
             if let control = view as? UIControl { return [control] }
             return view.subviews.flatMap { controls(in: $0) }
         }
-        func revealButton(in view: UIView) -> UIButton? {
-            if let button = view as? UIButton, button.accessibilityIdentifier == "sidebar.reveal" { return button }
-            return view.subviews.compactMap { revealButton(in: $0) }.first
+        func revealButton(in view: UIView, id: String = "sidebar.reveal") -> UIButton? {
+            if let button = view as? UIButton, button.accessibilityIdentifier == id { return button }
+            return view.subviews.compactMap { revealButton(in: $0, id: id) }.first
         }
         let originalStyle = window!.overrideUserInterfaceStyle
         let originalNativeMoodle = settings.nativeMoodleEnabled
@@ -1246,7 +1246,7 @@ extension RegressionApp {
                 check("\(tab.rawValue)_\(mode)_controls_respect_top_safe_area",
                       navigation.isNavigationBarHidden || bar.minY >= window!.safeAreaInsets.top - 1, "bar=\(bar), intentionallyHidden=\(navigation.isNavigationBarHidden)")
             }
-            if window!.traitCollection.userInterfaceIdiom == .phone, window!.bounds.width > window!.bounds.height,
+            if PrimaryNavigationLayout.usesSidebar(window!.bounds.size),
                let button = revealButton(in: host.view) {
                 // Exercise collapsed split-view layout, including the island-side inset.
                 // Find the split via the native button's controller hierarchy instead
@@ -1259,13 +1259,31 @@ extension RegressionApp {
                     host.view.layoutIfNeeded()
                     let frame = button.convert(button.bounds, to: window)
                     check("sidebar_\(mode)_single_safe_inset", abs(frame.minX - (window!.safeAreaInsets.left + 20)) < 1, "button=\(frame)")
-                    if let nav = visibleNavigation(host), !nav.isNavigationBarHidden {
+                    if window!.traitCollection.userInterfaceIdiom == .phone, let nav = visibleNavigation(host), !nav.isNavigationBarHidden {
                         let bar = nav.navigationBar.convert(nav.navigationBar.bounds, to: window)
                         let trailing = controls(in: nav.navigationBar).filter {
                             !$0.isHidden && $0.alpha > 0 && $0.bounds.height > 0 && $0.convert($0.bounds, to: window).midX > bar.midX
                         }.max { $0.convert($0.bounds, to: window).maxX < $1.convert($1.bounds, to: window).maxX }
                         let center = trailing.map { $0.convert($0.bounds, to: window).midY } ?? bar.midY
                         check("sidebar_\(mode)_toolbar_center_alignment", abs(frame.midY - center) < 1, "button=\(frame), trailingCenter=\(center)")
+                    }
+                    app.select(tab: .booking)
+                    try? await Task.sleep(for: .milliseconds(350))
+                    app.openWeb(SiteID.rooms.homeURL, site: .rooms, title: "Glass navigation push")
+                    let separated = await wait { revealButton(in: host.view, id: "sidebar.back")?.isEnabled == true }
+                    check("glass_\(mode)_back_separates_on_push", separated)
+                    _ = await wait { visibleNavigation(host)?.transitionCoordinator == nil }
+                    if let back = revealButton(in: host.view, id: "sidebar.back") {
+                        if let gesture = visibleNavigation(host)?.interactivePopGestureRecognizer {
+                            check("glass_\(mode)_native_pop_gesture_available", gesture.delegate?.gestureRecognizerShouldBegin?(gesture) == true)
+                        }
+                        let sidebarFrame = button.convert(button.bounds, to: window)
+                        let backFrame = back.convert(back.bounds, to: window)
+                        check("glass_\(mode)_buttons_never_overlap", backFrame.minX >= sidebarFrame.maxX + 8)
+                        check("glass_\(mode)_stock_back_hidden", visibleNavigation(host)?.topViewController?.navigationItem.hidesBackButton == true)
+                        back.sendActions(for: .touchUpInside)
+                        let returned = await wait { visibleNavigation(host)?.viewControllers.count == 1 && !back.isEnabled }
+                        check("glass_\(mode)_back_returns_and_merges", returned)
                     }
                     split.preferredDisplayMode = .oneBesideSecondary; split.show(.primary)
                     try? await Task.sleep(for: .milliseconds(350))

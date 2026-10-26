@@ -16,6 +16,7 @@ struct NativeWebPageView: View {
 private struct NativeWebPageContent: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.campusSidebarRevealVisible) private var sidebarCollapsed
     @ObservedObject var model: BrowserModel
     let site: SiteID
     let title: String
@@ -44,9 +45,11 @@ private struct NativeWebPageContent: View {
         }
         .background(Theme.pageBackground)
         .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+        .navigationBarTitleDisplayMode(.inline).nativeNavigationSurface(sidebarBack: handlesBack ? {
+            if model.hasUnsavedChanges { confirmLeave = true } else { goBack() }
+        } : nil)
         .modifier(PortalLandscapeNavigation(site: site))
-        .navigationBarBackButtonHidden(handlesBack)
+        .navigationBarBackButtonHidden(handlesBack || sidebarCollapsed)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { model.reload() } label: { Image(systemName: "arrow.clockwise") }.accessibilityLabel(L10n.tr("刷新"))
@@ -58,7 +61,7 @@ private struct NativeWebPageContent: View {
                     Button(L10n.tr("站点与登录"), systemImage: "info.circle") { showSiteInfo = true }
                 } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel(L10n.tr("更多"))
             }
-            if handlesBack {
+            if handlesBack && !sidebarCollapsed {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         if model.hasUnsavedChanges { confirmLeave = true } else { goBack() }
