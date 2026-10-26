@@ -42,9 +42,9 @@ struct RootTabView: View {
                 Rectangle()
                     .fill(Theme.pageBackground)
                     .frame(height: geometry.safeAreaInsets.top)
-                .ignoresSafeArea(edges: .top)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
+                    .ignoresSafeArea(edges: .top)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
             }
             .modifier(ContextMenuBackdrop(active: app.contextMenuSource != nil))
             .overlay { YilongOverlay(controller: app.yilong).allowsHitTesting(!app.lock.isLocked) }
@@ -118,6 +118,7 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
     private let detailHost: UIHostingController<Content>
     private let detailNavigation: UINavigationController
     private let revealSidebarButton = UIButton(type: .system)
+    private let sidebarToggleItem = UIBarButtonItem()
     var onVisibilityChange: ((Bool) -> Void)?
     private var reportedVisibility: Bool?
     private var wide: Bool?
@@ -129,6 +130,12 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
         delegate = self
         sidebarHost.title = "GTIIT"
         sidebarHost.view.backgroundColor = .clear
+        sidebarHost.navigationItem.leftBarButtonItem = sidebarToggleItem
+        sidebarToggleItem.image = UIImage(systemName: "sidebar.left")
+        sidebarToggleItem.style = .plain
+        sidebarToggleItem.target = self
+        sidebarToggleItem.action = #selector(toggleSidebarVisibility)
+        sidebarToggleItem.accessibilityLabel = L10n.tr("收起侧栏")
         view.backgroundColor = .clear
         detailHost.view.backgroundColor = Theme.pageUIColor
         detailNavigation.view.backgroundColor = Theme.pageUIColor
@@ -171,16 +178,16 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
             reportedVisibility = expanded
             DispatchQueue.main.async { [weak self] in self?.onVisibilityChange?(expanded) }
         }
-        revealSidebarButton.isHidden = wide != true
-        // Keep the single toggle at the physical top-leading corner, inside the
-        // window safe area. In landscape the left safe area is created by the
-        // Dynamic Island; using the window insets keeps the button off the
-        // rounded hardware corner instead of drifting with the split view.
+        // Open: use the sidebar's own leading navigation item, exactly aligned
+        // with the title bar and clear of GTIIT. Collapsed: float at the detail
+        // leading edge; detail toolbars reserve a 44pt slot for it.
+        revealSidebarButton.isHidden = wide != true || expanded
+        sidebarToggleItem.accessibilityLabel = expanded ? L10n.tr("收起侧栏") : L10n.tr("展开侧栏")
         let insets = view.window?.safeAreaInsets ?? view.safeAreaInsets
         let left = max(view.safeAreaInsets.left, insets.left)
         let top = max(view.safeAreaInsets.top, insets.top)
-        revealSidebarButton.frame = CGRect(x: left + 8, y: top + 8, width: 44, height: 44)
-        revealSidebarButton.accessibilityLabel = expanded ? L10n.tr("收起侧栏") : L10n.tr("展开侧栏")
+        revealSidebarButton.frame = CGRect(x: left + 20, y: top + 8, width: 44, height: 44)
+        revealSidebarButton.accessibilityLabel = L10n.tr("展开侧栏")
         view.bringSubviewToFront(revealSidebarButton)
     }
     func update(wide: Bool, sidebar: Sidebar, content: Content) {
@@ -406,3 +413,9 @@ extension RootTabView {
         }
     }
 }
+
+
+
+
+
+

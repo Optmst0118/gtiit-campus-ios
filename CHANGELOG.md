@@ -4,6 +4,23 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2-beta.2 · build 71] - 2026-10-26
+
+### Fixed
+
+- Collapsed sidebar toggle aligns with the 20pt page content margin and reserves a 64pt leading slot before Student/Booking leading controls.
+- Expanded sidebar toggle uses the sidebar's leading navigation item instead of a floating control.
+
+## [2.0.2-beta.1 · build 70] - 2026-10-26
+
+### Fixed
+
+- Sidebar toggle moves with state: sidebar leading navigation item when expanded, floating detail control when collapsed; detail leading controls reserve its slot.
+- Student toolbar icon presentation and rounded card corners are kept minimal and aligned with Learning/Booking.
+- Attendance add control and separator cleanup runs repeatedly while the page settles; Attendance rules is a collapsed rounded card.
+- Status bar / Dynamic Island uses the previous solid page canvas; experimental material/glass attempts were removed.
+- Assignment extraction prefers the number after Homework/Assignment/HW.
+
 ## [2.0.1-beta · build 69] - 2026-10-26
 
 ### Fixed

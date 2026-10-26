@@ -32,6 +32,7 @@ private struct BrowserChrome: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var app: AppModel
+    @Environment(\.campusSidebarNavigation) private var campusSidebarNavigation
     @ObservedObject var model: BrowserModel
 
     var body: some View {
@@ -47,6 +48,11 @@ private struct BrowserChrome: View {
         .nativeNavigationSurface(large: true)
         .modifier(PortalLandscapeNavigation(site: model.site))
         .toolbar {
+            if campusSidebarNavigation {
+                ToolbarItem(placement: .topBarLeading) {
+                    Color.clear.frame(width: 64).accessibilityHidden(true)
+                }
+            }
             if model.site == .rooms || model.site == .sports {
                 ToolbarItem(placement: .topBarLeading) { bookingPicker }
             } else if model.site == .portal {

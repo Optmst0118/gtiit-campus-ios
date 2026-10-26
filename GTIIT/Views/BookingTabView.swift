@@ -6,6 +6,7 @@ struct BookingTabView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
+    @Environment(\.campusSidebarNavigation) private var campusSidebarNavigation
     @State private var showSiteInfo = false
     @State private var path = NavigationPath()
     @State private var rootVisible = true
@@ -43,6 +44,11 @@ struct BookingTabView: View {
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
             .toolbar {
+                if campusSidebarNavigation {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Color.clear.frame(width: 64).accessibilityHidden(true)
+                    }
+                }
                 ToolbarItem(placement: .topBarLeading) { BookingSiteMenu() }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { Haptics.selection(); app.browser(for: currentSite).reload() } label: { Image(systemName: "arrow.clockwise") }

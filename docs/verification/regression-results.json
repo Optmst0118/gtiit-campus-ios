@@ -1321,7 +1321,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 1D6442FF-40D5-47B2-BC31-7ABB86B34CF3, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-26 05:03:49 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 52631FF8-9377-4959-823E-BCE3680F3491, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-26 05:20:32 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -1762,8 +1762,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-26T05:04:18Z",
+  "date" : "2026-10-26T05:21:01Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "9e173865-8ba3-4a41-8b28-a28c03819cc8"
+  "runID" : "e5d12761-ee46-4e3b-8035-10547b15db45"
 }
