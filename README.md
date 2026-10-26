@@ -11,7 +11,7 @@
 
 把学校的四个官方网页集中到一个 iOS App，配合原生班车倒计时、离线课表、临近作业、临近考试、PDF 预览与下载管理。课表需用户确认后保存；日程摘要缓存在本机，校园业务在官方网页完成。
 
-**当前版本：2.0.3-beta.2（build 73）**。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次验证范围见 [2.0.3 beta.2 发布记录](docs/RELEASE-2.0.3-beta.2.md)。
+**当前版本：2.0.4-beta.1（build 74）**。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次验证范围见 [2.0.4 beta.1 发布记录](docs/RELEASE-2.0.4-beta.1.md)。
 
 状态栏／Dynamic Island 连续原生背景修复已完成：导航容器延伸到窗口顶部，移除独立顶端覆盖层，不叠加材质。完整回归 **385/385**，另完成 iPhone 横屏左右方向及 iPad 横竖屏专项检查；见[视图层级证据与验证记录](docs/verification/top-canvas/README.md)。
 
@@ -31,6 +31,8 @@
 本版统一横屏／侧栏收起时的导航：侧栏开关固定，返回按钮在同一玻璃容器内分离与收回；保留深层返回、网页内返回及独立弹窗导航。见[验证记录](docs/verification/navigation-glass/README.md)。
 
 套壳网页外层灰色边框、描边和阴影已移除，网页内部表单、表格及卡片边界保留；见[四站专项验证](docs/verification/shell-borders/README.md)。
+
+Student 的每日模糊账户提示与新手导览已关闭；临近考试移除顶部状态卡片，仅在考试安排底部保留更新时间。见[验证记录](docs/verification/student-introductions-exams/README.md)。
 
 ## 目录
 

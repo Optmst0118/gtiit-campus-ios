@@ -44,21 +44,29 @@ struct StudentExamsView: View {
     var body: some View {
         List {
             Section {
-                if store.refreshing { HStack { ProgressView(); Text(L10n.tr("正在核对考试安排…")) } }
-                if store.loginRequired { Button(L10n.tr("前往 Student 登录")) { app.openSite(.portal) } }
-                if store.failed { Label(L10n.tr("更新失败，请连接校园网或 A Trust 后重试。"), systemImage: "exclamationmark.triangle").foregroundStyle(Theme.orange) }
-                if !store.semester.isEmpty { Text(store.semester).font(.subheadline.weight(.medium)) }
-                if let date = store.updatedAt { LabeledContent(L10n.tr("最近更新"), value: date.gtiitFormatted()).font(.caption).foregroundStyle(.secondary) }
-                Text(L10n.tr("自动每 30 分钟更新，也可手动刷新。")).font(.caption).foregroundStyle(.secondary)
-            }
-            Section {
-                if store.upcoming.isEmpty && !store.refreshing { ContentUnavailableView(L10n.tr("暂无即将举行的考试"), systemImage: "calendar.badge.checkmark") }
+                if store.refreshing && store.upcoming.isEmpty {
+                    HStack { ProgressView(); Text(L10n.tr("正在核对考试安排…")) }
+                }
+                if store.loginRequired {
+                    Button(L10n.tr("前往 Student 登录")) { app.openSite(.portal) }
+                } else if store.failed {
+                    Button(L10n.tr("更新未完成，点按重试")) { refresh() }
+                } else if store.upcoming.isEmpty && !store.refreshing {
+                    ContentUnavailableView(L10n.tr("暂无即将举行的考试"), systemImage: "calendar.badge.checkmark")
+                }
                 ForEach(store.upcoming) { exam in StudentExamRow(exam: exam).padding(.vertical, 6) }
-            } header: { Text(L10n.tr("考试安排")) }
+            } header: { Text(L10n.tr("考试安排")) } footer: {
+                if let date = store.updatedAt {
+                    Text(L10n.tr("最近更新") + " · " + date.gtiitFormatted()).font(.caption)
+                }
+            }
             Button(L10n.tr("在 Student 核对")) { app.switchTo(.portal); app.browser(for: .portal).loadHome() }
         }.navigationTitle(L10n.tr("临近考试")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button { store.refresh(force: true, allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData }) } label: { Image(systemName: "arrow.clockwise") }.disabled(store.refreshing).accessibilityLabel(L10n.tr("更新考试安排")) } }
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button { refresh() } label: { Image(systemName: "arrow.clockwise") }.disabled(store.refreshing).accessibilityLabel(L10n.tr("更新考试安排")) } }
+    }
+    private func refresh() {
+        store.refresh(force: true, allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData })
     }
 }
 private struct StudentExamRow: View {

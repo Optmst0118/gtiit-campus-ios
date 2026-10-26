@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.4-beta.1 · build 74] - 2026-10-27
+
+### Fixed
+
+- Suppress Student first-run tours with the site's dedicated showcase preferences and dismiss its daily informational account reminder through its existing Continue action. Keep a scoped lightweight observer for late loading and SPA changes; release the site's own blur/interaction lock without altering session, consent or business forms.
+- Remove the separate Upcoming Exams status card. Place the last-updated timestamp below the exam schedule section, with relevant login/retry/loading actions inside that section.
+
 ## [2.0.3-beta.2 · build 73] - 2026-10-26
 
 ### Fixed

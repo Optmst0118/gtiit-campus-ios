@@ -92,9 +92,16 @@ private final class RetiredViewReference {
         return false
     }
     func load(_ model: BrowserModel, _ path: String) async -> Bool {
+        // Re-loading the same fixture URL can briefly retain its previous
+        // title and published isLoading=false before WebKit starts navigation.
+        // Wait for a fresh document, not an old page that merely matches URL.
+        let marker = UUID().uuidString
+        _ = await js(model.webView, "window.__gtiitRegressionBeforeLoad='\(marker)'")
         model.load(base.appendingPathComponent(path))
         return await wait {
-            !model.isLoading && model.webView.url?.path == "/" + path && model.webView.title == "Fixture"
+            guard !model.isLoading, !model.webView.isLoading,
+                  model.webView.url?.path == "/" + path, model.webView.title == "Fixture" else { return false }
+            return await self.js(model.webView, "document.readyState==='complete' && window.__gtiitRegressionBeforeLoad!=='\(marker)'") == "true"
         }
     }
     func js(_ webView: WKWebView, _ source: String) async -> String {
@@ -169,6 +176,9 @@ private final class RetiredViewReference {
         if ["layout", "top-canvas"].contains(ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] ?? "") {
             await verifyGlassWebLayout(); finish(); return
         }
+        if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "portal-introductions" {
+            await verifyPortalIntroductions(); finish(); return
+        }
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "shell-borders" {
             await verifyShellBorders(); finish(); return
         }
@@ -212,6 +222,7 @@ private final class RetiredViewReference {
         await verifyLaunchPreparation()
         await verifyWebAppearance()
         await verifyShellBorders()
+        await verifyPortalIntroductions()
         await verifyCampusFeatures()
         await verifyUpcomingReader()
         await verifyGlassWebLayout()
@@ -688,6 +699,38 @@ private final class RetiredViewReference {
         web.stopLoading(); web.removeFromSuperview()
     }
 
+    private func verifyPortalIntroductions() async {
+        let config = WKWebViewConfiguration()
+        config.websiteDataStore = .nonPersistent()
+        config.userContentController.addUserScript(WKUserScript(source: "localStorage.setItem('showcase',JSON.stringify({unrelated:7}));localStorage.setItem('fixture.session','unchanged');", injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        WebAppearance.install(on: config, enabled: true)
+        let web = WKWebView(frame: window!.bounds, configuration: config)
+        window!.rootViewController!.view.addSubview(web)
+        let fixture = """
+        <title>Portal introduction fixture</title><style>[data-filter].disabled{filter:blur(6px);pointer-events:none}.hidden{display:none}</style>
+        <main data-filter class="disabled"><button id="business" onclick="window.businessClicks++">Open timetable</button></main>
+        <div id="reminder"><p>You are logged in as fixture</p><p>If this is not your account, please sign out immediately.</p>
+        <button onclick="window.logoutClicks++">Logout</button><button onclick="window.continueClicks++;document.querySelector('main').classList.remove('disabled');document.querySelector('#reminder').classList.add('hidden')">Continue</button></div>
+        <div role="dialog" id="consent"><p>Student Authorization to Release Educational Records</p><button onclick="window.consentClicks++">Continue</button></div>
+        <input id="answer" value="Draft answer"><script>window.continueClicks=0;window.logoutClicks=0;window.consentClicks=0;window.businessClicks=0;</script>
+        """
+        web.loadHTMLString(fixture, baseURL: SiteID.portal.homeURL)
+        check("portal_daily_reminder_dismissed", await wait { await self.js(web, "window.continueClicks===1 && !document.querySelector('main').classList.contains('disabled')") == "true" })
+        check("portal_tour_preferences_preserve_other_values", await js(web, "(()=>{const p=JSON.parse(localStorage.getItem('showcase'));return ['landing','landing_v2','grades','enrollments'].every(k=>p[k]===false)&&p.unrelated===7})()") == "true")
+        check("portal_account_and_consent_untouched", await js(web, "localStorage.getItem('fixture.session')==='unchanged' && window.logoutClicks===0 && window.consentClicks===0 && getComputedStyle(document.querySelector('#consent')).display!=='none'") == "true")
+        // The website may mount its reminder after the generic cleanup observer
+        // has stopped. Exercise the persistent observer beyond that 12s window.
+        try? await Task.sleep(for: .seconds(13))
+        _ = await js(web, "document.querySelector('#reminder').classList.remove('hidden');document.querySelector('main').classList.add('disabled')")
+        check("portal_delayed_spa_reminder_dismissed", await wait { await self.js(web, "window.continueClicks===2 && !document.querySelector('main').classList.contains('disabled')") == "true" })
+        _ = await js(web, "(()=>{const t=document.createElement('div');t.id='react-joyride-portal';t.innerHTML='<div class=react-joyride__tooltip><button data-action=skip>Skip</button></div>';t.querySelector('button').onclick=()=>{window.tourSkipped=true;t.remove()};document.body.append(t)})()")
+        check("portal_late_tour_skipped", await wait { await self.js(web, "window.tourSkipped===true && !document.getElementById('react-joyride-portal')") == "true" })
+        check("portal_business_and_form_preserved", await js(web, "(document.querySelector('#business').click(),window.businessClicks===1 && document.querySelector('#answer').value==='Draft answer' && window.consentClicks===0)") == "true")
+        web.loadHTMLString(fixture, baseURL: SiteID.rooms.homeURL)
+        check("portal_introductions_rule_scoped_to_student", await wait { await self.js(web, "document.title==='Portal introduction fixture' && window.continueClicks===0 && document.querySelector('main').classList.contains('disabled') && JSON.parse(localStorage.getItem('showcase')).landing===undefined") == "true" })
+        web.removeFromSuperview()
+    }
+
     private func verifyShellBorders() async {
         let config = WKWebViewConfiguration()
         WebAppearance.install(on: config, enabled: true)
@@ -908,7 +951,9 @@ private final class RetiredViewReference {
             window!.rootViewController!.view.addSubview(model.webView)
             model.webView.loadHTMLString(model.site == .moodle ? "<title>Login</title><input type='password'>" : "<title>Ready</title><p>ready</p>", baseURL: nil)
         }
-        check("preload_real_pages_loaded", await wait { models.allSatisfy { $0.hasLoadedOnce && !$0.isLoading && $0.webView.title == ($0.site == .moodle ? "Login" : "Ready") } })
+        // Fixture process startup is not the production prewarm deadline;
+        // that deadline is checked separately below with a 0.2s timeout.
+        check("preload_real_pages_loaded", await wait(15) { models.allSatisfy { $0.hasLoadedOnce && !$0.isLoading && !$0.webView.isLoading && $0.webView.title == ($0.site == .moodle ? "Login" : "Ready") } }, models.map { "\($0.site.rawValue):\($0.webView.title ?? "nil") loading=\($0.webView.isLoading)" }.joined(separator: ", "))
         let identities = models.map { ObjectIdentifier($0.webView) }
         let preparation = LaunchPreparation()
         preparation.start(models: models, timeout: 4)

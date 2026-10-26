@@ -1,0 +1,114 @@
+{
+  "checks" : [
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "South Campus omits unavailable rooms 402–409"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "South Campus keeps available 202–205"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome permits explicit confirmation on ready campus page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks confirmation while loading"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks failed page confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks unvisited page confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks SSO redirect confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks Moodle login page confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks another site's confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "summary_route_targets_visible_native_moodle"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "cross_site_route_uses_native_destination"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_route_rejects_wrong_origin"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_booking_route_preserves_target"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "followed_courses_persist"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_daily_reminder_dismissed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_tour_preferences_preserve_other_values"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_account_and_consent_untouched"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_delayed_spa_reminder_dismissed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_late_tour_skipped"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_business_and_form_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_introductions_rule_scoped_to_student"
+    }
+  ],
+  "completed" : true,
+  "date" : "2026-10-26T16:10:49Z",
+  "focus" : "portal-introductions",
+  "passed" : true,
+  "runID" : "15de02d6-3e0e-4490-8a1e-50d3edc4504b"
+}

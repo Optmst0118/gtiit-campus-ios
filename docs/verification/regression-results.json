@@ -136,7 +136,7 @@
       "test" : "preload_sso_rejects_cleartext_or_action"
     },
     {
-      "detail" : "",
+      "detail" : "portal:Ready loading=false, moodle:Login loading=false, rooms:Ready loading=false, sports:Ready loading=false",
       "passed" : true,
       "test" : "preload_real_pages_loaded"
     },
@@ -659,6 +659,41 @@
       "detail" : "",
       "passed" : true,
       "test" : "sports_dark_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_daily_reminder_dismissed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_tour_preferences_preserve_other_values"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_account_and_consent_untouched"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_delayed_spa_reminder_dismissed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_late_tour_skipped"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_business_and_form_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_introductions_rule_scoped_to_student"
     },
     {
       "detail" : "",
@@ -1566,7 +1601,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 1EB3D95B-3B0F-4FB2-BD08-12572A6E702C, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-26 07:07:21 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 284C150E-EB6D-433B-B909-B2B506F9FCB7, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-26 16:24:52 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -2007,8 +2042,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-26T07:07:49Z",
+  "date" : "2026-10-26T16:25:20Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "0ec34f17-b001-4355-b070-026c7fe0b057"
+  "runID" : "46b3d20d-862d-4bc9-94ef-ea234c8b848f"
 }

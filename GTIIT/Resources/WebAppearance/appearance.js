@@ -11,6 +11,42 @@
     const cleanupHost = (typeof GTIIT_CLEANUP_HOSTS === 'undefined' ? GTIIT_ALLOWED_HOSTS : GTIIT_CLEANUP_HOSTS)
         .includes(pageHost);
 
+    // Student's public frontend uses showcase.* only for first-run tours.
+    // Disable those before React starts; preserve all unrelated preferences.
+    const disablePortalTours = () => {
+        if (pageHost !== 'students.gtiit.edu.cn') return;
+        try {
+            const stored = JSON.parse(localStorage.getItem('showcase') || '{}');
+            if (!stored || typeof stored !== 'object' || Array.isArray(stored)) return;
+            const keys = ['landing', 'landing_v2', 'grades', 'enrollments'];
+            if (keys.every(key => stored[key] === false)) return;
+            keys.forEach(key => { stored[key] = false; });
+            localStorage.setItem('showcase', JSON.stringify(stored));
+        } catch (_) {}
+    };
+    const closePortalIntroductions = () => {
+        if (pageHost !== 'students.gtiit.edu.cn' || !document.body) return;
+        // This exact informational reminder's Continue handler releases the
+        // site's own data-filter lock. Do not hide arbitrary dialogs or mutate
+        // account/session keys, consent, authorization or submission state.
+        for (const note of document.querySelectorAll('p')) {
+            if ((note.textContent || '').trim() !== 'If this is not your account, please sign out immediately.') continue;
+            const reminder = note.parentElement;
+            if (!reminder || reminder.classList.contains('hidden') || reminder.dataset.gtiitClosing) continue;
+            const buttons = Array.from(reminder.querySelectorAll('button'));
+            const next = buttons.find(button => (button.textContent || '').trim() === 'Continue');
+            if (!next || next.disabled || !buttons.some(button => (button.textContent || '').trim() === 'Logout')) continue;
+            reminder.dataset.gtiitClosing = '1';
+            next.click();
+            setTimeout(() => { delete reminder.dataset.gtiitClosing; }, 0);
+        }
+        // Dismiss a late-mounted tour with its own Skip action, releasing its
+        // scroll/focus management rather than leaving an invisible blocker.
+        const skip = document.querySelector('.react-joyride__tooltip [data-action="skip"]');
+        if (skip && !skip.disabled) skip.click();
+    };
+    disablePortalTours();
+
     const LOGIN_EMAIL = GTIIT_LOGIN_EMAIL || '';
     const PREFILL_LOGIN_EMAIL = GTIIT_PREFILL_EMAIL;
     const prefillMicrosoftEmail = () => {
@@ -55,6 +91,7 @@
 
     // 门户顶部原本是白色 Tailwind 渐变；直接去掉，让网页背景跟随 App 深浅色。
     const portalCSS = pageHost === 'students.gtiit.edu.cn' ? [
+        '#react-joyride-portal,.react-joyride__portal,.react-joyride__tooltip{visibility:hidden !important;pointer-events:none !important}',
         '.app-bg{background:transparent !important}',
         'body:not(:has(main)){padding-bottom:var(--gtiit-bottom-obstruction,env(safe-area-inset-bottom)) !important}',
         'nav[aria-label="Checklist steps"]{bottom:var(--gtiit-bottom-obstruction,env(safe-area-inset-bottom)) !important}',
@@ -411,6 +448,7 @@
     };
 
     const runCleanup = () => {
+        closePortalIntroductions();
         prefillMicrosoftEmail();
         hideBrandingImages();
         hideCreditBlocks();
@@ -448,7 +486,23 @@
         }
     };
 
+    // Keep only the lightweight introduction dismissal observer alive across
+    // delayed account loading and SPA navigation, beyond the generic 12s scan.
+    const watchPortalIntroductions = () => {
+        if (pageHost !== 'students.gtiit.edu.cn' || !document.body || !window.MutationObserver) return;
+        let scheduled = false;
+        const observer = new MutationObserver(() => {
+            if (scheduled) return;
+            scheduled = true;
+            requestAnimationFrame(() => { scheduled = false; closePortalIntroductions(); });
+        });
+        observer.observe(document.body, {childList: true, subtree: true, attributes: true, attributeFilter: ['class']});
+        closePortalIntroductions();
+    };
     installStyles();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', watchPortalIntroductions, {once: true});
+    } else { watchPortalIntroductions(); }
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => { installStyles(); scheduleCleanup(); }, { once: true });
     } else {
