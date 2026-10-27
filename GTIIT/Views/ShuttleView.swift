@@ -19,29 +19,7 @@ struct ShuttleView: View {
             TimelineView(.periodic(from: .now, by: 1)) { context in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
-                        Color.clear.frame(height: 0).id("shuttle.top")
-                        HStack(alignment: .firstTextBaseline) {
-                            VStack(alignment: .leading, spacing: 7) {
-                                Text(L10n.tr("校园动态")).font(.caption2.weight(.semibold)).tracking(2)
-                                    .foregroundStyle(Theme.accent)
-                                Text(L10n.tr("Shuttle Bus时刻表")).font(.largeTitle.weight(.semibold)).tracking(-1)
-                                    .lineLimit(1).minimumScaleFactor(0.7)
-                            }
-                            Spacer(minLength: 8)
-                            Text(clock(context.date)).font(.subheadline.monospacedDigit())
-                                .foregroundStyle(.secondary)
-                                .accessibilityLabel(L10n.format("北京时间 %@", String(describing: clock(context.date))))
-                            Button { showReminders = true } label: {
-                                Image(systemName: "bell.badge")
-                                    .font(.system(size: 17, weight: .medium))
-                                    .frame(width: 36, height: 36)
-                                    .background(Theme.orange.opacity(0.12), in: Circle())
-                                    .foregroundStyle(Theme.orange)
-                            }
-                            .accessibilityLabel(L10n.tr("班车提醒"))
-                        }
-                        Text(L10n.tr("两座校园，轻松往返。"))
-                            .font(.subheadline).foregroundStyle(.secondary).padding(.top, -12)
+                        NativePageIcon(symbol: "bus.fill", tint: Theme.accent).id("shuttle.top")
 
                         EqualHeightHStack(spacing: 12) {
                             ForEach(ShuttleDirection.allCases) { direction in
@@ -66,43 +44,47 @@ struct ShuttleView: View {
                             teachingWeek: settings.shuttleTeachingWeek, limit: 1
                         ).first {
                             ShuttleLiveActivityCard(direction: proximity.direction ?? settings.favoriteShuttleDirection, departure: next, suggested: proximity.direction != nil)
-                            if proximity.authorization == .notDetermined {
-                                Button { proximity.activate(requestPermission: true) } label: {
-                                    Label(L10n.tr("按位置推荐方向"), systemImage: "location")
-                                }.font(.subheadline).buttonStyle(.borderless)
-                            }
                         }
 
-                        VStack(alignment: .leading, spacing: 12) {
-                            Toggle(isOn: $settings.shuttleTeachingWeek) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(L10n.tr("教学周加班车")).font(.subheadline.weight(.semibold))
-                                    Text(settings.shuttleTeachingWeek ? L10n.tr("显示 1 号车与当日 2 号车") : L10n.tr("仅显示每日 1 号车"))
-                                        .font(.caption).foregroundStyle(.secondary)
-                                }
-                            }
-
-                        }.padding(18).cardBackground()
-
-                        Button { timetableDirection = .southToNorth } label: {
-                            HStack {
+                        Button { timetableDirection = settings.favoriteShuttleDirection } label: {
+                            HStack(spacing: 12) {
                                 Label(L10n.tr("完整时刻表"), systemImage: "clock")
+                                    .foregroundStyle(Color.primary)
                                 Spacer()
-                                Image(systemName: "arrow.up.right").font(.subheadline)
-                            }.font(.subheadline.weight(.semibold)).frame(minHeight: 44)
-                        }.buttonStyle(CardPressStyle()).foregroundStyle(Theme.accent)
-
-                        VStack(alignment: .leading, spacing: 10) {
-                            Label(L10n.tr("19:30 后，南校区 9 号门关闭"), systemImage: "door.left.hand.closed")
-                                .font(.footnote.weight(.medium)).foregroundStyle(Theme.orange)
-                            Text(L10n.tr("关闭期间请使用其他校门进出。南行路线：北校区正门 → 南校区 2 号门 → 9 号门；北行路线相反。"))
-                            Text(L10n.format("时刻表：%@", String(describing: ShuttleSchedule.effectiveLabel)))
-                        }.font(.caption).foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }.padding(20).frame(maxWidth: 680).frame(maxWidth: .infinity)
+                                Image(systemName: "chevron.right").font(.caption.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+                            }
+                            .font(.body).padding(18).frame(maxWidth: .infinity, minHeight: 56)
+                            .cardBackground()
+                        }.buttonStyle(CardPressStyle()).tint(Theme.accent)
+                    }
+                    .padding(.horizontal, 20).padding(.top, 8).padding(.bottom, 30)
+                    .frame(maxWidth: 720).frame(maxWidth: .infinity)
                 }.background(Theme.pageBackground)
             }
-            .toolbar(.hidden, for: .navigationBar)
+            .navigationTitle(L10n.tr("Shuttle Bus时刻表"))
+            .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
+            .toolbar {
+                SidebarRevealToolbarSpace()
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showReminders = true } label: { Image(systemName: "bell") }
+                        .accessibilityLabel(L10n.tr("班车提醒"))
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button(L10n.tr("完整时刻表"), systemImage: "clock") {
+                            timetableDirection = settings.favoriteShuttleDirection
+                        }
+                        Toggle(L10n.tr("教学周加班车"), isOn: $settings.shuttleTeachingWeek)
+                        if proximity.authorization == .notDetermined {
+                            Button(L10n.tr("按位置推荐方向"), systemImage: "location") {
+                                proximity.activate(requestPermission: true)
+                            }
+                        }
+                    } label: { Image(systemName: "ellipsis.circle") }
+                    .accessibilityLabel(L10n.tr("更多"))
+                }
+            }
             .sheet(item: $timetableDirection) { direction in ShuttleTimetableView(initialDirection: direction) }
             .sheet(isPresented: $showReminders) { ShuttleReminderSettingsView() }
             .onAppear {
@@ -120,10 +102,7 @@ struct ShuttleView: View {
             }
         }
     }
-    private func clock(_ date: Date) -> String {
-        let parts = ShuttleSchedule.calendar.dateComponents([.hour, .minute], from: date)
-        return String(format: "%02d:%02d", parts.hour ?? 0, parts.minute ?? 0)
-    }
+
 }
 
 private struct DepartureColumn: View {
@@ -264,8 +243,6 @@ struct ShuttleTimetableView: View {
                             }
                         }
                         .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                        Text(L10n.tr("1 号车每日运行；2 号车仅教学周在标注星期运行。19:30 后南校区 9 号门关闭。"))
-                            .font(.footnote).foregroundStyle(.secondary)
                     }
                     .padding(.horizontal, 20)
                     // Keep one previous departure above the next trip, including near the end of the day.

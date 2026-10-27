@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.4-beta.7 (80) · 2026-10-28
+
+- 班车首页采用系统大标题与滚动收起行为，提醒／更多菜单使用原生工具栏，背景、内容边距和首页图标与其他原生页面一致。
+- 教学周加班车及位置推荐入口收进更多菜单；完整时刻表使用标准卡片入口，沿用所选常用方向。
+- 删除自绘时钟、校园动态／宣传副标题、重复路线和时刻表脚注；保留方向卡片中的路线与必要校门状态。
+- 提供三种后续菜单重构方向文档，当前底栏入口未迁移。
+
 ## 2.0.4-beta.6 (79) · 2026-10-27
 
 - 按每门活跃课程的 Assignment 和 Quiz 目录核对作业，补齐不在 Timeline 的在线作业；日历支持游标分页。
