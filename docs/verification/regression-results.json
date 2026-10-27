@@ -3,6 +3,81 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "inbox_assignment_24h_window_and_dedup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_room_6h_window_boundary_and_dedup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_rejects_sports_and_action_urls"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "campus_cache_persists_across_launch_and_offline_age"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "campus_cache_site_clear_is_isolated"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "campus_cache_removed_reservation_disappears_from_inbox"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_course_cache_survives_previous_7day_expiry"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_course_history_survives_term_change_without_old_tasks"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_cache_survives_previous_7day_expiry"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "login_probe_visible_password_requires_login"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "login_probe_positive_logout_and_hidden_fields"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "login_probe_public_page_not_mistaken_for_authenticated"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "student_cache_reads_course_catalog_only"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "room_cache_personal_calendar_campus_timezone_and_cancelled_filter"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "room_cache_rejects_public_calendar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "deadline_within_24h_reminds_on_detection"
     },
     {
@@ -1831,7 +1906,7 @@
       "test" : "browser_has_history_before_clear"
     },
     {
-      "detail" : "cookies=8",
+      "detail" : "cookies=2",
       "passed" : true,
       "test" : "cache_clear_preserves_login_and_storage"
     },
@@ -1861,7 +1936,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 512E4C09-61D5-4A59-AB8C-6FF354CA747A, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-27 08:16:11 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 9B637672-66F3-492F-B1BD-631343C9C40B, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-27 09:24:26 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -2317,8 +2392,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-27T08:16:40Z",
+  "date" : "2026-10-27T09:24:57Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "c77d6c02-a027-42b8-93e1-64ce862d04ec"
+  "runID" : "55b42d79-9107-450f-abf9-6b31dd865800"
 }

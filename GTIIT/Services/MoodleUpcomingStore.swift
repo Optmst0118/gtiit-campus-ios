@@ -49,10 +49,10 @@ import WebKit
             .appendingPathComponent("MoodleUpcoming", isDirectory: true)
         cacheURL = root.appendingPathComponent("summary.json")
         guard let data = try? Data(contentsOf: cacheURL), data.count < 1_000_000,
-              let cache = try? JSONDecoder().decode(Cache.self, from: data), cache.version == 3, cache.term == Self.termKey(),
-              cache.updatedAt <= Date(), Date().timeIntervalSince(cache.updatedAt) < 7 * 86400 else { return }
-        items = cache.items.filter { MoodleWork.safeURL($0.url) != nil }
+              let cache = try? JSONDecoder().decode(Cache.self, from: data), cache.version == 3, cache.updatedAt <= Date() else { return }
         courseItems = cache.courseList ?? []
+        guard cache.term == Self.termKey() else { return }
+        items = cache.items.filter { MoodleWork.safeURL($0.url) != nil }
         directoryUpdatedAt = cache.directoryUpdatedAt
         updatedAt = cache.updatedAt; partial = cache.partial; checked = cache.checked; courses = cache.courses
     }
@@ -161,7 +161,7 @@ import WebKit
                 guard generation == token, !Task.isCancelled, allowed() else { return }
                 if let text = value as? String, text.utf8.count < 200_000,
                    let list = try? JSONDecoder().decode([MoodleCourse].self, from: Data(text.utf8)),
-                   list.count <= 150, list.allSatisfy({ $0.id > 0 && !$0.name.isEmpty }) {
+                   list.count <= 500, list.allSatisfy({ $0.id > 0 && !$0.name.isEmpty }) {
                     courseItems = list
                     return
                 }

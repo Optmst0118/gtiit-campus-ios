@@ -583,7 +583,7 @@
         try { if (sameHost(new URL(event.origin).hostname)) setEnabled(event.data.enabled); } catch (_) {}
     });
     // Native dark themes opt out via the standard lock marker; no forced inversion.
-    const ready = () => { apply(); broadcast(); };
+    const ready = () => { disablePortalTours(); apply(); broadcast(); };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready, {once: true});
     else ready();
     apply();

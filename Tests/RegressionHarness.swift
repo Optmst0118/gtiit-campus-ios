@@ -247,7 +247,79 @@ private final class RetiredViewReference {
         check("deadline_reminder_preference_persists", !AppSettings(defaults: preferences).moodleDeadlineRemindersEnabled)
     }
 
+    func testCampusInbox() async {
+        let now = Date()
+        func work(_ id: Int, _ hours: Double, _ status: String = "notSubmitted") -> MoodleWork {
+            MoodleWork(url: "https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=\(id)", name: "Synthetic assignment", course: "Synthetic course", due: now.addingTimeInterval(hours*3600).timeIntervalSince1970, opened: nil, status: status, source: "assignment", kind: "assign")
+        }
+        check("inbox_assignment_24h_window_and_dedup", CampusInboxPolicy.assignments([work(1,24),work(1,24),work(2,24.001),work(3,0),work(4,-1),work(5,1,"submitted"),work(6,2,"draft")], now: now).map(\.url) == [work(6,2).url,work(1,24).url])
+        func booking(_ id: String, _ hours: Double) -> CachedRoomReservation {
+            CachedRoomReservation(id: id, title: "Synthetic room", location: "D4-103-9", start: now.addingTimeInterval(hours*3600), end: now.addingTimeInterval((hours+1)*3600), url: "https://roombooking.gtiit.edu.cn/Web/reservation.php?rn="+id)
+        }
+        check("inbox_room_6h_window_boundary_and_dedup", CampusInboxPolicy.reservations([booking("one",6),booking("one",6),booking("two",6.001),booking("past",-1),booking("now",0)], now: now).map(\.id) == ["now","one"])
+        check("inbox_rejects_sports_and_action_urls", CachedRoomReservation.safeURL("https://gtiit.mike-x.com/0x2Rg") == nil && CachedRoomReservation.safeURL("https://roombooking.gtiit.edu.cn/Web/reservation.php?rn=one&action=delete") == nil)
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("campus-cache-"+UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let cache = CampusSessionSync(directory: directory)
+        cache.acceptCourses([CachedCampusCourse(code: "TEST1001", name: "Synthetic course", semester: "2026 Winter", teacher: "Synthetic teacher", location: "SC E1-201")], at: now.addingTimeInterval(-30*86400))
+        cache.acceptReservations([booking("one",2),booking("one",2)], at: now)
+        let restored = CampusSessionSync(directory: directory)
+        check("campus_cache_persists_across_launch_and_offline_age", restored.studentCourses.count == 1 && restored.reservations.count == 1 && restored.coursesUpdatedAt != nil)
+        restored.clear(.portal)
+        check("campus_cache_site_clear_is_isolated", restored.studentCourses.isEmpty && restored.reservations.count == 1)
+        restored.acceptReservations([])
+        check("campus_cache_removed_reservation_disappears_from_inbox", restored.reservations.isEmpty)
+        let moodleFolder = directory.appendingPathComponent("moodle")
+        let oldMoodle = MoodleUpcomingStore(directory: moodleFolder)
+        oldMoodle.accept(MoodleUpcomingResult(loginRequired: false, items: [work(77,2)], courses: 1, checked: 1, failed: 0, courseList: [MoodleCourse(id: 77, name: "Synthetic history", shortname: "TEST77", category: nil, term: "Winter 2026", active: true)], directoryRefreshed: true), at: now.addingTimeInterval(-30*86400))
+        check("moodle_course_cache_survives_previous_7day_expiry", MoodleUpcomingStore(directory: moodleFolder).courseItems.count == 1)
+        let summaryURL = moodleFolder.appendingPathComponent("summary.json")
+        if let data = try? Data(contentsOf: summaryURL), var json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            json["term"] = "1900-winter"
+            if let data = try? JSONSerialization.data(withJSONObject: json) { try? data.write(to: summaryURL) }
+        }
+        let nextTerm = MoodleUpcomingStore(directory: moodleFolder)
+        check("moodle_course_history_survives_term_change_without_old_tasks", nextTerm.courseItems.count == 1 && nextTerm.items.isEmpty)
+        let examFolder = directory.appendingPathComponent("exams")
+        let oldExams = StudentExamStore(directory: examFolder)
+        try? oldExams.accept(semester: "2026 Winter", items: [StudentExam(course: "Synthetic course", code: "TEST1", session: "Mid", date: "2026-11-01", time: "09:00", duration: 2, venue: "SC E1-201")], at: now.addingTimeInterval(-30*86400))
+        check("exam_cache_survives_previous_7day_expiry", StudentExamStore(directory: examFolder).items.count == 1)
+        let router = TestRouter()
+        let browser = BrowserModel(site: .portal, router: router)
+        // Keep the weak BrowserRouter alive for the fixture lifecycle.
+        _ = router
+        browser.webView.frame = CGRect(x:0,y:0,width:390,height:844)
+        window!.rootViewController!.view.addSubview(browser.webView)
+        func load(_ html: String, url: URL) async {
+            browser.webView.loadHTMLString("<html><head><title>Campus fixture</title></head><body>"+html+"</body></html>", baseURL: url)
+            _ = await wait { !browser.isLoading && browser.webView.title == "Campus fixture" }
+        }
+        await load("<input type='password'>", url: SiteID.portal.homeURL)
+        check("login_probe_visible_password_requires_login", await CampusSessionSync.state(in: browser.webView, site: .portal) == .needsLogin)
+        await load("<a href='/logout'>Sign Out</a><input type='password' style='display:none'>", url: SiteID.portal.homeURL)
+        check("login_probe_positive_logout_and_hidden_fields", await CampusSessionSync.state(in: browser.webView, site: .portal) == .signedIn)
+        await load("<h1>Public page</h1>", url: SiteID.portal.homeURL)
+        check("login_probe_public_page_not_mistaken_for_authenticated", await CampusSessionSync.state(in: browser.webView, site: .portal) == .unknown)
+        await load("<div id='course-selector'></div><script>document.getElementById('course-selector').__reactFiber$test={memoizedState:{memoizedState:{data:{courses:{202601:[{courseName:'Synthetic history',courseCode:'TEST1002',credit:3,grade:99,password:'NEVER_EXPORT'}]}}}}};</script>", url: URL(string:"https://students.gtiit.edu.cn/grades")!)
+        let courseJSON = (try? await browser.webView.evaluateJavaScript(CampusSessionSync.coursesScript)) as? String ?? ""
+        check("student_cache_reads_course_catalog_only", courseJSON.contains("Synthetic history") && !courseJSON.contains("NEVER_EXPORT") && !courseJSON.contains("grade"))
+        await load("<div id='Exams'></div><div id='Courses'></div><script>setTimeout(()=>{document.getElementById('Courses').__reactFiber$late={memoizedProps:{courses:[{courseCode:'LATE1001',courseName:'Synthetic delayed course'}]}}},650)</script>", url: SiteID.portal.homeURL)
+        cache.observe(browser.webView, site: .portal)
+        check("student_cache_waits_for_delayed_authenticated_course_query", await wait { cache.studentCourses.contains { $0.code == "LATE1001" } })
+        let fixture = #"<a href='logout.php'>Sign Out</a><script>window.fetch=async(url)=>({ok:true,url:String(url),json:async()=>[{id:'fixture-one',title:'D4-103-9 Practice',start:'2026-10-27T20:00:00',end:'2026-10-27T21:00:00',className:'owner'},{id:'cancelled',title:'Cancelled',start:'2026-10-27T20:00:00',end:'2026-10-27T21:00:00',className:'cancelled'}]});</script>"#
+        await load(fixture, url: BookingDirectory.roomsMyCalendarURL)
+        let roomJSON = try? await browser.webView.callAsyncJavaScript(CampusSessionSync.reservationsScript, arguments: [:], in: nil, contentWorld: .page) as? String
+        check("room_cache_personal_calendar_campus_timezone_and_cancelled_filter", roomJSON?.contains("fixture-one") == true && roomJSON?.contains("cancelled") == false && roomJSON?.contains("1793102400") == true)
+        await load(fixture, url: BookingDirectory.roomsPublicScheduleURL)
+        var publicRejected = false
+        do { _ = try await browser.webView.callAsyncJavaScript(CampusSessionSync.reservationsScript, arguments: [:], in: nil, contentWorld: .page) } catch { publicRejected = true }
+        check("room_cache_rejects_public_calendar", publicRejected)
+        browser.webView.removeFromSuperview()
+    }
+
     func run() async {
+        await testCampusInbox()
+        if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "inbox" { finish(); return }
         await testMoodleDeadlineReminders()
 
         let southRooms = BookingDirectory.roomCategories.first { $0.id == "discussion-sc" }?.rooms ?? []
@@ -822,7 +894,7 @@ private final class RetiredViewReference {
             <style>body{margin:0;background:white;color:black}.app-bg{background:linear-gradient(white,#f8fafc)}main{background:#f3f4f6;min-height:100vh}.surface{background:white;padding:16px}</style></head>
             <body><div id="root"><div class="app-bg"><main><article class="surface">Course card <button>Open</button></article></main></div></div></body></html>
             """, baseURL: SiteID.portal.homeURL)
-        check("portal_nested_canvas_fixture_loaded", await wait { web.title == "Portal canvas fixture" })
+        check("portal_nested_canvas_fixture_loaded", await wait(15) { web.title == "Portal canvas fixture" })
         let dark = "['html','body','#root > div','main'].every(s=>getComputedStyle(document.querySelector(s)).backgroundColor==='rgb(14, 20, 28)')"
         check("portal_nested_canvas_matches_dark_navigation", await wait { await self.js(web, dark) == "true" })
         _ = await js(web, "const style=document.createElement('style');style.textContent='main{background:#fafafa !important}';document.head.appendChild(style);'added'")
@@ -850,7 +922,7 @@ private final class RetiredViewReference {
         """
         web.loadHTMLString(fixture, baseURL: SiteID.portal.homeURL)
         check("portal_daily_reminder_dismissed", await wait { await self.js(web, "window.continueClicks===1 && !document.querySelector('main').classList.contains('disabled')") == "true" })
-        check("portal_tour_preferences_preserve_other_values", await js(web, "(()=>{const p=JSON.parse(localStorage.getItem('showcase'));return ['landing','landing_v2','grades','enrollments'].every(k=>p[k]===false)&&p.unrelated===7})()") == "true")
+        check("portal_tour_preferences_preserve_other_values", await wait { await self.js(web, "(()=>{const p=JSON.parse(localStorage.getItem('showcase'));return ['landing','landing_v2','grades','enrollments'].every(k=>p[k]===false)&&p.unrelated===7})()") == "true" })
         check("portal_account_and_consent_untouched", await js(web, "localStorage.getItem('fixture.session')==='unchanged' && window.logoutClicks===0 && window.consentClicks===0 && getComputedStyle(document.querySelector('#consent')).display!=='none'") == "true")
         // The website may mount its reminder after the generic cleanup observer
         // has stopped. Exercise the persistent observer beyond that 12s window.

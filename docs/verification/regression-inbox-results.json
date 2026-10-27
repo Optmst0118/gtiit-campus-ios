@@ -1,0 +1,89 @@
+{
+  "checks" : [
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_assignment_24h_window_and_dedup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_room_6h_window_boundary_and_dedup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_rejects_sports_and_action_urls"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "campus_cache_persists_across_launch_and_offline_age"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "campus_cache_site_clear_is_isolated"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "campus_cache_removed_reservation_disappears_from_inbox"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_course_cache_survives_previous_7day_expiry"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_course_history_survives_term_change_without_old_tasks"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_cache_survives_previous_7day_expiry"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "login_probe_visible_password_requires_login"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "login_probe_positive_logout_and_hidden_fields"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "login_probe_public_page_not_mistaken_for_authenticated"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "student_cache_reads_course_catalog_only"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "student_cache_waits_for_delayed_authenticated_course_query"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "room_cache_personal_calendar_campus_timezone_and_cancelled_filter"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "room_cache_rejects_public_calendar"
+    }
+  ],
+  "completed" : true,
+  "date" : "2026-10-27T09:28:56Z",
+  "focus" : "inbox",
+  "passed" : true,
+  "runID" : "35320afd-3f9c-4e53-a7a7-1ede803e6f3e"
+}

@@ -16,6 +16,10 @@ struct RootTabView: View {
         GeometryReader { geometry in
             let sidebar = PrimaryNavigationLayout.usesSidebar(geometry.size)
             ZStack {
+                if let probe = app.campusSync.probe {
+                    CampusSessionProbeHost(webView: probe).id(ObjectIdentifier(probe))
+                        .allowsHitTesting(false).accessibilityHidden(true).opacity(0.01)
+                }
                 if !app.launch.didFinish {
                     WebPrewarmHost(models: app.launch.models).opacity(0.01)
                 }
@@ -376,9 +380,9 @@ private struct RootLifecycle: ViewModifier {
             guard scenePhase == .active else { return }
             app.syncMoodleDeadlineReminders()
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(MoodleUpcomingStore.refreshInterval))
+                try? await Task.sleep(for: .seconds(300))
                 guard !Task.isCancelled else { return }
-                if settings.hasSeenWelcome && !app.showWelcome { app.refreshMoodleSummary() }
+                if settings.hasSeenWelcome && !app.showWelcome { app.refreshMoodleSummary(); app.refreshRoomCacheIfAllowed() }
             }
         }
         .onChange(of: settings.moodleReminderLead) { _, _ in app.syncMoodleDeadlineReminders() }

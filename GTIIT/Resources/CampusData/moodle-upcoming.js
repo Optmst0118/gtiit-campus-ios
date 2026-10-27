@@ -138,7 +138,7 @@ try {
   offset=data.nextoffset;if(page===4)failed++;
  }
  }
- allCourses=[...new Map(allCourses.map(c=>[c.id,c])).values()].slice(0,150);
+ allCourses=[...new Map(allCourses.map(c=>[c.id,c])).values()];
  courses=[...new Map(courses.map(c=>[c.id,c])).values()];courseCount=courses.length;
  if(courses.length>100){failed+=courses.length-100;courses=courses.slice(0,100);}
  window.__gtiitUpcomingDirectory={jobID,courses:allCourses};

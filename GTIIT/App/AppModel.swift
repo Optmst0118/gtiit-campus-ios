@@ -25,6 +25,7 @@ final class AppModel: ObservableObject {
 
     let timetable = LocalTimetableStore()
     let upcoming = MoodleUpcomingStore()
+    let campusSync = CampusSessionSync()
     let exams = StudentExamStore()
     let yilong = YilongController()
     let lock = AppLockController()
@@ -38,6 +39,7 @@ final class AppModel: ObservableObject {
     private var lockSubscription: AnyCancellable?
     private var appearanceSubscription: AnyCancellable?
     private var launchSubscription: AnyCancellable?
+    private var campusSubscription: AnyCancellable?
     private var didScheduleSummaryWarmup = false
     private var moodleAutoLoginStarted = false
     private var refreshAfterMoodleLogin = false
@@ -59,9 +61,10 @@ final class AppModel: ObservableObject {
             self?.objectWillChange.send()
             Task { @MainActor [weak self] in
                 guard let self else { return }
-                if self.lock.isLocked || !self.lock.isActive { self.upcoming.cancel(); self.exams.cancel(); self.contextMenuSource = nil }
+                if self.lock.isLocked || !self.lock.isActive { self.upcoming.cancel(); self.exams.cancel(); self.campusSync.cancel(); self.contextMenuSource = nil }
             }
         }
+        campusSubscription = campusSync.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
         launchSubscription = launch.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
         appearanceSubscription = settings.$webDarkMode.combineLatest(settings.$originalColorSites).sink { [weak self] enabled, original in
             guard let self else { return }
@@ -106,6 +109,9 @@ final class AppModel: ObservableObject {
     }
 
     func refreshMoodleSummary(force: Bool = false) {
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["UI_REVIEW_INBOX"] == "1" { return }
+        #endif
         upcoming.priorityCourseIDs = Set(upcoming.courseItems.filter { $0.matches(timetable.snapshot) }.map(\.id))
             .union(settings.followedMoodleCourseIDs)
         upcoming.refresh(browser: browser(for: .moodle), force: force) { [weak self] in
@@ -130,8 +136,35 @@ final class AppModel: ObservableObject {
         }
     }
 
+    func refreshCampusSessions(force: Bool = false) {
+        #if GTIIT_REGRESSION
+        return
+        #else
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["UI_REVIEW_INBOX"] == "1" { return }
+        #endif
+        campusSync.start(force: force) { [weak self] in
+            guard let self else { return false }
+            return self.settings.hasSeenWelcome && !self.showWelcome && !self.lock.isLocked && self.lock.isActive && !self.isClearingData
+        }
+        #endif
+    }
+
+    func refreshRoomCacheIfAllowed(force: Bool = false) {
+        #if !GTIIT_REGRESSION
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["UI_REVIEW_INBOX"] == "1" { return }
+        #endif
+        campusSync.refreshRooms(force: force) { [weak self] in
+            guard let self else { return false }
+            return self.settings.hasSeenWelcome && !self.showWelcome && !self.lock.isLocked && self.lock.isActive && !self.isClearingData
+        }
+        #endif
+    }
+
     func prepareLaunchIfAllowed() {
         guard settings.hasSeenWelcome, !showWelcome, !lock.isLocked, lock.isActive else { return }
+        refreshCampusSessions()
         guard settings.preloadSitesOnLaunch else { launch.skip(); return }
         guard !launch.hasStarted, !launch.didFinish else { return }
         prepareMoodleAutoLogin()
@@ -260,6 +293,7 @@ final class AppModel: ObservableObject {
         storageStates = summaries.mapValues(\.hasData)
     }
     func clearData(for site: SiteID) async {
+        campusSync.cancel()
         guard !isClearingData else { return }
         isClearingData = true
         defer { isClearingData = false }
@@ -272,6 +306,7 @@ final class AppModel: ObservableObject {
             return
         }
         browsers[site]?.releaseDataStoreView()
+        campusSync.clear(site)
         await WebDataStoreRegistry.shared.resetStore(for: site)
         settings.clearLocation(for: site)
         browsers[site]?.finishDataClear()
@@ -286,6 +321,7 @@ final class AppModel: ObservableObject {
         guard !isClearingData else { return }
         isClearingData = true
         defer { isClearingData = false }
+        campusSync.clear()
         upcoming.cancel(clear: true)
         moodleAutoLogin.reset(); moodleAutoLoginStarted = false; pendingWebRoute = nil; settings.followedMoodleCourseIDs = []
         exams.cancel(clear: true)
@@ -303,7 +339,8 @@ final class AppModel: ObservableObject {
         }
         for browser in prepared { browser.releaseDataStoreView() }
         for site in SiteID.allCases {
-            await WebDataStoreRegistry.shared.resetStore(for: site)
+            campusSync.clear(site)
+        await WebDataStoreRegistry.shared.resetStore(for: site)
             browsers[site]?.finishDataClear()
         }
         settings.clearLocations()
@@ -335,6 +372,10 @@ extension AppModel: BrowserRouter {
     func browserInitialURL(for site: SiteID) -> URL { settings.initialURL(for: site) }
     var browserMayRecoverDocument: Bool { !lock.isLocked && lock.isActive && !isClearingData }
     func browserDidFinish(url: URL, site: SiteID) {
+        if let browser = browsers[site], !isClearingData { campusSync.observe(browser.webView, site: site) }
+        if site == .rooms, url.host == site.host, ["/Web/reservation.php", "/Web/my-calendar.php"].contains(url.path) {
+            refreshRoomCacheIfAllowed(force: true)
+        }
         settings.remember(url, for: site)
         if site == .portal && (url.host != site.host || url.path.contains("login") || url.path.contains("logout")) { exams.cancel(clear: true) }
         if site == .moodle {

@@ -6,6 +6,7 @@ struct MyTabView: View {
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
     @State private var showSettings = false
+    @State private var showInbox = false
     @State private var rootVisible = true
     @State private var serviceRoute: CampusWebRoute?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -38,7 +39,8 @@ struct MyTabView: View {
             .onAppear { rootVisible = true; app.downloads.dismissCompletedPresentation() }
             .onDisappear { rootVisible = false }
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    CampusInboxToolbarButton(sync: app.campusSync, upcoming: app.upcoming) { showInbox = true }
                     Button {
                         showSettings = true
                     } label: {
@@ -48,6 +50,7 @@ struct MyTabView: View {
                 }
             }
             .navigationDestination(isPresented: $showSettings) { SettingsView() }
+            .navigationDestination(isPresented: $showInbox) { CampusInboxView(sync: app.campusSync, upcoming: app.upcoming) }
             .navigationDestination(isPresented: Binding(get: { serviceRoute != nil }, set: { if !$0 { serviceRoute = nil } })) {
                 if let route = serviceRoute { ServiceCenterView(url: route.url) }
             }
@@ -70,7 +73,7 @@ struct MyTabView: View {
         }
         .id(navigationEpoch)
         .onChange(of: app.tabReselectToken) { _, _ in
-            if app.tabReselectTarget == .me, !rootVisible { showSettings = false; navigationEpoch = UUID() }
+            if app.tabReselectTarget == .me, !rootVisible { showSettings = false; showInbox = false; navigationEpoch = UUID() }
         }
     }
 }

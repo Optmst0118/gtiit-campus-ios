@@ -908,5 +908,19 @@
   "校园站点独立数据容器，切换标签不重新加载页面。": "Four independent stores; switching tabs does not reload the page.",
   "各站点各自持久保存网页会话，可单独清除，也可用面容 ID 遮挡。": "Each site keeps its own persistent session, can be cleared separately, and can be protected by Face ID.",
   "保存显示、启动、浏览、锁定及下载保留偏好、校园站点容器标识。开启恢复页面时，仅保存不含参数的站内普通地址，不保存表单、认证地址或账号密码。": "Stores appearance, startup, browsing, lock and retention preferences, and isolated site-store identifiers. Optional page restore saves plain site URLs without query parameters, forms, authentication URLs or passwords.",
-  "Cookie、缓存与本地存储由 WebKit 保存在本机沙盒内，各站点各用独立容器，可单独清除。": "WebKit stores cookies, cache and local storage in the device sandbox, separately for each of the campus sites."
+  "Cookie、缓存与本地存储由 WebKit 保存在本机沙盒内，各站点各用独立容器，可单独清除。": "WebKit stores cookies, cache and local storage in the device sandbox, separately for each of the campus sites.",
+  "通知中心": "Notification Center",
+  "24 小时内截止": "Due within 24 hours",
+  "6 小时内的预约": "Bookings in the next 6 hours",
+  "尚未确认登录状态": "Sign-in status not confirmed",
+  "已登录": "Signed in",
+  "暂无即将开始的预约": "No upcoming bookings",
+  "暂无即将截止的作业": "No assignments due soon",
+  "暂无已缓存课程": "No cached courses",
+  "暂无已缓存预约": "No cached bookings",
+  "本地校园信息": "Local Campus Information",
+  "正在检查登录状态…": "Checking sign-in status…",
+  "登录状态": "Sign-in Status",
+  "需要更新登录状态": "Sign in again",
+  "%@ 条通知": "%@ notifications"
 }

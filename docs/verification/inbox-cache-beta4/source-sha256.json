@@ -1,0 +1,7 @@
+{
+  "Tools/version.json": "ce70d53aadf68cd21680b055e3cdf60fb8f39b88239fcb6c8b8e1b10d4b3b1c8",
+  "GTIIT/Models/CampusInbox.swift": "79b66cf35adeb842cfc97cbc3770440b196bedfc7436a8cec349b5ff79f15439",
+  "GTIIT/Services/CampusSessionSync.swift": "71b3223f3cc87c39ba8c4aa74b0ca677c51b9d647d87987b4735ac5498e3a4f2",
+  "GTIIT/Views/CampusInboxView.swift": "c69c43327c64f4f5762310c1ade90dc358eb0c2f25f82b376baf999b45ae3638",
+  "GTIIT/App/AppModel.swift": "4960de771f3f192a81a3c45263162f35de1a2d54205684271ada2f5263032da2"
+}

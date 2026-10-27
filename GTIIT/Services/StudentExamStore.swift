@@ -52,7 +52,7 @@ enum CalendarExamSelection {
         super.init()
         if let data = try? Data(contentsOf: cacheURL), data.count < 500_000,
            let snapshot = try? JSONDecoder().decode(Snapshot.self, from: data),
-           snapshot.updatedAt <= Date(), Date().timeIntervalSince(snapshot.updatedAt) < 7 * 86400,
+           snapshot.updatedAt <= Date(),
            snapshot.items.count <= 500, snapshot.items.allSatisfy(\.valid) {
             items = snapshot.items; semester = snapshot.semester; updatedAt = snapshot.updatedAt
         }

@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.4-beta.4 (77) · 2026-10-27
+
+- 我的顶部通知中心与设置共用原生液态玻璃容器。
+- 通知中心汇总 24 小时内截止作业、6 小时内练习房／讨论室预约与校园登录状态；点击直达对应页面。
+- 每次启动检查五站现有会话，区别需要登录、网络不可达及无法确认，后台切换与隐私锁取消旧检查。
+- 本地缓存 Moodle 全课程目录、Student 课程元数据、近期作业／考试和个人预约；目录跨学期保留，去除旧 7 天缓存丢弃条件。体育预约同步按用户要求暂缓。
+- 等待已登录页面的异步课程查询完成再缓存；个人预约成功快照替换旧数据，失败保留。
+- 修复门户跨脚本世界初始化顺序导致新手提示偏好偶发被覆盖的问题。
+
 ## 2.0.4-beta.3 (76) · 2026-10-27
 
 - 作业提醒增加 24 小时、2 天、5 天、1 周四档，持久化并替换尚未发送的排程，保留已发送去重。

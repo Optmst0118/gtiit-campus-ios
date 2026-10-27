@@ -83,6 +83,20 @@ import UIKit
         if let raw = ProcessInfo.processInfo.environment["UI_REVIEW_TAB"], let tab = AppTab(rawValue: raw) {
             model.select(tab: tab)
         }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_INBOX"] == "1" {
+            settings.moodleDeadlineRemindersEnabled = false
+            settings.hiddenMySections = ["timetable", "exams"]
+            model.select(tab: .me)
+            let now = Date()
+            let work = MoodleWork(url: "https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=123", name: "Homework 3", course: "Introduction to Robotics", due: now.addingTimeInterval(7200).timeIntervalSince1970, opened: nil, status: "notSubmitted", source: "assignment", kind: "assign")
+            model.upcoming.accept(MoodleUpcomingResult(loginRequired: false, items: [work], courses: 1, checked: 1, failed: 0, courseList: [MoodleCourse(id: 1, name: "Introduction to Robotics", shortname: "TEST1001", category: "Engineering", term: "Winter 2026", active: true)], directoryRefreshed: true))
+            model.campusSync.acceptCourses([CachedCampusCourse(code: "TEST1001", name: "Introduction to Robotics", semester: "2026 Winter", teacher: "Synthetic teacher", location: "SC E1-201")])
+            model.campusSync.acceptReservations([CachedRoomReservation(id: "synthetic-room", title: "D4-103-9 · Piano practice", location: "D4-103-9", start: now.addingTimeInterval(3600), end: now.addingTimeInterval(7200), url: "https://roombooking.gtiit.edu.cn/Web/reservation.php?rn=synthetic-room")])
+            for site in SiteID.allCases {
+                let body = site == .portal ? "<input type='password'>" : "<a href='/logout'>Sign Out</a>"
+                model.browser(for: site).webView.loadHTMLString("<html><head><title>Synthetic session</title></head><body>"+body+"</body></html>", baseURL: site.homeURL)
+            }
+        }
         _app = StateObject(wrappedValue: model)
         let lock = AppLockController(authenticator: PreviewUnavailableAuthenticator())
         lock.lock()

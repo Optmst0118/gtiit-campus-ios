@@ -11,9 +11,11 @@
 
 把学校的官方网页集中到一个 iOS App，配合原生班车倒计时、离线课表、临近作业、临近考试、PDF 预览与下载管理。课表需用户确认后保存；日程摘要缓存在本机，校园业务在官方网页完成。
 
-**当前版本：2.0.4-beta.3（build 76）**。班车外观已选定 A「柔和底色」，已覆盖安装到 iPhone。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次验证范围见 [2.0.4 beta.3 候选记录](docs/RELEASE-2.0.4-beta.3.md)。
+**当前版本：2.0.4-beta.4（build 77）**。新增通知中心、启动登录检查及本地课程／个人预约缓存。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次验证范围见 [2.0.4 beta.4 发布记录](docs/RELEASE-2.0.4-beta.4.md)。
 
-本版新增：作业提醒可选截止前 24 小时／2 天／5 天／1 周，服务中心加入常用入口并提供原生工单列表，班车详情下一班靠上显示。三款外观见 [审核图](docs/design/shuttle-beta3/README.md)。
+本版新增：我的右上角通知中心与设置共用原生液态玻璃容器，汇总 24 小时作业、6 小时个人预约及五站登录状态；Moodle／Student 课程目录、近期日程和练习房／讨论室预约保留在受保护的本地缓存。体育预约同步暂不加入。详见[验证记录](docs/verification/inbox-cache-beta4/README.md)。
+
+作业系统提醒可选截止前 24 小时／2 天／5 天／1 周；班车下一班继续使用已选定 A「柔和底色」。
 
 状态栏／Dynamic Island 连续原生背景修复已完成：导航容器延伸到窗口顶部，移除独立顶端覆盖层，不叠加材质。完整回归 **385/385**，另完成 iPhone 横屏左右方向及 iPad 横竖屏专项检查；见[视图层级证据与验证记录](docs/verification/top-canvas/README.md)。
 
