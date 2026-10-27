@@ -16,7 +16,7 @@ struct HelpView: View {
                 Text(L10n.tr("访问与登录"))
             }
             Section {
-                Button(diagnostics.isRunning ? L10n.tr("正在检查…") : L10n.tr("检查四个站点")) { diagnostics.run() }.disabled(
+                Button(diagnostics.isRunning ? L10n.tr("正在检查…") : L10n.tr("检查各站点")) { diagnostics.run() }.disabled(
                     diagnostics.isRunning)
                 if diagnostics.isRunning { Button(L10n.tr("停止检查")) { diagnostics.cancel() } }
                 ForEach(diagnostics.results) { result in

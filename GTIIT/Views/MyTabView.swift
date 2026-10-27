@@ -7,6 +7,7 @@ struct MyTabView: View {
     @EnvironmentObject private var settings: AppSettings
     @State private var showSettings = false
     @State private var rootVisible = true
+    @State private var serviceRoute: CampusWebRoute?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var navigationEpoch = UUID()
     var body: some View {
@@ -47,6 +48,13 @@ struct MyTabView: View {
                 }
             }
             .navigationDestination(isPresented: $showSettings) { SettingsView() }
+            .navigationDestination(isPresented: Binding(get: { serviceRoute != nil }, set: { if !$0 { serviceRoute = nil } })) {
+                if let route = serviceRoute { ServiceCenterView(url: route.url) }
+            }
+            .onChange(of: app.pendingWebRoute, initial: true) { _, route in
+                guard let route, route.site == .serviceHub else { return }
+                serviceRoute = route; app.pendingWebRoute = nil
+            }
             .task {
                 #if DEBUG
                     if ProcessInfo.processInfo.environment["GTIIT_SETTINGS"] == "1" { showSettings = true }

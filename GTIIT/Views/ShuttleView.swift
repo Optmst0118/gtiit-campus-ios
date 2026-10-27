@@ -208,13 +208,19 @@ private struct DepartureColumn: View {
     }
 }
 
+enum ShuttleHighlightStyle: String, CaseIterable { case tonal, outline, timeBadge }
+
 struct ShuttleTimetableView: View {
     @Environment(\.locale) private var nativeLocale
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var settings: AppSettings
     @State private var direction: ShuttleDirection
-    init(initialDirection: ShuttleDirection = .southToNorth) {
+    private let highlightStyle: ShuttleHighlightStyle
+    private let reviewDate: Date?
+    init(initialDirection: ShuttleDirection = .southToNorth, highlightStyle: ShuttleHighlightStyle = .tonal, reviewDate: Date? = nil) {
         _direction = State(initialValue: initialDirection)
+        self.highlightStyle = highlightStyle
+        self.reviewDate = reviewDate
     }
     private var tint: Color { direction == .southToNorth ? Theme.accent : Theme.orange }
 
@@ -227,7 +233,7 @@ struct ShuttleTimetableView: View {
                 }
                 .pickerStyle(.segmented).padding(.horizontal, 20).padding(.vertical, 12)
                 TimelineView(.periodic(from: .now, by: 15)) { context in
-                    timetable(now: context.date)
+                    timetable(now: reviewDate ?? context.date)
                 }
             }
             .background(Theme.pageBackground)
@@ -238,6 +244,10 @@ struct ShuttleTimetableView: View {
 
     private func timetable(now: Date) -> some View {
         let next = ShuttleSchedule.upcoming(direction, after: now, teachingWeek: settings.shuttleTeachingWeek, limit: 1).first
+        let trips = ShuttleSchedule.trips.filter { $0.direction == direction }
+        let previousID = next.flatMap { departure in
+            trips.firstIndex(where: { $0.id == departure.trip.id }).map { trips[max(0, $0 - 1)].id }
+        }
         return GeometryReader { viewport in
             ScrollViewReader { proxy in
                 ScrollView {
@@ -245,7 +255,7 @@ struct ShuttleTimetableView: View {
                         Text("\(direction.origin) → \(direction.destination)")
                             .font(.subheadline.weight(.semibold)).foregroundStyle(.secondary)
                         VStack(spacing: 0) {
-                            ForEach(ShuttleSchedule.trips.filter { $0.direction == direction }) { trip in
+                            ForEach(trips) { trip in
                                 tripRow(trip, next: next, now: now)
                                     .id(trip.id)
                                 if trip.id != ShuttleSchedule.trips.last(where: { $0.direction == direction })?.id {
@@ -258,14 +268,14 @@ struct ShuttleTimetableView: View {
                             .font(.footnote).foregroundStyle(.secondary)
                     }
                     .padding(.horizontal, 20)
-                    // Space before/after the schedule lets even the first/last
-                    // departure align with the center of the visible viewport.
-                    .padding(.vertical, max(20, viewport.size.height / 2))
+                    // Keep one previous departure above the next trip, including near the end of the day.
+                    .padding(.top, 16)
+                    .padding(.bottom, max(20, viewport.size.height - 152))
                 }
                 .task(id: next?.id) {
                     await Task.yield()
                     guard !Task.isCancelled, let next else { return }
-                    proxy.scrollTo(next.trip.id, anchor: .center)
+                    proxy.scrollTo(previousID ?? next.trip.id, anchor: .top)
                 }
             }
         }
@@ -276,22 +286,36 @@ struct ShuttleTimetableView: View {
         return HStack(spacing: 14) {
             VStack(alignment: .leading, spacing: 5) {
                 Text(trip.time).font(.title3.monospacedDigit().weight(highlighted ? .bold : .medium))
+                    .padding(.horizontal, highlighted && highlightStyle == .timeBadge ? 10 : 0)
+                    .padding(.vertical, highlighted && highlightStyle == .timeBadge ? 6 : 0)
+                    .background(highlighted && highlightStyle == .timeBadge ? tint : .clear, in: RoundedRectangle(cornerRadius: 10))
+                    .foregroundStyle(highlighted && highlightStyle == .timeBadge ? Color(uiColor: .systemBackground) : (highlighted ? tint : .primary))
                 Text(trip.daysLabel).font(.caption).foregroundStyle(.secondary)
             }
             Spacer(minLength: 8)
             VStack(alignment: .trailing, spacing: 5) {
                 Text(L10n.format("%@ 号", String(trip.bus))).font(.subheadline.weight(.semibold))
                 if highlighted, let next {
-                    Text(L10n.format("下一班 · %@", ShuttleSchedule.dayLabel(next.date, relativeTo: now)))
+                    Text(CampusDate.calendar.isDate(next.date, inSameDayAs: now) ? L10n.tr("下一班") : L10n.format("下一班 · %@", ShuttleSchedule.dayLabel(next.date, relativeTo: now)))
                         .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 8).padding(.vertical, 4)
+                        .background(tint.opacity(0.10), in: Capsule())
                 }
             }
         }
         .foregroundStyle(highlighted ? tint : .primary)
         .padding(16).frame(maxWidth: .infinity, minHeight: 76)
-        .background(highlighted ? tint.opacity(0.14) : Color.clear, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(alignment: .leading) {
-            if highlighted { Capsule().fill(tint).frame(width: 4).padding(.vertical, 14) }
+        .background {
+            if highlighted {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(highlightStyle == .tonal ? tint.opacity(0.09) : Color.clear)
+                    .overlay {
+                        if highlightStyle == .outline {
+                            RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(tint.opacity(0.38), lineWidth: 1)
+                        }
+                    }
+                    .padding(.horizontal, 6).padding(.vertical, 4)
+            }
         }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(highlighted ? [.isSelected] : [])

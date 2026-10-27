@@ -381,6 +381,7 @@ private struct RootLifecycle: ViewModifier {
                 if settings.hasSeenWelcome && !app.showWelcome { app.refreshMoodleSummary() }
             }
         }
+        .onChange(of: settings.moodleReminderLead) { _, _ in app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.moodleDeadlineRemindersEnabled) { _, _ in app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.shuttleTeachingWeek) { _, _ in syncShuttleSystemState() }
         .onChange(of: settings.favoriteShuttleDirection) { _, _ in syncShuttleSystemState() }

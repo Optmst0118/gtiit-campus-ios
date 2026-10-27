@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.4-beta.3 (76) · 2026-10-27
+
+- 作业提醒增加 24 小时、2 天、5 天、1 周四档，持久化并替换尚未发送的排程，保留已发送去重。
+- 班车下一班移至靠上第二行，提供轻柔色底／细描边／时间色块三款审核方案；当天标记只显示“下一班”。
+- 服务中心加入常用入口，客户工单表使用原生列表，保留独立认证会话和原网页详情、回复、附件操作。
+- 五站数据隔离、清除与配色纳入统一注册；启动登录与预加载仍保留原四站。
+- 用户选定 A「柔和底色」，签名验证通过后已覆盖安装。详见发布记录。
+
 ## [2.0.4-beta.2 · build 75] - 2026-10-27
 
 ### Added

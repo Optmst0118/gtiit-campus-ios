@@ -57,6 +57,15 @@ import UIKit
                 </style></head><body><div id="root"><main><h1>Campus content</h1>\(rows)<button id="tail">Last page action</button></main></div></body></html>
                 """, baseURL: site.homeURL)
         }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_SERVICE"] == "1" {
+            model.browser(for: .serviceHub).webView.loadHTMLString("""
+            <html><head><meta name='viewport' content='width=device-width,initial-scale=1'></head><body><table>
+            <thead><tr><th></th><th>#</th><th>TITLE</th><th>GROUP</th><th>OWNER</th><th>STATE</th><th>CREATED AT</th></tr></thead><tbody>
+            <tr onclick="location.hash='ticket/zoom/1'"><td>new</td><td>10001</td><td>Campus network support</td><td>IT Support</td><td>Support Team</td><td>new</td><td>10/27/2026 15:07</td></tr>
+            <tr onclick="location.hash='ticket/zoom/2'"><td>closed</td><td>10002</td><td>Practice room equipment</td><td>Campus Services</td><td>Support Team</td><td>closed</td><td>10/20/2026 10:30</td></tr>
+            </tbody></table></body></html>
+            """, baseURL: SiteID.serviceHub.homeURL)
+        }
         if ProcessInfo.processInfo.environment["UI_REVIEW_EXAMS"] == "1" {
             try? model.exams.accept(semester: "Synthetic semester", items: [StudentExam(course: "Engineering Mathematics", code: "TEST1001", session: "Mid", date: "2026-11-21", time: "09:00", duration: 2, venue: "SC E1-201")])
         }
@@ -82,12 +91,18 @@ import UIKit
     var body: some Scene {
         WindowGroup {
             Group {
-                if environment["UI_REVIEW_PORTAL"] == "1" {
+                if environment["UI_REVIEW_SERVICE"] == "1" {
+                    NavigationStack { ServiceCenterView(url: SiteID.serviceHub.homeURL) }.environmentObject(app).environmentObject(settings)
+                } else if environment["UI_REVIEW_REMINDER_SETTINGS"] == "1" {
+                    NavigationStack { MoodleReminderSettingsView() }.environmentObject(app).environmentObject(settings)
+                } else if environment["UI_REVIEW_PORTAL"] == "1" {
                     SiteBrowserView(site: .portal).environmentObject(app).environmentObject(settings)
                 } else if environment["UI_REVIEW_WELCOME"] == "1" {
                     WelcomeView().environmentObject(app).environmentObject(settings)
                 } else if environment["UI_REVIEW_SHUTTLE_DETAIL"] == "1" {
-                    ShuttleTimetableView().environmentObject(settings)
+                    ShuttleTimetableView(initialDirection: .northToSouth,
+                        highlightStyle: ShuttleHighlightStyle(rawValue: environment["UI_REVIEW_SHUTTLE_STYLE"] ?? "tonal") ?? .tonal,
+                        reviewDate: ISO8601DateFormatter().date(from: "2026-10-27T15:42:00+08:00")).environmentObject(settings)
                 } else if environment["UI_REVIEW_DEADLINE"] == "1" {
                     NavigationStack { MoodleUpcomingView(store: app.upcoming) }
                         .environmentObject(app).environmentObject(settings)

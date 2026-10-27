@@ -176,12 +176,12 @@ private struct BrowsingSettingsView: View {
             Section {
                 Toggle(L10n.tr("重新打开上次浏览的页面"), isOn: $settings.restoreLastPage)
             } footer: {
-                Text(L10n.tr("只在本机记住四站内不含查询参数的普通 HTTPS 地址；认证和表单页面不保存。关闭后删除已记住的地址。编辑内容与滚动位置不跨启动保存。"))
+                Text(L10n.tr("只在本机记住校园站点内不含查询参数的普通 HTTPS 地址；认证和表单页面不保存。关闭后删除已记住的地址。编辑内容与滚动位置不跨启动保存。"))
             }
             Section {
                 Toggle(L10n.tr("网页暗色适配"), isOn: $settings.webDarkMode)
             } footer: {
-                Text(L10n.tr("随 App 外观切换，仅调整四站的网页配色。图片与二维码保留原色，登录和表单仍由学校网页处理。各站更多菜单可单独恢复原色。"))
+                Text(L10n.tr("随 App 外观切换，仅调整校园站点的网页配色。图片与二维码保留原色，登录和表单仍由学校网页处理。各站更多菜单可单独恢复原色。"))
             }
             Section {
                 Toggle(L10n.tr("新版预约界面（Alpha）"), isOn: $settings.nativeBookingEnabled)
@@ -230,7 +230,7 @@ struct SitesSettingsView: View {
                     }
                 }
             } footer: {
-                Text(L10n.tr("网页数据不代表当前已登录。四个站点分别管理登录状态。"))
+                Text(L10n.tr("网页数据不代表当前已登录。各站点分别管理登录状态。"))
             }
         }.navigationTitle(L10n.tr("站点与登录")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
@@ -366,7 +366,7 @@ struct StorageSettingsView: View {
                         ? L10n.tr("只清理缓存，保留 Cookie 与登录存储。不重新载入正在编辑的页面。")
                         : action == .downloads
                             ? L10n.tr("停止下载并删除 GTIIT/Downloads 内的文件。已另存到其他位置的副本不受影响。")
-                            : L10n.tr("四站需要重新登录，未提交的内容会丢失。已完成的下载文件和 Safari 数据不受影响。"))
+                            : L10n.tr("校园站点需要重新登录，未提交的内容会丢失。已完成的下载文件和 Safari 数据不受影响。"))
             }
     }
 }
@@ -432,7 +432,10 @@ struct MoodleReminderSettingsView: View {
     var body: some View {
         Form {
             Section {
-                Toggle(L10n.tr("截止前 24 小时提醒"), isOn: $settings.moodleDeadlineRemindersEnabled)
+                Toggle(L10n.tr("未提交作业提醒"), isOn: $settings.moodleDeadlineRemindersEnabled)
+                Picker(L10n.tr("未提交作业提醒时间"), selection: $settings.moodleReminderLead) {
+                    ForEach(MoodleReminderLead.allCases) { lead in Text(lead.title).tag(lead) }
+                }.disabled(!settings.moodleDeadlineRemindersEnabled)
                 if reminders.authorizationStatus == .notDetermined {
                     Button(L10n.tr("允许通知")) {
                         Task { await reminders.requestPermission(); app.syncMoodleDeadlineReminders() }

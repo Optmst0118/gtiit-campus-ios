@@ -910,3 +910,31 @@
 "截止前 24 小时提醒" = "Remind me 24 hours before the deadline";
 "下一班 · %@" = "Next departure · %@";
 "1 号车每日运行；2 号车仅教学周在标注星期运行。19:30 后南校区 9 号门关闭。" = "Bus 1 runs daily; Bus 2 runs on the listed weekdays during teaching weeks. South Campus Gate 9 closes after 19:30.";
+
+"未提交作业提醒" = "Unsubmitted assignments";
+"未提交作业提醒时间" = "Remind before deadline";
+"24 小时" = "24 hours";
+"2 天" = "2 days";
+"5 天" = "5 days";
+"1 周" = "1 week";
+"服务中心" = "Service Center";
+"我的工单" = "My Tickets";
+"新建工单" = "New Ticket";
+"知识库" = "Knowledge Base";
+"服务中心导航" = "Service Center Navigation";
+"暂无工单" = "No tickets";
+"请在页面中选择工单" = "Select a ticket on the page";
+"查看与跟进服务工单，提交校园服务请求并浏览知识库。" = "View and follow up tickets, request campus services and browse the knowledge base.";
+
+"下一班" = "Next departure";
+
+"网页数据不代表当前已登录。各站点分别管理登录状态。" = "Stored web data does not prove you are signed in. Each site manages its own session.";
+"随 App 外观切换，仅调整校园站点的网页配色。图片与二维码保留原色，登录和表单仍由学校网页处理。各站更多菜单可单独恢复原色。" = "Follows app appearance and adjusts only the four school sites. Images and QR codes keep their colors. School pages still handle sign-in and forms. Restore original colors in each site’s More menu.";
+"只在本机记住校园站点内不含查询参数的普通 HTTPS 地址；认证和表单页面不保存。关闭后删除已记住的地址。编辑内容与滚动位置不跨启动保存。" = "Remembers plain HTTPS site URLs on this device, without query parameters, authentication or form pages. Turning this off clears remembered URLs. Edits and scroll positions are not restored across launches.";
+"校园站点需要重新登录，未提交的内容会丢失。已完成的下载文件和 Safari 数据不受影响。" = "All campus sites need another sign-in and unsaved changes are lost. Completed downloads and Safari data remain.";
+"检查各站点" = "Check campus sites";
+"网页会访问所打开的站点、页面资源与登录服务。主动运行诊断时，向校园站点公开首页发送不带 Cookie 的 HEAD 请求。没有自建后端和统计 SDK。网页暗色适配会按需读取当前页面已引用的 CSS，不加载远程配色脚本、不分析图片、不读取表单值。" = "Webpages contact their own sites, resources and sign-in services. Diagnostics send cookie-free HEAD requests to public homepages. There is no custom backend or analytics SDK. Dark appearance reads referenced CSS only; it does not fetch remote theme scripts, analyze images or read form values.";
+"校园站点独立数据容器，切换标签不重新加载页面。" = "Four independent stores; switching tabs does not reload the page.";
+"各站点各自持久保存网页会话，可单独清除，也可用面容 ID 遮挡。" = "Each site keeps its own persistent session, can be cleared separately, and can be protected by Face ID.";
+"保存显示、启动、浏览、锁定及下载保留偏好、校园站点容器标识。开启恢复页面时，仅保存不含参数的站内普通地址，不保存表单、认证地址或账号密码。" = "Stores appearance, startup, browsing, lock and retention preferences, and isolated site-store identifiers. Optional page restore saves plain site URLs without query parameters, forms, authentication URLs or passwords.";
+"Cookie、缓存与本地存储由 WebKit 保存在本机沙盒内，各站点各用独立容器，可单独清除。" = "WebKit stores cookies, cache and local storage in the device sandbox, separately for each of the campus sites.";

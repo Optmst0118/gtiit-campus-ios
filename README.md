@@ -9,9 +9,11 @@
 > **非官方项目。** 由学生独立开发，与广东以色列理工学院（GTIIT）及其信息系统运营方没有隶属、授权或背书关系。
 > Unofficial, student-built client. Not affiliated with, endorsed by, or supported by GTIIT.
 
-把学校的四个官方网页集中到一个 iOS App，配合原生班车倒计时、离线课表、临近作业、临近考试、PDF 预览与下载管理。课表需用户确认后保存；日程摘要缓存在本机，校园业务在官方网页完成。
+把学校的官方网页集中到一个 iOS App，配合原生班车倒计时、离线课表、临近作业、临近考试、PDF 预览与下载管理。课表需用户确认后保存；日程摘要缓存在本机，校园业务在官方网页完成。
 
-**当前版本：2.0.4-beta.2（build 75）**。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次验证范围见 [2.0.4 beta.2 发布记录](docs/RELEASE-2.0.4-beta.2.md)。
+**当前版本：2.0.4-beta.3（build 76）**。班车外观已选定 A「柔和底色」，已覆盖安装到 iPhone。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次验证范围见 [2.0.4 beta.3 候选记录](docs/RELEASE-2.0.4-beta.3.md)。
+
+本版新增：作业提醒可选截止前 24 小时／2 天／5 天／1 周，服务中心加入常用入口并提供原生工单列表，班车详情下一班靠上显示。三款外观见 [审核图](docs/design/shuttle-beta3/README.md)。
 
 状态栏／Dynamic Island 连续原生背景修复已完成：导航容器延伸到窗口顶部，移除独立顶端覆盖层，不叠加材质。完整回归 **385/385**，另完成 iPhone 横屏左右方向及 iPad 横竖屏专项检查；见[视图层级证据与验证记录](docs/verification/top-canvas/README.md)。
 

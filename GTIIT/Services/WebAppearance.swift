@@ -94,7 +94,7 @@ import WebKit
     /// Paint an official booking page with the app's page background. The site
     /// keeps its own layout and controls; only the surrounding canvas changes.
     static func setNativePageBackground(site: SiteID, pageHex: String, on webView: WKWebView) {
-        guard site == .rooms || site == .sports || site == .portal else { return }
+        guard site == .rooms || site == .sports || site == .portal || site == .serviceHub else { return }
         let source = nativePageMarker + """
         (() => {
             if (location.hostname !== "\(site.host)") return;

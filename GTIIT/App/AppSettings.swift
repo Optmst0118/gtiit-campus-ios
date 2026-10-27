@@ -97,6 +97,9 @@ enum EntryOrder {
     @Published var shuttleReminderLead: Int {
         didSet { defaults.set(shuttleReminderLead, forKey: "settings.shuttleReminderLead") }
     }
+    @Published var moodleReminderLead: MoodleReminderLead {
+        didSet { defaults.set(moodleReminderLead.rawValue, forKey: "settings.moodleReminderLead") }
+    }
     @Published var moodleDeadlineRemindersEnabled: Bool {
         didSet { defaults.set(moodleDeadlineRemindersEnabled, forKey: "settings.moodleDeadlineRemindersEnabled") }
     }
@@ -201,6 +204,7 @@ enum EntryOrder {
         shortcutOrder = EntryOrder.normalized(defaults.stringArray(forKey: "settings.shortcutOrder") ?? [], allowed: CampusShortcut.all.map(\.id))
         let storedLead = defaults.integer(forKey: "settings.shuttleReminderLead")
         shuttleReminderLead = [5, 10, 15].contains(storedLead) ? storedLead : 10
+        moodleReminderLead = MoodleReminderLead(rawValue: defaults.integer(forKey: "settings.moodleReminderLead")) ?? .oneDay
         moodleDeadlineRemindersEnabled = defaults.object(forKey: "settings.moodleDeadlineRemindersEnabled") as? Bool ?? true
         privateShuttleReminders = defaults.bool(forKey: "settings.privateShuttleReminders")
         var initialShortcuts = defaults.stringArray(forKey: "settings.shortcutIDs").map(Set.init) ?? CampusShortcut.defaults
@@ -211,6 +215,11 @@ enum EntryOrder {
             // now or it would come back from the old stored value next launch.
             defaults.set(initialShortcuts.sorted(), forKey: "settings.shortcutIDs")
             defaults.set(2, forKey: "settings.shortcutDefaultsVersion")
+        }
+        if defaults.integer(forKey: "settings.shortcutDefaultsVersion") < 3 {
+            initialShortcuts.insert("servicehub.home")
+            defaults.set(initialShortcuts.sorted(), forKey: "settings.shortcutIDs")
+            defaults.set(3, forKey: "settings.shortcutDefaultsVersion")
         }
         shortcutIDs = initialShortcuts
         language = AppLanguage(rawValue: defaults.string(forKey: "settings.language") ?? "") ?? .chinese

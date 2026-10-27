@@ -8,8 +8,9 @@ struct NativeWebPageView: View {
     let title: String
     let url: URL
     var courseChrome = false
+    var hideWebContent = false
     var body: some View {
-        NativeWebPageContent(model: app.browser(for: site), site: site, title: title, url: url, courseChrome: courseChrome)
+        NativeWebPageContent(model: app.browser(for: site), site: site, title: title, url: url, courseChrome: courseChrome, hideWebContent: hideWebContent)
     }
 }
 
@@ -22,6 +23,7 @@ private struct NativeWebPageContent: View {
     let title: String
     let url: URL
     let courseChrome: Bool
+    let hideWebContent: Bool
     @State private var showSiteInfo = false
     @State private var started = false
     @State private var entry: WKBackForwardListItem?
@@ -41,7 +43,7 @@ private struct NativeWebPageContent: View {
                     LoadErrorView(site: site, message: error, onRetry: { model.reload() },
                         onOpenSafari: { model.openInSystemBrowser() }, onOpenHome: { model.loadHome() })
                 } else if !model.hasLoadedOnce { LoadingPlaceholderView(site: site) }
-            }
+            }.accessibilityHidden(hideWebContent)
         }
         .background(Theme.pageBackground)
         .navigationTitle(title)
@@ -51,11 +53,12 @@ private struct NativeWebPageContent: View {
         .modifier(PortalLandscapeNavigation(site: site))
         .navigationBarBackButtonHidden(handlesBack || sidebarCollapsed)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            if site != .serviceHub { ToolbarItem(placement: .topBarTrailing) {
                 Button { model.reload() } label: { Image(systemName: "arrow.clockwise") }.accessibilityLabel(L10n.tr("刷新"))
-            }
+            } }
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    if site == .serviceHub { Button(L10n.tr("刷新"), systemImage: "arrow.clockwise") { model.reload() } }
                     Button(L10n.tr("在 Safari 中打开"), systemImage: "safari") { model.openInSystemBrowser() }
                     ShareLink(item: model.webView.url ?? url) { Label(L10n.tr("分享"), systemImage: "square.and.arrow.up") }
                     Button(L10n.tr("站点与登录"), systemImage: "info.circle") { showSiteInfo = true }
@@ -100,7 +103,7 @@ private struct NativeWebPageContent: View {
     private func applyAppearance() {
         if site == .moodle {
             WebAppearance.setMoodleCourseChrome(hidden: true, on: model.webView, pageHex: Theme.pageHex(for: colorScheme))
-        } else if site == .rooms || site == .sports || site == .portal {
+        } else if site == .rooms || site == .sports || site == .portal || site == .serviceHub {
             WebAppearance.setNativePageBackground(site: site, pageHex: Theme.pageHex(for: colorScheme), on: model.webView)
         } else { WebAppearance.clearNativePageBackground(on: model.webView) }
     }

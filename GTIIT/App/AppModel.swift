@@ -102,7 +102,7 @@ final class AppModel: ObservableObject {
         canRequest = false
         #endif
         MoodleDeadlineReminders.shared.update(items: upcoming.items, updatedAt: upcoming.updatedAt,
-            partial: upcoming.partial, enabled: settings.moodleDeadlineRemindersEnabled, allowPermissionRequest: canRequest)
+            partial: upcoming.partial, enabled: settings.moodleDeadlineRemindersEnabled, allowPermissionRequest: canRequest, lead: settings.moodleReminderLead)
     }
 
     func refreshMoodleSummary(force: Bool = false) {
@@ -137,7 +137,7 @@ final class AppModel: ObservableObject {
         prepareMoodleAutoLogin()
         // Load all four real WebKit hosts in parallel behind the visible UI.
         // There is no launch overlay: first paint and page warming are independent.
-        launch.start(models: SiteID.allCases.map { browser(for: $0) }, canRestoreSession: { [weak self] in
+        launch.start(models: SiteID.onboardingSites.map { browser(for: $0) }, canRestoreSession: { [weak self] in
             guard let self else { return false }
             return !self.lock.isLocked && self.lock.isActive && !self.isClearingData
         })
@@ -233,7 +233,7 @@ final class AppModel: ObservableObject {
               SiteID.site(for: url) == site else { return }
         Haptics.light()
         switchTo(site)
-        if (site == .moodle && settings.nativeMoodleEnabled) ||
+        if site == .serviceHub || (site == .moodle && settings.nativeMoodleEnabled) ||
             ((site == .rooms || site == .sports) && settings.nativeBookingEnabled) {
             pendingWebRoute = CampusWebRoute(site: site, url: url, title: title ?? site.displayName)
         } else { browser(for: site).load(url) }

@@ -4,6 +4,20 @@ import UserNotifications
 
 /// Only a checked, unsubmitted assignment is eligible. A calendar event alone
 /// doesn't establish submission state. No overdue or undated work is scheduled.
+enum MoodleReminderLead: Int, CaseIterable, Identifiable {
+    case oneDay = 24, twoDays = 48, fiveDays = 120, oneWeek = 168
+    var id: Int { rawValue }
+    var seconds: TimeInterval { TimeInterval(rawValue) * 3600 }
+    var title: String {
+        switch self {
+        case .oneDay: return L10n.tr("24 小时")
+        case .twoDays: return L10n.tr("2 天")
+        case .fiveDays: return L10n.tr("5 天")
+        case .oneWeek: return L10n.tr("1 周")
+        }
+    }
+}
+
 struct MoodleDeadlinePlan {
     static let prefix = "moodle.deadline."
     let work: MoodleWork
@@ -16,14 +30,14 @@ struct MoodleDeadlinePlan {
         SHA256.hash(data: Data(url.utf8)).map { String(format: "%02x", $0) }.joined()
     }
 
-    init?(_ work: MoodleWork, now: Date) {
+    init?(_ work: MoodleWork, now: Date, lead: MoodleReminderLead = .oneDay) {
         guard ["notSubmitted", "draft"].contains(work.status),
               MoodleWork.safeURL(work.url) != nil,
               let due = work.due, due.isFinite, due > now.timeIntervalSince1970,
-              due <= now.timeIntervalSince1970 + 7 * 86400 else { return nil }
+              due <= now.timeIntervalSince1970 + max(7 * 86400, lead.seconds + 86400) else { return nil }
         self.work = work
         deadline = Date(timeIntervalSince1970: due)
-        fireDate = max(now.addingTimeInterval(2), deadline.addingTimeInterval(-86400))
+        fireDate = max(now.addingTimeInterval(2), deadline.addingTimeInterval(-lead.seconds))
         guard fireDate < deadline else { return nil }
         workKey = Self.key(for: work.url)
         identifier = Self.prefix + Self.key(for: work.url + "|" + String(due))
@@ -72,7 +86,7 @@ struct MoodleDeadlinePlan {
     static let shared = MoodleDeadlineReminders()
     @Published private(set) var authorizationStatus: UNAuthorizationStatus = .notDetermined
     @Published private(set) var failed = false
-    private struct Entry: Codable { let workKey: String; let deadline: Date; let fireDate: Date }
+    private struct Entry: Codable { let workKey: String; let deadline: Date; let fireDate: Date; var leadHours: Int? }
     private var ledger: [String: Entry] = [:]
     private let delivery: any MoodleNotificationDelivery
     private let ledgerURL: URL
@@ -88,12 +102,12 @@ struct MoodleDeadlinePlan {
     }
 
     func update(items: [MoodleWork], updatedAt: Date?, partial: Bool, enabled: Bool,
-                allowPermissionRequest: Bool = false, now: Date = Date()) {
+                allowPermissionRequest: Bool = false, lead: MoodleReminderLead = .oneDay, now: Date = Date()) {
         let previous = task
         task = Task { [weak self] in
             await previous?.value
             await self?.reconcile(items: items, updatedAt: updatedAt, partial: partial,
-                                  enabled: enabled, allowPermissionRequest: allowPermissionRequest, now: now)
+                                  enabled: enabled, allowPermissionRequest: allowPermissionRequest, lead: lead, now: now)
         }
     }
 
@@ -115,7 +129,7 @@ struct MoodleDeadlinePlan {
     }
 
     private func reconcile(items: [MoodleWork], updatedAt: Date?, partial: Bool, enabled: Bool,
-                           allowPermissionRequest: Bool, now: Date) async {
+                           allowPermissionRequest: Bool, lead: MoodleReminderLead, now: Date) async {
         failed = false
         let allPending = await delivery.pending()
         let own = allPending.filter { $0.identifier.hasPrefix(MoodleDeadlinePlan.prefix) }
@@ -124,7 +138,7 @@ struct MoodleDeadlinePlan {
             return
         }
         guard let updatedAt, updatedAt <= now.addingTimeInterval(60), now.timeIntervalSince(updatedAt) <= 86400 else { return }
-        let plans = items.compactMap { MoodleDeadlinePlan($0, now: now) }.sorted { $0.deadline < $1.deadline }
+        let plans = items.compactMap { MoodleDeadlinePlan($0, now: now, lead: lead) }.sorted { $0.deadline < $1.deadline }
         let byWork = Dictionary(items.map { (MoodleDeadlinePlan.key(for: $0.url), $0) }, uniquingKeysWith: { first, _ in first })
         let valid = Set(plans.map(\.identifier))
         let obsolete = ledger.filter { id, entry in
@@ -160,11 +174,13 @@ struct MoodleDeadlinePlan {
             if let prior = ledger[plan.identifier] {
                 // Once due for delivery, a consumed/dismissed request isn't sent again.
                 if !pendingIDs.contains(plan.identifier) && prior.fireDate <= now { continue }
-                if pendingIDs.contains(plan.identifier) { scheduled += 1; continue }
+                if pendingIDs.contains(plan.identifier) && (prior.leadHours ?? 24) == lead.rawValue { scheduled += 1; continue }
+                // Replacing a pending identifier is atomic in Notification Center.
+                // Already delivered reminders remain deduplicated above.
             }
             do {
                 try await delivery.add(plan.request(now: now))
-                ledger[plan.identifier] = Entry(workKey: plan.workKey, deadline: plan.deadline, fireDate: plan.fireDate)
+                ledger[plan.identifier] = Entry(workKey: plan.workKey, deadline: plan.deadline, fireDate: plan.fireDate, leadHours: lead.rawValue)
                 scheduled += 1
                 persist()
             } catch { failed = true }

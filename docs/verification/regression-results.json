@@ -118,7 +118,52 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "deadline_lead_24_hours"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_lead_48_hours"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_lead_120_hours"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_lead_168_hours"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_lead_change_replaces_pending_without_duplicate"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_lead_change_does_not_repeat_delivered"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "deadline_reminder_default_enabled"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_lead_preference_persists"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "servicehub_default_shortcut_and_routing"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "servicehub_removed_shortcut_stays_removed"
     },
     {
       "detail" : "",
@@ -628,6 +673,76 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "serviceHub_dark_fixture_loaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_dark_background"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_canvas_matches_native_me"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_page_prototypes_untouched"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_form_values_and_validation_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_no_media_or_page_inversion"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_duplicate_brand_logo_hidden"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_availability_color_meaning_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_checkbox_and_dialog_work"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_dynamic_style_adapts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_live_disable_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_layout_dimensions_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_isolated_api_hidden_from_page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_light_mode_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "external_auth_page_no_dark_theme_or_js_proxy"
     },
     {
@@ -784,6 +899,26 @@
       "detail" : "",
       "passed" : true,
       "test" : "sports_dark_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_light_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_light_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_dark_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "serviceHub_dark_inner_borders_and_actions_preserved"
     },
     {
       "detail" : "",
@@ -1696,7 +1831,7 @@
       "test" : "browser_has_history_before_clear"
     },
     {
-      "detail" : "cookies=10",
+      "detail" : "cookies=8",
       "passed" : true,
       "test" : "cache_clear_preserves_login_and_storage"
     },
@@ -1726,7 +1861,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 15709C8B-D743-4FD5-B7A1-D90EB2AC5D30, site: Regression.SiteID.portal, filename: \"post-only.pdf\", createdAt: 2026-10-27 07:24:44 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 32, error: nil, destinationBookmark: nil), Regression.DownloadItem(id: F1C7E758-BF5D-4E9D-8EB5-F3128B1C2E85, site: Regression.SiteID.portal, filename: \"inline.pdf\", createdAt: 2026-10-27 07:24:44 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 42, error: nil, destinationBookmark: nil), Regression.DownloadItem(id: B50F5583-529A-46D2-AC4B-08489CDC4287, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-27 07:24:43 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil), Regression.DownloadItem(id: 595B62D7-C0FC-4D61-BE09-1A24098E3534, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-27 07:24:39 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 512E4C09-61D5-4A59-AB8C-6FF354CA747A, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-27 08:16:11 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -2073,6 +2208,21 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "servicehub_customer_table_native_snapshot"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "servicehub_native_row_activates_existing_web_row"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "servicehub_login_is_not_replaced_by_empty_list"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "lock_delay_before_threshold"
     },
     {
@@ -2167,8 +2317,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-27T07:29:37Z",
+  "date" : "2026-10-27T08:16:40Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "96cea13c-c50c-431c-8972-77cf93616d25"
+  "runID" : "c77d6c02-a027-42b8-93e1-64ce862d04ec"
 }

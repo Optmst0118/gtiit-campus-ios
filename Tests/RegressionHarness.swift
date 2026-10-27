@@ -218,9 +218,31 @@ private final class RetiredViewReference {
         delivery.failAdds = false
         await update([work(91)])
         check("deadline_retry_schedules_successfully", !center.failed && delivery.requests.count == 1)
+        center.clear(); await center.waitForUpdates()
+        for lead in MoodleReminderLead.allCases {
+            let due = lead.seconds + 3600
+            let plan = MoodleDeadlinePlan(work(200 + lead.rawValue, due: due), now: now, lead: lead)
+            check("deadline_lead_\(lead.rawValue)_hours", abs((plan?.fireDate.timeIntervalSince(now) ?? 0) - 3600) < 0.001)
+        }
+        center.update(items: [work(400, due: 6*86400)], updatedAt: now, partial: false, enabled: true, lead: .oneDay, now: now)
+        await center.waitForUpdates()
+        let countBeforeChange = delivery.added
+        center.update(items: [work(400, due: 6*86400)], updatedAt: now, partial: false, enabled: true, lead: .fiveDays, now: now)
+        await center.waitForUpdates()
+        let changedTrigger = delivery.requests.values.first?.trigger as? UNTimeIntervalNotificationTrigger
+        check("deadline_lead_change_replaces_pending_without_duplicate", delivery.requests.count == 1 && delivery.added == countBeforeChange + 1 && abs((changedTrigger?.timeInterval ?? 0) - 86400) < 0.001)
+        delivery.requests = [:]
+        center.update(items: [work(400, due: 6*86400)], updatedAt: now.addingTimeInterval(86401), partial: false, enabled: true, lead: .oneWeek, now: now.addingTimeInterval(86401))
+        await center.waitForUpdates()
+        check("deadline_lead_change_does_not_repeat_delivered", delivery.requests.isEmpty)
         let preferences = UserDefaults(suiteName: "deadline-preferences-" + UUID().uuidString)!
         let settings = AppSettings(defaults: preferences)
         check("deadline_reminder_default_enabled", settings.moodleDeadlineRemindersEnabled)
+        settings.moodleReminderLead = .oneWeek
+        check("deadline_lead_preference_persists", AppSettings(defaults: preferences).moodleReminderLead == .oneWeek)
+        check("servicehub_default_shortcut_and_routing", settings.shortcutIDs.contains("servicehub.home") && SiteID.site(for: SiteID.serviceHub.homeURL) == .serviceHub && AppTab.tab(for: .serviceHub) == .me)
+        settings.shortcutIDs.remove("servicehub.home")
+        check("servicehub_removed_shortcut_stays_removed", !AppSettings(defaults: preferences).shortcutIDs.contains("servicehub.home"))
         settings.moodleDeadlineRemindersEnabled = false
         check("deadline_reminder_preference_persists", !AppSettings(defaults: preferences).moodleDeadlineRemindersEnabled)
     }
@@ -607,18 +629,38 @@ private final class RetiredViewReference {
         check(
             "diagnostic_four_head_responses",
             await wait {
-                !diagnostic.isRunning && diagnostic.results.count == 4
+                !diagnostic.isRunning && diagnostic.results.count == SiteID.allCases.count
                     && diagnostic.results.allSatisfy { $0.message.contains("HTTP 302") }
             })
         let counters = await metrics()
         check(
             "diagnostic_no_cookie_no_auth_no_redirect",
-            counters?["heads"] == 4 && counters?["cookie_headers"] == 0 && counters?["redirect_followed"] == 0
+            counters?["heads"] == SiteID.allCases.count && counters?["cookie_headers"] == 0 && counters?["redirect_followed"] == 0
         )
         check(
             "diagnostic_report_redacted",
             !diagnostic.report.contains("127.0.0.1") && !diagnostic.report.contains("synthetic")
                 && !diagnostic.report.contains("http://"))
+        let service = BrowserModel(site: .serviceHub, router: spy)
+        let syntheticTickets = """
+        <html><head><meta name='viewport' content='width=device-width,initial-scale=1'></head><body>
+        <table><thead><tr><th></th><th>#</th><th>TITLE</th><th>GROUP</th><th>OWNER</th><th>STATE</th><th>CREATED AT</th></tr></thead><tbody>
+        <tr onclick="document.body.dataset.opened='yes'"><td>new</td><td>12345</td><td>Synthetic request</td><td>IT Support</td><td>Support</td><td>new</td><td>10/27/2026 15:07</td></tr>
+        </tbody></table></body></html>
+        """
+        service.webView.loadHTMLString(syntheticTickets, baseURL: SiteID.serviceHub.homeURL)
+        _ = await wait { service.webView.url?.host == SiteID.serviceHub.host && !service.isLoading }
+        let serviceRows = await ServiceCenterDocument.evaluate(ServiceCenterDocument.snapshot, in: service.webView) as? String
+        let parsedTickets = serviceRows.flatMap { $0.data(using: .utf8) }.flatMap { try? JSONDecoder().decode([ServiceTicket].self, from: $0) }
+        check("servicehub_customer_table_native_snapshot", parsedTickets?.first?.id == "12345" && parsedTickets?.first?.title == "Synthetic request")
+        if let ticket = parsedTickets?.first {
+            let activated = await ServiceCenterDocument.open(ticket, in: service.webView)
+            let opened = await js(service.webView, "document.body.dataset.opened")
+            check("servicehub_native_row_activates_existing_web_row", activated && opened == "yes")
+        } else { check("servicehub_native_row_activates_existing_web_row", false) }
+        service.webView.loadHTMLString("<html><body>Login</body></html>", baseURL: URL(string: "https://servicehub.gtiit.edu.cn/#login")!)
+        _ = await wait { !service.isLoading }
+        check("servicehub_login_is_not_replaced_by_empty_list", (await ServiceCenterDocument.evaluate(ServiceCenterDocument.snapshot, in: service.webView) as? String) == nil)
         let now = Date()
         settings.biometricLockEnabled = true
         settings.lockDelay = .minute
@@ -1036,7 +1078,7 @@ private final class RetiredViewReference {
         check("preload_sso_rejects_cleartext_or_action", LaunchPreparation.allowedMoodleSSO("http://moodle.gtiit.edu.cn/moodle/auth/saml2/login.php") == nil && LaunchPreparation.allowedMoodleSSO("https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php") == nil)
 
         let router = TestRouter()
-        let models = SiteID.allCases.map { BrowserModel(site: $0, router: router) }
+        let models = SiteID.onboardingSites.map { BrowserModel(site: $0, router: router) }
         for model in models {
             model.webView.stopLoading()
             model.webView.frame = window!.bounds
@@ -1656,7 +1698,7 @@ extension RegressionApp {
             check("exam_missing_component_not_empty_success", missing.contains("loading"))
         } catch { check("exam_reader", false, error.localizedDescription) }
         web.stopLoading()
-        check("native_site_titles_fixed", SiteID.allCases.map(\.nativeTitle) == ["Student", "Moodle dashboard", "GTIIT Room Booking", "GTIIT Sports Center"])
+        check("native_site_titles_fixed", SiteID.onboardingSites.map(\.nativeTitle) == ["Student", "Moodle dashboard", "GTIIT Room Booking", "GTIIT Sports Center"])
     }
 
 }

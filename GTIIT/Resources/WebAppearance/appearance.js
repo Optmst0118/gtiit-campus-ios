@@ -138,12 +138,20 @@
         '.page-package > .fb_component:first-child .fbc_pictureImage{display:none !important}'
     ].join('') : '';
 
+    // Zammad remains responsible for forms; native chrome supplies navigation.
+    const serviceCSS = pageHost === 'servicehub.gtiit.edu.cn' ? [
+        'body{font-family:-apple-system,BlinkMacSystemFont,sans-serif !important}',
+        'input,textarea,select,[contenteditable=true]{font-size:16px !important}',
+        '.login{max-width:480px;margin-inline:auto}',
+        '@media(max-width:600px){.ticket-article{padding:16px !important}.ticket-article img{max-width:100%;height:auto}textarea,[contenteditable=true]{max-width:100%;box-sizing:border-box}}'
+    ].join('') : '';
+
     const installStyles = () => {
         try {
             if (document.getElementById('gtiit-native-chrome')) return;
             const style = document.createElement('style');
             style.id = 'gtiit-native-chrome';
-            style.textContent = (officialHost ? shellCSS : '') + brandingCSS + portalCSS + roomsCSS + sportsCSS;
+            style.textContent = (officialHost ? shellCSS : '') + brandingCSS + portalCSS + roomsCSS + sportsCSS + serviceCSS;
             (document.head || document.documentElement).appendChild(style);
         } catch (_) {}
     };
@@ -555,6 +563,7 @@
     if (pageHost === 'moodle.gtiit.edu.cn') canvasSelectors.push('#page', '#page-wrapper', '#page-content');
     if (pageHost === 'roombooking.gtiit.edu.cn') canvasSelectors.push('#page', '#page-wrapper');
     if (pageHost === 'gtiit.mike-x.com') canvasSelectors.push('.main', '.page-package', '.page-group', '.page', '.page > .content');
+    if (pageHost === 'servicehub.gtiit.edu.cn') canvasSelectors.push('#app', '.content', '.main', '.content-main');
     // Dark Reader's final override is deliberately not color-transformed again.
     fixes.css = canvasSelectors.map(selector => selector === 'html' ? 'html:root' : ':root ' + selector).join(',') + '{background-color:GTIIT_DARK_CANVAS !important;background-image:none !important;}';
     const apply = () => {

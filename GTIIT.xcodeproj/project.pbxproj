@@ -69,6 +69,7 @@
 		8F4F60D0316481A181D8DD14 /* MoodleUpcomingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF25BB537930B0F24C1B2873 /* MoodleUpcomingView.swift */; };
 		42163D6FEAAEABE45B668B9F /* MyTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AC536C50EC4B48743196A7 /* MyTabView.swift */; };
 		9B5E893ADDF2C6FFE4F53584 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B32A814B9C6172E0E91CE6 /* RootTabView.swift */; };
+		AFC286DEE20230BBC99ACC78 /* ServiceCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE82C2586FB5D241489E332 /* ServiceCenterView.swift */; };
 		ED1AC996BD82FB03BDB65AA8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26C175066343BFC70B55756C /* SettingsView.swift */; };
 		53D57F26BCF5ECF87A38B042 /* ShuttleActivityPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8D5E2651B687A0E7CAD6823 /* ShuttleActivityPresentation.swift */; };
 		5329689BD1839CD25523A051 /* ShuttleLiveActivityCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE71A2C748E875D41C0AAEA2 /* ShuttleLiveActivityCard.swift */; };
@@ -159,6 +160,7 @@
 		BF25BB537930B0F24C1B2873 /* MoodleUpcomingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodleUpcomingView.swift; sourceTree = "<group>"; };
 		70AC536C50EC4B48743196A7 /* MyTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTabView.swift; sourceTree = "<group>"; };
 		06B32A814B9C6172E0E91CE6 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
+		DCE82C2586FB5D241489E332 /* ServiceCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCenterView.swift; sourceTree = "<group>"; };
 		26C175066343BFC70B55756C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A8D5E2651B687A0E7CAD6823 /* ShuttleActivityPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleActivityPresentation.swift; sourceTree = "<group>"; };
 		EE71A2C748E875D41C0AAEA2 /* ShuttleLiveActivityCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleLiveActivityCard.swift; sourceTree = "<group>"; };
@@ -339,6 +341,7 @@
 				BF25BB537930B0F24C1B2873 /* MoodleUpcomingView.swift */,
 				70AC536C50EC4B48743196A7 /* MyTabView.swift */,
 				06B32A814B9C6172E0E91CE6 /* RootTabView.swift */,
+				DCE82C2586FB5D241489E332 /* ServiceCenterView.swift */,
 				26C175066343BFC70B55756C /* SettingsView.swift */,
 				A8D5E2651B687A0E7CAD6823 /* ShuttleActivityPresentation.swift */,
 				EE71A2C748E875D41C0AAEA2 /* ShuttleLiveActivityCard.swift */,
@@ -511,6 +514,7 @@
 				8F4F60D0316481A181D8DD14 /* in Sources */,
 				42163D6FEAAEABE45B668B9F /* in Sources */,
 				9B5E893ADDF2C6FFE4F53584 /* in Sources */,
+				AFC286DEE20230BBC99ACC78 /* in Sources */,
 				ED1AC996BD82FB03BDB65AA8 /* in Sources */,
 				53D57F26BCF5ECF87A38B042 /* in Sources */,
 				5329689BD1839CD25523A051 /* in Sources */,
@@ -626,7 +630,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 75;
+				CURRENT_PROJECT_VERSION = 76;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -636,7 +640,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0.4;
-				GTIIT_RELEASE_LABEL = "2.0.4-beta.2";
+				GTIIT_RELEASE_LABEL = "2.0.4-beta.3";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -652,7 +656,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 75;
+				CURRENT_PROJECT_VERSION = 76;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -662,7 +666,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0.4;
-				GTIIT_RELEASE_LABEL = "2.0.4-beta.2";
+				GTIIT_RELEASE_LABEL = "2.0.4-beta.3";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -843,9 +847,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "75";
+				CURRENT_PROJECT_VERSION = "76";
 				MARKETING_VERSION = "2.0.4";
-				GTIIT_RELEASE_LABEL = "2.0.4-beta.2";
+				GTIIT_RELEASE_LABEL = "2.0.4-beta.3";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";
@@ -864,9 +868,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "75";
+				CURRENT_PROJECT_VERSION = "76";
 				MARKETING_VERSION = "2.0.4";
-				GTIIT_RELEASE_LABEL = "2.0.4-beta.2";
+				GTIIT_RELEASE_LABEL = "2.0.4-beta.3";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";

@@ -28,7 +28,7 @@ struct WelcomeView: View {
         }
         .background(Theme.pageBackground)
         .onChange(of: page) { previous, next in
-            if previous <= 1 && next > 1 && confirmedSites.count < SiteID.allCases.count { page = 1 }
+            if previous <= 1 && next > 1 && confirmedSites.count < SiteID.onboardingSites.count { page = 1 }
             Haptics.selection()
         }
         .interactiveDismissDisabled()
@@ -72,7 +72,7 @@ struct WelcomeView: View {
             }
             .modifier(WelcomeReveal(active: page == 0, index: 0))
             HStack(spacing: 18) {
-                ForEach(Array(SiteID.allCases.enumerated()), id: \.element.id) { index, site in
+                ForEach(Array(SiteID.onboardingSites.enumerated()), id: \.element.id) { index, site in
                     Image(systemName: site.symbol)
                         .font(.system(size: 15, weight: .semibold)).foregroundStyle(.white)
                         .frame(width: 38, height: 38)
@@ -92,7 +92,7 @@ struct WelcomeView: View {
         pageLayout(index: 1, symbol: "person.crop.circle.badge.checkmark", title: L10n.tr("登录校园网站"),
                    subtitle: L10n.tr("依次登录四个校园入口，完成后逐个确认。")) {
             VStack(spacing: 10) {
-                ForEach(Array(SiteID.allCases.enumerated()), id: \.element.id) { index, site in
+                ForEach(Array(SiteID.onboardingSites.enumerated()), id: \.element.id) { index, site in
                     HStack(spacing: 14) {
                         Image(systemName: site.symbol)
                             .font(.system(size: 18, weight: .semibold)).foregroundStyle(site.tint)
@@ -114,7 +114,7 @@ struct WelcomeView: View {
                         .font(.headline).frame(maxWidth: .infinity).padding(.vertical, 6)
                 }
                 .buttonStyle(.borderedProminent).controlSize(.large)
-                .disabled(confirmedSites.count == SiteID.allCases.count)
+                .disabled(confirmedSites.count == SiteID.onboardingSites.count)
                 .padding(.top, 6)
                 .modifier(WelcomeReveal(active: page == 1, index: 4))
             }
@@ -233,7 +233,7 @@ struct WelcomeView: View {
                         .font(.headline).frame(maxWidth: .infinity).padding(.vertical, 4)
                 }
                 .buttonStyle(.borderedProminent).controlSize(.large)
-                .disabled((page == 1 && confirmedSites.count != SiteID.allCases.count) || (page == pageCount - 1 && !hasConfirmed && !settings.hasSeenWelcome))
+                .disabled((page == 1 && confirmedSites.count != SiteID.onboardingSites.count) || (page == pageCount - 1 && !hasConfirmed && !settings.hasSeenWelcome))
             }
         }
         .padding(.horizontal, 32).padding(.top, 18).padding(.bottom, 20)
@@ -260,7 +260,7 @@ private struct WelcomeLoginFlow: View {
     @State private var selected: SiteID?
 
     private var site: SiteID {
-        selected ?? SiteID.allCases.first { !confirmed.contains($0) } ?? .portal
+        selected ?? SiteID.onboardingSites.first { !confirmed.contains($0) } ?? .portal
     }
 
     var body: some View {
@@ -268,7 +268,7 @@ private struct WelcomeLoginFlow: View {
             WelcomeLoginPage(model: app.browser(for: site), site: site) {
                 confirmed.insert(site)
                 Haptics.success()
-                if let next = SiteID.allCases.first(where: { !confirmed.contains($0) }) {
+                if let next = SiteID.onboardingSites.first(where: { !confirmed.contains($0) }) {
                     selected = next
                 } else {
                     dismiss()
@@ -283,7 +283,7 @@ private struct WelcomeLoginFlow: View {
                     VStack(spacing: 3) {
                         Text(site.displayName).font(.headline)
                         HStack(spacing: 8) {
-                        ForEach(SiteID.allCases) { item in
+                        ForEach(SiteID.onboardingSites) { item in
                             Image(systemName: confirmed.contains(item) ? "checkmark.circle.fill" : "circle")
                                 .foregroundStyle(confirmed.contains(item) || item == site ? Theme.accent : Color.secondary)
                                 .font(.caption)

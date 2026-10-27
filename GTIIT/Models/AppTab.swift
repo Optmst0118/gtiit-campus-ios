@@ -46,6 +46,7 @@ enum AppTab: String, CaseIterable, Identifiable {
         case .portal: return .portal
         case .moodle: return .learning
         case .rooms, .sports: return .booking
+        case .serviceHub: return .me
         }
     }
 }

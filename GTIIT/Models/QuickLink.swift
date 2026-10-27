@@ -49,6 +49,7 @@ enum QuickLinkCatalog {
             title: L10n.tr("校园服务"),
             symbol: "building.columns.fill",
             links: [
+                QuickLink(id: "servicehub.home", title: L10n.tr("服务中心"), subtitle: L10n.tr("我的工单"), symbol: "bubble.left.and.bubble.right.fill", site: .serviceHub, urlString: SiteID.serviceHub.homeURLString),
                 QuickLink(id: "portal.apps", title: L10n.tr("申请与下载"), subtitle: "Applications", symbol: "tray.full", site: .portal, urlString: "https://students.gtiit.edu.cn/apps"),
                 QuickLink(id: "portal.leave", title: L10n.tr("请假申请"), subtitle: "Leave Request", symbol: "bed.double", site: .portal, urlString: "https://students.gtiit.edu.cn/apps/leave"),
                 QuickLink(id: "portal.credits", title: L10n.tr("额外学分"), subtitle: "Additional Credits", symbol: "plus.forwardslash.minus", site: .portal, urlString: "https://students.gtiit.edu.cn/apps/addcredits"),
@@ -75,7 +76,7 @@ enum QuickLinkCatalog {
     /// 首页展示的 8 个高频入口。
     static var highlights: [QuickLink] {
         let ids = ["moodle.home", "moodle.upcoming", "portal.grades",
-                   "portal.attendance", "portal.checklist", "rooms.dashboard", "rooms.find"]
+                   "portal.attendance", "portal.checklist", "rooms.dashboard", "rooms.find", "servicehub.home"]
         return all.filter { ids.contains($0.id) }
     }
 
