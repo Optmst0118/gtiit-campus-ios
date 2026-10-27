@@ -252,6 +252,10 @@ private final class RetiredViewReference {
         func work(_ id: Int, _ hours: Double, _ status: String = "notSubmitted") -> MoodleWork {
             MoodleWork(url: "https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=\(id)", name: "Synthetic assignment", course: "Synthetic course", due: now.addingTimeInterval(hours*3600).timeIntervalSince1970, opened: nil, status: status, source: "assignment", kind: "assign")
         }
+        let loginStates: [SiteID: CampusLoginState] = [.portal: .needsLogin, .moodle: .signedIn, .rooms: .checking, .sports: .unavailable, .serviceHub: .unknown]
+        check("inbox_normal_only_actionable_login", CampusInboxPolicy.loginSites(loginStates, beta: false) == [.portal])
+        check("inbox_beta_all_sites", CampusInboxPolicy.loginSites(loginStates, beta: true).count == SiteID.allCases.count)
+        check("inbox_no_placeholder_for_unknown_login", CampusInboxPolicy.loginSites([:], beta: false).isEmpty)
         check("inbox_assignment_24h_window_and_dedup", CampusInboxPolicy.assignments([work(1,24),work(1,24),work(2,24.001),work(3,0),work(4,-1),work(5,1,"submitted"),work(6,2,"draft")], now: now).map(\.url) == [work(6,2).url,work(1,24).url])
         func booking(_ id: String, _ hours: Double) -> CachedRoomReservation {
             CachedRoomReservation(id: id, title: "Synthetic room", location: "D4-103-9", start: now.addingTimeInterval(hours*3600), end: now.addingTimeInterval((hours+1)*3600), url: "https://roombooking.gtiit.edu.cn/Web/reservation.php?rn="+id)

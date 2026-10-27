@@ -44,7 +44,7 @@ struct MyTabView: View {
                     Button {
                         showSettings = true
                     } label: {
-                        Image(systemName: "gearshape").frame(minWidth: 44, minHeight: 44)
+                        Image(systemName: "gearshape")
                     }
                     .accessibilityLabel(L10n.tr("设置"))
                 }

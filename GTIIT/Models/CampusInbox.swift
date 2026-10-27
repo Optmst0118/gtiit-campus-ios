@@ -33,10 +33,14 @@ struct CachedRoomReservation: Codable, Identifiable, Hashable {
 }
 
 enum CampusInboxPolicy {
+    static func loginSites(_ states: [SiteID: CampusLoginState], beta: Bool) -> [SiteID] {
+        SiteID.allCases.filter { beta || states[$0] == .needsLogin }
+    }
+
     static func assignments(_ items: [MoodleWork], now: Date) -> [MoodleWork] {
         var seen = Set<String>()
         return items.filter {
-            guard !$0.isSubmitted, let due = $0.dueDate, due > now, due <= now.addingTimeInterval(86400),
+            guard !$0.isSubmitted, let due = $0.due, due > now.timeIntervalSince1970, due <= now.addingTimeInterval(86400).timeIntervalSince1970,
                   MoodleWork.safeURL($0.url) != nil else { return false }
             return seen.insert($0.url).inserted
         }.sorted { $0.priority() < $1.priority() }

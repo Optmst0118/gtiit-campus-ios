@@ -3,6 +3,21 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "inbox_normal_only_actionable_login"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_beta_all_sites"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_no_placeholder_for_unknown_login"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "inbox_assignment_24h_window_and_dedup"
     },
     {
@@ -82,8 +97,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-27T09:28:56Z",
+  "date" : "2026-10-27T10:01:45Z",
   "focus" : "inbox",
   "passed" : true,
-  "runID" : "35320afd-3f9c-4e53-a7a7-1ede803e6f3e"
+  "runID" : "095cad8d-1178-413c-97df-0d658734efb3"
 }

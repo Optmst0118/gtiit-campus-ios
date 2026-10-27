@@ -4,12 +4,19 @@ struct CampusInboxView: View {
     @EnvironmentObject private var app: AppModel
     @ObservedObject var sync: CampusSessionSync
     @ObservedObject var upcoming: MoodleUpcomingStore
+    @AppStorage("campusInboxBeta") private var beta = false
     var body: some View {
         TimelineView(.periodic(from: .now, by: 30)) { context in
             let assignments = CampusInboxPolicy.assignments(upcoming.items, now: context.date)
             let reservations = CampusInboxPolicy.reservations(sync.reservations, now: context.date)
+            let loginSites = CampusInboxPolicy.loginSites(sync.states, beta: beta)
+            let empty = assignments.isEmpty && reservations.isEmpty && loginSites.isEmpty
             List {
-                Section(L10n.tr("24 小时内截止")) {
+                if empty && !beta {
+                    ContentUnavailableView(L10n.tr("暂无新通知"), systemImage: "bell")
+                        .listRowBackground(Color.clear)
+                }
+                if beta || !assignments.isEmpty { Section(L10n.tr("24 小时内截止")) {
                     if assignments.isEmpty { Text(L10n.tr("暂无即将截止的作业")).foregroundStyle(Color.secondary) }
                     ForEach(assignments) { work in
                         Button {
@@ -25,7 +32,8 @@ struct CampusInboxView: View {
                         }
                     }
                 }
-                Section(L10n.tr("6 小时内的预约")) {
+                }
+                if beta || !reservations.isEmpty { Section(L10n.tr("6 小时内的预约")) {
                     if reservations.isEmpty { Text(L10n.tr("暂无即将开始的预约")).foregroundStyle(Color.secondary) }
                     ForEach(reservations) { reservation in
                         Button {
@@ -41,8 +49,9 @@ struct CampusInboxView: View {
                         }
                     }
                 }
-                Section(L10n.tr("登录状态")) {
-                    ForEach(SiteID.allCases) { site in
+                }
+                if !loginSites.isEmpty { Section(L10n.tr("登录状态")) {
+                    ForEach(loginSites) { site in
                         Button {
                             if site == .sports, let url = URL(string: "https://gtiit.mike-x.com/kcr2S") { app.openWeb(url, site: site, title: site.displayName) }
                             else { app.openSite(site) }
@@ -62,12 +71,22 @@ struct CampusInboxView: View {
                         }
                     }
                 }
-                Section { NavigationLink { CampusCacheView(sync: sync, upcoming: upcoming, exams: app.exams) } label: { Label(L10n.tr("本地校园信息"), systemImage: "internaldrive") } }
+                }
+                if beta { Section { NavigationLink { CampusCacheView(sync: sync, upcoming: upcoming, exams: app.exams) } label: { Label(L10n.tr("本地校园信息"), systemImage: "internaldrive") } } }
             }
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
             .refreshable { app.refreshCampusSessions(force: true); app.refreshMoodleSummary(force: true) }
         }
         .navigationTitle(L10n.tr("通知中心")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Toggle(L10n.tr("显示全部通知项目"), isOn: $beta)
+                } label: {
+                    Text(L10n.tr("Beta")).font(.subheadline.weight(.medium))
+                }.accessibilityLabel(L10n.tr("Beta 通知预览"))
+            }
+        }
     }
 }
 
@@ -138,10 +157,10 @@ struct CampusInboxToolbarButton: View {
         TimelineView(.periodic(from: .now, by: 30)) { context in
             let count = CampusInboxPolicy.assignments(upcoming.items, now: context.date).count
                 + CampusInboxPolicy.reservations(sync.reservations, now: context.date).count
-                + sync.states.values.filter { $0 == .needsLogin }.count
+                + CampusInboxPolicy.loginSites(sync.states, beta: false).count
             Button(action: action) {
                 Image(systemName: count > 0 ? "bell.badge" : "bell")
-                    .frame(minWidth: 44, minHeight: 44)
+
             }.accessibilityLabel(L10n.tr("通知中心"))
                 .accessibilityValue(L10n.format("%@ 条通知", String(count)))
         }

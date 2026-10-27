@@ -11,9 +11,9 @@
 
 把学校的官方网页集中到一个 iOS App，配合原生班车倒计时、离线课表、临近作业、临近考试、PDF 预览与下载管理。课表需用户确认后保存；日程摘要缓存在本机，校园业务在官方网页完成。
 
-**当前版本：2.0.4-beta.4（build 77）**。新增通知中心、启动登录检查及本地课程／个人预约缓存。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次验证范围见 [2.0.4 beta.4 发布记录](docs/RELEASE-2.0.4-beta.4.md)。
+**当前版本：2.0.4-beta.5（build 78）**。新增通知中心、启动登录检查及本地课程／个人预约缓存。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次验证范围见 [2.0.4 beta.5 发布记录](docs/RELEASE-2.0.4-beta.5.md)。
 
-本版新增：我的右上角通知中心与设置共用原生液态玻璃容器，汇总 24 小时作业、6 小时个人预约及五站登录状态；Moodle／Student 课程目录、近期日程和练习房／讨论室预约保留在受保护的本地缓存。体育预约同步暂不加入。详见[验证记录](docs/verification/inbox-cache-beta4/README.md)。
+本版调整：我的右上角通知中心与设置采用紧凑的原生共享液态玻璃工具栏。通知中心只显示 24 小时作业、6 小时个人预约和需要重新登录的实际消息；空栏目与正常检测状态隐藏，右上角 Beta 开关可查看全部项目。登录检查仍在后台自动进行；Moodle／Student 课程目录、近期日程和练习房／讨论室预约保留在受保护的本地缓存。体育预约同步暂不加入。详见[验证记录](docs/verification/inbox-cache-beta4/README.md)。
 
 作业系统提醒可选截止前 24 小时／2 天／5 天／1 周；班车下一班继续使用已选定 A「柔和底色」。
 

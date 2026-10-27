@@ -953,3 +953,8 @@
 "登录状态" = "Sign-in Status";
 "需要更新登录状态" = "Sign in again";
 "%@ 条通知" = "%@ notifications";
+
+"暂无新通知" = "No new notifications";
+"显示全部通知项目" = "Show all notification items";
+"Beta 通知预览" = "Beta notification preview";
+"Beta" = "Beta";

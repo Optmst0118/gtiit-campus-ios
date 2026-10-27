@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.4-beta.5 (78) · 2026-10-27
+
+- 我的页通知／设置按钮去除额外内部宽度，沿用预约页的系统工具栏尺寸与间距，保留共享玻璃背景。
+- 正常通知中心只呈现实际作业、预约及需要重新登录的消息，不显示空栏目或正常登录检测面板；检测继续后台自动执行。
+- 右上角 Beta 菜单提供“显示全部通知项目”开关，跨启动保存，展开完整登录状态与缓存入口，关闭后恢复消息模式。
+- 用相同 Unix 时间精度判断作业时间边界，消除 Date 转换的微小精度差导致的边界漏项。
+
 ## 2.0.4-beta.4 (77) · 2026-10-27
 
 - 我的顶部通知中心与设置共用原生液态玻璃容器。
