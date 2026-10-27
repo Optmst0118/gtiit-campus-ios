@@ -42,6 +42,7 @@
 		2D227D5722A7043CD538FC3D /* LocalAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3355A38E3E2F1E7A1522EFA8 /* LocalAuthenticator.swift */; };
 		D8781AE4F9E812D27EED6AB9 /* LocalDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46E1901B12BCEECF4F6E905A /* LocalDiagnostics.swift */; };
 		918F61AB422EFAA4D8DFCFF0 /* MoodleAutoLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F2EDC9E92B7399D05F4061D /* MoodleAutoLogin.swift */; };
+		CADA29830782584247011180 /* MoodleDeadlineReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EF19091F637EE1CF72CFF6 /* MoodleDeadlineReminders.swift */; };
 		2FDF153A8B559EA6B70E0E19 /* MoodleUpcomingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C139428903A01429E7B6BC5 /* MoodleUpcomingStore.swift */; };
 		2BDDF352C1BE93B5F02434F0 /* NavigationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7406024295E4E0281ED1F4CA /* NavigationPolicy.swift */; };
 		2255BBF01A2D87BF634F92F6 /* NetworkDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */; };
@@ -131,6 +132,7 @@
 		3355A38E3E2F1E7A1522EFA8 /* LocalAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAuthenticator.swift; sourceTree = "<group>"; };
 		46E1901B12BCEECF4F6E905A /* LocalDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDiagnostics.swift; sourceTree = "<group>"; };
 		5F2EDC9E92B7399D05F4061D /* MoodleAutoLogin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodleAutoLogin.swift; sourceTree = "<group>"; };
+		50EF19091F637EE1CF72CFF6 /* MoodleDeadlineReminders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodleDeadlineReminders.swift; sourceTree = "<group>"; };
 		8C139428903A01429E7B6BC5 /* MoodleUpcomingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodleUpcomingStore.swift; sourceTree = "<group>"; };
 		7406024295E4E0281ED1F4CA /* NavigationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationPolicy.swift; sourceTree = "<group>"; };
 		41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkDiagnostics.swift; sourceTree = "<group>"; };
@@ -303,6 +305,7 @@
 				3355A38E3E2F1E7A1522EFA8 /* LocalAuthenticator.swift */,
 				46E1901B12BCEECF4F6E905A /* LocalDiagnostics.swift */,
 				5F2EDC9E92B7399D05F4061D /* MoodleAutoLogin.swift */,
+				50EF19091F637EE1CF72CFF6 /* MoodleDeadlineReminders.swift */,
 				8C139428903A01429E7B6BC5 /* MoodleUpcomingStore.swift */,
 				7406024295E4E0281ED1F4CA /* NavigationPolicy.swift */,
 				41CC34FA425349DAE462A94B /* NetworkDiagnostics.swift */,
@@ -481,6 +484,7 @@
 				2D227D5722A7043CD538FC3D /* in Sources */,
 				D8781AE4F9E812D27EED6AB9 /* in Sources */,
 				918F61AB422EFAA4D8DFCFF0 /* in Sources */,
+				CADA29830782584247011180 /* in Sources */,
 				2FDF153A8B559EA6B70E0E19 /* in Sources */,
 				2BDDF352C1BE93B5F02434F0 /* in Sources */,
 				2255BBF01A2D87BF634F92F6 /* in Sources */,
@@ -618,10 +622,11 @@
 		F22D2FFCC45240A8FF5EBE4A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = "H8M27P5YTH";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 74;
+				CURRENT_PROJECT_VERSION = 75;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -631,7 +636,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0.4;
-				GTIIT_RELEASE_LABEL = "2.0.4-beta.1";
+				GTIIT_RELEASE_LABEL = "2.0.4-beta.2";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -643,10 +648,11 @@
 		FE4F802C632EAD717BA35062 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = "H8M27P5YTH";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 74;
+				CURRENT_PROJECT_VERSION = 75;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -656,7 +662,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0.4;
-				GTIIT_RELEASE_LABEL = "2.0.4-beta.1";
+				GTIIT_RELEASE_LABEL = "2.0.4-beta.2";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -837,11 +843,12 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "74";
+				CURRENT_PROJECT_VERSION = "75";
 				MARKETING_VERSION = "2.0.4";
-				GTIIT_RELEASE_LABEL = "2.0.4-beta.1";
+				GTIIT_RELEASE_LABEL = "2.0.4-beta.2";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				DEVELOPMENT_TEAM = "H8M27P5YTH";
 			};
 			name = Debug;
 		};
@@ -857,11 +864,12 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "74";
+				CURRENT_PROJECT_VERSION = "75";
 				MARKETING_VERSION = "2.0.4";
-				GTIIT_RELEASE_LABEL = "2.0.4-beta.1";
+				GTIIT_RELEASE_LABEL = "2.0.4-beta.2";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				DEVELOPMENT_TEAM = "H8M27P5YTH";
 			};
 			name = Release;
 		};

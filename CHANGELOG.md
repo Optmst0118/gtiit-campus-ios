@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.4-beta.2 · build 75] - 2026-10-27
+
+### Added
+
+- Automatic local reminders 24 hours before checked, unsubmitted Moodle assignment deadlines. Work first discovered inside the window is notified once on detection; known later deadlines are scheduled with iOS for delivery while the app is closed.
+- Protected, persistent deduplication ledger; cancel obsolete reminders after submission, deadline changes, complete-snapshot removal, logout or disable. Partial refreshes preserve reminders for courses not checked. Assignment notifications open the corresponding Moodle task without interfering with shuttle notification routing.
+- Assignment reminder preference and notification permission controls under Settings → Learning & Timetable; native Chinese/English text. Foreground summaries continue using the 30-minute refresh interval.
+
+### Changed
+
+- Full shuttle timetable highlights the next valid departure and centers it on open, direction changes and departure rollover. Teaching-week/day eligibility and tomorrow rollover reuse the shared schedule; first and last rows can also reach the viewport center.
+
 ## [2.0.4-beta.1 · build 74] - 2026-10-27
 
 ### Fixed

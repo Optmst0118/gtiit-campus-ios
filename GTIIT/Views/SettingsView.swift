@@ -395,6 +395,7 @@ struct LearningSettingsView: View {
     var body: some View {
         List {
             NavigationLink { TimetableSettingsView() } label: { SettingsLabel(L10n.tr("课表"), symbol: "calendar") }
+            NavigationLink { MoodleReminderSettingsView() } label: { SettingsLabel(L10n.tr("作业提醒"), symbol: "bell.badge") }
             NavigationLink { MoodleLayoutSettingsView(embedded: true) } label: { SettingsLabel(L10n.tr("Moodle 布局"), symbol: "square.grid.2x2") }
         }.navigationTitle(L10n.tr("学习与课表")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
@@ -419,5 +420,38 @@ struct MyEntrySettingsView: View {
         }.environment(\.editMode, .constant(.active))
             .navigationTitle(L10n.tr("管理“我的”入口")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
+    }
+}
+
+struct MoodleReminderSettingsView: View {
+    @EnvironmentObject private var settings: AppSettings
+    @EnvironmentObject private var app: AppModel
+    @Environment(\.scenePhase) private var scenePhase
+    @ObservedObject private var reminders = MoodleDeadlineReminders.shared
+
+    var body: some View {
+        Form {
+            Section {
+                Toggle(L10n.tr("截止前 24 小时提醒"), isOn: $settings.moodleDeadlineRemindersEnabled)
+                if reminders.authorizationStatus == .notDetermined {
+                    Button(L10n.tr("允许通知")) {
+                        Task { await reminders.requestPermission(); app.syncMoodleDeadlineReminders() }
+                    }
+                } else if reminders.authorizationStatus == .denied {
+                    Button(L10n.tr("前往系统设置")) {
+                        if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                    }
+                }
+                if reminders.failed {
+                    Button(L10n.tr("重试")) { app.syncMoodleDeadlineReminders() }
+                }
+            }
+        }
+        .navigationTitle(L10n.tr("作业提醒")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+        .scrollContentBackground(.hidden).background(Theme.pageBackground)
+        .task { await reminders.refreshAuthorization() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { Task { await reminders.refreshAuthorization(); app.syncMoodleDeadlineReminders() } }
+        }
     }
 }

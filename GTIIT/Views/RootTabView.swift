@@ -366,19 +366,31 @@ private struct RootLifecycle: ViewModifier {
                 syncShuttleSystemState()
                 app.lock.setActive(settings: settings)
                 app.prepareLaunchIfAllowed()
+                app.syncMoodleDeadlineReminders()
             } else {
                 app.yilong.close()
                 app.lock.setInactive(settings: settings)
             }
         }
+        .task(id: scenePhase) {
+            guard scenePhase == .active else { return }
+            app.syncMoodleDeadlineReminders()
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(MoodleUpcomingStore.refreshInterval))
+                guard !Task.isCancelled else { return }
+                if settings.hasSeenWelcome && !app.showWelcome { app.refreshMoodleSummary() }
+            }
+        }
+        .onChange(of: settings.moodleDeadlineRemindersEnabled) { _, _ in app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.shuttleTeachingWeek) { _, _ in syncShuttleSystemState() }
         .onChange(of: settings.favoriteShuttleDirection) { _, _ in syncShuttleSystemState() }
-        .onChange(of: settings.language) { _, _ in syncShuttleSystemState() }
+        .onChange(of: settings.language) { _, _ in syncShuttleSystemState(); app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.privateShuttleReminders) { _, _ in syncShuttleSystemState() }
         .onChange(of: app.lock.isLocked) { _, locked in
             if !locked {
                 Haptics.success()
                 app.prepareLaunchIfAllowed()
+                app.syncMoodleDeadlineReminders()
             } else {
                 app.yilong.close()
             }

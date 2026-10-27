@@ -208,43 +208,96 @@ private struct DepartureColumn: View {
     }
 }
 
-private struct ShuttleTimetableView: View {
+struct ShuttleTimetableView: View {
     @Environment(\.locale) private var nativeLocale
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var settings: AppSettings
     @State private var direction: ShuttleDirection
     init(initialDirection: ShuttleDirection = .southToNorth) {
         _direction = State(initialValue: initialDirection)
     }
+    private var tint: Color { direction == .southToNorth ? Theme.accent : Theme.orange }
+
     var body: some View {
         let _ = nativeLocale.identifier
-
         NavigationStack {
-            List {
-                Section {
-                    Picker(L10n.tr("行车方向"), selection: $direction) {
-                        ForEach(ShuttleDirection.allCases) { Text($0.title).tag($0) }
-                    }.pickerStyle(.segmented)
+            VStack(spacing: 0) {
+                Picker(L10n.tr("行车方向"), selection: $direction) {
+                    ForEach(ShuttleDirection.allCases) { Text($0.title).tag($0) }
                 }
-                Section {
-                    ForEach(ShuttleSchedule.trips.filter { $0.direction == direction }) { trip in
-                        HStack(spacing: 18) {
-                            Text(trip.time).font(.title3.monospacedDigit().weight(.medium)).frame(width: 64, alignment: .leading)
-                            Text(L10n.format("%@ 号", String(describing: trip.bus))).font(.caption.weight(.semibold))
-                                .foregroundStyle(trip.bus == 1 ? Theme.accent : Theme.orange)
-                            Spacer()
-                            Text(trip.daysLabel).font(.subheadline).foregroundStyle(.secondary)
-                        }.padding(.vertical, 4)
-                    }
-                } header: { Text("\(direction.origin) → \(direction.destination)") }
-                footer: {
-                    Text(L10n.format("1 号车每日运行；2 号车仅教学周在标注星期运行。同一时间的两行代表两辆车。19:30 后南校区 9 号门关闭，请使用其他校门。\n%@，以校方最新通知为准。", String(describing: ShuttleSchedule.effectiveLabel)))
+                .pickerStyle(.segmented).padding(.horizontal, 20).padding(.vertical, 12)
+                TimelineView(.periodic(from: .now, by: 15)) { context in
+                    timetable(now: context.date)
                 }
             }
+            .background(Theme.pageBackground)
             .navigationTitle(L10n.tr("班车时刻表")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L10n.tr("完成")) { dismiss() } } }
         }.tint(Theme.accent)
     }
+
+    private func timetable(now: Date) -> some View {
+        let next = ShuttleSchedule.upcoming(direction, after: now, teachingWeek: settings.shuttleTeachingWeek, limit: 1).first
+        return GeometryReader { viewport in
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("\(direction.origin) → \(direction.destination)")
+                            .font(.subheadline.weight(.semibold)).foregroundStyle(.secondary)
+                        VStack(spacing: 0) {
+                            ForEach(ShuttleSchedule.trips.filter { $0.direction == direction }) { trip in
+                                tripRow(trip, next: next, now: now)
+                                    .id(trip.id)
+                                if trip.id != ShuttleSchedule.trips.last(where: { $0.direction == direction })?.id {
+                                    Divider().padding(.horizontal, 16)
+                                }
+                            }
+                        }
+                        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        Text(L10n.tr("1 号车每日运行；2 号车仅教学周在标注星期运行。19:30 后南校区 9 号门关闭。"))
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
+                    .padding(.horizontal, 20)
+                    // Space before/after the schedule lets even the first/last
+                    // departure align with the center of the visible viewport.
+                    .padding(.vertical, max(20, viewport.size.height / 2))
+                }
+                .task(id: next?.id) {
+                    await Task.yield()
+                    guard !Task.isCancelled, let next else { return }
+                    proxy.scrollTo(next.trip.id, anchor: .center)
+                }
+            }
+        }
+    }
+
+    private func tripRow(_ trip: ShuttleTrip, next: ShuttleDeparture?, now: Date) -> some View {
+        let highlighted = trip.id == next?.trip.id
+        return HStack(spacing: 14) {
+            VStack(alignment: .leading, spacing: 5) {
+                Text(trip.time).font(.title3.monospacedDigit().weight(highlighted ? .bold : .medium))
+                Text(trip.daysLabel).font(.caption).foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 8)
+            VStack(alignment: .trailing, spacing: 5) {
+                Text(L10n.format("%@ 号", String(trip.bus))).font(.subheadline.weight(.semibold))
+                if highlighted, let next {
+                    Text(L10n.format("下一班 · %@", ShuttleSchedule.dayLabel(next.date, relativeTo: now)))
+                        .font(.caption.weight(.semibold))
+                }
+            }
+        }
+        .foregroundStyle(highlighted ? tint : .primary)
+        .padding(16).frame(maxWidth: .infinity, minHeight: 76)
+        .background(highlighted ? tint.opacity(0.14) : Color.clear, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(alignment: .leading) {
+            if highlighted { Capsule().fill(tint).frame(width: 4).padding(.vertical, 14) }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(highlighted ? [.isSelected] : [])
+    }
 }
+
 
 
 /// Keeps both departure cards at the height of the taller content.

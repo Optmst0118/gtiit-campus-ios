@@ -72,6 +72,11 @@ final class AppModel: ObservableObject {
             }
         }
         if settings.biometricLockEnabled { lock.lock() }
+        upcoming.onReminderSnapshot = { [weak self] in self?.syncMoodleDeadlineReminders() }
+        upcoming.onClearReminders = { MoodleDeadlineReminders.shared.clear() }
+        ShuttleNotificationCenter.shared.onOpenMoodle = { [weak self] url in
+            self?.openWeb(url, site: .moodle)
+        }
         ShuttleNotificationCenter.shared.onOpen = { [weak self] direction in
             guard let self else { return }
             self.select(tab: .shuttle)
@@ -88,6 +93,16 @@ final class AppModel: ObservableObject {
             let direction = ShuttleDirection(rawValue: raw) {
             settings.favoriteShuttleDirection = direction
         }
+    }
+
+    func syncMoodleDeadlineReminders() {
+        var canRequest = settings.hasSeenWelcome && !showWelcome && !lock.isLocked && lock.isActive
+            && !isClearingData && UIApplication.shared.applicationState == .active
+        #if GTIIT_REGRESSION
+        canRequest = false
+        #endif
+        MoodleDeadlineReminders.shared.update(items: upcoming.items, updatedAt: upcoming.updatedAt,
+            partial: upcoming.partial, enabled: settings.moodleDeadlineRemindersEnabled, allowPermissionRequest: canRequest)
     }
 
     func refreshMoodleSummary(force: Bool = false) {

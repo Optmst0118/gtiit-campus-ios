@@ -30,6 +30,8 @@ import WebKit
     private var failureCount = 0
     private var directoryUpdatedAt: Date?
     var priorityCourseIDs: Set<Int> = []
+    var onReminderSnapshot: (() -> Void)?
+    var onClearReminders: (() -> Void)?
     var status: CampusSummaryStatus {
         if loginRequired { return .needsLogin }
         if refreshing { return updatedAt == nil ? .loading : .refreshing }
@@ -79,6 +81,7 @@ import WebKit
         partial = result.failed > 0 || result.checked < result.courses
         updatedAt = date; attemptedAt = date
         persist()
+        onReminderSnapshot?()
     }
     private func persist() {
         guard let updatedAt else { return }
@@ -174,6 +177,7 @@ import WebKit
         if refreshing { attemptedAt = updatedAt }
         generation = UUID(); task?.cancel(); task = nil; refreshing = false
         if let webView { Task { try? await webView.evaluateJavaScript("if(window.__gtiitUpcomingJob?.jobID === '\(previous)') window.__gtiitUpcomingJob.abort()") } }
+        if clear { onClearReminders?() }
         if clear { directoryUpdatedAt = nil; retryAfter = nil; failureCount = 0; priorityCourseIDs = []; try? FileManager.default.removeItem(at: cacheURL); attemptedAt = nil; items = []; courseItems = []; updatedAt = nil; checked = 0; courses = 0; partial = false; error = false; loginRequired = false }
     }
 }

@@ -3,6 +3,131 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "deadline_within_24h_reminds_on_detection"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_future_scheduled_at_24h"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_exact_24h_boundary"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_excludes_past_and_due_now"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_excludes_unknown_and_submitted"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_includes_draft"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_excludes_outside_cached_horizon"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_stable_dedup_and_changed_due_key"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_duplicate_entries_schedule_once"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_refresh_does_not_repeat"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_dismissed_notification_does_not_repeat_after_restart"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_changed_due_gets_new_request"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_partial_missing_preserves_request"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_submitted_cancels_pending"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_complete_missing_cancels_pending"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_disable_preserves_shuttle_requests"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_denied_does_not_schedule_or_prompt"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_first_eligible_requests_permission"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_logout_clears_only_assignment_notifications"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_pending_budget_is_bounded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_stale_cache_does_not_create_new_alerts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_scheduling_failure_is_retriable"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_retry_schedules_successfully"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_reminder_default_enabled"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_reminder_preference_persists"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "South Campus omits unavailable rooms 402–409"
     },
     {
@@ -1571,7 +1696,7 @@
       "test" : "browser_has_history_before_clear"
     },
     {
-      "detail" : "cookies=8",
+      "detail" : "cookies=10",
       "passed" : true,
       "test" : "cache_clear_preserves_login_and_storage"
     },
@@ -1601,7 +1726,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 284C150E-EB6D-433B-B909-B2B506F9FCB7, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-26 16:24:52 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 15709C8B-D743-4FD5-B7A1-D90EB2AC5D30, site: Regression.SiteID.portal, filename: \"post-only.pdf\", createdAt: 2026-10-27 07:24:44 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 32, error: nil, destinationBookmark: nil), Regression.DownloadItem(id: F1C7E758-BF5D-4E9D-8EB5-F3128B1C2E85, site: Regression.SiteID.portal, filename: \"inline.pdf\", createdAt: 2026-10-27 07:24:44 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 42, error: nil, destinationBookmark: nil), Regression.DownloadItem(id: B50F5583-529A-46D2-AC4B-08489CDC4287, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-27 07:24:43 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil), Regression.DownloadItem(id: 595B62D7-C0FC-4D61-BE09-1A24098E3534, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-27 07:24:39 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -2042,8 +2167,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-26T16:25:20Z",
+  "date" : "2026-10-27T07:29:37Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "46b3d20d-862d-4bc9-94ef-ea234c8b848f"
+  "runID" : "96cea13c-c50c-431c-8972-77cf93616d25"
 }

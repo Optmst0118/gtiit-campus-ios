@@ -877,5 +877,11 @@
   "回到今天": "Today",
   "收起侧栏": "Hide sidebar",
   "展开侧栏": "Show sidebar",
-  "Student 菜单": "Student menu"
+  "Student 菜单": "Student menu",
+  "作业截止提醒": "Assignment deadline reminder",
+  "%@ · %@\n截止 %@": "%@ · %@\nDue %@",
+  "作业提醒": "Assignment reminders",
+  "截止前 24 小时提醒": "Remind me 24 hours before the deadline",
+  "下一班 · %@": "Next departure · %@",
+  "1 号车每日运行；2 号车仅教学周在标注星期运行。19:30 后南校区 9 号门关闭。": "Bus 1 runs daily; Bus 2 runs on the listed weekdays during teaching weeks. South Campus Gate 9 closes after 19:30."
 }

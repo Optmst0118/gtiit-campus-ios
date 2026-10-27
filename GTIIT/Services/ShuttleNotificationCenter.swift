@@ -15,6 +15,7 @@ final class ShuttleNotificationCenter: NSObject, ObservableObject {
     @Published private(set) var pendingCount = 0
     /// Set by AppModel to route a notification tap into the Shuttle tab.
     var onOpen: ((ShuttleDirection?) -> Void)?
+    var onOpenMoodle: ((URL) -> Void)?
 
     private let center = UNUserNotificationCenter.current()
 
@@ -146,6 +147,11 @@ extension ShuttleNotificationCenter: UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse
     ) async {
         let userInfo = response.notification.request.content.userInfo
+        if response.notification.request.identifier.hasPrefix(MoodleDeadlinePlan.prefix) {
+            guard let raw = userInfo["moodleURL"] as? String, let url = MoodleWork.safeURL(raw) else { return }
+            await MainActor.run { ShuttleNotificationCenter.shared.onOpenMoodle?(url) }
+            return
+        }
         let direction = (userInfo["direction"] as? String).flatMap(ShuttleDirection.init(rawValue:))
         if response.actionIdentifier == "SHUTTLE_CANCEL" {
             center.removePendingNotificationRequests(withIdentifiers: [response.notification.request.identifier])

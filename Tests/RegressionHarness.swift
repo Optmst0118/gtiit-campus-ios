@@ -4,6 +4,7 @@ import CoreFoundation
 import PDFKit
 import UIKit
 import WebKit
+import UserNotifications
 
 @MainActor final class FrameCapture: NSObject, WKNavigationDelegate {
     var frame: WKFrameInfo?
@@ -58,6 +59,21 @@ private final class RetiredViewReference {
         if throwsCancellation { throw NSError(domain: "TestAuthentication", code: -2) }
         return success
     }
+}
+@MainActor final class MockMoodleNotifications: MoodleNotificationDelivery {
+    var status: UNAuthorizationStatus = .authorized
+    var requests: [String: UNNotificationRequest] = [:]
+    var added = 0
+    var prompts = 0
+    var failAdds = false
+    func authorization() async -> UNAuthorizationStatus { status }
+    func requestAuthorization() async -> Bool { prompts += 1; status = .authorized; return true }
+    func pending() async -> [UNNotificationRequest] { Array(requests.values) }
+    func add(_ request: UNNotificationRequest) async throws {
+        if failAdds { throw CocoaError(.fileWriteUnknown) }
+        added += 1; requests[request.identifier] = request
+    }
+    func remove(_ identifiers: [String]) { for id in identifiers { requests[id] = nil } }
 }
 @main @MainActor final class RegressionApp: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
@@ -135,7 +151,83 @@ private final class RetiredViewReference {
             }
         } catch { return "ERROR \(error)" }
     }
+    func testMoodleDeadlineReminders() async {
+        let now = Date()
+        func work(_ id: Int = 1, due: TimeInterval = 3600, status: String = "notSubmitted") -> MoodleWork {
+            MoodleWork(url: "https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=\(id)", name: "Homework 1", course: "Synthetic course", due: now.addingTimeInterval(due).timeIntervalSince1970, opened: nil, status: status, source: "assignment", kind: "assign", checkedAt: now.timeIntervalSince1970)
+        }
+        check("deadline_within_24h_reminds_on_detection", MoodleDeadlinePlan(work(), now: now)?.fireDate == now.addingTimeInterval(2))
+        check("deadline_future_scheduled_at_24h", abs((MoodleDeadlinePlan(work(due: 3*86400), now: now)?.fireDate.timeIntervalSince(now) ?? 0) - 2*86400) < 0.001)
+        check("deadline_exact_24h_boundary", MoodleDeadlinePlan(work(due: 86400), now: now) != nil)
+        check("deadline_excludes_past_and_due_now", MoodleDeadlinePlan(work(due: -1), now: now) == nil && MoodleDeadlinePlan(work(due: 0), now: now) == nil)
+        check("deadline_excludes_unknown_and_submitted", MoodleDeadlinePlan(work(status: "unknown"), now: now) == nil && MoodleDeadlinePlan(work(status: "submitted"), now: now) == nil)
+        check("deadline_includes_draft", MoodleDeadlinePlan(work(status: "draft"), now: now) != nil)
+        check("deadline_excludes_outside_cached_horizon", MoodleDeadlinePlan(work(due: 8*86400), now: now) == nil)
+        check("deadline_stable_dedup_and_changed_due_key", MoodleDeadlinePlan(work(), now: now)?.identifier == MoodleDeadlinePlan(work(), now: now.addingTimeInterval(10))?.identifier && MoodleDeadlinePlan(work(), now: now)?.identifier != MoodleDeadlinePlan(work(due: 7200), now: now)?.identifier)
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("deadline-test-" + UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let delivery = MockMoodleNotifications()
+        let center = MoodleDeadlineReminders(delivery: delivery, directory: directory)
+        func update(_ items: [MoodleWork], partial: Bool = false, enabled: Bool = true, at: Date? = nil) async {
+            center.update(items: items, updatedAt: now, partial: partial, enabled: enabled, now: at ?? now)
+            await center.waitForUpdates()
+        }
+        await update([work(), work()])
+        check("deadline_duplicate_entries_schedule_once", delivery.added == 1 && delivery.requests.count == 1)
+        await update([work()])
+        check("deadline_refresh_does_not_repeat", delivery.added == 1)
+        delivery.requests = [:]
+        let restored = MoodleDeadlineReminders(delivery: delivery, directory: directory)
+        restored.update(items: [work()], updatedAt: now, partial: false, enabled: true, now: now.addingTimeInterval(5))
+        await restored.waitForUpdates()
+        check("deadline_dismissed_notification_does_not_repeat_after_restart", delivery.added == 1)
+        await update([work(due: 7200)])
+        check("deadline_changed_due_gets_new_request", delivery.added == 2 && delivery.requests.count == 1)
+        await update([], partial: true)
+        check("deadline_partial_missing_preserves_request", delivery.requests.count == 1)
+        await update([work(due: 7200, status: "submitted")])
+        check("deadline_submitted_cancels_pending", delivery.requests.isEmpty)
+        await update([work(2)])
+        await update([])
+        check("deadline_complete_missing_cancels_pending", delivery.requests.isEmpty)
+        await update([work(3)])
+        let unrelated = UNNotificationRequest(identifier: "shuttle.synthetic", content: UNMutableNotificationContent(), trigger: UNTimeIntervalNotificationTrigger(timeInterval: 600, repeats: false))
+        delivery.requests[unrelated.identifier] = unrelated
+        await update([], enabled: false)
+        check("deadline_disable_preserves_shuttle_requests", Set(delivery.requests.keys) == [unrelated.identifier])
+        delivery.status = .denied
+        let added = delivery.added
+        await update([work(4)])
+        check("deadline_denied_does_not_schedule_or_prompt", delivery.added == added && delivery.prompts == 0)
+        delivery.status = .notDetermined
+        center.update(items: [work(4)], updatedAt: now, partial: false, enabled: true, allowPermissionRequest: true, now: now)
+        await center.waitForUpdates()
+        check("deadline_first_eligible_requests_permission", delivery.prompts == 1 && delivery.added == added + 1)
+        center.clear(); await center.waitForUpdates()
+        check("deadline_logout_clears_only_assignment_notifications", Set(delivery.requests.keys) == [unrelated.identifier])
+        delivery.status = .authorized; delivery.requests = [:]
+        await update((10...60).map { work($0) })
+        check("deadline_pending_budget_is_bounded", delivery.requests.count == 32)
+        center.clear(); await center.waitForUpdates()
+        center.update(items: [work(90)], updatedAt: now.addingTimeInterval(-86401), partial: false, enabled: true, now: now)
+        await center.waitForUpdates()
+        check("deadline_stale_cache_does_not_create_new_alerts", delivery.requests.isEmpty)
+        delivery.failAdds = true
+        await update([work(91)])
+        check("deadline_scheduling_failure_is_retriable", center.failed && delivery.requests.isEmpty)
+        delivery.failAdds = false
+        await update([work(91)])
+        check("deadline_retry_schedules_successfully", !center.failed && delivery.requests.count == 1)
+        let preferences = UserDefaults(suiteName: "deadline-preferences-" + UUID().uuidString)!
+        let settings = AppSettings(defaults: preferences)
+        check("deadline_reminder_default_enabled", settings.moodleDeadlineRemindersEnabled)
+        settings.moodleDeadlineRemindersEnabled = false
+        check("deadline_reminder_preference_persists", !AppSettings(defaults: preferences).moodleDeadlineRemindersEnabled)
+    }
+
     func run() async {
+        await testMoodleDeadlineReminders()
+
         let southRooms = BookingDirectory.roomCategories.first { $0.id == "discussion-sc" }?.rooms ?? []
         check("South Campus omits unavailable rooms 402–409", !southRooms.isEmpty && !southRooms.contains { room in
             guard let number = Int(room.name.split(separator: "-").last ?? "") else { return false }

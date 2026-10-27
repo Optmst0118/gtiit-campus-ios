@@ -1,0 +1,2174 @@
+{
+  "checks" : [
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_within_24h_reminds_on_detection"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_future_scheduled_at_24h"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_exact_24h_boundary"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_excludes_past_and_due_now"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_excludes_unknown_and_submitted"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_includes_draft"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_excludes_outside_cached_horizon"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_stable_dedup_and_changed_due_key"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_duplicate_entries_schedule_once"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_refresh_does_not_repeat"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_dismissed_notification_does_not_repeat_after_restart"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_changed_due_gets_new_request"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_partial_missing_preserves_request"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_submitted_cancels_pending"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_complete_missing_cancels_pending"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_disable_preserves_shuttle_requests"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_denied_does_not_schedule_or_prompt"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_first_eligible_requests_permission"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_logout_clears_only_assignment_notifications"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_pending_budget_is_bounded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_stale_cache_does_not_create_new_alerts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_scheduling_failure_is_retriable"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_retry_schedules_successfully"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_reminder_default_enabled"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_reminder_preference_persists"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "South Campus omits unavailable rooms 402–409"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "South Campus keeps available 202–205"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome permits explicit confirmation on ready campus page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks confirmation while loading"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks failed page confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks unvisited page confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks SSO redirect confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks Moodle login page confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "Welcome blocks another site's confirmation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "summary_route_targets_visible_native_moodle"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "cross_site_route_uses_native_destination"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_route_rejects_wrong_origin"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_booking_route_preserves_target"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "followed_courses_persist"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shuttle_reminder_lead_persists"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shuttle_reminder_privacy_persists"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preferences_persist"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "restore_safe_location"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "reject_auth_parameters_and_wrong_origin"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "disable_restore_removes_locations"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_waits_for_welcome"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_waits_for_unlock"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_setting_skips_network"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_setting_persists"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_sso_preserves_school_link"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_sso_rejects_other_origin"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_sso_rejects_cleartext_or_action"
+    },
+    {
+      "detail" : "portal:Ready loading=false, moodle:Login loading=false, rooms:Ready loading=false, sports:Ready loading=false",
+      "passed" : true,
+      "test" : "preload_real_pages_loaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_completes_all_four"
+    },
+    {
+      "detail" : "Optional(Regression.SitePreparationState.needsLogin)",
+      "passed" : true,
+      "test" : "preload_marks_login_without_claiming_success"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_other_pages_ready"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_reuses_exact_webviews"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_only_once_per_process"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_deadline_does_not_block_app"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_timeout_defers_pending_page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_skip_keeps_navigation_running"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "appearance_engine_bundled"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "appearance_exact_school_hosts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "pdf_button_larger_and_concentric_portrait"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "pdf_button_concentric_landscape"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "web_dark_default_enabled"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "per_site_original_colors_persist"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_dark_fixture_loaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_dark_background"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_canvas_matches_native_me"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_page_prototypes_untouched"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_form_values_and_validation_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_no_media_or_page_inversion"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_duplicate_brand_logo_hidden"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_availability_color_meaning_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_checkbox_and_dialog_work"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_dynamic_style_adapts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_live_disable_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_layout_dimensions_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_isolated_api_hidden_from_page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_light_mode_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_dark_fixture_loaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_dark_background"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_canvas_matches_native_me"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_page_prototypes_untouched"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_form_values_and_validation_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_no_media_or_page_inversion"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_duplicate_brand_logo_hidden"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_availability_color_meaning_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_checkbox_and_dialog_work"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_dynamic_style_adapts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "same_origin_iframe_adapts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_live_disable_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "existing_iframe_live_disable"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_layout_dimensions_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_isolated_api_hidden_from_page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_light_mode_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_dark_fixture_loaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_dark_background"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_canvas_matches_native_me"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_page_prototypes_untouched"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_form_values_and_validation_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_no_media_or_page_inversion"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_duplicate_brand_logo_hidden"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_availability_color_meaning_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_checkbox_and_dialog_work"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_dynamic_style_adapts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_live_disable_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_layout_dimensions_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_isolated_api_hidden_from_page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_light_mode_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_dark_fixture_loaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_dark_background"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_canvas_matches_native_me"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_page_prototypes_untouched"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_form_values_and_validation_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_no_media_or_page_inversion"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_duplicate_brand_logo_hidden"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_availability_color_meaning_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_checkbox_and_dialog_work"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_dynamic_style_adapts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_live_disable_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_layout_dimensions_unchanged"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_isolated_api_hidden_from_page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_light_mode_restores_original"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "external_auth_page_no_dark_theme_or_js_proxy"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_nested_canvas_fixture_loaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_nested_canvas_matches_dark_navigation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_late_styles_keep_dark_canvas"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_light_canvas_updates_with_native_navigation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_course_unified_chrome"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_course_activity_controls_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_assignment_unified_chrome"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_assignment_activity_controls_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_submission_unified_chrome"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_submission_activity_controls_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_quiz_unified_chrome"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_quiz_activity_controls_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_activity_dark_canvas"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_chrome_removed_on_exit"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_moodle_login_navigation_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_light_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_light_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_dark_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_dark_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_light_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_light_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_dark_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_dark_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_light_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_light_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_dark_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_dark_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_light_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_light_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_dark_outer_web_frame_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_dark_inner_borders_and_actions_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_daily_reminder_dismissed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_tour_preferences_preserve_other_values"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_account_and_consent_untouched"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_delayed_spa_reminder_dismissed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_late_tour_skipped"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_business_and_form_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_introductions_rule_scoped_to_student"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_both_years_and_bundled_originals"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_all_dates_valid_inclusive"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_june31_never_normalized"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_current_academic_year"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_festivals_separate_from_holidays"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-12-12"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-12-13"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-11-02"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-09-24"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-09-25"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-10-11"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-10-12"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-07-24"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2026-07-27"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_day_off_2027-03-01"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_winter_gap_excludes_exam_and_term_boundaries"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_last_published_break_has_no_invented_term"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "activity_departure_date_shanghai"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_snap_normal_one_day"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_snap_fling_only_adjacent_forward"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_snap_fling_only_adjacent_backward"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_snap_clamps_edges"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "primary_phone_portrait_uses_bottom_tabs"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "primary_phone_landscape_uses_sidebar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "primary_large_portrait_uses_sidebar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "primary_narrow_window_keeps_tabs"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_landscape_hides_navigation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_portrait_restores_navigation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "other_sites_keep_landscape_navigation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_boundary_drag_halves_initial_motion"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_boundary_medium_drag_stays_in_week"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_boundary_reverse_medium_drag_stays_in_week"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_sunday_resists_velocity_without_travel"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_sunday_continued_drag_enters_monday"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_monday_short_reverse_resists"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_monday_reverse_enters_sunday"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_includes_mid_and_final_beyond_summary_window"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_selected_day_exam"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_exam_upcoming_excludes_past"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_monday_with_room"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_validity_not_indefinite"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_verified_makeup_day"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_verified_holiday"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_festival_is_not_day_off"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_next_after_class_start"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_time_validation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_persist_and_restore"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_excluded_from_backup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_invalid_save_keeps_existing"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "local_timetable_clear"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "quick_links_switch_language_live"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_language_translation"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_language_literal_percent"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_language_persist"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_language_dictionary_complete"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_language_preserves_webview_identity"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "yilong_hidden_before_six_taps"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "yilong_six_taps_unlock_at_touch"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "yilong_unlock_persist"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "yilong_dismiss"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "yilong_interrupted_taps_do_not_unlock"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "yilong_three_view_asset_exists"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_fixture_ready"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_extractor_registered_only"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_extractor_read_only"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_rejects_auth_origin"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_fixture_ready"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "assignment_detail_preserves_calendar_open_date"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_reads_active_course_pages_and_pagination"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_skips_old_terms_future_and_hidden_courses"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_requests_complete_course_list"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "cached_course_directory_avoids_repeat_requests"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "submitted_assignment_detail_uses_six_hour_cache"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_summary_survives_store_restart"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_cache_excluded_from_backup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_recent_cache_does_not_trigger_scan"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_course_directory_present_before_clear"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_clear_removes_in_memory_courses"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_clear_removes_persistent_summary"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shortcut_default_entries_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shortcut_changes_survive_restart"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "my_entry_order_and_visibility_survive_restart"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shortcut_reorder_survives_restart"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "my_entry_order_migrates_unknown_duplicate_and_missing"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shortcut_empty_selection_is_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_assignment_missing_from_timeline_found"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_homework_title_canonical"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_chinese_date_and_submitted_status"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_calendar_open_and_dedup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_unsafe_links_rejected"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_read_only_requests"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_directory_published_before_assignment_details"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_six_requests_parallel_bounded_and_complete"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_job_progress_and_requests_cleaned_up"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_submitted_not_in_todo"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_failed_course_reports_partial_retains_other_course"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_empty_active_set_never_falls_back_to_all_courses"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_login_required_no_data"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_url_rejects_actions_and_other_hosts"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "shuttle_light_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, -54.0, 402.0, 54.0), intentionallyHidden=true",
+      "passed" : true,
+      "test" : "shuttle_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "portal_light_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, -106.0, 402.0, 44.0), intentionallyHidden=true",
+      "passed" : true,
+      "test" : "portal_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "learning_light_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "passed" : true,
+      "test" : "learning_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "booking_light_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "passed" : true,
+      "test" : "booking_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "me_light_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "passed" : true,
+      "test" : "me_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_light_push_present"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_light_push_reaches_window_top"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_light_push_present"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_light_push_reaches_window_top"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_light_push_present"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_light_push_reaches_window_top"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "shuttle_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, -106.0, 402.0, 44.0), intentionallyHidden=true",
+      "passed" : true,
+      "test" : "shuttle_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "portal_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "passed" : true,
+      "test" : "portal_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "learning_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "passed" : true,
+      "test" : "learning_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "booking_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, -106.0, 402.0, 44.0), intentionallyHidden=true",
+      "passed" : true,
+      "test" : "booking_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "me_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "passed" : true,
+      "test" : "me_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_dark_push_present"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_dark_push_reaches_window_top"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_dark_push_present"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "rooms_dark_push_reaches_window_top"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_dark_push_present"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sports_dark_push_reaches_window_top"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "top_canvas_keeps_all_webview_sessions"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_glass_host_ready"
+    },
+    {
+      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "passed" : true,
+      "test" : "portal_web_extends_under_tab_bar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_pull_keeps_title_stationary"
+    },
+    {
+      "detail" : "expanded=170.0, compact=118.0",
+      "passed" : true,
+      "test" : "portal_native_title_collapses"
+    },
+    {
+      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
+      "passed" : true,
+      "test" : "portal_native_title_restores_at_top"
+    },
+    {
+      "detail" : "tail=791.0, bar=791.0, inset=0.0",
+      "passed" : true,
+      "test" : "portal_last_action_scrolls_above_bar"
+    },
+    {
+      "detail" : "fixed=791.0, bar=791.0",
+      "passed" : true,
+      "test" : "portal_inner_scroll_fixed_action_above_glass"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_nested_scroll_drives_title"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_nested_scroll_restores_title"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_full_viewport_with_inner_scroll_clearance"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_network_error_available"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_http_error_available"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_glass_host_ready"
+    },
+    {
+      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "passed" : true,
+      "test" : "moodle_web_extends_under_tab_bar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_pull_keeps_title_stationary"
+    },
+    {
+      "detail" : "expanded=170.0, compact=118.0",
+      "passed" : true,
+      "test" : "moodle_native_title_collapses"
+    },
+    {
+      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
+      "passed" : true,
+      "test" : "moodle_native_title_restores_at_top"
+    },
+    {
+      "detail" : "tail=791.0, bar=791.0, inset=83.0",
+      "passed" : true,
+      "test" : "moodle_last_action_scrolls_above_bar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_network_error_available"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_http_error_available"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shared_webview_background_updates_do_not_steal_modal"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shared_webview_restored_after_modal_release"
+    },
+    {
+      "detail" : "offset=90.0, delivered=true",
+      "passed" : true,
+      "test" : "restored_host_rebinds_navigation_scroll"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "real_main_frame_available"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_policy_interruption_is_expected"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "network_failure_not_suppressed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "certificate_failure_not_suppressed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_interruption_no_error_overlay"
+    },
+    {
+      "detail" : "policies=[0, 0], routes=2",
+      "passed" : true,
+      "test" : "repeated_cross_site_link_cancelled"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "cross_site_post_keeps_request_context"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "internal_scheme_blob"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "internal_scheme_data"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "internal_scheme_about"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "external_link_system_route"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "external_link_safari_route"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "other_mike_tenant_not_sports"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "filename_safe_utf8"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "popup_owns_only_download_surface"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "root_download_surface_restored"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "startup_preferences_applied"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "fixture_load_a"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "fixture_load_b"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "browser_has_history_before_clear"
+    },
+    {
+      "detail" : "cookies=10",
+      "passed" : true,
+      "test" : "cache_clear_preserves_login_and_storage"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "real_webkit_post_reaches_echo"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "real_blob_preview"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "real_popup_opener_postMessage"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "popup_window_close"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "popup_restores_browser_window"
+    },
+    {
+      "detail" : "[Regression.DownloadItem(id: 15709C8B-D743-4FD5-B7A1-D90EB2AC5D30, site: Regression.SiteID.portal, filename: \"post-only.pdf\", createdAt: 2026-10-27 07:24:44 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 32, error: nil, destinationBookmark: nil), Regression.DownloadItem(id: F1C7E758-BF5D-4E9D-8EB5-F3128B1C2E85, site: Regression.SiteID.portal, filename: \"inline.pdf\", createdAt: 2026-10-27 07:24:44 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 42, error: nil, destinationBookmark: nil), Regression.DownloadItem(id: B50F5583-529A-46D2-AC4B-08489CDC4287, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-27 07:24:43 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil), Regression.DownloadItem(id: 595B62D7-C0FC-4D61-BE09-1A24098E3534, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-27 07:24:39 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "passed" : true,
+      "test" : "renderable_pdf_attachment_download"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "real_pdf_download_has_no_error_overlay"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_completion_no_duplicate_toast"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "completed_download_auto_dismiss"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "auto_dismiss_keeps_file"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "same_filename_download_twice"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "page_change_dismisses_completed_panel"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_destinations_unique"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inline_pdf_auto_download"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_panel_presented"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "downloads_persist_in_documents"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "post_pdf_response_downloaded"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "pdf_no_get_refetch"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_inline_enters_pdfkit"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview_not_in_download_records"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview_original_content"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview_survives_float_dismissal"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview_explicit_save_once"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview_saved_location_points_to_permanent_file"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview_closes_and_cleans_temporary"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_preview-attachment_preview"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview-attachment_close_without_save"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_preview-once_preview"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview-once_close_without_save"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_post_pdf_preview"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preview_no_refetch_for_post_or_once"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "custom_download_begins_with_captured_location"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inflight_uses_original_location"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inflight_external_file_saved_after_default_change"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "invalid_pdf_reports_preview_failure"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "invalid_pdf_not_saved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "saved_pdf_stable_preview"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "saved_preview_waits_for_transition_and_coalesces_taps"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "saved_preview_independent_of_popup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_new_window_pdf_preview"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "new_location_only_new_downloads"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "external_filename_collision_numbered"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_location_and_records_survive_relaunch"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sort_name_natural"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sort_name_reverse"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sort_size_bidirectional"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "sort_time_bidirectional"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "bulk_cleanup_keeps_external_files"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "retention_does_not_delete_external"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "explicit_external_delete_targets_one_file"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "unavailable_location_no_silent_fallback"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "restore_default_download_folder"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_progress"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_cancel"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_resume"
+    },
+    {
+      "detail" : "hits=1",
+      "passed" : true,
+      "test" : "private_response_is_actually_cached"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "clear_replaces_webview_and_history"
+    },
+    {
+      "detail" : "cookies=0, records=0, types=[], oldURL=nil",
+      "passed" : true,
+      "test" : "clear_cookie_and_storage"
+    },
+    {
+      "detail" : "types=[], oldURL=nil",
+      "passed" : true,
+      "test" : "old_document_cannot_repopulate_storage"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "clear_does_not_autoload"
+    },
+    {
+      "detail" : "hits=Optional(2), before=<title>Private cache fixture 1<\/title><p>Synthetic cached content<\/p>, after=<title>Private cache fixture 2<\/title><p>Synthetic cached content<\/p>",
+      "passed" : true,
+      "test" : "clear_removes_actual_cached_response"
+    },
+    {
+      "detail" : "{\"review\":null,\"timer\":null,\"cookies\":\"\"}",
+      "passed" : true,
+      "test" : "cleared_origin_storage_is_empty"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "clear_keeps_completed_downloads"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_cleanup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "retired_store_deleted"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "four_site_data_stores_are_independent"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "single_clear_preserves_other_sites"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "all_sites_clear_accounts"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_retention_week"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_retention_day"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "download_retention_session"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "diagnostic_four_head_responses"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "diagnostic_no_cookie_no_auth_no_redirect"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "diagnostic_report_redacted"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "lock_delay_before_threshold"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "lock_delay_at_threshold"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "privacy_shield_over_modal"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "privacy_shield_removed_on_return"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "authentication_cancel_keeps_locked"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "authentication_failure_keeps_locked"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "authentication_success_unlocks"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "authentication_unavailable_keeps_locked"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_cache_restart_deduplicates"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_time_uses_beijing"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_cache_excluded_from_backup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_cache_throttles_thirty_minutes"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_clear_removes_cache"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_invalid_date_rejected"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_reads_full_pre_pagination_list"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_reader_keeps_all_midterms_and_finals"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_exports_only_allowlisted_fields"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_missing_component_not_empty_success"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "native_site_titles_fixed"
+    }
+  ],
+  "completed" : true,
+  "date" : "2026-10-27T07:29:37Z",
+  "focus" : "full",
+  "passed" : true,
+  "runID" : "96cea13c-c50c-431c-8972-77cf93616d25"
+}

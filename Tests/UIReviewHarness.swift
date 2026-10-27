@@ -86,6 +86,16 @@ import UIKit
                     SiteBrowserView(site: .portal).environmentObject(app).environmentObject(settings)
                 } else if environment["UI_REVIEW_WELCOME"] == "1" {
                     WelcomeView().environmentObject(app).environmentObject(settings)
+                } else if environment["UI_REVIEW_SHUTTLE_DETAIL"] == "1" {
+                    ShuttleTimetableView().environmentObject(settings)
+                } else if environment["UI_REVIEW_DEADLINE"] == "1" {
+                    NavigationStack { MoodleUpcomingView(store: app.upcoming) }
+                        .environmentObject(app).environmentObject(settings)
+                        .task {
+                            let now = Date()
+                            let work = MoodleWork(url: "https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=123", name: "Homework 2", course: "Synthetic reminder test", due: now.addingTimeInterval(3600).timeIntervalSince1970, opened: nil, status: "notSubmitted", source: "assignment", kind: "assign", checkedAt: now.timeIntervalSince1970)
+                            app.upcoming.accept(MoodleUpcomingResult(loginRequired: false, items: [work], courses: 1, checked: 1, failed: 0, courseList: nil, directoryRefreshed: false))
+                        }
                 } else if environment["UI_REVIEW_ACTIVITY"] == "1" {
                     VStack(spacing: 24) {
                         ForEach(ShuttleDirection.allCases) { direction in
