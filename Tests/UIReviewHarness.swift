@@ -97,6 +97,20 @@ import UIKit
                 model.browser(for: site).webView.loadHTMLString("<html><head><title>Synthetic session</title></head><body>"+body+"</body></html>", baseURL: site.homeURL)
             }
         }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_MOODLE_CACHE"] == "1" {
+            settings.nativeMoodleEnabled = true
+            settings.moodleUpcomingRange = .ten
+            settings.moodleDeadlineRemindersEnabled = false
+            settings.followedMoodleCourseIDs = [7001]
+            model.select(tab: .learning)
+            if ProcessInfo.processInfo.environment["UI_REVIEW_SEED_MOODLE"] == "1" {
+                let now = Date()
+                let works = [(1, "HW 01 Integrals", 2.0, "submitted"), (2, "HW 02 Electric Field", 9.0, "draft"), (3, "HW 03", 20.0, "notSubmitted")].map { number, name, days, status in
+                    MoodleWork(url: "https://moodle.gtiit.edu.cn/moodle/mod/quiz/view.php?id=\(number)", name: name, course: "Synthetic Physics 2", due: now.addingTimeInterval(days*86400).timeIntervalSince1970, opened: now.timeIntervalSince1970, status: status, source: "assignment", kind: "quiz", checkedAt: now.timeIntervalSince1970)
+                }
+                model.upcoming.accept(MoodleUpcomingResult(loginRequired:false,items:works,courses:1,checked:1,failed:0,courseList:[MoodleCourse(id:7001,name:"Synthetic Physics 2",shortname:"PHY2001",category:"Science",term:"Winter 2026",active:true)],directoryRefreshed:true))
+            }
+        }
         _app = StateObject(wrappedValue: model)
         let lock = AppLockController(authenticator: PreviewUnavailableAuthenticator())
         lock.lock()

@@ -431,6 +431,11 @@ struct MoodleReminderSettingsView: View {
 
     var body: some View {
         Form {
+            Section(L10n.tr("临近作业")) {
+                Picker(L10n.tr("临近作业范围"), selection: $settings.moodleUpcomingRange) {
+                    ForEach(MoodleUpcomingRange.allCases) { range in Text(range.title).tag(range) }
+                }
+            }
             Section {
                 Toggle(L10n.tr("未提交作业提醒"), isOn: $settings.moodleDeadlineRemindersEnabled)
                 Picker(L10n.tr("未提交作业提醒时间"), selection: $settings.moodleReminderLead) {

@@ -6,7 +6,7 @@ struct MoodleWork: Codable, Identifiable {
     let course: String
     /// Canonical title for numbered homework while retaining the raw Moodle name in storage.
     var displayName: String {
-        guard kind == "assign" || kind == "assignment" || source == "assignment" || url.contains("/mod/assign/") else { return name }
+        guard ["assign", "assignment", "quiz"].contains(kind) || source == "assignment" else { return name }
         guard let number = Self.homeworkNumber(in: name) else { return name }
         return "Homework \(number) Assignment"
     }
@@ -21,14 +21,14 @@ struct MoodleWork: Codable, Identifiable {
             let tail = lower[range.upperBound...]
             for part in tail.components(separatedBy: CharacterSet.decimalDigits.inverted) {
                 guard part.count >= 1, part.count <= 3 else { continue }
-                return part
+                return Int(part).map(String.init)
             }
         }
         return nil
     }
     var due: TimeInterval?
     var opened: TimeInterval?
-    let status: String
+    var status: String
     let source: String
     let kind: String
     var checkedAt: TimeInterval? = nil
@@ -36,14 +36,21 @@ struct MoodleWork: Codable, Identifiable {
     var isSubmitted: Bool { status == "submitted" }
     var dueDate: Date? { due.map { Date(timeIntervalSince1970: $0) } }
     var openedDate: Date? { opened.map { Date(timeIntervalSince1970: $0) } }
-    func relevant(now: Date = Date()) -> Bool {
+    func relevant(now: Date = Date(), days: Int = 10) -> Bool {
         guard !isSubmitted, Self.safeURL(url) != nil else { return false }
         let t = now.timeIntervalSince1970
-        return due.map { $0 >= t - 86_400 && $0 <= t + 7 * 86_400 } == true
-            || opened.map { $0 >= t - 2 * 86_400 && $0 <= t + 86_400 } == true
+        if let due { return due >= t - 86_400 && due <= t + Double(max(1, min(30, days))) * 86_400 }
+        return opened.map { $0 >= t - 2 * 86_400 && $0 <= t + 86_400 } == true
     }
     func priority(now: Date = Date()) -> TimeInterval {
         due ?? opened ?? .greatestFiniteMagnitude
+    }
+    static func activityURL(_ url: URL) -> URL? {
+        guard var parts = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let query = parts.queryItems, query.allSatisfy({ $0.name == "id" || ($0.name == "forceview" && $0.value == "1") }),
+              query.filter({ $0.name == "id" }).count == 1 else { return nil }
+        parts.queryItems = query.filter { $0.name == "id" }; parts.fragment = nil
+        return parts.url.flatMap { safeURL($0.absoluteString) }
     }
     static func safeURL(_ value: String) -> URL? {
         guard let u = URLComponents(string: value), u.scheme == "https", u.host == "moodle.gtiit.edu.cn", u.port == nil,
@@ -134,4 +141,11 @@ extension MoodleCourse {
             return !value.isEmpty && candidates.contains { $0 == value || (value.count >= 5 && $0.count >= 5 && ($0.contains(value) || value.contains($0))) }
         }
     }
+}
+
+// Separate from the system notification lead time and the inbox's 24-hour window.
+enum MoodleUpcomingRange: Int, CaseIterable, Identifiable {
+    case three = 3, seven = 7, ten = 10, fourteen = 14, thirty = 30
+    var id: Int { rawValue }
+    var title: String { L10n.format("未来 %@ 天", String(rawValue)) }
 }

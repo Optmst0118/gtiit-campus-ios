@@ -97,6 +97,9 @@ enum EntryOrder {
     @Published var shuttleReminderLead: Int {
         didSet { defaults.set(shuttleReminderLead, forKey: "settings.shuttleReminderLead") }
     }
+    @Published var moodleUpcomingRange: MoodleUpcomingRange {
+        didSet { defaults.set(moodleUpcomingRange.rawValue, forKey: "settings.moodleUpcomingRange") }
+    }
     @Published var moodleReminderLead: MoodleReminderLead {
         didSet { defaults.set(moodleReminderLead.rawValue, forKey: "settings.moodleReminderLead") }
     }
@@ -204,6 +207,7 @@ enum EntryOrder {
         shortcutOrder = EntryOrder.normalized(defaults.stringArray(forKey: "settings.shortcutOrder") ?? [], allowed: CampusShortcut.all.map(\.id))
         let storedLead = defaults.integer(forKey: "settings.shuttleReminderLead")
         shuttleReminderLead = [5, 10, 15].contains(storedLead) ? storedLead : 10
+        moodleUpcomingRange = MoodleUpcomingRange(rawValue: defaults.integer(forKey: "settings.moodleUpcomingRange")) ?? .ten
         moodleReminderLead = MoodleReminderLead(rawValue: defaults.integer(forKey: "settings.moodleReminderLead")) ?? .oneDay
         moodleDeadlineRemindersEnabled = defaults.object(forKey: "settings.moodleDeadlineRemindersEnabled") as? Bool ?? true
         privateShuttleReminders = defaults.bool(forKey: "settings.privateShuttleReminders")

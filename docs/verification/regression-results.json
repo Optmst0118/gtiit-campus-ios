@@ -3,6 +3,106 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "physics_quiz_title_normalized_and_zero_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_real_exam_title_not_renamed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_default_includes_10th_day"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_excludes_10day_boundary_overflow_even_if_recently_opened"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_range_3_and_30_days"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_finished_quiz_hidden_in_all_ranges"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_forceview_url_canonicalized"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_activity_url_rejects_action"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_default_range_10days"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_range_persisted"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_cached_texts_present_synchronously_on_init"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_invalidation_keeps_cache_and_timestamp_visible"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_signin_redirect_does_not_erase_cached_text"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_partial_refresh_preserves_cached_work_and_courses"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_positive_finished_status_replaces_cached_pending"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_scan_cannot_undo_newer_observed_submission"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_explicit_clear_removes_cache"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_normal_only_actionable_login"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_beta_all_sites"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_no_placeholder_for_unknown_login"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "inbox_assignment_24h_window_and_dedup"
     },
     {
@@ -64,6 +164,11 @@
       "detail" : "",
       "passed" : true,
       "test" : "student_cache_reads_course_catalog_only"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "student_cache_waits_for_delayed_authenticated_course_query"
     },
     {
       "detail" : "",
@@ -1508,12 +1613,57 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "physics_real_finished_attempt_hidden_even_with_reattempt_button"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_hw01_quiz_canonical_title"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_quiz_close_date_parsed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_unfinished_attempt_not_hidden_by_prior_finished_attempt"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_abandoned_attempt_not_misclassified_finished"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_quiz_missing_timeline_discovered_from_course_index"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_calendar_second_page_activity_read_and_checked"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "quiz_status_extraction_does_not_export_grades"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "upcoming_failed_course_reports_partial_retains_other_course"
     },
     {
       "detail" : "",
       "passed" : true,
       "test" : "upcoming_empty_active_set_never_falls_back_to_all_courses"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_unready_session_not_treated_as_logout"
     },
     {
       "detail" : "",
@@ -1936,7 +2086,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 9B637672-66F3-492F-B1BD-631343C9C40B, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-27 09:24:26 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 8ABE50DD-7D84-4653-BBBA-FAF1A8AA3F1A, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-27 14:49:26 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -2392,8 +2542,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-27T09:24:57Z",
+  "date" : "2026-10-27T14:49:55Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "55b42d79-9107-450f-abf9-6b31dd865800"
+  "runID" : "207e2a0a-99ae-4126-b9d5-4b0717f6db29"
 }

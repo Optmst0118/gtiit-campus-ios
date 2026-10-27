@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.4-beta.6 (79) · 2026-10-27
+
+- 按每门活跃课程的 Assignment 和 Quiz 目录核对作业，补齐不在 Timeline 的在线作业；日历支持游标分页。
+- 读取 Quiz 本人尝试表的 State 列，Finished／Submitted 隐藏；进行中、逾期未提交、Never submitted 不误判完成，允许重新尝试不等于未完成。
+- HW 01 等 Quiz 标题规范为 Homework 1 Assignment，不改写真正的期中／期末考试标题。
+- 临近作业默认范围 10 天，设置／作业提醒提供 3、7、10、14、30 天控制，消息中心 24 小时窗口独立保留。
+- 先显示缓存再后台更新；普通登录跳转保留缓存，部分结果合并旧列表；课程目录提早落盘；主动退出登录仍清除。
+- 在 App 内返回作业页面时即时更新已确认状态，并防止较早开始的刷新结果覆盖新的提交状态。
+
 ## 2.0.4-beta.5 (78) · 2026-10-27
 
 - 我的页通知／设置按钮去除额外内部宽度，沿用预约页的系统工具栏尺寸与间距，保留共享玻璃背景。

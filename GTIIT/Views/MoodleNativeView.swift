@@ -124,7 +124,7 @@ struct MoodleHomeView: View {
     let open: (MoodleDestination) -> Void
 
     private var upcoming: [MoodleWork] {
-        store.items.filter { $0.relevant() }.sorted { $0.priority() < $1.priority() }
+        store.items.filter { $0.relevant(days: settings.moodleUpcomingRange.rawValue) }.sorted { $0.priority() < $1.priority() }
     }
 
     private var columns: [GridItem] {
@@ -200,7 +200,7 @@ struct MoodleHomeView: View {
     private var dashboard: some View {
         VStack(alignment: .leading, spacing: 12) {
             sectionTitle(L10n.tr("临近作业"), symbol: "calendar.day.timeline.left")
-            if store.refreshing && store.updatedAt == nil {
+            if store.refreshing && upcoming.isEmpty && store.updatedAt == nil {
                 HStack(spacing: 10) { ProgressView(); Text(L10n.tr("正在刷新课程与作业…")).font(.subheadline).foregroundStyle(.secondary) }
                     .padding(16).cardBackground()
             } else if upcoming.isEmpty {

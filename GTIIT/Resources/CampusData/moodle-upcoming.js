@@ -1,8 +1,9 @@
 // Read-only, same-origin Moodle summary. Never export the session key, user ID,
 // HTML, grades, submission contents or attachment links to the native app.
-if (location.origin !== 'https://moodle.gtiit.edu.cn' || !window.M?.cfg?.sesskey || /\/login\//.test(location.pathname)) {
+if (/\/login\//.test(location.pathname) || document.querySelector('form#login,body#page-login-index')) {
   return JSON.stringify({loginRequired:true,items:[],courses:0,checked:0,failed:0});
 }
+if (location.origin !== 'https://moodle.gtiit.edu.cn' || !window.M?.cfg?.sesskey) throw Error('SESSION_NOT_READY');
 window.__gtiitUpcomingJob?.abort();
 const controller = new AbortController();
 controller.jobID = jobID;
@@ -13,7 +14,7 @@ const base = new URL(M.cfg.wwwroot);
 if (base.origin !== location.origin || base.pathname.replace(/\/$/,'') !== '/moodle') throw Error('UNEXPECTED_ROOT');
 const clean = x => String(x ?? '').replace(/\s+/g,' ').trim().slice(0,240);
 const safeURL = (value, kind) => {
-  try { const u = new URL(value, base.href+'/');
+  try { const u = new URL(value, base.origin+'/moodle/mod/'+kind+'/');
     if(u.origin !== base.origin || u.pathname !== '/moodle/mod/'+kind+'/view.php' || !/^\d+$/.test(u.searchParams.get('id')||'')) return null;
     return u.origin+u.pathname+'?id='+u.searchParams.get('id');
   } catch { return null; }
@@ -47,17 +48,6 @@ const rpc=async(methodname,args)=>{
 const html=async(url)=>{
  const r=await request(url);const doc=new DOMParser().parseFromString(await r.text(),'text/html');
  if(doc.querySelector('form#login,body#page-login-index'))throw Error('LOGIN_REQUIRED');return doc;
-};
-// Explicit dates in Moodle 3.9 status tables, interpreted in the campus zone.
-const parseDate = value => {
- const s=clean(value), months=['january','february','march','april','may','june','july','august','september','october','november','december'];
- let m=s.match(/(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4}),?\s+(\d{1,2}):(\d{2})(?:\s*(AM|PM))?/i);
- let y,mo,d,h,mi;
- if(m){d=+m[1];mo=months.indexOf(m[2].toLowerCase())+1;y=+m[3];h=+m[4];mi=+m[5];if(m[6])h=h%12+(m[6].toUpperCase()==='PM'?12:0);}
- else {m=s.match(/(\d{4})\s*[年/-]\s*(\d{1,2})\s*[月/-]\s*(\d{1,2})\s*日?.*?(\d{1,2}):(\d{2})/);if(!m)return null;[y,mo,d,h,mi]=m.slice(1).map(Number);if(/下午/.test(s)&&h<12)h+=12;if(/上午/.test(s)&&h===12)h=0;}
- if(mo<1||mo>12||d<1||d>31||h>23||mi>59)return null;
- const n=Date.UTC(y,mo-1,d,h-8,mi)/1000, c=new Date(n*1000+8*3600000);
- return c.getUTCFullYear()===y&&c.getUTCMonth()===mo-1&&c.getUTCDate()===d?n:null;
 };
 // Moodle supplies in-progress courses. Explicit semester labels and dates further
 // exclude old courses whose Moodle end date was never maintained by the teacher.
@@ -103,22 +93,34 @@ const merge = item => {
  if(!item.url || !item.name)return;
  const old=map.get(item.url);
  if(!old)map.set(item.url,item);
- else if(item.source==='assignment' && item.checkedAt===now){const opened=item.opened??old.opened;Object.assign(old,item,{opened});}
+ else if(item.source==='assignment' && item.checkedAt===now){const opened=item.opened??old.opened,due=item.due??old.due,status=item.status==='unknown'?old.status:item.status;Object.assign(old,item,{opened,due,status});}
  else if(old.source==='assignment' && old.checkedAt===now && item.source==='calendar'){if(!old.opened&&item.opened)old.opened=item.opened;}
  else {for(const k of ['due','opened'])if(item[k])old[k]=item[k];if(item.status&&item.status!=='unknown')old.status=item.status;if(item.source==='assignment')old.source='assignment';}
 };
 try {
- const start=Math.floor(now)-2*86400,end=Math.floor(now)+14*86400;
+ const days=typeof upcomingDays==='number'?Math.max(1,Math.min(30,upcomingDays)):10;
+ const start=Math.floor(now)-2*86400,end=Math.floor(now)+Math.max(days,10)*86400;
+ const readEvents=data=>{for(const e of data.events||[]){
+  const kind=e.modulename;if(!['assign','quiz'].includes(kind))continue;
+  if(e.course && !currentCourse(e.course))continue;
+  const url=safeURL(e.url,kind),type=String(e.eventtype||'');
+  if(!['open','due','close'].includes(type))continue;
+  merge({url,name:clean(e.name),course:clean(e.course?.fullname),courseID:Number(e.course?.id)||null,due:type==='open'?null:Number(e.timestart)||null,opened:type==='open'?Number(e.timestart)||null:null,status:'unknown',source:'calendar',kind});
+ }};
  const calendarJob=Promise.all([
-  ['core_calendar_get_action_events_by_timesort',{timesortfrom:start,timesortto:end,limitnum:50}],
-  ['core_calendar_get_calendar_upcoming_view',{}]
- ].map(async([method,args])=>{try {const data=await rpc(method,args);if((data.events||[]).length>=50)failed++;for(const e of data.events||[]){
-   const kind=e.modulename;if(!['assign','quiz'].includes(kind))continue;
-   if(e.course && !currentCourse(e.course))continue;
-   const url=safeURL(e.url,kind);const type=String(e.eventtype||'');
-   if(!['open','due','close'].includes(type))continue;
-   merge({url,name:clean(e.name),course:clean(e.course?.fullname),courseID:Number(e.course?.id)||null,due:type==='open'?null:Number(e.timestart)||null,opened:type==='open'?Number(e.timestart)||null:null,status:'unknown',source:'calendar',kind});
- }}catch {failed++;}}));
+  (async()=>{try{
+   let aftereventid=0;
+   for(let page=0;page<20;page++){
+    const data=await rpc('core_calendar_get_action_events_by_timesort',{timesortfrom:start,timesortto:end,limitnum:50,aftereventid});
+    readEvents(data);
+    if((data.events||[]).length<50)break;
+    const next=Number(data.lastid??data.events?.at(-1)?.id);
+    if(!next||next===aftereventid){failed++;break;}
+    aftereventid=next;if(page===19)failed++;
+   }
+  }catch{failed++;}})(),
+  (async()=>{try{readEvents(await rpc('core_calendar_get_calendar_upcoming_view',{}));}catch{failed++;}})()
+ ]);
  const cachedDirectory = typeof cachedDirectoryJSON === 'string' ? JSON.parse(cachedDirectoryJSON) : [];
  const directoryRefreshed = typeof refreshDirectory !== 'boolean' || refreshDirectory || !cachedDirectory.length || cachedDirectory.some(c=>typeof c.active!=='boolean');
  if (!directoryRefreshed) {
@@ -148,40 +150,35 @@ try {
  const assignments=new Map();
  const pool=async(values,work)=>{let i=0;await Promise.all(Array.from({length:6},async()=>{while(i<values.length&&!signal.aborted){const v=values[i++];try{await work(v);}catch{failed++;}}}));};
  await pool(courses,async(c)=>{
-   const doc=await html(base.origin+'/moodle/mod/assign/index.php?id='+c.id);
-   // Index includes assignments from every section, including collapsed sections.
-   for(const a of doc.querySelectorAll('a[href*="/mod/assign/view.php"]')){
-     const url=safeURL(a.getAttribute('href'),'assign');if(url&&!assignments.has(url))assignments.set(url,{url,name:clean(a.textContent),course:c.name,courseID:c.id});
-   }
-   checked++;
+   let successful=0;
+   await Promise.all(['assign','quiz'].map(async(kind)=>{
+    try {
+     const doc=await html(base.origin+'/moodle/mod/'+kind+'/index.php?id='+c.id);
+     for(const a of doc.querySelectorAll('a[href]')){
+      const url=safeURL(a.getAttribute('href'),kind);
+      if(url&&!assignments.has(url))assignments.set(url,{url,name:clean(a.textContent),course:c.name,courseID:c.id,kind});
+     }
+     successful++;
+    }catch{failed++;}
+   }));
+   if(successful===2)checked++;
  });
+ await calendarJob;
+ // Some activities are present only in calendar RPCs, not in module indexes.
+ for(const item of map.values())if(!assignments.has(item.url))assignments.set(item.url,{url:item.url,name:item.name,course:item.course,courseID:item.courseID,kind:item.kind});
  let pages=[...assignments.values()];if(pages.length>240){failed+=pages.length-240;pages=pages.slice(0,240);}
  await pool(pages,async(a)=>{
    const cached=cachedWork.get(a.url);
-   if(cached && cached.checkedAt && now-cached.checkedAt<6*3600 &&
-      (cached.status==='submitted' || (cached.due && cached.due>now+7*86400))){
+   if(!(typeof forceDetails==='boolean'&&forceDetails) && cached && cached.checkedAt && now-cached.checkedAt<6*3600 &&
+      (cached.status==='submitted' || (cached.due && cached.due>now+Math.max(days,10)*86400))){
      merge({...cached,...a});return;
    }
    const previous=cachedWork.get(a.url);
    if(previous)merge({...previous,...a});
-   const doc=await html(a.url);let due=null,opened=null,status='unknown',sawDue=false;
-   for(const row of doc.querySelectorAll('.submissionstatustable tr')){
-     const cells=[...row.children];if(cells.length<2)continue;const key=clean(cells[0].textContent),value=clean(cells[1].textContent);
-     if(/^(Due date|截止日期|到期日|截止时间)$/i.test(key)){sawDue=true;due=parseDate(value);if(!due&&!/^-|无|none|not set/i.test(value))failed++;}
-     if(/^(Submission status|提交状态)$/i.test(key)){
-       if(/^(submitted for grading|已提交.*评|已提交评分)$/i.test(value))status='submitted';
-       else if(/draft|草稿/i.test(value))status='draft';
-       else if(/no attempt|no submission|not submitted|未尝试|未提交|尚未提交|尚未尝试/i.test(value))status='notSubmitted';
-     }
-   }
-   // Newer Moodle date components supply machine timestamps with labelled rows.
-   for(const el of doc.querySelectorAll('[data-region="activity-dates"] [data-timestamp]')){
-     const t=Number(el.getAttribute('data-timestamp')),label=clean(el.parentElement?.textContent);
-     if(t>0&&/due|截止|到期/i.test(label))due=t;
-     if(t>0&&/open|opened|开放|开始/i.test(label))opened=t;
-   }
-   if(!sawDue&&!doc.querySelector('.submissionstatustable'))failed++;
-   merge({...a,due,opened,status,source:'assignment',kind:'assign',checkedAt:now});
+   const doc=await html(a.url);
+   const detail=readMoodleActivity(doc,a.kind);
+   if(!detail.recognized && a.kind==='assign')failed++;
+   merge({...a,due:detail.due,opened:detail.opened,status:detail.status,source:'assignment',kind:a.kind,checkedAt:now});
  });
  await calendarJob;
  if(signal.aborted)throw Error('CANCELLED');

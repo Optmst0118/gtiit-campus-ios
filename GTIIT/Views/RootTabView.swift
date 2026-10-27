@@ -385,6 +385,7 @@ private struct RootLifecycle: ViewModifier {
                 if settings.hasSeenWelcome && !app.showWelcome { app.refreshMoodleSummary(); app.refreshRoomCacheIfAllowed() }
             }
         }
+        .onChange(of: settings.moodleUpcomingRange) { _, _ in app.upcoming.invalidate(); app.refreshMoodleSummary(force: true) }
         .onChange(of: settings.moodleReminderLead) { _, _ in app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.moodleDeadlineRemindersEnabled) { _, _ in app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.shuttleTeachingWeek) { _, _ in syncShuttleSystemState() }

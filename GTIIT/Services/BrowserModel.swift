@@ -455,6 +455,10 @@ extension BrowserModel: WKNavigationDelegate {
             decisionHandler(.allow)
             return
         }
+        if navigationAction.targetFrame?.isMainFrame != false, url.host == site.host,
+           site == .moodle, url.path == "/moodle/login/logout.php" {
+            router?.browserWillLogout(site: site)
+        }
         if navigationAction.navigationType == .linkActivated || navigationAction.navigationType == .formSubmitted {
             router?.browserDownloadCenter?.dismissCompletedPresentation()
         }

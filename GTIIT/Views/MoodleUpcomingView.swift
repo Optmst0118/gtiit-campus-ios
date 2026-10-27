@@ -3,9 +3,10 @@ import SwiftUI
 struct MoodleUpcomingEntry: View {
     @Environment(\.locale) private var nativeLocale
     @Environment(\.scenePhase) private var phase
+    @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var app: AppModel
     @ObservedObject var store: MoodleUpcomingStore
-    private var upcoming: [MoodleWork] { store.items.filter { $0.relevant() }.sorted { $0.priority() < $1.priority() } }
+    private var upcoming: [MoodleWork] { store.items.filter { $0.relevant(days: settings.moodleUpcomingRange.rawValue) }.sorted { $0.priority() < $1.priority() } }
     var body: some View {
         let _ = nativeLocale.identifier
         NavigationLink {
@@ -42,9 +43,10 @@ struct MoodleUpcomingEntry: View {
 
 struct MoodleUpcomingView: View {
     @Environment(\.locale) private var nativeLocale
+    @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var app: AppModel
     @ObservedObject var store: MoodleUpcomingStore
-    private var upcoming: [MoodleWork] { store.items.filter { $0.relevant() }.sorted { $0.priority() < $1.priority() } }
+    private var upcoming: [MoodleWork] { store.items.filter { $0.relevant(days: settings.moodleUpcomingRange.rawValue) }.sorted { $0.priority() < $1.priority() } }
     var body: some View {
         let _ = nativeLocale.identifier
         List {
@@ -55,7 +57,7 @@ struct MoodleUpcomingView: View {
             }
             Section {
                 if upcoming.isEmpty && !store.refreshing {
-                    ContentUnavailableView(L10n.tr("暂无近期作业"), systemImage: "checkmark.circle", description: Text(L10n.tr("显示未来 7 天截止、最近 2 天开放及明天将开放的安排；已确认提交的作业不列入待办。")))
+                    ContentUnavailableView(L10n.tr("暂无近期作业"), systemImage: "checkmark.circle")
                 }
                 ForEach(upcoming) { item in
                     Button { open(item) } label: {

@@ -1,0 +1,309 @@
+{
+  "checks" : [
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_quiz_title_normalized_and_zero_removed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_real_exam_title_not_renamed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_default_includes_10th_day"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_excludes_10day_boundary_overflow_even_if_recently_opened"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_range_3_and_30_days"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_finished_quiz_hidden_in_all_ranges"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_forceview_url_canonicalized"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_activity_url_rejects_action"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_default_range_10days"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_range_persisted"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_cached_texts_present_synchronously_on_init"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_invalidation_keeps_cache_and_timestamp_visible"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_signin_redirect_does_not_erase_cached_text"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_partial_refresh_preserves_cached_work_and_courses"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_positive_finished_status_replaces_cached_pending"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_scan_cannot_undo_newer_observed_submission"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_explicit_clear_removes_cache"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_fixture_ready"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "assignment_detail_preserves_calendar_open_date"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_reads_active_course_pages_and_pagination"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_skips_old_terms_future_and_hidden_courses"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_requests_complete_course_list"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "cached_course_directory_avoids_repeat_requests"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "submitted_assignment_detail_uses_six_hour_cache"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_summary_survives_store_restart"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_cache_excluded_from_backup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_recent_cache_does_not_trigger_scan"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_course_directory_present_before_clear"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_clear_removes_in_memory_courses"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_clear_removes_persistent_summary"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shortcut_default_entries_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shortcut_changes_survive_restart"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "my_entry_order_and_visibility_survive_restart"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shortcut_reorder_survives_restart"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "my_entry_order_migrates_unknown_duplicate_and_missing"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shortcut_empty_selection_is_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_assignment_missing_from_timeline_found"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_homework_title_canonical"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_chinese_date_and_submitted_status"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_calendar_open_and_dedup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_unsafe_links_rejected"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_read_only_requests"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_directory_published_before_assignment_details"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_six_requests_parallel_bounded_and_complete"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_job_progress_and_requests_cleaned_up"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_submitted_not_in_todo"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_real_finished_attempt_hidden_even_with_reattempt_button"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_relative_index_links_resolve_to_quiz_module"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_hw01_quiz_canonical_title"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_quiz_close_date_parsed"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_unfinished_attempt_not_hidden_by_prior_finished_attempt"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_abandoned_attempt_not_misclassified_finished"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "physics_quiz_missing_timeline_discovered_from_course_index"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_calendar_second_page_activity_read_and_checked"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "quiz_status_extraction_does_not_export_grades"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_failed_course_reports_partial_retains_other_course"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_empty_active_set_never_falls_back_to_all_courses"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_unready_session_not_treated_as_logout"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_login_required_no_data"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_url_rejects_actions_and_other_hosts"
+    }
+  ],
+  "completed" : true,
+  "date" : "2026-10-27T14:56:27Z",
+  "focus" : "moodle",
+  "passed" : true,
+  "runID" : "9581944b-cce4-4813-8802-4c7f42555c57"
+}

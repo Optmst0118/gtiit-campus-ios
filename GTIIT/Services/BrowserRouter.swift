@@ -7,6 +7,7 @@ import WebKit
     func browserWebDarkModeEnabled(for site: SiteID) -> Bool
     var externalLinkMode: ExternalLinkMode { get }
     func browserInitialURL(for site: SiteID) -> URL
+    func browserWillLogout(site: SiteID)
     func browserDidFinish(url: URL, site: SiteID)
     func browserRouteToOtherSite(url: URL, from site: SiteID)
     func browserOpenExternal(url: URL)
@@ -19,6 +20,7 @@ import WebKit
 }
 
 extension BrowserRouter {
+    func browserWillLogout(site: SiteID) {}
     var browserMayRecoverDocument: Bool { true }
     func browserWebDarkModeEnabled(for site: SiteID) -> Bool { true }
     var browserDownloadCenter: DownloadCoordinator? { nil }

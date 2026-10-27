@@ -926,5 +926,7 @@
   "暂无新通知": "No new notifications",
   "显示全部通知项目": "Show all notification items",
   "Beta 通知预览": "Beta notification preview",
-  "Beta": "Beta"
+  "Beta": "Beta",
+  "未来 %@ 天": "Next %@ days",
+  "临近作业范围": "Upcoming assignment window"
 }

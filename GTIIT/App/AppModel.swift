@@ -110,8 +110,9 @@ final class AppModel: ObservableObject {
 
     func refreshMoodleSummary(force: Bool = false) {
         #if DEBUG
-        if ProcessInfo.processInfo.environment["UI_REVIEW_INBOX"] == "1" { return }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_INBOX"] == "1" || ProcessInfo.processInfo.environment["UI_REVIEW_MOODLE_CACHE"] == "1" { return }
         #endif
+        upcoming.upcomingDays = settings.moodleUpcomingRange.rawValue
         upcoming.priorityCourseIDs = Set(upcoming.courseItems.filter { $0.matches(timetable.snapshot) }.map(\.id))
             .union(settings.followedMoodleCourseIDs)
         upcoming.refresh(browser: browser(for: .moodle), force: force) { [weak self] in
@@ -141,7 +142,7 @@ final class AppModel: ObservableObject {
         return
         #else
         #if DEBUG
-        if ProcessInfo.processInfo.environment["UI_REVIEW_INBOX"] == "1" { return }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_INBOX"] == "1" || ProcessInfo.processInfo.environment["UI_REVIEW_MOODLE_CACHE"] == "1" { return }
         #endif
         campusSync.start(force: force) { [weak self] in
             guard let self else { return false }
@@ -153,7 +154,7 @@ final class AppModel: ObservableObject {
     func refreshRoomCacheIfAllowed(force: Bool = false) {
         #if !GTIIT_REGRESSION
         #if DEBUG
-        if ProcessInfo.processInfo.environment["UI_REVIEW_INBOX"] == "1" { return }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_INBOX"] == "1" || ProcessInfo.processInfo.environment["UI_REVIEW_MOODLE_CACHE"] == "1" { return }
         #endif
         campusSync.refreshRooms(force: force) { [weak self] in
             guard let self else { return false }
@@ -371,6 +372,12 @@ extension AppModel: BrowserRouter {
     var externalLinkMode: ExternalLinkMode { settings.externalLinks }
     func browserInitialURL(for site: SiteID) -> URL { settings.initialURL(for: site) }
     var browserMayRecoverDocument: Bool { !lock.isLocked && lock.isActive && !isClearingData }
+    func browserWillLogout(site: SiteID) {
+        if site == .moodle {
+            upcoming.cancel(clear: true); settings.followedMoodleCourseIDs = []
+            refreshAfterMoodleLogin = true
+        }
+    }
     func browserDidFinish(url: URL, site: SiteID) {
         if let browser = browsers[site], !isClearingData { campusSync.observe(browser.webView, site: site) }
         if site == .rooms, url.host == site.host, ["/Web/reservation.php", "/Web/my-calendar.php"].contains(url.path) {
@@ -379,9 +386,11 @@ extension AppModel: BrowserRouter {
         settings.remember(url, for: site)
         if site == .portal && (url.host != site.host || url.path.contains("login") || url.path.contains("logout")) { exams.cancel(clear: true) }
         if site == .moodle {
+            if let browser = browsers[site] { upcoming.observeActivity(browser: browser) }
             if url.path.contains("/login/") {
-                upcoming.cancel(clear: true)
-                settings.followedMoodleCourseIDs = []
+                let loggingOut = url.path.contains("/logout.php")
+                upcoming.cancel(clear: loggingOut)
+                if loggingOut { settings.followedMoodleCourseIDs = [] }
                 refreshAfterMoodleLogin = true
             } else if url.host == SiteID.moodle.host, !url.path.contains("/auth/"), refreshAfterMoodleLogin {
                 refreshAfterMoodleLogin = false

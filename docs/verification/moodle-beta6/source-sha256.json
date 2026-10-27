@@ -1,0 +1,8 @@
+{
+  "Tools/version.json": "0b077961fd0330545bfd45e83c4ffe6d986059aa3d3290e8afa47d8f9e039910",
+  "GTIIT/Services/MoodleUpcomingStore.swift": "a1d234a085fac19525be58832f659b9a73cb07ee3e81ab2bdd1f0454ea8ce0db",
+  "GTIIT/Resources/CampusData/moodle-upcoming.js": "a04f8ee2623c140279bb78ae9d7ac1bac3adf1b2f8887c5b7f00af065efdc830",
+  "GTIIT/Resources/CampusData/moodle-activity.js": "9c9471949e7f7381ba4e201c16dacf5af36dcdcb19fa5c4c039b88fd4ff4fedf",
+  "GTIIT/Models/MoodleUpcoming.swift": "a51d818b53581d123e4fef1b01ab25523878a6b2c45f9290cef5c1666778bf2c",
+  "GTIIT/App/AppSettings.swift": "d29128f19744d18a628192c7bd34b16d21bdb62182a65623661ac0948ff872a1"
+}

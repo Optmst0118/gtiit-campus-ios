@@ -321,7 +321,54 @@ private final class RetiredViewReference {
         browser.webView.removeFromSuperview()
     }
 
+    func testMoodleCacheAndRange() {
+        let now = Date(timeIntervalSince1970: 1793091600)
+        func work(_ days: Double, status: String = "notSubmitted", name: String = "HW 01 Integrals") -> MoodleWork {
+            MoodleWork(url: "https://moodle.gtiit.edu.cn/moodle/mod/quiz/view.php?id=1", name: name, course: "Physics 2", due: now.timeIntervalSince1970 + days * 86400, opened: now.timeIntervalSince1970, status: status, source: "assignment", kind: "quiz")
+        }
+        check("physics_quiz_title_normalized_and_zero_removed", work(2).displayName == "Homework 1 Assignment")
+        check("physics_real_exam_title_not_renamed", work(2,name: "Midterm 1").displayName == "Midterm 1")
+        check("upcoming_default_includes_10th_day", work(10).relevant(now: now))
+        check("upcoming_excludes_10day_boundary_overflow_even_if_recently_opened", !work(10.001).relevant(now: now))
+        check("upcoming_range_3_and_30_days", !work(4).relevant(now: now,days:3) && work(29).relevant(now:now,days:30))
+        check("physics_finished_quiz_hidden_in_all_ranges", !work(2,status:"submitted").relevant(now:now,days:30))
+        check("physics_forceview_url_canonicalized", MoodleWork.activityURL(URL(string: "https://moodle.gtiit.edu.cn/moodle/mod/quiz/view.php?id=159591&forceview=1")!)?.absoluteString == "https://moodle.gtiit.edu.cn/moodle/mod/quiz/view.php?id=159591")
+        check("physics_activity_url_rejects_action", MoodleWork.activityURL(URL(string: "https://moodle.gtiit.edu.cn/moodle/mod/quiz/view.php?id=1&action=delete")!) == nil)
+        let suite = "regression.upcomingrange." + UUID().uuidString, prefs: UserDefaults
+        prefs = UserDefaults(suiteName:suite)!
+        defer { prefs.removePersistentDomain(forName:suite) }
+        let settings = AppSettings(defaults:prefs)
+        check("upcoming_default_range_10days", settings.moodleUpcomingRange == .ten)
+        settings.moodleUpcomingRange = .fourteen
+        check("upcoming_range_persisted", AppSettings(defaults:prefs).moodleUpcomingRange == .fourteen)
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let cache = MoodleUpcomingStore(directory:folder)
+        let course = MoodleCourse(id:1,name:"Physics 2",shortname:"PHY2",category:nil,term:"Winter 2026",active:true)
+        cache.accept(MoodleUpcomingResult(loginRequired:false,items:[work(2)],courses:1,checked:1,failed:0,courseList:[course],directoryRefreshed:true))
+        let restored = MoodleUpcomingStore(directory:folder)
+        check("moodle_cached_texts_present_synchronously_on_init", restored.items.first?.displayName == "Homework 1 Assignment" && restored.courseItems.first?.name == "Physics 2")
+        restored.invalidate()
+        check("moodle_invalidation_keeps_cache_and_timestamp_visible", restored.updatedAt != nil && restored.items.count == 1 && restored.courseItems.count == 1)
+        restored.accept(MoodleUpcomingResult(loginRequired:true,items:[],courses:0,checked:0,failed:0,courseList:nil,directoryRefreshed:false))
+        check("moodle_signin_redirect_does_not_erase_cached_text", restored.loginRequired && restored.items.count == 1 && MoodleUpcomingStore(directory:folder).courseItems.count == 1)
+        restored.accept(MoodleUpcomingResult(loginRequired:false,items:[],courses:1,checked:0,failed:1,courseList:[],directoryRefreshed:false))
+        check("moodle_partial_refresh_preserves_cached_work_and_courses", restored.items.count == 1 && restored.courseItems.count == 1)
+        restored.accept(MoodleUpcomingResult(loginRequired:false,items:[work(2,status:"submitted")],courses:1,checked:1,failed:0,courseList:[course],directoryRefreshed:true))
+        check("moodle_positive_finished_status_replaces_cached_pending", restored.items.first?.isSubmitted == true && MoodleUpcomingStore(directory:folder).items.first?.isSubmitted == true)
+        var observed = work(2,status:"submitted"); observed.checkedAt = Date().timeIntervalSince1970 + 1
+        restored.accept(MoodleUpcomingResult(loginRequired:false,items:[observed],courses:1,checked:1,failed:0,courseList:[course],directoryRefreshed:false))
+        var older = work(2); older.checkedAt = observed.checkedAt! - 10
+        restored.accept(MoodleUpcomingResult(loginRequired:false,items:[older],courses:1,checked:1,failed:0,courseList:[course],directoryRefreshed:false))
+        check("moodle_scan_cannot_undo_newer_observed_submission", restored.items.first?.isSubmitted == true)
+        restored.cancel(clear:true)
+        check("moodle_explicit_clear_removes_cache", MoodleUpcomingStore(directory:folder).items.isEmpty && MoodleUpcomingStore(directory:folder).courseItems.isEmpty)
+    }
+
     func run() async {
+        testMoodleCacheAndRange()
+        if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "moodle" {
+            await verifyUpcomingReader(); finish(); return
+        }
         await testCampusInbox()
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "inbox" { finish(); return }
         await testMoodleDeadlineReminders()
@@ -1344,7 +1391,7 @@ extension RegressionApp {
         let fixture = #"""
         <html><head><title>Upcoming fixture</title></head><body><input id="guard" value="UNCHANGED"><script>
         window.M={cfg:{wwwroot:'https://moodle.gtiit.edu.cn/moodle',sesskey:'SYNTHETIC_ONLY'}};
-        window.calls=[];window.testFail=false;window.classifications=[];window.noActive=false;window.inflight=0;window.peakRequests=0;window.progressBeforeDetails=false;
+        window.calls=[];window.testFail=false;window.classifications=[];window.noActive=false;window.quizMode="inprogress";window.extraQuiz=false;window.calendarPages=false;window.inflight=0;window.peakRequests=0;window.progressBeforeDetails=false;
         window.fetch=async function(url,options={}){
           window.inflight++;window.peakRequests=Math.max(window.peakRequests,window.inflight);
           try {
@@ -1361,11 +1408,18 @@ extension RegressionApp {
                 {id:9,fullname:'2025Winter Old Course'},{id:10,fullname:'2026Spring Old Course'},
                 {id:11,fullname:'2026Winter Future Course',startdate:1792706400},
                 {id:12,fullname:'2026Winter Hidden Course',visible:false}],nextoffset:100}:{courses:[{id:2,fullname:'Synthetic Physics',shortname:'2026Winter_Physics'}],nextoffset:0};
+            }else if(window.calendarPages && q.methodname==='core_calendar_get_action_events_by_timesort'){
+              const first=!q.args.aftereventid;
+              data={events:first?Array.from({length:50},(_,i)=>({id:i+1,name:'Ignored calendar event',modulename:'forum'})):[{id:51,name:'HW 03',modulename:'quiz',eventtype:'close',timestart:1792620000+9*86400,url:'https://moodle.gtiit.edu.cn/moodle/mod/quiz/view.php?id=79',course:{id:2,fullname:'Synthetic Physics'}}],lastid:first?50:51};
             }else data={events:[{name:'Recently opened assignment',modulename:'assign',eventtype:'open',timestart:1792620000,url:'https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=1',course:{fullname:'Synthetic Robotics'}},{name:'Open quiz',modulename:'quiz',eventtype:'open',timestart:1792620000,url:'https://moodle.gtiit.edu.cn/moodle/mod/quiz/view.php?id=77',course:{fullname:'Synthetic Physics'}},{name:'Unsafe',modulename:'assign',eventtype:'due',timestart:1792943940,url:'https://evil.test/moodle/mod/assign/view.php?id=3'}]};
             body=JSON.stringify([{error:false,data}]);
           }else if(u.pathname.endsWith('index.php')){
             if(testFail&&u.searchParams.get('id')==='2')throw Error('UNAVAILABLE');
-            body='<a href="https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id='+u.searchParams.get('id')+'">Synthetic assignment '+u.searchParams.get('id')+'</a>';
+            body=u.pathname.includes('/quiz/')?(u.searchParams.get('id')==='2'?'<a href="view.php?id=77">HW 01 Integrals</a>'+(window.extraQuiz?'<a href="view.php?id=78">HW 02 Electric Field</a>':''):''):'<a href="https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id='+u.searchParams.get('id')+'">Synthetic assignment '+u.searchParams.get('id')+'</a>';
+          }else if(u.pathname.includes('/quiz/')){
+            const state=window.quizMode==='finished'?'Finished<span class="statedetails">Submitted Tuesday, 20 October 2026, 3:41 PM</span>':window.quizMode==='abandoned'?'Never submitted':'In progress';
+            body='<div class="quizinfo"><p>This quiz will close on Thursday, 29 October 2026, 11:59 PM.</p></div><table class="generaltable quizattemptsummary"><thead><tr><th>Attempt</th><th>State</th><th>Grade</th><th>Review</th></tr></thead><tbody><tr><td>1</td><td>'+state+'</td><td>GRADE_SENTINEL</td><td>Review</td></tr>'+(window.quizMode==='newattempt'?'<tr><td>2</td><td>Finished<span class="statedetails">Submitted Tuesday, 20 October 2026, 3:41 PM</span></td><td>GRADE_SENTINEL</td><td>Review</td></tr>':'')+'</tbody></table><button>Re-attempt quiz</button>';
+            if(u.searchParams.get('id')!=='77')body+='<div data-region="activity-dates"><span>Due <span data-timestamp="'+(1792620000+9*86400)+'"></span></span></div>';
           }else{
             const submitted=u.searchParams.get('id')==='2';
             body='<div class="submissionstatustable"><table><tr><td>Submission status</td><td>'+(submitted?'Submitted for grading':'No attempt')+'</td></tr><tr><td>Due date</td><td>'+(submitted?'2026年10月25日 23:59':'Sunday, 25 October 2026, 11:59 PM')+'</td></tr></table></div>';
@@ -1378,7 +1432,7 @@ extension RegressionApp {
         web.loadHTMLString(fixture, baseURL: URL(string: "https://moodle.gtiit.edu.cn/moodle/my/")!)
         check("upcoming_fixture_ready", await wait { web.title == "Upcoming fixture" && !web.isLoading })
         do {
-            let script = try String(contentsOf: Bundle.main.url(forResource: "moodle-upcoming", withExtension: "js", subdirectory: "CampusData")!, encoding: .utf8)
+            let script = try MoodleUpcomingStore.readerScript()
             func read() async throws -> MoodleUpcomingResult {
                 let raw = try await web.callAsyncJavaScript(script, arguments: ["now": 1792620000, "jobID": "fixture"], in: nil, contentWorld: .page)
                 return try JSONDecoder().decode(MoodleUpcomingResult.self, from: Data((raw as! String).utf8))
@@ -1462,6 +1516,24 @@ extension RegressionApp {
             check("upcoming_job_progress_and_requests_cleaned_up", await js(web, "inflight===0 && !window.__gtiitUpcomingJob && !window.__gtiitUpcomingDirectory") == "true")
 
             check("upcoming_submitted_not_in_todo", result.items.filter { $0.relevant(now: Date(timeIntervalSince1970: 1792620000)) }.count == 2)
+            _ = await js(web,"quizMode='finished'")
+            let finishedQuiz = try await read()
+            check("physics_real_finished_attempt_hidden_even_with_reattempt_button", finishedQuiz.items.first { $0.kind == "quiz" }?.isSubmitted == true)
+            check("physics_relative_index_links_resolve_to_quiz_module", finishedQuiz.items.first { $0.kind == "quiz" }?.name == "HW 01 Integrals")
+            check("physics_hw01_quiz_canonical_title", finishedQuiz.items.first { $0.kind == "quiz" }?.displayName == "Homework 1 Assignment")
+            check("physics_quiz_close_date_parsed", finishedQuiz.items.first { $0.kind == "quiz" }?.due == 1793289540)
+            _ = await js(web,"quizMode='newattempt'")
+            let newAttempt = try await read()
+            check("physics_unfinished_attempt_not_hidden_by_prior_finished_attempt", newAttempt.items.first { $0.kind == "quiz" }?.status == "draft")
+            _ = await js(web,"quizMode='abandoned'")
+            let abandoned = try await read()
+            check("physics_abandoned_attempt_not_misclassified_finished", abandoned.items.first { $0.kind == "quiz" }?.status == "notSubmitted")
+            _ = await js(web,"quizMode='inprogress';extraQuiz=true;calendarPages=true")
+            let comprehensive = try await read()
+            check("physics_quiz_missing_timeline_discovered_from_course_index", comprehensive.items.contains { $0.url.hasSuffix("id=78") && $0.relevant(now:Date(timeIntervalSince1970:1792620000)) })
+            check("moodle_calendar_second_page_activity_read_and_checked", comprehensive.items.contains { $0.url.hasSuffix("id=79") && $0.source == "assignment" })
+            check("quiz_status_extraction_does_not_export_grades", !String(data:try JSONEncoder().encode(comprehensive.items),encoding:.utf8)!.contains("GRADE_SENTINEL"))
+            _ = await js(web,"extraQuiz=false;calendarPages=false")
             _ = await js(web,"testFail=true")
             let partial = try await read()
             check("upcoming_failed_course_reports_partial_retains_other_course", partial.failed > 0 && partial.checked == 1 && partial.items.contains { $0.course == "Synthetic Robotics" })
@@ -1470,9 +1542,13 @@ extension RegressionApp {
             let noAssignmentRequests = await js(web,"calls.every(c=>!new URL(c.url).pathname.endsWith('index.php'))")
             check("upcoming_empty_active_set_never_falls_back_to_all_courses", empty.courses == 0 && empty.checked == 0 && noAssignmentRequests == "true")
             _ = await js(web,"delete M.cfg.sesskey")
+            var sessionNotReady = false
+            do { _ = try await read() } catch { sessionNotReady = true }
+            check("upcoming_unready_session_not_treated_as_logout", sessionNotReady)
+            _ = await js(web,"document.body.insertAdjacentHTML('beforeend','<form id=login></form>')")
             let loggedOut = try await read()
             check("upcoming_login_required_no_data", loggedOut.loginRequired && loggedOut.items.isEmpty)
-        } catch { check("upcoming_reader", false, error.localizedDescription) }
+        } catch { check("upcoming_reader", false, String(describing: error as NSError)) }
         check("upcoming_url_rejects_actions_and_other_hosts", MoodleWork.safeURL("https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=1&action=editsubmission") == nil && MoodleWork.safeURL("https://evil.test/moodle/mod/assign/view.php?id=1") == nil)
         web.removeFromSuperview()
     }
