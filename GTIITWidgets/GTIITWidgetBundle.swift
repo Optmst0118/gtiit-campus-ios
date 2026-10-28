@@ -7,5 +7,6 @@ struct GTIITWidgetBundle: WidgetBundle {
         ShuttleLiveActivityWidget()
         CourseLiveActivityWidget()
         ShuttleHomeWidget()
+        ShuttleConfiguredWidget()
     }
 }

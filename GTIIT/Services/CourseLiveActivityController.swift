@@ -44,8 +44,9 @@ struct CourseActivityPlan: Equatable {
                     $0.start == activity.content.state.start && $0.end == activity.content.state.end
                 }
                 if !valid || activity.content.state.start.addingTimeInterval(300) < now {
-                    await activity.end(nil, dismissalPolicy: .immediate)
                     issued.remove(activity.attributes.occurrenceID + "|" + activity.attributes.language)
+                    UserDefaults.standard.set(Array(issued.suffix(150)), forKey: "course.activity.issued")
+                    await activity.end(nil, dismissalPolicy: .immediate)
                 }
             }
             guard !Task.isCancelled, token == generation else { return }
@@ -53,19 +54,11 @@ struct CourseActivityPlan: Equatable {
             if !enabled || snapshot == nil { UserDefaults.standard.removeObject(forKey: "course.activity.issued"); return }
             guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
             for plan in desired {
+                if #unavailable(iOS 26.0) { if plan.activate > now { continue } }
                 let key = plan.id + "|" + language
                 if issued.contains(key) || Activity<CourseActivityAttributes>.activities.contains(where: { $0.attributes.occurrenceID == plan.id }) { continue }
-                let attributes = CourseActivityAttributes(occurrenceID: plan.id, title: plan.title, room: plan.room, building: plan.building, language: language)
-                let content = ActivityContent(state: CourseActivityAttributes.ContentState(start: plan.start, end: plan.end), staleDate: plan.start)
                 do {
-                    if plan.activate > now {
-                        if #available(iOS 26.0, *) {
-                            _ = try Activity.request(attributes: attributes, content: content, pushType: nil, style: .standard,
-                                alertConfiguration: AlertConfiguration(title: "课前提醒", body: "课程将在 10 分钟后开始", sound: .default), start: plan.activate)
-                        } else { continue }
-                    } else {
-                        _ = try Activity.request(attributes: attributes, content: content, pushType: nil)
-                    }
+                    _ = try Self.request(plan: plan, language: language, now: now)
                     issued.insert(key)
                     UserDefaults.standard.set(Array(issued.suffix(150)), forKey: "course.activity.issued")
                 } catch { LocalDiagnostics.shared.record("courseActivity.requestFailed"); break }
@@ -73,4 +66,16 @@ struct CourseActivityPlan: Equatable {
         }
         #endif
     }
+    /// Production and debug verification use the identical ActivityKit request path.
+    @discardableResult
+    static func request(plan: CourseActivityPlan, language: String, now: Date) throws -> Activity<CourseActivityAttributes> {
+        let attributes = CourseActivityAttributes(occurrenceID: plan.id, title: plan.title, room: plan.room, building: plan.building, language: language)
+        let content = ActivityContent(state: CourseActivityAttributes.ContentState(start: plan.start, end: plan.end), staleDate: plan.start)
+        if #available(iOS 26.0, *), plan.activate > now {
+            return try Activity.request(attributes: attributes, content: content, pushType: nil, style: .standard,
+                alertConfiguration: AlertConfiguration(title: "课前提醒", body: "课程将在 10 分钟后开始", sound: .default), start: plan.activate)
+        }
+        return try Activity.request(attributes: attributes, content: content, pushType: nil)
+    }
+
 }

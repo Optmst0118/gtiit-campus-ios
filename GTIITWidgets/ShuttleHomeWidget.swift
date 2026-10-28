@@ -43,10 +43,12 @@ struct ShuttleHomeProvider: AppIntentTimelineProvider {
         entry(at: Date(), teaching: teaching(configuration), direction: configuredDirection(configuration))
     }
     func timeline(for configuration: ShuttleWidgetConfiguration, in context: Context) async -> Timeline<ShuttleHomeEntry> {
-        let now = Date(), teaching = teaching(configuration)
-        let location = configuration.direction == .nearby ? await WidgetLocationFetcher().request() : nil
+        await makeTimeline(teaching: teaching(configuration), manual: configuredDirection(configuration), useLocation: configuration.direction == .nearby)
+    }
+    func makeTimeline(teaching: Bool, manual: ShuttleDirection?, useLocation: Bool) async -> Timeline<ShuttleHomeEntry> {
+        let now = Date()
+        let location = useLocation ? await WidgetLocationFetcher().request() : nil
         let nearby = location.flatMap { CampusProximity.direction(for: $0, now: now) }
-        let manual = configuredDirection(configuration)
         let end = now.addingTimeInterval(24 * 3600)
         let entries = ShuttleTimelinePolicy.dates(after: now, teachingWeek: teaching,
             locationExpiry: location?.timestamp.addingTimeInterval(121)).map { date in
@@ -103,14 +105,38 @@ struct ShuttleHomeProvider: AppIntentTimelineProvider {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) { finish(locations.last) }
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) { finish(nil) }
 }
+/// The default widget does not depend on Intent resolution to build its timeline.
+/// The separately configurable widget retains the existing direction/calendar options.
+struct ShuttleDefaultProvider: TimelineProvider {
+    private let provider = ShuttleHomeProvider()
+    func placeholder(in context: Context) -> ShuttleHomeEntry { provider.placeholder(in: context) }
+    func getSnapshot(in context: Context, completion: @escaping (ShuttleHomeEntry) -> Void) {
+        completion(provider.placeholder(in: context))
+    }
+    func getTimeline(in context: Context, completion: @escaping (Timeline<ShuttleHomeEntry>) -> Void) {
+        Task { completion(await provider.makeTimeline(teaching: true, manual: nil, useLocation: true)) }
+    }
+}
 struct ShuttleHomeWidget: Widget {
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: "ShuttleHomeWidget", intent: ShuttleWidgetConfiguration.self, provider: ShuttleHomeProvider()) { entry in
+        StaticConfiguration(kind: "ShuttleHomeWidget", provider: ShuttleDefaultProvider()) { entry in
             ShuttleHomeView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
                 .widgetURL(entry.url)
         }
         .configurationDisplayName("Shuttle next bus")
+        .description("Upcoming campus shuttles.")
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline])
+    }
+}
+struct ShuttleConfiguredWidget: Widget {
+    var body: some WidgetConfiguration {
+        AppIntentConfiguration(kind: "ShuttleConfiguredWidget", intent: ShuttleWidgetConfiguration.self, provider: ShuttleHomeProvider()) { entry in
+            ShuttleHomeView(entry: entry)
+                .containerBackground(.fill.tertiary, for: .widget)
+                .widgetURL(entry.url)
+        }
+        .configurationDisplayName("Shuttle next bus · configurable")
         .description("Choose your direction and service calendar.")
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline])
     }
@@ -142,22 +168,41 @@ private struct ShuttleHomeView: View {
                     Text(english ? "No bus" : "暂无班次").font(.headline)
                 }
             }
+        case .systemMedium:
+            VStack(alignment: .leading, spacing: 12) {
+                header
+                HStack(spacing: 18) {
+                    if let primary, entry.suggested != nil { tile(primary) }
+                    else {
+                        if let north = entry.north { tile(north) }
+                        if let south = entry.south { Divider(); tile(south) }
+                    }
+                }.frame(maxHeight: .infinity)
+            }
         default:
-            VStack(alignment: .leading, spacing: 9) {
-                HStack(spacing: 5) {
-                    Image(systemName: "bus.fill").foregroundStyle(.orange)
-                    Text(english ? "NEXT SHUTTLE" : "下一班").font(.caption2.weight(.bold)).foregroundStyle(.secondary)
-                }
-                if entry.suggested != nil, let primary {
-                    row(primary)
-                } else {
+            VStack(alignment: .leading, spacing: 10) {
+                header
+                if entry.suggested != nil, let primary { tile(primary) }
+                else {
                     if let north = entry.north { row(north) }
                     if let south = entry.south { row(south) }
                 }
                 Spacer(minLength: 0)
             }
-            .padding(2)
         }
+    }
+    private var header: some View {
+        Text(english ? "NEXT SHUTTLE" : "下一班班车")
+            .font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+    }
+    private func tile(_ departure: ShuttleDeparture) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(directionLabel(departure.trip.direction)).font(.subheadline.weight(.semibold))
+            Text(departure.trip.time).font(.system(size: 30, weight: .semibold, design: .rounded)).monospacedDigit()
+            ShuttleWidgetCountdown(date: departure.date, english: english)
+                .font(.caption.monospacedDigit()).foregroundStyle(ActivityPalette.orange)
+                .frame(height: 16)
+        }.frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func row(_ departure: ShuttleDeparture) -> some View {
@@ -169,8 +214,8 @@ private struct ShuttleHomeView: View {
             }
             Spacer(minLength: 4)
             ShuttleWidgetCountdown(date: departure.date, english: english)
-                .font(.system(.title3, design: .rounded, weight: .semibold))
-                .foregroundStyle(.orange)
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .foregroundStyle(ActivityPalette.orange).frame(width: 65, alignment: .trailing)
         }
     }
 
@@ -194,7 +239,7 @@ private struct ShuttleWidgetCountdown: View {
 
     var body: some View {
         if date > Date() {
-            Text(timerInterval: Date.now...date, countsDown: true, showsHours: false)
+            Text(timerInterval: Date.now...date, countsDown: true, showsHours: true)
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)

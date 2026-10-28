@@ -9,20 +9,21 @@ struct CourseLiveActivityWidget: Widget {
                 .widgetURL(URL(string: "gtiit-beta://timetable"))
         } dynamicIsland: { context in
             DynamicIsland {
-                DynamicIslandExpandedRegion(.leading) { Text(context.attributes.title).font(.headline).lineLimit(2) }
-                DynamicIslandExpandedRegion(.trailing) { Text(context.attributes.room).font(.title2.bold()).foregroundStyle(ActivityPalette.blue) }
                 DynamicIslandExpandedRegion(.bottom) {
-                    HStack {
-                        Text(context.attributes.building).font(.caption).foregroundStyle(.secondary)
-                        Spacer()
-                        ShuttleActivityCountdown(date: context.state.start, expired: context.isStale, language: context.attributes.language, expiredLabel: context.attributes.language == "en" ? "Started" : "已上课")
-                            .frame(width: 95).foregroundStyle(ActivityPalette.blue)
-                    }
+                    CourseActivitySummary(attributes: context.attributes, state: context.state,
+                        isStale: context.isStale, island: true)
                 }
-            } compactLeading: { Image(systemName: "graduationcap.fill").foregroundStyle(ActivityPalette.blue) }
-            compactTrailing: {
-                ShuttleActivityCountdown(date: context.state.start, expired: context.isStale, language: context.attributes.language, expiredLabel: context.attributes.language == "en" ? "Started" : "已上课").frame(width: 54).font(.caption2)
-            } minimal: { Image(systemName: "graduationcap.fill").foregroundStyle(ActivityPalette.blue) }
+            } compactLeading: {
+                Text(context.attributes.room).font(.system(size: 12, weight: .semibold))
+                    .lineLimit(1).foregroundStyle(ActivityPalette.blue).frame(maxWidth: 65)
+            } compactTrailing: {
+                ShuttleActivityCountdown(date: context.state.start, expired: context.isStale,
+                    language: context.attributes.language, expiredLabel: context.attributes.language == "en" ? "Started" : "已上课")
+                    .font(.system(size: 13, weight: .semibold)).frame(width: 58).foregroundStyle(ActivityPalette.blue)
+            } minimal: {
+                Text(context.attributes.language == "en" ? "Class" : "课")
+                    .font(.system(size: 12, weight: .bold)).foregroundStyle(ActivityPalette.blue)
+            }
             .widgetURL(URL(string: "gtiit-beta://timetable"))
         }
     }

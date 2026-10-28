@@ -32,6 +32,7 @@
 		ADA172965216773CFED3F029 /* ShuttleSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EF269BFC34E0530BC48D95 /* ShuttleSchedule.swift */; };
 		33C62E7075DBD9FD35A97DA6 /* ShuttleTimelinePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD63D0564F297C6A9B551A61 /* ShuttleTimelinePolicy.swift */; };
 		F5D9D663F4D2123943FCEE49 /* SiteID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B456582ADF2A287683AE3D6A /* SiteID.swift */; };
+		4A66E7F4D4B37DF818AA4087 /* ActivityReviewLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE0B910070F79F2E5761C2BF /* ActivityReviewLauncher.swift */; };
 		618A23EF14BC6F83C6026102 /* AppStorageFootprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C5EFD82D516F255E778AE2 /* AppStorageFootprint.swift */; };
 		228AAF074AAC8EE7A95958A9 /* BrowserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D0A0F6171AA951EEA57AB8 /* BrowserModel.swift */; };
 		ED1275125F83C527E35E83C9 /* BrowserRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE0F6FADE74A2951106A4ED /* BrowserRouter.swift */; };
@@ -136,6 +137,7 @@
 		51EF269BFC34E0530BC48D95 /* ShuttleSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleSchedule.swift; sourceTree = "<group>"; };
 		CD63D0564F297C6A9B551A61 /* ShuttleTimelinePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleTimelinePolicy.swift; sourceTree = "<group>"; };
 		B456582ADF2A287683AE3D6A /* SiteID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteID.swift; sourceTree = "<group>"; };
+		AE0B910070F79F2E5761C2BF /* ActivityReviewLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityReviewLauncher.swift; sourceTree = "<group>"; };
 		F4C5EFD82D516F255E778AE2 /* AppStorageFootprint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorageFootprint.swift; sourceTree = "<group>"; };
 		A0D0A0F6171AA951EEA57AB8 /* BrowserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserModel.swift; sourceTree = "<group>"; };
 		4CE0F6FADE74A2951106A4ED /* BrowserRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserRouter.swift; sourceTree = "<group>"; };
@@ -323,6 +325,7 @@
 		609874F33224C0C09F1FEE42 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				AE0B910070F79F2E5761C2BF /* ActivityReviewLauncher.swift */,
 				F4C5EFD82D516F255E778AE2 /* AppStorageFootprint.swift */,
 				A0D0A0F6171AA951EEA57AB8 /* BrowserModel.swift */,
 				4CE0F6FADE74A2951106A4ED /* BrowserRouter.swift */,
@@ -516,6 +519,7 @@
 				ADA172965216773CFED3F029 /* in Sources */,
 				33C62E7075DBD9FD35A97DA6 /* in Sources */,
 				F5D9D663F4D2123943FCEE49 /* in Sources */,
+				4A66E7F4D4B37DF818AA4087 /* in Sources */,
 				618A23EF14BC6F83C6026102 /* in Sources */,
 				228AAF074AAC8EE7A95958A9 /* in Sources */,
 				ED1275125F83C527E35E83C9 /* in Sources */,
@@ -682,7 +686,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 93;
+				CURRENT_PROJECT_VERSION = 94;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -692,7 +696,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.1.0;
-				GTIIT_RELEASE_LABEL = "2.1.0-beta.12";
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.13";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -708,7 +712,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 93;
+				CURRENT_PROJECT_VERSION = 94;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -718,7 +722,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.1.0;
-				GTIIT_RELEASE_LABEL = "2.1.0-beta.12";
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.13";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -916,9 +920,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "93";
+				CURRENT_PROJECT_VERSION = "94";
 				MARKETING_VERSION = "2.1.0";
-				GTIIT_RELEASE_LABEL = "2.1.0-beta.12";
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.13";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";
@@ -937,9 +941,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "93";
+				CURRENT_PROJECT_VERSION = "94";
 				MARKETING_VERSION = "2.1.0";
-				GTIIT_RELEASE_LABEL = "2.1.0-beta.12";
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.13";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";
