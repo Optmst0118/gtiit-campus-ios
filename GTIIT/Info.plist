@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>zh-Hans</string>
 	<key>CFBundleDisplayName</key>
-	<string>GTIIT</string>
+	<string>GTIIT Beta</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -24,10 +24,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>io.github.optmst0118.gtiit</string>
+			<string>io.github.optmst0118.gtiit.beta</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>gtiit</string>
+				<string>gtiit-beta</string>
 			</array>
 		</dict>
 	</array>

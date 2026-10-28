@@ -30,7 +30,7 @@ struct ShuttleHomeEntry: TimelineEntry {
     let south: ShuttleDeparture?
     var english = false
     var url: URL {
-        var components = URLComponents(string: "gtiit://shuttle")!
+        var components = URLComponents(string: "gtiit-beta://shuttle")!
         if let suggested { components.queryItems = [URLQueryItem(name: "direction", value: suggested.rawValue)] }
         return components.url!
     }

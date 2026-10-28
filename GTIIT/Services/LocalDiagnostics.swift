@@ -6,7 +6,7 @@ import OSLog
 @MainActor final class LocalDiagnostics: NSObject, ObservableObject, MXMetricManagerSubscriber {
     static let shared = LocalDiagnostics()
     @Published private(set) var counters: [String: Int] = [:]
-    private let logger = Logger(subsystem: "io.github.optmst0118.gtiit", category: "performance")
+    private let logger = Logger(subsystem: "io.github.optmst0118.gtiit.beta", category: "performance")
     private let began = ProcessInfo.processInfo.systemUptime
     @Published private(set) var firstViewMilliseconds: Int?
     private var registered = false

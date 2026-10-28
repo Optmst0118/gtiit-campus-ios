@@ -42,7 +42,7 @@ def extend(text, root, uid, team):
     framework=phase('widget:frameworks','PBXFrameworksBuildPhase',[])
     configs=[]
     for name in ['Debug','Release']:
-        settings={'PRODUCT_BUNDLE_IDENTIFIER':'io.github.optmst0118.gtiit.widgets','PRODUCT_NAME':'$(TARGET_NAME)','INFOPLIST_FILE':'GTIITWidgets/Info.plist','GENERATE_INFOPLIST_FILE':'NO','APPLICATION_EXTENSION_API_ONLY':'YES','SKIP_INSTALL':'YES','SWIFT_VERSION':'5.0','IPHONEOS_DEPLOYMENT_TARGET':'17.0','TARGETED_DEVICE_FAMILY':'1,2','CURRENT_PROJECT_VERSION':str(version['build']),'MARKETING_VERSION':version['marketing'],'GTIIT_RELEASE_LABEL':release_label(version),'CODE_SIGN_STYLE':'Automatic','LD_RUNPATH_SEARCH_PATHS':'$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks'}
+        settings={'PRODUCT_BUNDLE_IDENTIFIER':'io.github.optmst0118.gtiit.beta.widgets','PRODUCT_NAME':'$(TARGET_NAME)','INFOPLIST_FILE':'GTIITWidgets/Info.plist','GENERATE_INFOPLIST_FILE':'NO','APPLICATION_EXTENSION_API_ONLY':'YES','SKIP_INSTALL':'YES','SWIFT_VERSION':'5.0','IPHONEOS_DEPLOYMENT_TARGET':'17.0','TARGETED_DEVICE_FAMILY':'1,2','CURRENT_PROJECT_VERSION':str(version['build']),'MARKETING_VERSION':version['marketing'],'GTIIT_RELEASE_LABEL':release_label(version),'CODE_SIGN_STYLE':'Automatic','LD_RUNPATH_SEARCH_PATHS':'$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks'}
         if team:settings['DEVELOPMENT_TEAM']=team
         if os.environ.get('GTIIT_APP_GROUPS')=='1': settings['CODE_SIGN_ENTITLEMENTS']='GTIITWidgets/GTIITWidgets.entitlements'
         body='\n'.join(f'\t\t\t\t{k} = "{v}";' for k,v in settings.items())

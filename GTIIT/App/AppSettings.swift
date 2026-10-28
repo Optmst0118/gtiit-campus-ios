@@ -261,7 +261,7 @@ enum EntryOrder {
         hasSeenWelcome = defaults.bool(forKey: "settings.hasSeenWelcome")
         biometricLockEnabled = defaults.bool(forKey: "settings.biometricLock")
         appearance = AppAppearance(rawValue: defaults.string(forKey: "settings.appearance") ?? "") ?? .system
-        startupTab = AppTab(rawValue: defaults.string(forKey: "settings.startupTab") ?? "") ?? .shuttle
+        startupTab = AppTab(rawValue: defaults.string(forKey: "settings.startupTab") ?? "") ?? .me
         defaultBooking =
             BookingSegment(rawValue: defaults.string(forKey: "settings.defaultBooking") ?? "") ?? .rooms
         externalLinks =

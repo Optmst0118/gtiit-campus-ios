@@ -112,7 +112,7 @@ private struct AboutDetailsView: View {
 
             } else {
             Section(L10n.tr("App 做什么")) {
-                bullet("square.grid.2x2", L10n.tr("用底部五个标签承载班车、门户、Moodle、预约与我的。"), color: Theme.accent)
+                bullet("square.grid.2x2", L10n.tr("首页汇总近期安排；学习、班车、预约和校园提供完整功能。"), color: Theme.accent)
                 bullet("bus", L10n.tr("班车按提供的时刻表计算计划发车倒计时，不是实时到站信息。"), color: Theme.orange)
                 bullet("safari", L10n.tr("每个标签加载对应官方网页，页面布局、登录和业务操作都不改造。"), color: Theme.accent)
                 bullet("bolt", L10n.tr("冷启动只预热启动页网站，其他站点按需加载；密码、验证码及二次验证由你在学校页面完成。"), color: Theme.accent)

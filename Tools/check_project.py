@@ -173,7 +173,7 @@ def main() -> int:
 
     # 关键 build settings
     required = {
-        "PRODUCT_BUNDLE_IDENTIFIER": "io.github.optmst0118.gtiit",
+        "PRODUCT_BUNDLE_IDENTIFIER": "io.github.optmst0118.gtiit.beta",
         "IPHONEOS_DEPLOYMENT_TARGET": "17.0",
         "INFOPLIST_FILE": "GTIIT/Info.plist",
         "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
@@ -182,7 +182,7 @@ def main() -> int:
         "TARGETED_DEVICE_FAMILY": "1,2",
     }
     configs = [o for o in objects.values() if o["isa"] == "XCBuildConfiguration"
-               and field_string(o["raw"], "PRODUCT_BUNDLE_IDENTIFIER") == "io.github.optmst0118.gtiit"]
+               and field_string(o["raw"], "PRODUCT_BUNDLE_IDENTIFIER") == "io.github.optmst0118.gtiit.beta"]
     if len(configs) != 2:
         fail(f"target 应有 2 个 XCBuildConfiguration，实际 {len(configs)}")
     for config in configs:
@@ -200,7 +200,7 @@ def main() -> int:
     else:
         widget = widgets[0]
         if field_string(widget["raw"], "productType") != "com.apple.product-type.app-extension": fail("Widget productType 错误")
-        widget_configs = [o for o in objects.values() if o["isa"] == "XCBuildConfiguration" and field_string(o["raw"], "PRODUCT_BUNDLE_IDENTIFIER") == "io.github.optmst0118.gtiit.widgets"]
+        widget_configs = [o for o in objects.values() if o["isa"] == "XCBuildConfiguration" and field_string(o["raw"], "PRODUCT_BUNDLE_IDENTIFIER") == "io.github.optmst0118.gtiit.beta.widgets"]
         if len(widget_configs) != 2: fail("Widget 缺少 Debug/Release 配置")
         for config in configs + widget_configs:
             if field_string(config["raw"], "CURRENT_PROJECT_VERSION") != str(version["build"]): fail("App/Widget build 与 version.json 不一致")

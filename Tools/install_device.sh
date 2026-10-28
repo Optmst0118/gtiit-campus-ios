@@ -17,7 +17,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 PROJECT="GTIIT.xcodeproj"
 SCHEME="GTIIT"
-BUNDLE_ID="io.github.optmst0118.gtiit"
+BUNDLE_ID="io.github.optmst0118.gtiit.beta"
 DERIVED="${TMPDIR:-/tmp}/GTIIT-DD-Device"
 
 # --- 选择设备 ---
@@ -66,7 +66,14 @@ fi
 "${BUILD_CMD[@]}" build | tail -5
 
 APP="${DERIVED}/Build/Products/Debug-iphoneos/GTIIT.app"
-echo "==> 安装"
+# Never install an original-channel artifact from the independent Beta branch.
+ACTUAL_ID=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")
+if [ "$ACTUAL_ID" != "$BUNDLE_ID" ]; then
+  echo "安装已停止：App 标识与 Beta 通道不匹配。"
+  exit 1
+fi
+python3 Tools/verify_bundle.py "$APP"
+echo "==> 安装独立 GTIIT Beta"
 xcrun devicectl device install app --device "${DEVICE_ID}" "${APP}"
 
 echo "==> 启动"

@@ -64,6 +64,7 @@
 		BD2A8DE7BC76C89B398D2D94 /* BookingTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B6DFDA40F39218E6CB5B2 /* BookingTabView.swift */; };
 		4B94A7614B59D6061EFF19F4 /* CampusDetailPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 135AD2C1F7B533C259263B5D /* CampusDetailPage.swift */; };
 		3C8E2DA50C155CB3ADD5EC49 /* CampusInboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AF045DCFACC6091057940CE /* CampusInboxView.swift */; };
+		D5DD3F08E0EC445BF520AF11 /* CampusServicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B3C587BC2A1C554364EFF2 /* CampusServicesView.swift */; };
 		A7C187FE88C4A60322677F3A /* DocumentPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F931FEE32FCC4E8DAD6C0A /* DocumentPreviewView.swift */; };
 		1E3CCF1B90772377B896875F /* DownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71865DECF3411BC2686A995B /* DownloadsView.swift */; };
 		3F7E4CF2E4C5A389A1139D86 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89577AFC0E3F31DFE26AAFAD /* HelpView.swift */; };
@@ -162,6 +163,7 @@
 		BD7B6DFDA40F39218E6CB5B2 /* BookingTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookingTabView.swift; sourceTree = "<group>"; };
 		135AD2C1F7B533C259263B5D /* CampusDetailPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampusDetailPage.swift; sourceTree = "<group>"; };
 		4AF045DCFACC6091057940CE /* CampusInboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampusInboxView.swift; sourceTree = "<group>"; };
+		87B3C587BC2A1C554364EFF2 /* CampusServicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampusServicesView.swift; sourceTree = "<group>"; };
 		31F931FEE32FCC4E8DAD6C0A /* DocumentPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPreviewView.swift; sourceTree = "<group>"; };
 		71865DECF3411BC2686A995B /* DownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
 		89577AFC0E3F31DFE26AAFAD /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
@@ -350,6 +352,7 @@
 				BD7B6DFDA40F39218E6CB5B2 /* BookingTabView.swift */,
 				135AD2C1F7B533C259263B5D /* CampusDetailPage.swift */,
 				4AF045DCFACC6091057940CE /* CampusInboxView.swift */,
+				87B3C587BC2A1C554364EFF2 /* CampusServicesView.swift */,
 				31F931FEE32FCC4E8DAD6C0A /* DocumentPreviewView.swift */,
 				71865DECF3411BC2686A995B /* DownloadsView.swift */,
 				89577AFC0E3F31DFE26AAFAD /* HelpView.swift */,
@@ -530,6 +533,7 @@
 				BD2A8DE7BC76C89B398D2D94 /* in Sources */,
 				4B94A7614B59D6061EFF19F4 /* in Sources */,
 				3C8E2DA50C155CB3ADD5EC49 /* in Sources */,
+				D5DD3F08E0EC445BF520AF11 /* in Sources */,
 				A7C187FE88C4A60322677F3A /* in Sources */,
 				1E3CCF1B90772377B896875F /* in Sources */,
 				3F7E4CF2E4C5A389A1139D86 /* in Sources */,
@@ -658,7 +662,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 81;
+				CURRENT_PROJECT_VERSION = 82;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -667,9 +671,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.4;
-				GTIIT_RELEASE_LABEL = "2.0.4-beta.8";
-				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
+				MARKETING_VERSION = 2.1.0;
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.1";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -684,7 +688,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 81;
+				CURRENT_PROJECT_VERSION = 82;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -693,9 +697,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.4;
-				GTIIT_RELEASE_LABEL = "2.0.4-beta.8";
-				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit";
+				MARKETING_VERSION = 2.1.0;
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.1";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -866,7 +870,7 @@
 		A0E40978FF0FD58E0BB3BADB = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.widgets";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				INFOPLIST_FILE = "GTIITWidgets/Info.plist";
 				GENERATE_INFOPLIST_FILE = "NO";
@@ -875,9 +879,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "81";
-				MARKETING_VERSION = "2.0.4";
-				GTIIT_RELEASE_LABEL = "2.0.4-beta.8";
+				CURRENT_PROJECT_VERSION = "82";
+				MARKETING_VERSION = "2.1.0";
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.1";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";
@@ -887,7 +891,7 @@
 		4CA177B9BA9E433B121F2C98 = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.widgets";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				INFOPLIST_FILE = "GTIITWidgets/Info.plist";
 				GENERATE_INFOPLIST_FILE = "NO";
@@ -896,9 +900,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "81";
-				MARKETING_VERSION = "2.0.4";
-				GTIIT_RELEASE_LABEL = "2.0.4-beta.8";
+				CURRENT_PROJECT_VERSION = "82";
+				MARKETING_VERSION = "2.1.0";
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.1";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";

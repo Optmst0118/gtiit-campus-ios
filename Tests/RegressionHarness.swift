@@ -238,9 +238,11 @@ private final class RetiredViewReference {
         let preferences = UserDefaults(suiteName: "deadline-preferences-" + UUID().uuidString)!
         let settings = AppSettings(defaults: preferences)
         check("deadline_reminder_default_enabled", settings.moodleDeadlineRemindersEnabled)
+        check("navigation_home_default", settings.startupTab == .me)
+        check("navigation_five_task_destinations", AppTab.allCases == [.me, .learning, .shuttle, .booking, .portal])
         settings.moodleReminderLead = .oneWeek
         check("deadline_lead_preference_persists", AppSettings(defaults: preferences).moodleReminderLead == .oneWeek)
-        check("servicehub_default_shortcut_and_routing", settings.shortcutIDs.contains("servicehub.home") && SiteID.site(for: SiteID.serviceHub.homeURL) == .serviceHub && AppTab.tab(for: .serviceHub) == .me)
+        check("servicehub_default_shortcut_and_routing", settings.shortcutIDs.contains("servicehub.home") && SiteID.site(for: SiteID.serviceHub.homeURL) == .serviceHub && AppTab.tab(for: .serviceHub) == .portal)
         settings.shortcutIDs.remove("servicehub.home")
         check("servicehub_removed_shortcut_stays_removed", !AppSettings(defaults: preferences).shortcutIDs.contains("servicehub.home"))
         settings.moodleDeadlineRemindersEnabled = false
@@ -1358,7 +1360,7 @@ extension RegressionApp {
         _ = QuickLinkCatalog.highlights
         prefs.language = .english
         check("quick_links_switch_language_live", QuickLinkCatalog.link(for: "moodle.home")?.title == "My courses")
-        check("native_language_translation", L10n.tr("设置") == "Settings" && AppTab.me.title == "Me" && L10n.format("还有 %@ 天", "7") == "In 7 days")
+        check("native_language_translation", L10n.tr("设置") == "Settings" && AppTab.me.title == "Home" && L10n.format("还有 %@ 天", "7") == "In 7 days")
         check("native_language_literal_percent", L10n.format("下载中 %@%", "50") == "Downloading 50%")
         check("native_language_persist", AppSettings(defaults: defaults).language == .english)
         let keys = L10n.translations
@@ -1674,7 +1676,7 @@ extension RegressionApp {
                     try? await Task.sleep(for: .milliseconds(350))
                 }
             }
-            for site in [SiteID.moodle, .rooms, .sports] {
+            for site in [SiteID.portal, .moodle, .rooms, .sports] {
                 let title = "Canvas push \(site.rawValue)"
                 // Establish the destination tab before exercising its push.
                 // Otherwise this layout test also races tab-transition route
@@ -1746,8 +1748,14 @@ extension RegressionApp {
             try? await Task.sleep(for: .milliseconds(150))
             check("\(site.rawValue)_pull_keeps_title_stationary", tracker?.contentOffset.y == 0 && abs(web.convert(web.bounds, to: window).minY - expandedTop) < 1)
             scroll.setContentOffset(CGPoint(x: 0, y: 150), animated: false)
-            let collapsed = await wait { web.convert(web.bounds, to: self.window).minY < expandedTop - 15 }
-            check("\(site.rawValue)_native_title_collapses", collapsed && (tracker?.contentOffset.y ?? 0) > 0, "expanded=\(expandedTop), compact=\(web.convert(web.bounds, to: window).minY)")
+            if site == .portal {
+                // Student is now a pushed detail with a deliberately inline title.
+                let tracked = await wait { (tracker?.contentOffset.y ?? 0) > 0 }
+                check("portal_detail_title_stays_inline", tracked && abs(web.convert(web.bounds, to: window).minY - expandedTop) < 1)
+            } else {
+                let collapsed = await wait { web.convert(web.bounds, to: self.window).minY < expandedTop - 15 }
+                check("\(site.rawValue)_native_title_collapses", collapsed && (tracker?.contentOffset.y ?? 0) > 0, "expanded=\(expandedTop), compact=\(web.convert(web.bounds, to: window).minY)")
+            }
             scroll.setContentOffset(CGPoint(x: 0, y: -scroll.adjustedContentInset.top), animated: false)
             let restored = await wait { abs(web.convert(web.bounds, to: window).minY - expandedTop) < 1 }
             check("\(site.rawValue)_native_title_restores_at_top", restored, "expanded=\(expandedTop), restored=\(web.convert(web.bounds, to: window).minY), tracker=\(tracker?.contentOffset.y ?? -1)")

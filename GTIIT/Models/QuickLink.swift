@@ -99,6 +99,6 @@ struct CampusShortcut: Identifiable {
             + [CampusShortcut(id: "native.mail", title: L10n.tr("邮箱助手"), symbol: "envelope.fill", link: nil)]
     }
     static var defaults: Set<String> {
-        Set(["native.calendar", "native.shuttle", "native.mail"] + QuickLinkCatalog.highlights.map(\.id))
+        Set(["native.calendar", "native.mail", "portal.grades", "servicehub.home"])
     }
 }

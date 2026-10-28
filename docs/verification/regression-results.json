@@ -358,6 +358,16 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "navigation_home_default"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "navigation_five_task_destinations"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "deadline_lead_preference_persists"
     },
     {
@@ -1708,22 +1718,12 @@
     {
       "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
       "passed" : true,
-      "test" : "shuttle_light_navigation_reaches_window_top"
+      "test" : "me_light_navigation_reaches_window_top"
     },
     {
       "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
       "passed" : true,
-      "test" : "shuttle_light_controls_respect_top_safe_area"
-    },
-    {
-      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
-      "passed" : true,
-      "test" : "portal_light_navigation_reaches_window_top"
-    },
-    {
-      "detail" : "bar=(0.0, -106.0, 402.0, 44.0), intentionallyHidden=true",
-      "passed" : true,
-      "test" : "portal_light_controls_respect_top_safe_area"
+      "test" : "me_light_controls_respect_top_safe_area"
     },
     {
       "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
@@ -1731,9 +1731,19 @@
       "test" : "learning_light_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, -106.0, 402.0, 44.0), intentionallyHidden=true",
       "passed" : true,
       "test" : "learning_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "shuttle_light_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "passed" : true,
+      "test" : "shuttle_light_controls_respect_top_safe_area"
     },
     {
       "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
@@ -1748,12 +1758,22 @@
     {
       "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
       "passed" : true,
-      "test" : "me_light_navigation_reaches_window_top"
+      "test" : "portal_light_navigation_reaches_window_top"
     },
     {
       "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
       "passed" : true,
-      "test" : "me_light_controls_respect_top_safe_area"
+      "test" : "portal_light_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_light_push_present"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_light_push_reaches_window_top"
     },
     {
       "detail" : "",
@@ -1788,22 +1808,12 @@
     {
       "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
       "passed" : true,
-      "test" : "shuttle_dark_navigation_reaches_window_top"
+      "test" : "me_dark_navigation_reaches_window_top"
     },
     {
       "detail" : "bar=(0.0, -106.0, 402.0, 44.0), intentionallyHidden=true",
       "passed" : true,
-      "test" : "shuttle_dark_controls_respect_top_safe_area"
-    },
-    {
-      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
-      "passed" : true,
-      "test" : "portal_dark_navigation_reaches_window_top"
-    },
-    {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
-      "passed" : true,
-      "test" : "portal_dark_controls_respect_top_safe_area"
+      "test" : "me_dark_controls_respect_top_safe_area"
     },
     {
       "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
@@ -1818,22 +1828,42 @@
     {
       "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
       "passed" : true,
-      "test" : "booking_dark_navigation_reaches_window_top"
+      "test" : "shuttle_dark_navigation_reaches_window_top"
     },
     {
       "detail" : "bar=(0.0, -106.0, 402.0, 44.0), intentionallyHidden=true",
+      "passed" : true,
+      "test" : "shuttle_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "passed" : true,
+      "test" : "booking_dark_navigation_reaches_window_top"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "booking_dark_controls_respect_top_safe_area"
     },
     {
       "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
       "passed" : true,
-      "test" : "me_dark_navigation_reaches_window_top"
+      "test" : "portal_dark_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, -106.0, 402.0, 44.0), intentionallyHidden=true",
       "passed" : true,
-      "test" : "me_dark_controls_respect_top_safe_area"
+      "test" : "portal_dark_controls_respect_top_safe_area"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_dark_push_present"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "portal_dark_push_reaches_window_top"
     },
     {
       "detail" : "",
@@ -1876,7 +1906,7 @@
       "test" : "portal_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 118.0, 402.0, 756.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "portal_web_extends_under_tab_bar"
     },
@@ -1886,12 +1916,12 @@
       "test" : "portal_pull_keeps_title_stationary"
     },
     {
-      "detail" : "expanded=170.0, compact=118.0",
+      "detail" : "",
       "passed" : true,
-      "test" : "portal_native_title_collapses"
+      "test" : "portal_detail_title_stays_inline"
     },
     {
-      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
+      "detail" : "expanded=118.0, restored=118.0, tracker=-1.0",
       "passed" : true,
       "test" : "portal_native_title_restores_at_top"
     },
@@ -2086,7 +2116,7 @@
       "test" : "browser_has_history_before_clear"
     },
     {
-      "detail" : "cookies=8",
+      "detail" : "cookies=2",
       "passed" : true,
       "test" : "cache_clear_preserves_login_and_storage"
     },
@@ -2116,7 +2146,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 95CF5B72-8F96-4071-A7B0-F4EBA2D6E749, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-28 04:18:23 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: EE2381CF-AD2E-4061-B4BD-556DE910CEAC, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-28 05:54:37 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -2572,8 +2602,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-28T04:18:52Z",
+  "date" : "2026-10-28T05:55:09Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "b9f9e797-362a-4590-89b9-f91c06d447bd"
+  "runID" : "b57775b8-fb0f-4158-9d6d-a199d1bf7a5f"
 }

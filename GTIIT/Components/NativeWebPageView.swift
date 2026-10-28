@@ -38,7 +38,7 @@ private struct NativeWebPageContent: View {
         VStack(spacing: 0) {
             ProgressBarView(progress: model.progress, isActive: model.isLoading)
             ZStack {
-                WebViewContainer(model: model, inlineTitle: true)
+                WebViewContainer(model: model, inlineTitle: true).ignoresSafeArea(.container, edges: .bottom)
                 if let error = model.errorText {
                     LoadErrorView(site: site, message: error, onRetry: { model.reload() },
                         onOpenSafari: { model.openInSystemBrowser() }, onOpenHome: { model.loadHome() })
@@ -46,6 +46,7 @@ private struct NativeWebPageContent: View {
             }.accessibilityHidden(hideWebContent)
         }
         .background(Theme.pageBackground)
+        .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline).nativeNavigationSurface(sidebarBack: handlesBack ? {
             if model.hasUnsavedChanges { confirmLeave = true } else { goBack() }

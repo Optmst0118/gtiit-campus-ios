@@ -9,58 +9,23 @@ struct SettingsView: View {
 
         List {
             Section {
-                NavigationLink { LanguageSettingsView() } label: { SettingsLabel(L10n.tr("语言"), symbol: "globe") }
-                NavigationLink { LearningSettingsView() } label: { SettingsLabel(L10n.tr("学习与课表"), symbol: "calendar.badge.plus") }
+                NavigationLink { AppearancePreferencesView() } label: { SettingsLabel(L10n.tr("外观与语言"), symbol: "paintpalette") }
+                NavigationLink { HomePreferencesView() } label: { SettingsLabel(L10n.tr("首页与布局"), symbol: "rectangle.grid.1x2") }
+                NavigationLink { LearningSettingsView() } label: { SettingsLabel(L10n.tr("学习与提醒"), symbol: "calendar.badge.plus") }
+                NavigationLink { ShuttlePreferencesView() } label: { SettingsLabel(L10n.tr("班车偏好"), symbol: "bus") }
                 if settings.yilongUnlocked {
                     NavigationLink { YilongSettingsView() } label: { SettingsLabel(L10n.tr("以龙"), symbol: "sparkles") }
                 }
-                NavigationLink {
-                    GeneralSettingsView()
-                } label: {
-                    SettingsLabel(L10n.tr("通用"), symbol: "slider.horizontal.3")
-                }
-                NavigationLink {
-                    PrivacySettingsView()
-                } label: {
-                    SettingsLabel(L10n.tr("隐私与锁定"), symbol: "lock.shield")
-                }
-                NavigationLink {
-                    BrowsingSettingsView()
-                } label: {
-                    SettingsLabel(L10n.tr("网页浏览"), symbol: "safari")
-                }
             }
             Section {
-                NavigationLink {
-                    SitesSettingsView()
-                } label: {
-                    SettingsLabel(L10n.tr("站点与登录"), symbol: "person.crop.rectangle")
-                }
-                NavigationLink {
-                    StorageSettingsView(center: app.downloads)
-                } label: {
-                    SettingsLabel(L10n.tr("存储空间"), symbol: "internaldrive")
-                }
-                NavigationLink {
-                    CampusDetailPage(destination: .downloads)
-                } label: {
-                    SettingsLabel(L10n.tr("下载管理"), symbol: "arrow.down.circle")
-                }
+                NavigationLink { WebsitePreferencesView() } label: { SettingsLabel(L10n.tr("网站与登录"), symbol: "safari") }
+                NavigationLink { StorageSettingsView(center: app.downloads) } label: { SettingsLabel(L10n.tr("文件与存储"), symbol: "internaldrive") }
+                NavigationLink { PrivacySettingsView() } label: { SettingsLabel(L10n.tr("隐私与安全"), symbol: "lock.shield") }
             }
             Section {
-                NavigationLink {
-                    HelpView()
-                } label: {
-                    SettingsLabel(L10n.tr("帮助与诊断"), symbol: "questionmark.circle")
-                }
-                NavigationLink {
-                    AboutView()
-                } label: {
-                    SettingsLabel(L10n.tr("关于 GTIIT"), symbol: "info.circle")
-                }
-            } footer: {
-                Text(verbatim: "GTIIT " + AppInfo.versionText)
-            }
+                NavigationLink { HelpView() } label: { SettingsLabel(L10n.tr("帮助与诊断"), symbol: "questionmark.circle") }
+                NavigationLink { AboutView() } label: { SettingsLabel(L10n.tr("关于 GTIIT"), symbol: "info.circle") }
+            } footer: { Text(verbatim: "GTIIT Beta " + AppInfo.versionText) }
         }
         .scrollContentBackground(.hidden)
         .background(Theme.pageBackground)
@@ -84,43 +49,6 @@ struct SettingsLabel: View {
         } icon: {
             Image(systemName: symbol).foregroundStyle(Theme.accent).frame(width: 24)
         }.padding(.vertical, 3)
-    }
-}
-private struct GeneralSettingsView: View {
-    @Environment(\.locale) private var nativeLocale
-    @EnvironmentObject private var app: AppModel
-    @EnvironmentObject private var settings: AppSettings
-    var body: some View {
-        let _ = nativeLocale.identifier
-
-        Form {
-            Section(L10n.tr("显示")) {
-                SettingsChoicePicker(
-                    L10n.tr("外观"), selection: $settings.appearance, choices: AppAppearance.allCases,
-                    title: { $0.title })
-                Toggle(L10n.tr("触感反馈"), isOn: $settings.hapticsEnabled)
-            }
-            Section {
-                SettingsChoicePicker(
-                    L10n.tr("启动页面"), selection: $settings.startupTab, choices: AppTab.allCases, title: { $0.title })
-                SettingsChoicePicker(
-                    L10n.tr("默认预约分类"), selection: $settings.defaultBooking, choices: BookingSegment.allCases,
-                    title: { $0.title })
-                Toggle(L10n.tr("启动时预加载网站"), isOn: $settings.preloadSitesOnLaunch)
-            } header: {
-                Text(L10n.tr("启动"))
-            }
-            Section {
-                NavigationLink { MyEntrySettingsView() } label: { SettingsLabel(L10n.tr("管理“我的”入口"), symbol: "rectangle.grid.1x2") }
-                NavigationLink { ShortcutSettingsView() } label: {
-                    SettingsLabel(L10n.tr("管理常用入口"), symbol: "square.grid.2x2")
-                }
-            }
-            Section {
-                Button(L10n.tr("重新查看启动说明")) { app.showWelcome = true }
-            }
-        }.navigationTitle(L10n.tr("通用")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
-            .scrollContentBackground(.hidden).background(Theme.pageBackground)
     }
 }
 private struct PrivacySettingsView: View {
@@ -397,7 +325,7 @@ struct LearningSettingsView: View {
             NavigationLink { TimetableSettingsView() } label: { SettingsLabel(L10n.tr("课表"), symbol: "calendar") }
             NavigationLink { MoodleReminderSettingsView() } label: { SettingsLabel(L10n.tr("作业提醒"), symbol: "bell.badge") }
             NavigationLink { MoodleLayoutSettingsView(embedded: true) } label: { SettingsLabel(L10n.tr("Moodle 布局"), symbol: "square.grid.2x2") }
-        }.navigationTitle(L10n.tr("学习与课表")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+        }.navigationTitle(L10n.tr("学习与提醒")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
     }
@@ -418,7 +346,7 @@ struct MyEntrySettingsView: View {
                 settings.mySectionOrder = MyPageSection.allCases.map(\.rawValue); settings.hiddenMySections = []
             }.moveDisabled(true)
         }.environment(\.editMode, .constant(.active))
-            .navigationTitle(L10n.tr("管理“我的”入口")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+            .navigationTitle(L10n.tr("管理首页卡片")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
     }
 }
@@ -461,5 +389,54 @@ struct MoodleReminderSettingsView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await reminders.refreshAuthorization(); app.syncMoodleDeadlineReminders() } }
         }
+    }
+}
+
+struct AppearancePreferencesView: View {
+    @EnvironmentObject private var settings: AppSettings
+    var body: some View {
+        List {
+            NavigationLink { LanguageSettingsView() } label: { SettingsLabel(L10n.tr("语言"), symbol: "globe") }
+            SettingsChoicePicker(
+                    L10n.tr("外观"), selection: $settings.appearance, choices: AppAppearance.allCases,
+                    title: { $0.title })
+            Toggle(L10n.tr("触感反馈"), isOn: $settings.hapticsEnabled)
+        }.nativeDetailSurface(title: L10n.tr("外观与语言"))
+    }
+}
+struct HomePreferencesView: View {
+    @EnvironmentObject private var settings: AppSettings
+    @EnvironmentObject private var app: AppModel
+    var body: some View {
+        List {
+            NavigationLink { MyEntrySettingsView() } label: { SettingsLabel(L10n.tr("管理首页卡片"), symbol: "rectangle.grid.1x2") }
+            NavigationLink { ShortcutSettingsView() } label: { SettingsLabel(L10n.tr("管理常用入口"), symbol: "square.grid.2x2") }
+            NavigationLink { MoodleLayoutSettingsView(embedded: true) } label: { SettingsLabel(L10n.tr("学习页布局"), symbol: "book") }
+            Picker(L10n.tr("默认预约分类"), selection: $settings.defaultBooking) { ForEach(BookingSegment.allCases) { Text($0.title).tag($0) } }
+            Picker(L10n.tr("启动页面"), selection: $settings.startupTab) { ForEach(AppTab.allCases) { Text($0.title).tag($0) } }
+            Button(L10n.tr("重新查看启动说明")) { app.showWelcome = true }
+        }.nativeDetailSurface(title: L10n.tr("首页与布局"))
+    }
+}
+struct WebsitePreferencesView: View {
+    @EnvironmentObject private var settings: AppSettings
+    var body: some View {
+        List {
+            NavigationLink { SitesSettingsView() } label: { SettingsLabel(L10n.tr("站点与登录"), symbol: "person.crop.rectangle") }
+            NavigationLink { BrowsingSettingsView() } label: { SettingsLabel(L10n.tr("网页浏览"), symbol: "safari") }
+            Toggle(L10n.tr("启动时预加载网站"), isOn: $settings.preloadSitesOnLaunch)
+        }.nativeDetailSurface(title: L10n.tr("网站与登录"))
+    }
+}
+struct ShuttlePreferencesView: View {
+    @EnvironmentObject private var settings: AppSettings
+    @State private var reminder = false
+    var body: some View {
+        List {
+            Picker(L10n.tr("常用方向"), selection: $settings.favoriteShuttleDirection) { ForEach(ShuttleDirection.allCases) { Text($0.title).tag($0) } }
+            Toggle(L10n.tr("教学周"), isOn: $settings.shuttleTeachingWeek)
+            Button(L10n.tr("发车提醒")) { reminder = true }
+        }.nativeDetailSurface(title: L10n.tr("班车偏好"))
+            .sheet(isPresented: $reminder) { ShuttleReminderSettingsView() }
     }
 }

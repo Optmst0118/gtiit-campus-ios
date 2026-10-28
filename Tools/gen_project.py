@@ -14,7 +14,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 APP_NAME = "GTIIT"
 SOURCE_DIR = PROJECT_ROOT / APP_NAME
 PROJECT = PROJECT_ROOT / f"{APP_NAME}.xcodeproj"
-BUNDLE_ID = "io.github.optmst0118.gtiit"
+BUNDLE_ID = "io.github.optmst0118.gtiit.beta"
 DEPLOYMENT_TARGET = "17.0"
 
 

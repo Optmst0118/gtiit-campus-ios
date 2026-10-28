@@ -204,6 +204,7 @@ private struct BookingLinkRow: View {
 // MARK: - Room booking
 
 struct RoomBookingHomeView: View {
+    @EnvironmentObject private var app: AppModel
     @Environment(\.locale) private var nativeLocale
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let open: (BookingDestination) -> Void
@@ -213,13 +214,19 @@ struct RoomBookingHomeView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                NativePageIcon(symbol: "door.left.hand.open", tint: Theme.accent)
+                UpcomingReservationsCard(sync: app.campusSync)
 
                 LazyVGrid(columns: dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())] : [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                    ForEach(actions) { action in
+                    ForEach(Array(actions.prefix(2))) { action in
                         BookingActionCard(action: action, onOpen: open)
                     }
                 }
+
+                DisclosureGroup(L10n.tr("公共排程与记录")) {
+                    ForEach(Array(actions.dropFirst(2))) { action in
+                        BookingActionCard(action: action, onOpen: open)
+                    }
+                }.padding(16).cardBackground()
 
                 sectionTitle(L10n.tr("房间目录"), symbol: "square.grid.2x2")
                 VStack(spacing: 10) {

@@ -8,7 +8,6 @@ struct MyTabView: View {
     @State private var showSettings = false
     @State private var showInbox = false
     @State private var rootVisible = true
-    @State private var serviceRoute: CampusWebRoute?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var navigationEpoch = UUID()
     var body: some View {
@@ -23,18 +22,20 @@ struct MyTabView: View {
                         switch MyPageSection(rawValue: id) {
                         case .timetable: LocalTimetableEntry(store: app.timetable)
                         case .assignments: MoodleUpcomingEntry(store: app.upcoming)
-                        case .exams: StudentExamsEntry(store: app.exams)
+                        case .exams:
+                            if !app.exams.upcoming.isEmpty { StudentExamsEntry(store: app.exams) }
                         case .shortcuts: CampusShortcutsSection()
                         case .none: EmptyView()
                         }
                     }
+                    UpcomingReservationsCard(sync: app.campusSync)
                     MyUtilitiesSection()
                 }
                 .padding(.horizontal, 20).padding(.top, 12).padding(.bottom, 20)
                 .frame(maxWidth: 720).frame(maxWidth: .infinity)
             }
             .background(Theme.pageBackground)
-            .navigationTitle(L10n.tr("我的"))
+            .navigationTitle(L10n.tr("首页"))
             .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
             .onAppear { rootVisible = true; app.downloads.dismissCompletedPresentation() }
             .onDisappear { rootVisible = false }
@@ -51,13 +52,6 @@ struct MyTabView: View {
             }
             .navigationDestination(isPresented: $showSettings) { SettingsView() }
             .navigationDestination(isPresented: $showInbox) { CampusInboxView(sync: app.campusSync, upcoming: app.upcoming) }
-            .navigationDestination(isPresented: Binding(get: { serviceRoute != nil }, set: { if !$0 { serviceRoute = nil } })) {
-                if let route = serviceRoute { ServiceCenterView(url: route.url) }
-            }
-            .onChange(of: app.pendingWebRoute, initial: true) { _, route in
-                guard let route, route.site == .serviceHub else { return }
-                serviceRoute = route; app.pendingWebRoute = nil
-            }
             .task {
                 #if DEBUG
                     if ProcessInfo.processInfo.environment["GTIIT_SETTINGS"] == "1" { showSettings = true }
@@ -73,7 +67,7 @@ struct MyTabView: View {
         }
         .id(navigationEpoch)
         .onChange(of: app.tabReselectToken) { _, _ in
-            if app.tabReselectTarget == .me, !rootVisible { showSettings = false; showInbox = false; serviceRoute = nil; navigationEpoch = UUID() }
+            if app.tabReselectTarget == .me, !rootVisible { showSettings = false; showInbox = false; navigationEpoch = UUID() }
         }
     }
 }
@@ -136,10 +130,8 @@ private struct MyUtilitiesSection: View {
     var body: some View {
         VStack(spacing: 0) {
             NavigationLink { CampusDetailPage(destination: .downloads) } label: { MyUtilityRow(title: L10n.tr("下载管理"), symbol: "arrow.down.circle") }
-            Divider().padding(.leading, 50)
-            NavigationLink { SettingsView() } label: { MyUtilityRow(title: L10n.tr("设置"), symbol: "gearshape") }
-            Divider().padding(.leading, 50)
-            NavigationLink { HelpView() } label: { MyUtilityRow(title: L10n.tr("帮助与诊断"), symbol: "questionmark.circle") }
+
+
         }.buttonStyle(CardPressStyle()).cardBackground().padding(.top, 8)
     }
 }

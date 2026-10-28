@@ -60,7 +60,7 @@ struct StudentExamsView: View {
                     Text(L10n.tr("最近更新") + " · " + date.gtiitFormatted()).font(.caption)
                 }
             }
-            Button(L10n.tr("在 Student 核对")) { app.switchTo(.portal); app.browser(for: .portal).loadHome() }
+            Button(L10n.tr("在 Student 核对")) { app.openSite(.portal) }
         }.nativeDetailSurface(title: L10n.tr("临近考试"))
             .toolbar { ToolbarItem(placement: .topBarTrailing) { Button { refresh() } label: { Image(systemName: "arrow.clockwise") }.disabled(store.refreshing).accessibilityLabel(L10n.tr("更新考试安排")) } }
     }

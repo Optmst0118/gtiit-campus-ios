@@ -1,32 +1,32 @@
 import Foundation
 
-/// 原生班车在最左侧，保留四个校园服务入口。
+/// Stable raw values retain preferences while the 2.1 navigation is task-oriented.
 enum AppTab: String, CaseIterable, Identifiable {
-    case shuttle
-    case portal
-    case learning
-    case booking
     case me
+    case learning
+    case shuttle
+    case booking
+    case portal
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .shuttle: return L10n.tr("班车")
-        case .portal: return L10n.tr("门户")
+        case .portal: return L10n.tr("校园")
         case .learning: return L10n.tr("学习")
         case .booking: return L10n.tr("预约")
-        case .me: return L10n.tr("我的")
+        case .me: return L10n.tr("首页")
         }
     }
 
     var symbol: String {
         switch self {
         case .shuttle: return "bus.fill"
-        case .portal: return "house.fill"
+        case .portal: return "building.2.fill"
         case .learning: return "book.closed.fill"
         case .booking: return "calendar.badge.clock"
-        case .me: return "person.crop.circle.fill"
+        case .me: return "house.fill"
         }
     }
 
@@ -34,7 +34,7 @@ enum AppTab: String, CaseIterable, Identifiable {
     var primarySite: SiteID? {
         switch self {
         case .shuttle: return nil
-        case .portal: return .portal
+        case .portal: return nil
         case .learning: return .moodle
         case .booking: return nil
         case .me: return nil
@@ -46,7 +46,7 @@ enum AppTab: String, CaseIterable, Identifiable {
         case .portal: return .portal
         case .moodle: return .learning
         case .rooms, .sports: return .booking
-        case .serviceHub: return .me
+        case .serviceHub: return .portal
         }
     }
 }

@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.1 (82) · 2026-10-28
+
+- 独立 GTIIT Beta 安装通道：App、Widget、URL scheme、可选 App Group 分离，原版 2.0.4-beta.8 保留。
+- 首页承接原“我的”摘要与常用入口，增加近期预约摘要；设置仅保留顶栏入口，下载管理保留直接访问。
+- 学习提供课表／作业／考试直接入口、现有课程目录及学业事务，Student 学业网页在当前导航栈内打开。
+- 校园集中办事服务、校历、邮箱和完整网站，Student／服务中心路由具有明确返回路径。
+- 预约保留房间／体育切换，常用操作优先展示，公共排程与记录收进展开区。
+- 设置按外观、首页、学习、班车、网站、文件和隐私归类，默认启动首页；原生中英文文案同步。
+
 ## 2.0.4-beta.8 (81) · 2026-10-28
 
 - 保留现有五个底栏和菜单位置，多个原生入口统一经 CampusDetailPage 创建原有详情，继续使用 AppModel 的同一份数据源。

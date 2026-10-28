@@ -87,9 +87,9 @@ final class AppModel: ObservableObject {
         }
     }
 
-    /// Handles gtiit://shuttle[?direction=north|south] from a widget or notification.
+    /// Handles gtiit-beta://shuttle[?direction=north|south] from a widget or notification.
     func handleShuttleURL(_ url: URL) {
-        guard url.scheme == "gtiit", url.host == "shuttle" else { return }
+        guard url.scheme == "gtiit-beta", url.host == "shuttle" else { return }
         select(tab: .shuttle)
         if let raw = URLComponents(url: url, resolvingAgainstBaseURL: false)?
             .queryItems?.first(where: { $0.name == "direction" })?.value,
@@ -230,7 +230,7 @@ final class AppModel: ObservableObject {
         tabReselectToken &+= 1
         switch tab {
         case .portal:
-            browser(for: .portal).returnHomeOrScrollToTop()
+            break
         case .learning:
             if !settings.nativeMoodleEnabled { browser(for: .moodle).returnHomeOrScrollToTop() }
         case .booking:
@@ -267,7 +267,7 @@ final class AppModel: ObservableObject {
               SiteID.site(for: url) == site else { return }
         Haptics.light()
         switchTo(site)
-        if site == .serviceHub || (site == .moodle && settings.nativeMoodleEnabled) ||
+        if site == .portal || site == .serviceHub || (site == .moodle && settings.nativeMoodleEnabled) ||
             ((site == .rooms || site == .sports) && settings.nativeBookingEnabled) {
             pendingWebRoute = CampusWebRoute(site: site, url: url, title: title ?? site.displayName)
         } else { browser(for: site).load(url) }

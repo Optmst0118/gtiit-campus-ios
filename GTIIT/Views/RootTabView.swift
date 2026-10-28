@@ -447,7 +447,7 @@ extension RootTabView {
             case .shuttle:
                 ShuttleView()
             case .portal:
-                SiteBrowserView(site: .portal)
+                CampusServicesView()
             case .learning:
                 MoodleTabView()
             case .booking:

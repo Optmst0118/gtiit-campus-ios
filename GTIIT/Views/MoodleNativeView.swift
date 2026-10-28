@@ -53,7 +53,7 @@ struct MoodleTabView: View {
         NavigationStack(path: $path) {
             MoodleHomeView(store: app.upcoming, timetable: app.timetable, open: open)
                 .onAppear { rootVisible = true }.onDisappear { rootVisible = false }
-                .navigationTitle("Moodle")
+                .navigationTitle(L10n.tr("学习"))
                 .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
@@ -136,10 +136,11 @@ struct MoodleHomeView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                header
+                StudyDestinationsView()
                 ForEach(visibleSections) { section in
                     sectionView(section)
                 }
+                AcademicServicesSection()
             }
             .id("moodle.top")
             .padding(.horizontal, horizontalSizeClass == .regular ? 28 : 20)

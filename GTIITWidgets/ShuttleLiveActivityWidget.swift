@@ -52,6 +52,6 @@ struct ShuttleLiveActivityWidget: Widget {
         }
     }
     private func link(_ attributes: ShuttleActivityAttributes) -> URL? {
-        URL(string: "gtiit://shuttle?direction=" + (attributes.directionRaw ?? ShuttleDirection.southToNorth.rawValue))
+        URL(string: "gtiit-beta://shuttle?direction=" + (attributes.directionRaw ?? ShuttleDirection.southToNorth.rawValue))
     }
 }

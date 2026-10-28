@@ -961,3 +961,26 @@
 
 "未来 %@ 天" = "Next %@ days";
 "临近作业范围" = "Upcoming assignment window";
+
+"首页" = "Home";
+"校园" = "Campus";
+"外观与语言" = "Appearance & Language";
+"首页与布局" = "Home & Layout";
+"学习与提醒" = "Study & Reminders";
+"班车偏好" = "Shuttle Preferences";
+"网站与登录" = "Websites & Sign-in";
+"文件与存储" = "Files & Storage";
+"管理首页卡片" = "Home Cards";
+"学习页布局" = "Study Layout";
+"办事服务" = "Campus Services";
+"校园工具" = "Campus Tools";
+"完整网站" = "Official Websites";
+"学业事务" = "Academic Services";
+"作业" = "Assignments";
+"考试" = "Exams";
+"近期预约" = "Upcoming Reservations";
+"公共排程与记录" = "Public Schedules & Records";
+"首页汇总近期安排；学习、班车、预约和校园提供完整功能。" = "Home brings together upcoming events. Study, Shuttle, Booking and Campus provide full access.";
+
+"发车提醒" = "Departure Reminders";
+"教学周" = "Teaching Week";
