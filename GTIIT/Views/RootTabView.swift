@@ -54,22 +54,29 @@ struct RootTabView: View {
     }
 
     private var sidebarContent: some View {
-        List(selection: Binding<AppTab?>(
-            get: { app.selectedTab },
-            set: { value in
-                guard let tab = value else { return }
-                if app.selectedTab == tab { app.reselect(tab: tab) }
-                else { app.select(tab: tab) }
-            }
-        )) {
-            ForEach(AppTab.allCases) { tab in
-                Label(tab.title, systemImage: tab.symbol).tag(tab)
-            }
-        }
-        .listStyle(.sidebar)
-        // Keep the menu canvas distinct from the detail page in every size class.
-        .scrollContentBackground(.hidden)
-        .background(Color(uiColor: Theme.sidebarSurroundUIColor).ignoresSafeArea())
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(spacing: 0) {
+                    ForEach(AppTab.allCases) { tab in
+                        Button {
+                            if app.selectedTab == tab { app.reselect(tab: tab) }
+                            else { app.select(tab: tab) }
+                        } label: {
+                            Label(tab.title, systemImage: tab.symbol)
+                                .font(.body.weight(app.selectedTab == tab ? .semibold : .regular))
+                                .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
+                                .padding(.horizontal, 16)
+                                .foregroundStyle(app.selectedTab == tab ? Theme.accent : .primary)
+                                .background(app.selectedTab == tab ? Theme.accent.opacity(0.12) : .clear,
+                                    in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        }.buttonStyle(.plain)
+                            .accessibilityAddTraits(app.selectedTab == tab ? [.isSelected] : [])
+                            .frame(maxHeight: .infinity)
+                    }
+                }.padding(.horizontal, 16).padding(.vertical, 12)
+                    .frame(minHeight: max(geometry.size.height, CGFloat(AppTab.allCases.count) * 64))
+            }.scrollIndicators(.hidden)
+        }.background(Color(uiColor: Theme.sidebarSurroundUIColor).ignoresSafeArea())
     }
 
     private func tabs(sidebar: Bool) -> some View {
@@ -120,6 +127,7 @@ final class NativePrimaryController<Sidebar: View, Content: View>: UISplitViewCo
     private var revealSidebarButton: UIButton { navigationGlass.sidebar }
     private let sidebarToggleItem = UIBarButtonItem()
     var onVisibilityChange: ((Bool) -> Void)?
+    private weak var lastActiveBar: UINavigationBar?
     private var reportedVisibility: Bool?
     private var wide: Bool?
     init(sidebar: Sidebar, content: Content) {
@@ -128,9 +136,11 @@ final class NativePrimaryController<Sidebar: View, Content: View>: UISplitViewCo
         detailNavigation = UINavigationController(rootViewController: PrimaryDetailContainer(host: detailHost))
         super.init(style: .doubleColumn)
         delegate = self
-        sidebarHost.title = "GTIIT"
+        sidebarHost.title = ""
         sidebarHost.view.backgroundColor = .clear
-        sidebarHost.navigationItem.leftBarButtonItem = sidebarToggleItem
+        // One glass control is owned by the split container in both states.
+        // SwiftUI hosting updates cannot replace it with a system back button.
+        sidebarHost.navigationItem.leftBarButtonItem = nil
         sidebarToggleItem.image = UIImage(systemName: "sidebar.left")
         sidebarToggleItem.style = .plain
         sidebarToggleItem.target = self
@@ -170,6 +180,11 @@ final class NativePrimaryController<Sidebar: View, Content: View>: UISplitViewCo
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        let activeBar = activeNavigationBar(in: detailHost)
+        if activeBar !== lastActiveBar {
+            lastActiveBar = activeBar
+            navigationGlass.setBackVisible(false, coordinator: nil)
+        }
         let expanded = wide == true && displayMode != .secondaryOnly
         if reportedVisibility != expanded {
             reportedVisibility = expanded
@@ -178,7 +193,7 @@ final class NativePrimaryController<Sidebar: View, Content: View>: UISplitViewCo
         // Open: use the sidebar's own leading navigation item, exactly aligned
         // with the title bar and clear of GTIIT. Collapsed: float at the detail
         // leading edge; detail toolbars reserve a 44pt slot for it.
-        navigationGlass.isHidden = wide != true || expanded
+        navigationGlass.isHidden = wide != true
         sidebarToggleItem.accessibilityLabel = expanded ? L10n.tr("收起侧栏") : L10n.tr("展开侧栏")
         let insets = view.window?.safeAreaInsets ?? view.safeAreaInsets
         let left = max(view.safeAreaInsets.left, insets.left)
@@ -201,8 +216,12 @@ final class NativePrimaryController<Sidebar: View, Content: View>: UISplitViewCo
                 origin.y = (trailing.map { $0.convert($0.bounds, to: view).midY } ?? frame.midY) - 22
             }
         }
+        if expanded {
+            let sidebarFrame = sidebarHost.view.convert(sidebarHost.view.bounds, to: view)
+            origin.x = max(origin.x, sidebarFrame.minX + 20)
+        }
         navigationGlass.frame = CGRect(origin: origin, size: CGSize(width: 100, height: 44))
-        revealSidebarButton.accessibilityLabel = L10n.tr("展开侧栏")
+        revealSidebarButton.accessibilityLabel = expanded ? L10n.tr("收起侧栏") : L10n.tr("展开侧栏")
         navigationGlass.back.accessibilityLabel = L10n.tr("返回")
         view.bringSubviewToFront(navigationGlass)
     }
@@ -211,6 +230,7 @@ final class NativePrimaryController<Sidebar: View, Content: View>: UISplitViewCo
                            coordinator: UIViewControllerTransitionCoordinator?) {
         navigationGlass.onBack = action
         navigationGlass.setBackVisible(visible, coordinator: coordinator)
+        view.setNeedsLayout()
     }
     private func toolbarControls(in view: UIView) -> [UIControl] {
         if let control = view as? UIControl { return [control] }

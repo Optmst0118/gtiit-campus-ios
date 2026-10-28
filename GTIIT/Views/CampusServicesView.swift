@@ -35,7 +35,6 @@ struct CampusServicesView: View {
             }.background(Theme.pageBackground)
                 .onAppear { rootVisible = true }.onDisappear { rootVisible = false }
                 .modifier(PrimaryPageScrollToTop(tab: .portal, anchor: "campus.top"))
-                .toolbar { SidebarRevealToolbarSpace() }
                 .navigationTitle(L10n.tr("校园")).navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
                 .navigationDestination(isPresented: Binding(get: { !path.isEmpty }, set: { if !$0 { path = [] } })) {
                     if let route = path.last {

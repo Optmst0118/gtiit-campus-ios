@@ -47,7 +47,6 @@ private struct BrowserChrome: View {
         .nativeNavigationSurface(large: true)
         .modifier(PortalLandscapeNavigation(site: model.site))
         .toolbar {
-            SidebarRevealToolbarSpace()
             if model.site == .rooms || model.site == .sports {
                 ToolbarItem(placement: .topBarLeading) { bookingPicker }
             } else if model.site == .portal {

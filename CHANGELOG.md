@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.7 (88) · 2026-10-28
+
+- 横屏展开/收起共用独立液态玻璃控件，避免 HostingController 更新覆盖原生侧栏按钮。
+- 侧栏五个入口在可用高度居中均匀分布，小高度可滚动。
+- 原生页面集中预留收起状态的侧栏/返回控件空间，移除页面单独占位，按右侧工具栏实际位置对齐。
+
 ## 2.1.0-beta.6 (87) · 2026-10-28
 
 - 横竖屏切换时主内容固定由同一 secondary 控制器承载，移除 compact／secondary 间反复移除和挂载，避免与系统折叠动画竞争导致白屏。

@@ -79,7 +79,7 @@ extension View {
         self.scrollContentBackground(.hidden)
             .background(Theme.pageBackground.ignoresSafeArea())
             .toolbarBackground(.automatic, for: .navigationBar)
-            .modifier(SidebarNavigationSurface(customBack: sidebarBack))
+            .modifier(SidebarNavigationSurface(customBack: sidebarBack, isRoot: large))
     }
 
     /// 统一的卡片外观，供「我的」等原生页面使用。
@@ -206,11 +206,11 @@ struct SidebarRevealToolbarSpace: ToolbarContent {
         if visible {
             if #available(iOS 26.0, *) {
                 ToolbarItem(placement: .topBarLeading) {
-                    Color.clear.frame(width: 24).accessibilityHidden(true)
+                    Color.clear.frame(width: 100).accessibilityHidden(true)
                 }.sharedBackgroundVisibility(.hidden)
             } else {
                 ToolbarItem(placement: .topBarLeading) {
-                    Color.clear.frame(width: 64).accessibilityHidden(true)
+                    Color.clear.frame(width: 100).accessibilityHidden(true)
                 }
             }
         }

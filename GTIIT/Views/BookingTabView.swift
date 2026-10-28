@@ -43,8 +43,7 @@ struct BookingTabView: View {
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
             .toolbar {
-                SidebarRevealToolbarSpace()
-                ToolbarItem(placement: .topBarLeading) { BookingSiteMenu() }
+                ToolbarItem(placement: .topBarTrailing) { BookingSiteMenu() }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { Haptics.selection(); app.browser(for: currentSite).reload() } label: { Image(systemName: "arrow.clockwise") }
                         .accessibilityLabel(L10n.tr("刷新"))

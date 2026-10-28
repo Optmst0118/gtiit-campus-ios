@@ -65,7 +65,6 @@ struct ShuttleView: View {
             .navigationTitle(L10n.tr("Shuttle Bus时刻表"))
             .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
             .toolbar {
-                SidebarRevealToolbarSpace()
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showReminders = true } label: { Image(systemName: "bell") }
                         .accessibilityLabel(L10n.tr("班车提醒"))

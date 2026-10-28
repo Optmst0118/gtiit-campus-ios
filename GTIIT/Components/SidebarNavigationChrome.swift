@@ -96,12 +96,14 @@ struct SidebarNavigationSurface: ViewModifier {
     @Environment(\.campusSidebarRevealVisible) private var collapsed
     @Environment(\.dismiss) private var dismiss
     let customBack: (() -> Void)?
+    let isRoot: Bool
     @State private var integrated = false
     func body(content: Content) -> some View {
         content
+            .toolbar { if integrated { SidebarRevealToolbarSpace() } }
             .navigationBarBackButtonHidden(integrated && collapsed)
             .background {
-                SidebarNavigationProbe(collapsed: collapsed, customBack: customBack,
+                SidebarNavigationProbe(collapsed: collapsed, isRoot: isRoot, customBack: customBack,
                                        fallback: { dismiss() }, attached: { integrated = $0 })
                     .frame(width: 0, height: 0).allowsHitTesting(false)
             }
@@ -110,17 +112,19 @@ struct SidebarNavigationSurface: ViewModifier {
 
 private struct SidebarNavigationProbe: UIViewControllerRepresentable {
     let collapsed: Bool
+    let isRoot: Bool
     let customBack: (() -> Void)?
     let fallback: () -> Void
     let attached: (Bool) -> Void
     func makeUIViewController(context: Context) -> ProbeController { ProbeController() }
     func updateUIViewController(_ controller: ProbeController, context: Context) {
-        controller.collapsed = collapsed; controller.customBack = customBack
+        controller.collapsed = collapsed; controller.isRoot = isRoot; controller.customBack = customBack
         controller.fallback = fallback; controller.attached = attached
         controller.refreshSoon()
     }
 
     final class ProbeController: UIViewController {
+        var isRoot = false
         var collapsed = false
         var customBack: (() -> Void)?
         var fallback: (() -> Void)?
@@ -159,7 +163,7 @@ private struct SidebarNavigationProbe: UIViewControllerRepresentable {
             }
             // Modal navigation stacks have no split-controller ancestor.
             guard let host, let nav, let owner, nav.topViewController === owner else { return }
-            let hasBack = nav.viewControllers.first !== owner || customBack != nil
+            let hasBack = !isRoot && (nav.viewControllers.first !== owner || customBack != nil)
             host.updateSidebarBack(collapsed && hasBack, action: customBack ?? fallback ?? {}, coordinator: nav.transitionCoordinator)
             if collapsed && hasBack && customBack == nil {
                 if let gesture = nav.interactivePopGestureRecognizer, gesture.delegate !== gestureProxy {
