@@ -63,6 +63,31 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "personal_break_starts_after_last_b"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "personal_break_marks_month_grid"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "personal_break_excludes_next_term"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "personal_break_uses_latest_eligible_b"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "personal_break_no_b_keeps_school_calendar"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "shared_cache_existing_schema_decodes"
     },
     {
@@ -387,8 +412,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-28T09:40:25Z",
+  "date" : "2026-10-28T12:42:55Z",
   "focus" : "moodle",
   "passed" : true,
-  "runID" : "6aaae9ca-1c6b-4cd8-b85f-12817c238fa8"
+  "runID" : "517911d3-8c96-4407-9dc5-72624b7bec50"
 }

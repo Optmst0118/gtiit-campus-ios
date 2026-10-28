@@ -82,8 +82,10 @@ struct CampusCalendarItem: Identifiable {
                 var parts = URLComponents(); parts.scheme = "gtiit-beta"; parts.host = "calendar-event"
                 parts.queryItems = [URLQueryItem(name: "id", value: item.id)]
                 guard let marker = parts.url else { continue }
-                if existing.contains(where: { $0.url == marker }) { continue }
-                let event = EKEvent(eventStore: store)
+                let matched = existing.first { $0.url == marker }
+                if let matched, matched.startDate == item.start, matched.endDate == item.end,
+                   matched.title == item.title, matched.location == item.location, matched.isAllDay == item.allDay { continue }
+                let event = matched ?? EKEvent(eventStore: store)
                 event.calendar = calendar; event.title = item.title; event.startDate = item.start; event.endDate = item.end
                 event.isAllDay = item.allDay; event.timeZone = CampusDate.calendar.timeZone
                 event.location = item.location; event.url = marker

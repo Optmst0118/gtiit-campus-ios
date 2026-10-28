@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.11 (92) · 2026-10-28
+
+- 学期间假期按本人门户已读取考试计算：存在 B 考时，以该学期本人最后一场考试结束次日起，到下一学期开学前一天；月历与假期导出复用。未读取个人 B 考时沿用校历考试期。
+- 日历重复导入时更新已由 App 创建且日期变化的事项。
+
 ## 2.1.0-beta.10 (91) · 2026-10-28
 
 - 删除班车大标题下的装饰图标，正文间距与首页一致：水平 20、顶部 12、区块间距 16；保留回到顶部锚点。

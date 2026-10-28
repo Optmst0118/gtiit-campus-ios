@@ -39,7 +39,7 @@ private struct CalendarSyncDetailView: View {
         case .timetable:
             return app.timetable.snapshot.map { CampusCalendarItem.timetable($0) } ?? []
         case .holidays:
-            return CampusCalendarItem.make(events: AcademicCalendarStore.holidays(year: year), exams: [])
+            return CampusCalendarItem.make(events: AcademicCalendarStore.holidays(year: year, exams: app.exams.items), exams: [])
         case .exams:
             let first = CampusDate.parse(String(year.prefix(4)) + "-07-01")!
             let last = CampusDate.parse(String(year.suffix(4)) + "-07-31")!
@@ -87,7 +87,7 @@ private struct CalendarSyncDetailView: View {
             }
         }.nativeDetailSurface(title: category.title)
             .task {
-                if category == .exams { app.exams.refresh(allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData }) }
+                if category != .timetable { app.exams.refresh(allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData }) }
             }
             .sheet(isPresented: $importing) { TimetableImportView(automatic: true) }
             .onReceive(app.timetable.objectWillChange) { _ in revision += 1 }

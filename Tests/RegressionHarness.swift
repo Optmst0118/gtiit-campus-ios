@@ -414,6 +414,15 @@ private final class RetiredViewReference {
         check("followed_filter_default_off", !filterSettings.onlyFollowedMoodleCourses)
         filterSettings.onlyFollowedMoodleCourses = true
         check("followed_filter_persists", AppSettings(defaults: filterDefaults).onlyFollowedMoodleCourses)
+        let personalB = StudentExam(course: "Test B", code: "PB", session: "B", date: "2027-02-20", time: "09:00", duration: 2, venue: "E101")
+        let personalGaps = AcademicCalendarStore.holidays(year: "2026-2027", exams: [personalB])
+        check("personal_break_starts_after_last_b", personalGaps.contains { $0.id == "break-2026-2027-Winter" && $0.start == "2027-02-21" && $0.end == "2027-02-28" })
+        check("personal_break_marks_month_grid", AcademicCalendarStore.isDayOff(CampusDate.parse("2027-02-22")!, year: "2026-2027", exams: [personalB]))
+        check("personal_break_excludes_next_term", !personalGaps.contains { $0.id == "break-2026-2027-Winter" && $0.contains(CampusDate.parse("2027-03-01")!) })
+        let laterB = StudentExam(course: "Last B", code: "PB2", session: "Moed B", date: "2027-02-25", time: "09:00", duration: 2, venue: "E102")
+        check("personal_break_uses_latest_eligible_b", AcademicCalendarStore.holidays(year: "2026-2027", exams: [personalB, laterB]).contains { $0.id == "break-2026-2027-Winter" && $0.start == "2027-02-26" })
+        let onlyA = StudentExam(course: "Test A", code: "PA", session: "A", date: "2027-02-15", time: "09:00", duration: 2, venue: "E101")
+        check("personal_break_no_b_keeps_school_calendar", !AcademicCalendarStore.holidays(year: "2026-2027", exams: [onlyA]).contains { $0.id == "break-2026-2027-Winter" })
         testSharedSummaryInfrastructure()
         testMoodleCacheAndRange()
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "moodle" {

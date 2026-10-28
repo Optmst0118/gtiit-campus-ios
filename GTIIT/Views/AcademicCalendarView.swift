@@ -14,7 +14,7 @@ struct AcademicCalendarView: View {
     @State private var exporting = false
     @State private var exportMessage: String?
     @State private var confirmExport = false
-    private var events: [AcademicEvent] { AcademicCalendarStore.holidays(year: year) }
+    private var events: [AcademicEvent] { AcademicCalendarStore.holidays(year: year, exams: app.exams.items) }
     private var today: Date { CampusDate.calendar.startOfDay(for: Date()) }
     private var visible: [AcademicEvent] {
         if mode == 1 { return events.filter { $0.contains(day) || (!$0.verified && $0.start == CampusDate.key(day)) } }
@@ -48,7 +48,7 @@ struct AcademicCalendarView: View {
             }.padding(16).cardBackground()
             if mode == 1 {
                 VStack {
-                    AcademicMonthPicker(day: $day, range: yearRange, year: year, locale: nativeLocale, examDates: showExams ? Set(app.exams.items.map(\.date)) : [])
+                    AcademicMonthPicker(day: $day, range: yearRange, year: year, locale: nativeLocale, examDates: showExams ? Set(app.exams.items.map(\.date)) : [], personalExams: app.exams.items)
                         .id(year)
                         .padding(20)
                 }.cardBackground()
@@ -101,7 +101,7 @@ struct AcademicCalendarView: View {
             showPast = year != AcademicCalendarStore.defaultYear()
         }
         .task(id: showExams) {
-            if showExams { app.exams.refresh(allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData }) }
+            app.exams.refresh(allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData })
         }
         .onReceive(app.exams.objectWillChange) { _ in examRevision += 1 }
         .sheet(isPresented: $showPDF) { CalendarPDFSheet(year: year) }
@@ -182,6 +182,7 @@ private struct AcademicMonthPicker: View {
     let year: String
     let locale: Locale
     let examDates: Set<String>
+    let personalExams: [StudentExam]
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var month: Date?
     private var shown: Date { month ?? startOfMonth(max(range.lowerBound, min(day, range.upperBound))) }
@@ -258,7 +259,7 @@ private struct AcademicMonthPicker: View {
     }
     private func dateCell(_ date: Date) -> some View {
         let selected = CampusDate.calendar.isDate(date, inSameDayAs: day)
-        let holiday = AcademicCalendarStore.isDayOff(date, year: year)
+        let holiday = AcademicCalendarStore.isDayOff(date, year: year, exams: personalExams)
         let today = CampusDate.calendar.isDateInToday(date)
         return Button { day = date; Haptics.selection() } label: {
             Text(String(CampusDate.calendar.component(.day, from: date)))

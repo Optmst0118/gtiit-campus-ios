@@ -79,19 +79,31 @@ enum AcademicCalendarStore {
         return years.contains(year) ? year : years[0]
     }
     /// Weekends follow the source calendar; semester gaps exclude exam-end and term-start days.
-    static func isDayOff(_ date: Date, year: String) -> Bool {
-        CampusDate.calendar.isDateInWeekend(date) || holidays(year: year).contains { $0.contains(date) }
+    static func isDayOff(_ date: Date, year: String, exams: [StudentExam] = []) -> Bool {
+        CampusDate.calendar.isDateInWeekend(date) || holidays(year: year, exams: exams).contains { $0.contains(date) }
     }
-    static func holidays(year: String) -> [AcademicEvent] {
+    static func holidays(year: String, exams personalExams: [StudentExam] = []) -> [AcademicEvent] {
         let explicit = events.filter { $0.year == year && $0.kind == "holiday" && $0.verified }
         let starts = events.filter { $0.verified && ["Summer semester begins", "Winter semester begins", "Spring semester begins"].contains($0.en) }.compactMap(\.startDate).sorted()
         var gaps: [AcademicEvent] = []
         for sourceYear in years {
             for term in ["Summer", "Winter", "Spring"] {
                 let exams = events.filter { $0.year == sourceYear && $0.verified && $0.en.hasPrefix(term + " exams") }
-                guard let end = exams.compactMap(\.endDate).max(),
-                      let a = CampusDate.calendar.date(byAdding: .day, value: 1, to: end) else { continue }
-                let next = starts.first { $0 > end }
+                guard let schoolEnd = exams.compactMap(\.endDate).max() else { continue }
+                let next = starts.first { $0 > schoolEnd }
+                let termStart = events.first { $0.year == sourceYear && $0.verified && $0.en == term + " semester begins" }?.startDate
+                let eligible = personalExams.filter { exam in
+                    guard exam.valid, let date = exam.start, let termStart, let next else { return false }
+                    return date >= termStart && date < next
+                }
+                let bExams = eligible.filter { $0.session.uppercased().range(of: "(^|[^A-Z])B([^A-Z]|$)", options: .regularExpression) != nil }
+                // Dashboard exams belong to the signed-in student's courses.
+                // Only extend the break when a personal B sitting is known.
+                let personalEnd = bExams.isEmpty ? nil : eligible.compactMap { exam in
+                    exam.start?.addingTimeInterval(exam.duration * 3600)
+                }.max()
+                let end = personalEnd.map { CampusDate.calendar.startOfDay(for: $0) } ?? schoolEnd
+                guard let a = CampusDate.calendar.date(byAdding: .day, value: 1, to: end) else { continue }
                 // The last published calendar ends in July; do not invent a later term date.
                 guard let upper = next.flatMap({ CampusDate.calendar.date(byAdding: .day, value: -1, to: $0) }) ?? CampusDate.parse(String(sourceYear.suffix(4)) + "-07-31"), a <= upper else { continue }
                 let lowerBound = CampusDate.parse(String(year.prefix(4)) + "-07-01")!
