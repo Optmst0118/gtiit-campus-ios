@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.4 (85) · 2026-10-28
+
+- 设置新增“日历同步”，独立导出课表、假期和考期，各有预览与确认。
+- 课表导出按适用日期逐日生成，保留上课时间与教室，沿用已核实假期和调课规则，重复课程稳定去重。
+- 假期支持学年选择；考期同时包含校历考试时段和 Student 个人考试，并可更新学校数据。
+- 未提取课表时可直接从导出页启动门户课表导入。
+
 ## 2.1.0-beta.3 (84) · 2026-10-28
 
 - 校历考试与假期采用统一行样式与日期格式，混合按开始时间排序。

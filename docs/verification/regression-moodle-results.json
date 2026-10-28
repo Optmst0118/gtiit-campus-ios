@@ -18,6 +18,16 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "calendar_classes_skip_holiday_and_deduplicate"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_classes_keep_location_and_time"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "shared_cache_existing_schema_decodes"
     },
     {
@@ -342,8 +352,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-28T08:59:09Z",
+  "date" : "2026-10-28T09:05:59Z",
   "focus" : "moodle",
   "passed" : true,
-  "runID" : "e91e807c-bd57-4a3b-afef-70d10c049794"
+  "runID" : "5a7cb337-0458-439d-8507-07cbaa1b220c"
 }

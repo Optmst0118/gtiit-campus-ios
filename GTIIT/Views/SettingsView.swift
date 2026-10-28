@@ -12,6 +12,7 @@ struct SettingsView: View {
                 NavigationLink { AppearancePreferencesView() } label: { SettingsLabel(L10n.tr("外观与语言"), symbol: "paintpalette") }
                 NavigationLink { HomePreferencesView() } label: { SettingsLabel(L10n.tr("首页与布局"), symbol: "rectangle.grid.1x2") }
                 NavigationLink { LearningSettingsView() } label: { SettingsLabel(L10n.tr("学习与提醒"), symbol: "calendar.badge.plus") }
+                NavigationLink { CalendarSyncSettingsView() } label: { SettingsLabel(L10n.tr("日历同步"), symbol: "calendar.badge.plus") }
                 NavigationLink { ShuttlePreferencesView() } label: { SettingsLabel(L10n.tr("班车偏好"), symbol: "bus") }
                 if settings.yilongUnlocked {
                     NavigationLink { YilongSettingsView() } label: { SettingsLabel(L10n.tr("以龙"), symbol: "sparkles") }

@@ -18,6 +18,26 @@ struct CampusCalendarItem: Identifiable {
         }
         return CampusDate.display(start) + " · " + start.gtiitFormatted(date: .omitted, time: .shortened) + "–" + end.gtiitFormatted(date: .omitted, time: .shortened)
     }
+    static func timetable(_ snapshot: TimetableSnapshot, events: [AcademicEvent] = AcademicCalendarStore.events) -> [Self] {
+        guard let first = CampusDate.parse(snapshot.validFrom), let last = CampusDate.parse(snapshot.validUntil), first <= last,
+              (CampusDate.calendar.dateComponents([.day], from: first, to: last).day ?? 9999) <= 730 else { return [] }
+        var result: [Self] = []
+        var day = first
+        while day <= last {
+            for course in snapshot.courses(on: day, events: events) {
+                guard let a = LocalCourse.minutes(course.start), let b = LocalCourse.minutes(course.end),
+                      let start = CampusDate.calendar.date(byAdding: .minute, value: a, to: day),
+                      let end = CampusDate.calendar.date(byAdding: .minute, value: b, to: day) else { continue }
+                let identity = [snapshot.semester, course.code, course.group, CampusDate.key(day), course.start, course.end].joined(separator: "|")
+                result.append(Self(id: "class:" + identity, title: course.name, start: start, end: end, allDay: false,
+                    location: course.location, category: L10n.tr("课表"), symbol: "book", academic: nil))
+            }
+            guard let next = CampusDate.calendar.date(byAdding: .day, value: 1, to: day) else { break }
+            day = next
+        }
+        var seen = Set<String>()
+        return result.filter { seen.insert($0.id).inserted }.sorted { $0.start == $1.start ? $0.id < $1.id : $0.start < $1.start }
+    }
     static func make(events: [AcademicEvent], exams: [StudentExam]) -> [Self] {
         var items = events.compactMap { event -> Self? in
             guard event.verified, let start = event.startDate,

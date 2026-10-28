@@ -395,6 +395,11 @@ private final class RetiredViewReference {
         check("calendar_unified_chronological_and_unique", calendarItems.count == 2 && calendarItems.first?.title == "Test Exam")
         check("calendar_holiday_end_is_exclusive", calendarItems.last?.end == CampusDate.parse("2026-11-01"))
         check("calendar_exam_duration_preserved", calendarItems.first?.end.timeIntervalSince(calendarItems.first!.start) == 7200)
+        let syncCourse = LocalCourse(name: "Test Class", code: "SYNC", group: "L1", weekday: 5, start: "09:00", end: "11:00", room: "E101", building: "SC")
+        let syncSnapshot = TimetableSnapshot(semester: "Winter", validFrom: "2026-10-29", validUntil: "2026-11-06", courses: [syncCourse, syncCourse])
+        let classEvents = CampusCalendarItem.timetable(syncSnapshot, events: [holiday])
+        check("calendar_classes_skip_holiday_and_deduplicate", classEvents.count == 1 && CampusDate.key(classEvents[0].start) == "2026-11-06")
+        check("calendar_classes_keep_location_and_time", classEvents.first?.location == "SC · E101" && classEvents.first?.end.timeIntervalSince(classEvents[0].start) == 7200)
         testSharedSummaryInfrastructure()
         testMoodleCacheAndRange()
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "moodle" {
