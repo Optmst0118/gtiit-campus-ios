@@ -948,5 +948,12 @@
   "公共排程与记录": "Public Schedules & Records",
   "首页汇总近期安排；学习、班车、预约和校园提供完整功能。": "Home brings together upcoming events. Study, Shuttle, Booking and Campus provide full access.",
   "发车提醒": "Departure Reminders",
-  "教学周": "Teaching Week"
+  "教学周": "Teaching Week",
+  "导入考试与假期到 Apple 日历": "Import Exams & Holidays to Apple Calendar",
+  "导入所选学年的考试与假期？": "Import exams and holidays for the selected academic year?",
+  "导入 Apple 日历": "Import to Apple Calendar",
+  "Apple 日历": "Apple Calendar",
+  "已导入 %@ 项，已有日程自动跳过。": "Imported %@ events. Existing events were skipped.",
+  "请在系统设置中允许日历访问后重试。": "Allow calendar access in Settings and try again.",
+  "没有可写入的日历，请先在 Apple 日历中添加账户。": "Add an account in Apple Calendar before importing."
 }

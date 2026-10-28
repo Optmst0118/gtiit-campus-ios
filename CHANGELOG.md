@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.3 (84) · 2026-10-28
+
+- 校历考试与假期采用统一行样式与日期格式，混合按开始时间排序。
+- 校历更多菜单可将所选学年全部假期、校历考试时段及已读取个人考试导入 Apple Calendar，独立 GTIIT Beta 日历按事件标识跳过重复。
+- 仅在用户确认导入时请求 EventKit 权限；全天假期使用排他结束日期，个人考试保留时长与地点。
+
 ## 2.1.0-beta.2 (83) · 2026-10-28
 
 - 课表导入采用同层级网页详情，移除嵌套导航及提前加载共用网页；SSO 登录后可从其他门户页面返回课表。

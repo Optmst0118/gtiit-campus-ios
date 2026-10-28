@@ -34,6 +34,7 @@
 		618A23EF14BC6F83C6026102 /* AppStorageFootprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C5EFD82D516F255E778AE2 /* AppStorageFootprint.swift */; };
 		228AAF074AAC8EE7A95958A9 /* BrowserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D0A0F6171AA951EEA57AB8 /* BrowserModel.swift */; };
 		ED1275125F83C527E35E83C9 /* BrowserRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE0F6FADE74A2951106A4ED /* BrowserRouter.swift */; };
+		39038CFAFBA4D270D355E54C /* CampusCalendarExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE98D2B30D9C9F866BB86144 /* CampusCalendarExport.swift */; };
 		30DAF48CE02468D94AED7337 /* CampusLocationRecommendation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B99BE4E04072A787B956F61 /* CampusLocationRecommendation.swift */; };
 		DE38B889FC6A252CDB065CA3 /* CampusNetworkAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610927E0EF1486374AFF0FE6 /* CampusNetworkAccess.swift */; };
 		3393178B2921611A1FACA44E /* CampusSessionSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17A4BA035F22FA1E83C37C88 /* CampusSessionSync.swift */; };
@@ -133,6 +134,7 @@
 		F4C5EFD82D516F255E778AE2 /* AppStorageFootprint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorageFootprint.swift; sourceTree = "<group>"; };
 		A0D0A0F6171AA951EEA57AB8 /* BrowserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserModel.swift; sourceTree = "<group>"; };
 		4CE0F6FADE74A2951106A4ED /* BrowserRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserRouter.swift; sourceTree = "<group>"; };
+		BE98D2B30D9C9F866BB86144 /* CampusCalendarExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampusCalendarExport.swift; sourceTree = "<group>"; };
 		2B99BE4E04072A787B956F61 /* CampusLocationRecommendation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampusLocationRecommendation.swift; sourceTree = "<group>"; };
 		610927E0EF1486374AFF0FE6 /* CampusNetworkAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampusNetworkAccess.swift; sourceTree = "<group>"; };
 		17A4BA035F22FA1E83C37C88 /* CampusSessionSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampusSessionSync.swift; sourceTree = "<group>"; };
@@ -315,6 +317,7 @@
 				F4C5EFD82D516F255E778AE2 /* AppStorageFootprint.swift */,
 				A0D0A0F6171AA951EEA57AB8 /* BrowserModel.swift */,
 				4CE0F6FADE74A2951106A4ED /* BrowserRouter.swift */,
+				BE98D2B30D9C9F866BB86144 /* CampusCalendarExport.swift */,
 				2B99BE4E04072A787B956F61 /* CampusLocationRecommendation.swift */,
 				610927E0EF1486374AFF0FE6 /* CampusNetworkAccess.swift */,
 				17A4BA035F22FA1E83C37C88 /* CampusSessionSync.swift */,
@@ -503,6 +506,7 @@
 				618A23EF14BC6F83C6026102 /* in Sources */,
 				228AAF074AAC8EE7A95958A9 /* in Sources */,
 				ED1275125F83C527E35E83C9 /* in Sources */,
+				39038CFAFBA4D270D355E54C /* in Sources */,
 				30DAF48CE02468D94AED7337 /* in Sources */,
 				DE38B889FC6A252CDB065CA3 /* in Sources */,
 				3393178B2921611A1FACA44E /* in Sources */,
@@ -662,7 +666,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 83;
+				CURRENT_PROJECT_VERSION = 84;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -672,7 +676,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.1.0;
-				GTIIT_RELEASE_LABEL = "2.1.0-beta.2";
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.3";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -688,7 +692,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 83;
+				CURRENT_PROJECT_VERSION = 84;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -698,7 +702,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.1.0;
-				GTIIT_RELEASE_LABEL = "2.1.0-beta.2";
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.3";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -879,9 +883,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "83";
+				CURRENT_PROJECT_VERSION = "84";
 				MARKETING_VERSION = "2.1.0";
-				GTIIT_RELEASE_LABEL = "2.1.0-beta.2";
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.3";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";
@@ -900,9 +904,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "83";
+				CURRENT_PROJECT_VERSION = "84";
 				MARKETING_VERSION = "2.1.0";
-				GTIIT_RELEASE_LABEL = "2.1.0-beta.2";
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.3";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";

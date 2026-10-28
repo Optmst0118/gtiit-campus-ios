@@ -1,2 +1,4 @@
 "NSLocationWhenInUseUsageDescription" = "用于推荐从附近校区出发的班车方向。";
 "NSFaceIDUsageDescription" = "用面容 ID 解锁 GTIIT 校园助手，避免他人查看你的成绩与考勤页面。";
+
+"NSCalendarsFullAccessUsageDescription" = "将考试和假期导入日历，并检查已导入日程以避免重复。";

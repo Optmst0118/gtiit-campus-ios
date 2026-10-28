@@ -389,6 +389,12 @@ private final class RetiredViewReference {
     }
 
     func run() async {
+        let holiday = AcademicEvent(id: "test-holiday", year: "2026-2027", start: "2026-10-30", end: "2026-10-31", kind: "holiday", zh: "测试假期", en: "Test Holiday", raw: "", verified: true, source: "test")
+        let exam = StudentExam(course: "Test Exam", code: "TEST", session: "A", date: "2026-10-29", time: "09:00", duration: 2, venue: "TEST")
+        let calendarItems = CampusCalendarItem.make(events: [holiday, holiday], exams: [exam, exam])
+        check("calendar_unified_chronological_and_unique", calendarItems.count == 2 && calendarItems.first?.title == "Test Exam")
+        check("calendar_holiday_end_is_exclusive", calendarItems.last?.end == CampusDate.parse("2026-11-01"))
+        check("calendar_exam_duration_preserved", calendarItems.first?.end.timeIntervalSince(calendarItems.first!.start) == 7200)
         testSharedSummaryInfrastructure()
         testMoodleCacheAndRange()
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "moodle" {

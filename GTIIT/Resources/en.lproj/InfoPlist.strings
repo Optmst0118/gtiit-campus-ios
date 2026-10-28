@@ -1,2 +1,4 @@
 "NSLocationWhenInUseUsageDescription" = "Suggest the shuttle direction from the campus near you.";
 "NSFaceIDUsageDescription" = "Use Face ID to unlock GTIIT Campus Assistant so others cannot view your grades and attendance.";
+
+"NSCalendarsFullAccessUsageDescription" = "Import exams and holidays, and check imported events to prevent duplicates.";

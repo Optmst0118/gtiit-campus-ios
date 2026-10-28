@@ -11,6 +11,9 @@ struct AcademicCalendarView: View {
     @State private var examRevision = 0
     @State private var showPast = false
     @State private var showPDF = false
+    @State private var exporting = false
+    @State private var exportMessage: String?
+    @State private var confirmExport = false
     private var events: [AcademicEvent] { AcademicCalendarStore.holidays(year: year) }
     private var today: Date { CampusDate.calendar.startOfDay(for: Date()) }
     private var visible: [AcademicEvent] {
@@ -59,28 +62,11 @@ struct AcademicCalendarView: View {
                         ContentUnavailableView(L10n.tr("暂无事项"), systemImage: "calendar")
                     }
                 }
-                ForEach(calendarExams) { exam in
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label(exam.course, systemImage: "pencil.and.list.clipboard").font(.headline).foregroundStyle(Theme.accent)
-                        Text("\(exam.session) · \(CampusDate.display(exam.start!, weekday: true)) · \(exam.time)")
-                            .font(.subheadline).monospacedDigit()
-                        Label(exam.venue.isEmpty ? L10n.tr("地点待定") : exam.venue, systemImage: "mappin.and.ellipse")
-                            .font(.caption).foregroundStyle(.secondary)
-                    }.padding(.vertical, 5).accessibilityElement(children: .combine)
-                }
-                ForEach(visible) { event in
-                    NavigationLink { AcademicEventView(event: event) } label: {
-                        HStack(alignment: .top, spacing: 12) {
-                            Image(systemName: event.symbol).frame(width: 24).foregroundStyle(event.kind == "adjustment" ? Theme.orange : Theme.accent)
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text(event.title).font(.headline)
-                                Text(event.dateText).font(.caption).foregroundStyle(.secondary)
-                                Text(event.verified ? event.category : L10n.tr("原表待核实"))
-                                    .font(.caption2.weight(.medium)).foregroundStyle(event.verified ? Color.secondary : Theme.orange)
-                            }
-                        Spacer(minLength: 8)
-                        Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
-                        }.padding(.vertical, 5).foregroundStyle(.primary)
+                ForEach(CampusCalendarItem.make(events: visible, exams: calendarExams)) { item in
+                    Group {
+                        if let event = item.academic {
+                            NavigationLink { AcademicEventView(event: event) } label: { calendarRow(item, disclosure: true) }
+                        } else { calendarRow(item, disclosure: false) }
                     }.buttonStyle(.plain)
                 }
             }.frame(maxWidth: .infinity, alignment: .leading).padding(16).cardBackground()
@@ -89,11 +75,27 @@ struct AcademicCalendarView: View {
         .nativeDetailSurface(title: L10n.tr("校历"))
         .toolbar { ToolbarItem(placement: .topBarTrailing) {
             Menu {
+                Button(L10n.tr("导入考试与假期到 Apple 日历"), systemImage: "calendar.badge.plus") { confirmExport = true }.disabled(exporting)
                 Toggle(L10n.tr("显示考试时间"), isOn: $showExams)
                 Toggle(L10n.tr("显示全部事项"), isOn: $showPast)
                 Button(L10n.tr("查看原始 PDF"), systemImage: "doc.richtext") { showPDF = true }
             } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel(L10n.tr("校历选项"))
         } }
+        .confirmationDialog(L10n.tr("导入所选学年的考试与假期？"), isPresented: $confirmExport, titleVisibility: .visible) {
+            Button(L10n.tr("导入 Apple 日历")) {
+                let academic = events + AcademicCalendarStore.events.filter { $0.year == year && $0.verified && $0.en.lowercased().contains("exams") }
+                let items = CampusCalendarItem.make(events: academic, exams: CalendarExamSelection.items(app.exams.items, range: yearRange))
+                exporting = true
+                Task { @MainActor in
+                    defer { exporting = false }
+                    do { let count = try await CampusCalendarExport.save(items); exportMessage = L10n.format("已导入 %@ 项，已有日程自动跳过。", String(count)) }
+                    catch { exportMessage = error.localizedDescription }
+                }
+            }
+        }
+        .alert(L10n.tr("Apple 日历"), isPresented: Binding(get: { exportMessage != nil }, set: { if !$0 { exportMessage = nil } })) {
+            Button(L10n.tr("完成")) { exportMessage = nil }
+        } message: { Text(exportMessage ?? "") }
         .onChange(of: year) { _, _ in
             day = max(yearRange.lowerBound, min(Date(), yearRange.upperBound))
             showPast = year != AcademicCalendarStore.defaultYear()
@@ -103,6 +105,19 @@ struct AcademicCalendarView: View {
         }
         .onReceive(app.exams.objectWillChange) { _ in examRevision += 1 }
         .sheet(isPresented: $showPDF) { CalendarPDFSheet(year: year) }
+    }
+    private func calendarRow(_ item: CampusCalendarItem, disclosure: Bool) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: item.symbol).frame(width: 24).foregroundStyle(Theme.accent)
+            VStack(alignment: .leading, spacing: 5) {
+                Text(item.title).font(.headline)
+                Text(item.dateText).font(.caption).foregroundStyle(.secondary)
+                Text(item.category).font(.caption2.weight(.medium)).foregroundStyle(.secondary)
+                if !item.location.isEmpty { Label(item.location, systemImage: "mappin.and.ellipse").font(.caption).foregroundStyle(.secondary) }
+            }
+            Spacer(minLength: 8)
+            if disclosure { Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary) }
+        }.padding(.vertical, 5).foregroundStyle(.primary).accessibilityElement(children: .combine)
     }
     private var yearRange: ClosedRange<Date> {
         let first = String(year.prefix(4)); let last = String(year.suffix(4))

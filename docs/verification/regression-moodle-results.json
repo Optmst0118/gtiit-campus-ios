@@ -3,6 +3,21 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "calendar_unified_chronological_and_unique"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_holiday_end_is_exclusive"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "calendar_exam_duration_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "shared_cache_existing_schema_decodes"
     },
     {
@@ -327,8 +342,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-28T07:05:13Z",
+  "date" : "2026-10-28T08:59:09Z",
   "focus" : "moodle",
   "passed" : true,
-  "runID" : "65b85193-3f01-45a4-ad83-b5d971778c00"
+  "runID" : "e91e807c-bd57-4a3b-afef-70d10c049794"
 }
