@@ -430,6 +430,20 @@ private final class RetiredViewReference {
         check("class_activity_room_and_two_slot_cap", classPlans.count == 2 && classPlans[0].room == "E205" && classPlans[0].building == "SC")
         check("class_activity_identity_stable", classPlans == CourseActivityPlan.upcoming(activitySnapshot, now: classNow.addingTimeInterval(10)))
         check("class_activity_absent_without_timetable", CourseActivityPlan.upcoming(nil, now: classNow).isEmpty)
+        check("class_activity_after_start_moves_to_next", CourseActivityPlan.upcoming(activitySnapshot, now: classPlans[0].start).allSatisfy { $0.start > classPlans[0].start })
+        check("class_activity_plan_preserves_duration", classPlans.allSatisfy { $0.end > $0.start && $0.activate < $0.start })
+        let activityAttributes = ShuttleActivityAttributes(directionTitle: "南 → 北", origin: "南校区", destination: "北校区", departureTime: "08:00", busLabel: "1 号", departedLabel: "已发车")
+        let activityState = ShuttleActivityAttributes.ContentState(departureDate: Date().addingTimeInterval(300), busNumber: 1)
+        let activityHost = UIHostingController(rootView: ShuttleActivitySummary(attributes: activityAttributes, state: activityState))
+        let lockSize = activityHost.sizeThatFits(in: CGSize(width: 371, height: 500))
+        check("activity_fits_system_lock_screen_height", lockSize.height <= 160.5 && lockSize.height > 140)
+        let islandHost = UIHostingController(rootView: ShuttleActivitySummary(attributes: activityAttributes, state: activityState, island: true))
+        check("activity_reserves_island_camera_height", islandHost.sizeThatFits(in: CGSize(width: 340, height: 500)).height <= 112.5)
+
+        let timelineDates = ShuttleTimelinePolicy.dates(after: classNow, teachingWeek: true)
+        check("widget_timeline_nonempty_sorted_unique", timelineDates.first == classNow && timelineDates == Array(Set(timelineDates)).sorted())
+        check("widget_timeline_covers_next_day", timelineDates.count > 20 && timelineDates.allSatisfy { $0 < classNow.addingTimeInterval(86400) })
+
         testSharedSummaryInfrastructure()
         testMoodleCacheAndRange()
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "moodle" {

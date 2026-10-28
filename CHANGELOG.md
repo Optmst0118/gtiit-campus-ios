@@ -4,12 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 2.1.0-beta.13 (94) · 2026-10-29 · 待验证
+## 2.1.0-beta.13 (94) · 2026-10-29
 
 - 重构班车与课程实时活动的锁屏、展开灵动岛和紧凑展示：大倒计时与目的地／教室色块，移除班车轨迹装饰。
 - 默认班车 Widget 使用不依赖 App Intent 的时间线入口；另保留可配置方向和教学周的 Widget，调整小号及中号布局。
 - 课程实时活动复用统一的系统请求方法；Debug 构建提供合成数据的重复验证入口。
-- 最终构建和模拟器实测尚未完成，验证状态见 `docs/verification/activities-beta13/README.md`。
+- App + Widget 的 Debug／Release 模拟器构建通过；课程已验证系统 pending→active，默认 Widget 已接收真实时间线。最终系统截图因 UI 窗口不可用待补，详见 `docs/verification/activities-beta13/README.md`。
 
 ## 2.1.0-beta.12 (93) · 2026-10-28
 

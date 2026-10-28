@@ -36,15 +36,15 @@ struct ActivityGlassCard: View {
     var body: some View {
         GeometryReader { geometry in
             HStack(spacing: 14) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(title).font(.system(size: island ? 18 : 20, weight: .semibold))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title).font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(.white).lineLimit(island ? 1 : 2).minimumScaleFactor(0.8)
                     Spacer(minLength: 0)
-                    Text(caption).font(.caption).foregroundStyle(accent)
+                    Text(caption).font(.system(size: 11)).foregroundStyle(accent)
                     ShuttleActivityCountdown(date: target, expired: expired, language: language, expiredLabel: passedText)
                         .font(.system(size: island ? 38 : 46, weight: .semibold, design: .rounded))
                         .foregroundStyle(accent)
-                    Text(detail).font(.caption.monospacedDigit()).foregroundStyle(.white.opacity(0.7))
+                    Text(detail).font(.system(size: 11).monospacedDigit()).foregroundStyle(.white.opacity(0.7))
                         .lineLimit(1).minimumScaleFactor(0.75)
                 }.frame(maxWidth: .infinity, alignment: .leading)
                 Text(badge).font(.system(size: island ? 30 : 36, weight: .bold, design: .rounded))
@@ -53,8 +53,8 @@ struct ActivityGlassCard: View {
                     .padding(10).frame(width: geometry.size.width * 0.43, height: geometry.size.height)
                     .background(accent, in: RoundedRectangle(cornerRadius: island ? 22 : 26, style: .continuous))
             }
-        }.frame(height: island ? 112 : 154)
-            .padding(island ? 4 : 16)
+        }.frame(height: island ? 108 : 136)
+            .padding(island ? 2 : 12)
             .modifier(ActivityGlassMaterial(enabled: !island))
             .accessibilityElement(children: .combine)
     }

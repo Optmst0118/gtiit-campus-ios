@@ -23,6 +23,11 @@ import SwiftUI
         if ProcessInfo.processInfo.environment["UI_REVIEW_ACTIVITY"] == "1" {
             NavigationStack { ActivityExamplesView() }
                 .onOpenURL { app.handleShuttleURL($0) }
+                .task {
+                    if let kind = ProcessInfo.processInfo.environment["ACTIVITY_REVIEW_KIND"] {
+                        await ActivityReviewLauncher.run(kind: kind)
+                    }
+                }
         } else { RootTabView() }
         #else
         RootTabView()
