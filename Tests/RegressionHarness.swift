@@ -1735,6 +1735,16 @@ extension RegressionApp {
         let original = window!.rootViewController
         let host = UIHostingController(rootView: RootTabView().environmentObject(app).environmentObject(settings))
         window!.rootViewController = host; window!.makeKeyAndVisible()
+        // Exercise the actual split container repeatedly without replacing its
+        // content. UIKit must retain the same detail through compact/regular.
+        let rotationProbe = NativePrimaryController(sidebar: Text("Menu"), content: Text("Rotation content"))
+        rotationProbe.update(wide: false, sidebar: Text("Menu"), content: Text("Rotation content"))
+        let stableDetail = rotationProbe.viewController(for: .secondary)
+        for turn in 0..<20 {
+            rotationProbe.update(wide: turn.isMultiple(of: 2), sidebar: Text("Menu"), content: Text("Rotation content"))
+            rotationProbe.loadViewIfNeeded(); rotationProbe.view.layoutIfNeeded()
+            check("rotation_keeps_detail_\(turn)", stableDetail != nil && rotationProbe.viewController(for: .secondary) === stableDetail && rotationProbe.viewController(for: .compact) == nil)
+        }
         await verifyTopCanvas(host: host, app: app, settings: settings)
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "top-canvas" {
             window!.rootViewController = original

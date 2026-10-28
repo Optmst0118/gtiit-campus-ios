@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.6 (87) · 2026-10-28
+
+- 横竖屏切换时主内容固定由同一 secondary 控制器承载，移除 compact／secondary 间反复移除和挂载，避免与系统折叠动画竞争导致白屏。
+- 新增连续 20 次紧凑／宽屏切换的控制器保留检查；复用既有原生／网页导航布局回归。
+
 ## 2.1.0-beta.5 (86) · 2026-10-28
 
 - 学习页更多菜单新增“只显示关注课程”，筛选当前学期已关注课程，偏好跨启动保存。

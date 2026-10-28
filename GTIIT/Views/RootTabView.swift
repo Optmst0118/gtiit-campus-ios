@@ -112,7 +112,7 @@ private struct NativePrimaryNavigation<Sidebar: View, Content: View>: UIViewCont
         controller.update(wide: wide, sidebar: sidebar, content: content)
     }
 }
-private final class NativePrimaryController<Sidebar: View, Content: View>: UISplitViewController, UISplitViewControllerDelegate, SidebarNavigationHosting {
+final class NativePrimaryController<Sidebar: View, Content: View>: UISplitViewController, UISplitViewControllerDelegate, SidebarNavigationHosting {
     private let sidebarHost: UIHostingController<Sidebar>
     private let detailHost: UIHostingController<Content>
     private let detailNavigation: UINavigationController
@@ -141,6 +141,10 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
         detailNavigation.view.backgroundColor = Theme.pageUIColor
         detailNavigation.setNavigationBarHidden(true, animated: false)
         setViewController(UINavigationController(rootViewController: sidebarHost), for: .primary)
+        // The detail stays in one column for its entire lifetime. UIKit owns
+        // collapse/expand; moving it between compact and secondary during a
+        // rotation can detach the only content controller mid-transition.
+        setViewController(detailNavigation, for: .secondary)
         minimumPrimaryColumnWidth = 180
         maximumPrimaryColumnWidth = 280
         preferredPrimaryColumnWidthFraction = 0.25
@@ -228,19 +232,8 @@ private final class NativePrimaryController<Sidebar: View, Content: View>: UISpl
         detailHost.rootView = content
         guard self.wide != wide else { return }
         self.wide = wide
-        if wide {
-            setViewController(nil, for: .compact)
-            traitOverrides.horizontalSizeClass = .regular
-            setViewController(detailNavigation, for: .secondary)
-            preferredDisplayMode = .oneBesideSecondary
-        } else {
-            // A dedicated compact column avoids stacking the entire TabView
-            // on the sidebar navigation controller (and an unwanted back bar).
-            setViewController(nil, for: .secondary)
-            setViewController(detailNavigation, for: .compact)
-            traitOverrides.horizontalSizeClass = .compact
-            preferredDisplayMode = .secondaryOnly
-        }
+        traitOverrides.horizontalSizeClass = wide ? .regular : .compact
+        preferredDisplayMode = wide ? .oneBesideSecondary : .secondaryOnly
         detailNavigation.setNavigationBarHidden(true, animated: false)
         view.setNeedsLayout()
     }
