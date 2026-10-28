@@ -423,6 +423,13 @@ private final class RetiredViewReference {
         check("personal_break_uses_latest_eligible_b", AcademicCalendarStore.holidays(year: "2026-2027", exams: [personalB, laterB]).contains { $0.id == "break-2026-2027-Winter" && $0.start == "2027-02-26" })
         let onlyA = StudentExam(course: "Test A", code: "PA", session: "A", date: "2027-02-15", time: "09:00", duration: 2, venue: "E101")
         check("personal_break_no_b_keeps_school_calendar", !AcademicCalendarStore.holidays(year: "2026-2027", exams: [onlyA]).contains { $0.id == "break-2026-2027-Winter" })
+        let classNow = CampusDate.parse("2026-10-28")!.addingTimeInterval(7*3600)
+        let activitySnapshot = TimetableSnapshot(semester: "Test", validFrom: "2026-10-28", validUntil: "2026-11-10", courses: [LocalCourse(name: "Test Class", code: "ACT", group: "L1", weekday: 3, start: "09:00", end: "11:00", room: "E205", building: "SC")])
+        let classPlans = CourseActivityPlan.upcoming(activitySnapshot, now: classNow)
+        check("class_activity_ten_minute_lead", classPlans.first?.start.timeIntervalSince(classPlans.first!.activate) == 600)
+        check("class_activity_room_and_two_slot_cap", classPlans.count == 2 && classPlans[0].room == "E205" && classPlans[0].building == "SC")
+        check("class_activity_identity_stable", classPlans == CourseActivityPlan.upcoming(activitySnapshot, now: classNow.addingTimeInterval(10)))
+        check("class_activity_absent_without_timetable", CourseActivityPlan.upcoming(nil, now: classNow).isEmpty)
         testSharedSummaryInfrastructure()
         testMoodleCacheAndRange()
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "moodle" {

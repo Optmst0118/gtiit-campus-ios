@@ -329,6 +329,7 @@ private final class PrimaryDetailContainer: UIViewController {
 
 /// 放在启动页与主界面外层，切换界面不会重复显示引导、重置锁或启动网络请求。
 private struct RootLifecycle: ViewModifier {
+    @AppStorage("course.autoActivity") private var courseAutoActivity = true
     @ObservedObject var app: AppModel
     @ObservedObject var settings: AppSettings
     @Environment(\.campusSidebarNavigation) private var sidebar
@@ -407,6 +408,7 @@ private struct RootLifecycle: ViewModifier {
                 Haptics.prepare()
                 syncShuttleSystemState()
                 app.lock.setActive(settings: settings)
+                CourseLiveActivityController.shared.sync(snapshot: app.timetable.snapshot, enabled: courseAutoActivity)
                 app.prepareLaunchIfAllowed()
                 app.syncMoodleDeadlineReminders()
             } else {
@@ -421,6 +423,20 @@ private struct RootLifecycle: ViewModifier {
                 try? await Task.sleep(for: .seconds(300))
                 guard !Task.isCancelled else { return }
                 if settings.hasSeenWelcome && !app.showWelcome { app.refreshMoodleSummary(); app.refreshRoomCacheIfAllowed() }
+            }
+        }
+        .task(id: courseAutoActivity) {
+            while !Task.isCancelled {
+                if scenePhase == .active {
+                    CourseLiveActivityController.shared.sync(snapshot: app.timetable.snapshot, enabled: courseAutoActivity)
+                }
+                do { try await Task.sleep(for: .seconds(60)) } catch { return }
+            }
+        }
+        .onReceive(app.timetable.objectWillChange) { _ in
+            Task { @MainActor in
+                await Task.yield()
+                CourseLiveActivityController.shared.sync(snapshot: app.timetable.snapshot, enabled: courseAutoActivity)
             }
         }
         .onChange(of: settings.moodleUpcomingRange) { _, _ in app.upcoming.invalidate(); app.refreshMoodleSummary(force: true) }

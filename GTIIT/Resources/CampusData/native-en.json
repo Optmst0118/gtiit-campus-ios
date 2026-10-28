@@ -964,5 +964,12 @@
   "日程预览": "Event Preview",
   "学期": "Semester",
   "只显示关注课程": "Only Show Followed Courses",
-  "尚未关注当前学期课程": "No followed courses in the current term"
+  "尚未关注当前学期课程": "No followed courses in the current term",
+  "实时活动示例": "Live Activity Examples",
+  "班车实时活动": "Shuttle Live Activity",
+  "课前 10 分钟实时活动": "Live Activity 10 Minutes Before Class",
+  "课程实时活动": "Class Live Activity",
+  "课前提醒": "Class Reminder",
+  "课程将在 10 分钟后开始": "Your class starts in 10 minutes",
+  "预排接下来的两节课，打开 App 时更新。": "Schedules the next two classes and refreshes when you open the app."
 }

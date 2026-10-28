@@ -89,7 +89,9 @@ final class AppModel: ObservableObject {
 
     /// Handles gtiit-beta://shuttle[?direction=north|south] from a widget or notification.
     func handleShuttleURL(_ url: URL) {
-        guard url.scheme == "gtiit-beta", url.host == "shuttle" else { return }
+        guard url.scheme == "gtiit-beta" else { return }
+        if url.host == "timetable" { select(tab: .me); return }
+        guard url.host == "shuttle" else { return }
         select(tab: .shuttle)
         if let raw = URLComponents(url: url, resolvingAgainstBaseURL: false)?
             .queryItems?.first(where: { $0.name == "direction" })?.value,

@@ -88,6 +88,26 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "class_activity_ten_minute_lead"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "class_activity_room_and_two_slot_cap"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "class_activity_identity_stable"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "class_activity_absent_without_timetable"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "shared_cache_existing_schema_decodes"
     },
     {
@@ -412,8 +432,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-28T12:42:55Z",
+  "date" : "2026-10-28T12:58:52Z",
   "focus" : "moodle",
   "passed" : true,
-  "runID" : "517911d3-8c96-4407-9dc5-72624b7bec50"
+  "runID" : "9891dfdc-1ed1-45c5-ac8a-dfb9739369de"
 }

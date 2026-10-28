@@ -21,7 +21,7 @@ def extend(text, root, uid, team):
     for p in widget_sources:
         ref=obj('widget:ref:'+p.name,f'\t\t\tisa = PBXFileReference;\n\t\t\tlastKnownFileType = sourcecode.swift;\n\t\t\tpath = {p.name};\n\t\t\tsourceTree = "<group>";');refs.append(ref)
         builds.append(obj('widget:build:'+p.name,f'\t\t\tisa = PBXBuildFile;\n\t\t\tfileRef = {ref};'))
-    shared=['Models/ShuttleTimelinePolicy.swift','Core/AppGroup.swift','Models/ShuttleActivityAttributes.swift','Models/ShuttleSchedule.swift','Core/Localization.swift','Views/ShuttleActivityPresentation.swift','Services/CampusLocationRecommendation.swift']
+    shared=['Models/ShuttleTimelinePolicy.swift','Core/AppGroup.swift','Models/ShuttleActivityAttributes.swift','Models/CourseActivityAttributes.swift','Models/ShuttleSchedule.swift','Core/Localization.swift','Views/ShuttleActivityPresentation.swift','Services/CampusLocationRecommendation.swift']
     for rel in shared:
         builds.append(obj('widget:build:'+rel,f'\t\t\tisa = PBXBuildFile;\n\t\t\tfileRef = {uid("ref:GTIIT/"+rel)};'))
     group=obj('group:widget',f'\t\t\tisa = PBXGroup;\n\t\t\tchildren = {arr(refs)};\n\t\t\tpath = GTIITWidgets;\n\t\t\tsourceTree = "<group>";')

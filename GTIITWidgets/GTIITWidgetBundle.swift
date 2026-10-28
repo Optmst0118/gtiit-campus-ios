@@ -5,6 +5,7 @@ import WidgetKit
 struct GTIITWidgetBundle: WidgetBundle {
     var body: some Widget {
         ShuttleLiveActivityWidget()
+        CourseLiveActivityWidget()
         ShuttleHomeWidget()
     }
 }

@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.12 (93) · 2026-10-28
+
+- 公共排程展开区采用紧凑横行、统一图标与分隔线。
+- 班车实时活动采用橙色目的地块，课程采用蓝色教室块，两者共用加高的系统材质卡片结构。
+- iOS 26 预排接下来两节课程，在课前 10 分钟自动启动；前台每分钟、课表修改及重新进入 App 时补排；系统拒绝或达到容量时保留原排程并下次重试。
+- 设置/学习与提醒/课表新增开关和实时活动示例。较早系统仅在 App 前台进入课前窗口时启动。没有 APNs 后端，不承诺 App 长期不开时无限续排；已开始的活动随过期显示已上课，回到前台清理。
+
 ## 2.1.0-beta.11 (92) · 2026-10-28
 
 - 学期间假期按本人门户已读取考试计算：存在 B 考时，以该学期本人最后一场考试结束次日起，到下一学期开学前一天；月历与假期导出复用。未读取个人 B 考时沿用校历考试期。

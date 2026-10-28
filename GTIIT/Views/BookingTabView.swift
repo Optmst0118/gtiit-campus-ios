@@ -223,9 +223,23 @@ struct RoomBookingHomeView: View {
                 }
 
                 DisclosureGroup(L10n.tr("公共排程与记录")) {
-                    ForEach(Array(actions.dropFirst(2))) { action in
-                        BookingActionCard(action: action, onOpen: open)
-                    }
+                    VStack(spacing: 0) {
+                        ForEach(Array(actions.dropFirst(2).enumerated()), id: \.element.id) { index, action in
+                            if index > 0 { Divider().padding(.leading, 48) }
+                            Button { open(action.destination) } label: {
+                                HStack(spacing: 12) {
+                                    Image(systemName: action.symbol).foregroundStyle(Theme.accent).frame(width: 28)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(action.title).font(.body.weight(.semibold)).foregroundStyle(.primary)
+                                        Text(action.subtitle).font(.caption).foregroundStyle(.secondary)
+                                    }
+                                    Spacer(minLength: 8)
+                                    Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
+                                }.padding(.vertical, 16).contentShape(Rectangle())
+                            }.buttonStyle(CardPressStyle())
+                        }
+                    }.padding(.top, 8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }.padding(16).cardBackground()
 
                 sectionTitle(L10n.tr("房间目录"), symbol: "square.grid.2x2")
