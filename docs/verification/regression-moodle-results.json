@@ -28,6 +28,41 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "deadline_red_at_48h"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_normal_beyond_48h"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_red_overdue_draft"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_submitted_not_red"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "deadline_missing_not_red"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "followed_filter_default_off"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "followed_filter_persists"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "shared_cache_existing_schema_decodes"
     },
     {
@@ -352,8 +387,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-28T09:05:59Z",
+  "date" : "2026-10-28T09:40:25Z",
   "focus" : "moodle",
   "passed" : true,
-  "runID" : "5a7cb337-0458-439d-8507-07cbaa1b220c"
+  "runID" : "6aaae9ca-1c6b-4cd8-b85f-12817c238fa8"
 }

@@ -144,6 +144,9 @@ enum EntryOrder {
     @Published var prefillLoginEmail: Bool {
         didSet { defaults.set(prefillLoginEmail, forKey: "settings.prefillLoginEmail") }
     }
+    @Published var onlyFollowedMoodleCourses: Bool {
+        didSet { defaults.set(onlyFollowedMoodleCourses, forKey: "settings.onlyFollowedMoodleCourses") }
+    }
     @Published var followedMoodleCourseIDs: Set<Int> {
         didSet { defaults.set(followedMoodleCourseIDs.sorted(), forKey: "settings.followedMoodleCourseIDs") }
     }
@@ -236,6 +239,7 @@ enum EntryOrder {
         hapticsEnabled = defaults.object(forKey: "settings.hapticsEnabled") as? Bool ?? true
         loginEmail = defaults.string(forKey: "settings.loginEmail") ?? ""
         prefillLoginEmail = defaults.object(forKey: "settings.prefillLoginEmail") as? Bool ?? true
+        onlyFollowedMoodleCourses = defaults.bool(forKey: "settings.onlyFollowedMoodleCourses")
         followedMoodleCourseIDs = Set((defaults.array(forKey: "settings.followedMoodleCourseIDs") as? [Int] ?? []).filter { $0 > 0 })
         let allSections = ["currentCourses", "recent", "otherCourses", "historyCourses", "tools"]
         let defaultSections = ["currentCourses", "recent", "otherCourses", "historyCourses", "tools"]

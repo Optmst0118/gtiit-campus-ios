@@ -154,6 +154,7 @@ struct MoodleHomeView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    Toggle(L10n.tr("只显示关注课程"), isOn: $settings.onlyFollowedMoodleCourses)
                     Button { showLayout = true } label: {
                         Label(L10n.tr("编辑 Moodle 布局"), systemImage: "slider.horizontal.3")
                     }
@@ -249,7 +250,7 @@ struct MoodleHomeView: View {
     }
 
     private var syncedCurrentCourses: [MoodleCourse] {
-        currentCourses.filter(matchesTimetable)
+        settings.onlyFollowedMoodleCourses ? currentCourses.filter { settings.followedMoodleCourseIDs.contains($0.id) } : currentCourses.filter(matchesTimetable)
     }
 
     private var otherCourses: [MoodleCourse] {
@@ -289,7 +290,7 @@ struct MoodleHomeView: View {
                 }.buttonStyle(.borderedProminent)
             }
             if syncedCurrentCourses.isEmpty {
-                Text(L10n.tr(timetable.snapshot == nil ? "导入课表后显示当前课程" : "可在其他课程中关注课程"))
+                Text(L10n.tr(settings.onlyFollowedMoodleCourses ? "尚未关注当前学期课程" : timetable.snapshot == nil ? "导入课表后显示当前课程" : "可在其他课程中关注课程"))
                     .font(.subheadline).foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading).padding(16).cardBackground()
             } else {

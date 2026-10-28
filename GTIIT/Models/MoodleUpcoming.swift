@@ -33,6 +33,10 @@ struct MoodleWork: Codable, Identifiable {
     let kind: String
     var checkedAt: TimeInterval? = nil
     var id: String { url }
+    func hasUrgentDeadline(now: Date = Date()) -> Bool {
+        guard !isSubmitted, let date = dueDate else { return false }
+        return date.timeIntervalSince(now) <= 48 * 3600
+    }
     var isSubmitted: Bool { status == "submitted" }
     var dueDate: Date? { due.map { Date(timeIntervalSince1970: $0) } }
     var openedDate: Date? { opened.map { Date(timeIntervalSince1970: $0) } }

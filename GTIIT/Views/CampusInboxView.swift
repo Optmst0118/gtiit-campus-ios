@@ -26,7 +26,7 @@ struct CampusInboxView: View {
                                 VStack(alignment: .leading, spacing: 5) {
                                     Text(work.displayName).foregroundStyle(Color.primary)
                                     Text(work.course).font(.subheadline).foregroundStyle(Color.secondary)
-                                    if let due = work.dueDate { Text(due.gtiitFormatted(date: .abbreviated, time: .shortened)).font(.caption).foregroundStyle(Theme.orange).fixedSize(horizontal: false, vertical: true) }
+                                    MoodleDeadlineDate(item: work)
                                 }
                             } icon: { Image(systemName: "doc.text").foregroundStyle(Theme.accent) }
                         }
@@ -121,7 +121,7 @@ struct CampusCacheView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(work.displayName)
                         Text(work.course).font(.caption).foregroundStyle(Color.secondary)
-                        if let due = work.dueDate { Text(due.gtiitFormatted(date: .abbreviated, time: .shortened)).font(.caption).foregroundStyle(Color.secondary) }
+                        MoodleDeadlineDate(item: work)
                     }
                 }
             }

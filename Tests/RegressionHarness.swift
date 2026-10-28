@@ -400,6 +400,20 @@ private final class RetiredViewReference {
         let classEvents = CampusCalendarItem.timetable(syncSnapshot, events: [holiday])
         check("calendar_classes_skip_holiday_and_deduplicate", classEvents.count == 1 && CampusDate.key(classEvents[0].start) == "2026-11-06")
         check("calendar_classes_keep_location_and_time", classEvents.first?.location == "SC · E101" && classEvents.first?.end.timeIntervalSince(classEvents[0].start) == 7200)
+        let urgencyNow = Date(timeIntervalSince1970: 1790000000)
+        func urgencyWork(_ seconds: Double?, status: String = "notSubmitted") -> MoodleWork {
+            MoodleWork(url: "https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=1", name: "Test", course: "Test", due: seconds.map { urgencyNow.timeIntervalSince1970 + $0 }, opened: nil, status: status, source: "assignment", kind: "assign")
+        }
+        check("deadline_red_at_48h", urgencyWork(48*3600).hasUrgentDeadline(now: urgencyNow))
+        check("deadline_normal_beyond_48h", !urgencyWork(48*3600+1).hasUrgentDeadline(now: urgencyNow))
+        check("deadline_red_overdue_draft", urgencyWork(-1, status: "draft").hasUrgentDeadline(now: urgencyNow))
+        check("deadline_submitted_not_red", !urgencyWork(60, status: "submitted").hasUrgentDeadline(now: urgencyNow))
+        check("deadline_missing_not_red", !urgencyWork(nil).hasUrgentDeadline(now: urgencyNow))
+        let filterDefaults = UserDefaults(suiteName: "filter-" + UUID().uuidString)!
+        let filterSettings = AppSettings(defaults: filterDefaults)
+        check("followed_filter_default_off", !filterSettings.onlyFollowedMoodleCourses)
+        filterSettings.onlyFollowedMoodleCourses = true
+        check("followed_filter_persists", AppSettings(defaults: filterDefaults).onlyFollowedMoodleCourses)
         testSharedSummaryInfrastructure()
         testMoodleCacheAndRange()
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "moodle" {

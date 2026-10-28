@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.5 (86) · 2026-10-28
+
+- 学习页更多菜单新增“只显示关注课程”，筛选当前学期已关注课程，偏好跨启动保存。
+- 未提交且剩余不超过 48 小时的作业截止日期统一系统红色；已逾期未提交继续红色，已提交不标红。
+- 共用规则覆盖首页、学习、作业列表、通知中心和缓存摘要，定时更新。
+
 ## 2.1.0-beta.4 (85) · 2026-10-28
 
 - 设置新增“日历同步”，独立导出课表、假期和考期，各有预览与确认。

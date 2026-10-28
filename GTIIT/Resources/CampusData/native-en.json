@@ -962,5 +962,7 @@
   "导出考期到本地日历": "Export Exam Schedule to Calendar",
   "日程数量": "Number of Events",
   "日程预览": "Event Preview",
-  "学期": "Semester"
+  "学期": "Semester",
+  "只显示关注课程": "Only Show Followed Courses",
+  "尚未关注当前学期课程": "No followed courses in the current term"
 }
