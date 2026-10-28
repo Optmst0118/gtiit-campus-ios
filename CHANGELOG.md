@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.8 (89) · 2026-10-28
+
+- 竖屏恢复预约场所切换在左、刷新和更多在右的原布局。
+- 侧栏控件占位和返回按钮替换明确限定在侧栏布局中，横屏保留居中侧栏与收放对齐。
+
 ## 2.1.0-beta.7 (88) · 2026-10-28
 
 - 横屏展开/收起共用独立液态玻璃控件，避免 HostingController 更新覆盖原生侧栏按钮。

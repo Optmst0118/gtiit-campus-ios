@@ -93,6 +93,7 @@ import UIKit
 }
 
 struct SidebarNavigationSurface: ViewModifier {
+    @Environment(\.campusSidebarNavigation) private var usesSidebar
     @Environment(\.campusSidebarRevealVisible) private var collapsed
     @Environment(\.dismiss) private var dismiss
     let customBack: (() -> Void)?
@@ -100,8 +101,8 @@ struct SidebarNavigationSurface: ViewModifier {
     @State private var integrated = false
     func body(content: Content) -> some View {
         content
-            .toolbar { if integrated { SidebarRevealToolbarSpace() } }
-            .navigationBarBackButtonHidden(integrated && collapsed)
+            .toolbar { if usesSidebar && integrated { SidebarRevealToolbarSpace() } }
+            .navigationBarBackButtonHidden(usesSidebar && integrated && collapsed)
             .background {
                 SidebarNavigationProbe(collapsed: collapsed, isRoot: isRoot, customBack: customBack,
                                        fallback: { dismiss() }, attached: { integrated = $0 })

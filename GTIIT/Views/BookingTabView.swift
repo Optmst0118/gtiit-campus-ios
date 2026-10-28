@@ -3,6 +3,7 @@ import SwiftUI
 /// 「预约」Tab 的原生首页（alpha）：练习房与体育中心各有一套原生界面，
 /// 最终预约仍交给学校官方网页完成，不读取、不伪造任何接口数据。
 struct BookingTabView: View {
+    @Environment(\.campusSidebarNavigation) private var usesSidebar
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
@@ -43,7 +44,7 @@ struct BookingTabView: View {
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) { BookingSiteMenu() }
+                ToolbarItem(placement: usesSidebar ? .topBarTrailing : .topBarLeading) { BookingSiteMenu() }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { Haptics.selection(); app.browser(for: currentSite).reload() } label: { Image(systemName: "arrow.clockwise") }
                         .accessibilityLabel(L10n.tr("刷新"))
