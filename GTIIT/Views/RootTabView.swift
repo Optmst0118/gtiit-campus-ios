@@ -178,8 +178,33 @@ final class NativePrimaryController<Sidebar: View, Content: View>: UISplitViewCo
         if wide == true && displayMode != .secondaryOnly { collapseSidebar() }
         else { expandSidebar() }
     }
+    private func suppressContainerNavigationBars() {
+        // The split controller may push secondary onto the primary navigation
+        // stack while collapsing. That outer bar is container chrome, not the
+        // selected SwiftUI page's bar; leaving it visible adds a Back row.
+        detailNavigation.setNavigationBarHidden(true, animated: false)
+        if wide == false {
+            var ancestor = detailNavigation.parent
+            while let controller = ancestor, controller !== self {
+                if let navigation = controller as? UINavigationController, !navigation.isNavigationBarHidden {
+                    navigation.setNavigationBarHidden(true, animated: false)
+                }
+                ancestor = controller.parent
+            }
+            if let primary = sidebarHost.navigationController, !primary.isNavigationBarHidden {
+                primary.setNavigationBarHidden(true, animated: false)
+            }
+        } else if let primary = sidebarHost.navigationController, primary.isNavigationBarHidden {
+            primary.setNavigationBarHidden(false, animated: false)
+        }
+    }
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        suppressContainerNavigationBars()
+    }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        suppressContainerNavigationBars()
         let activeBar = activeNavigationBar(in: detailHost)
         if activeBar !== lastActiveBar {
             lastActiveBar = activeBar

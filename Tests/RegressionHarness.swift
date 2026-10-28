@@ -1655,6 +1655,9 @@ extension RegressionApp {
                 check("\(tab.rawValue)_\(mode)_navigation_reaches_window_top", abs(frame.minY) < 1,
                       "navigation=\(frame), window=\(window!.bounds)")
                 let bar = navigation.navigationBar.convert(navigation.navigationBar.bounds, to: window)
+                if !PrimaryNavigationLayout.usesSidebar(window!.bounds.size), !navigation.isNavigationBarHidden {
+                    check("\(tab.rawValue)_\(mode)_no_extra_container_bar", abs(bar.minY - window!.safeAreaInsets.top) < 1, "bar=\(bar), safeTop=\(window!.safeAreaInsets.top)")
+                }
                 check("\(tab.rawValue)_\(mode)_controls_respect_top_safe_area",
                       navigation.isNavigationBarHidden || bar.minY >= window!.safeAreaInsets.top - 1, "bar=\(bar), intentionallyHidden=\(navigation.isNavigationBarHidden)")
             }

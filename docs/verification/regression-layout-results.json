@@ -621,7 +621,12 @@
       "test" : "me_light_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 116.0, 402.0, 106.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), safeTop=62.0",
+      "passed" : true,
+      "test" : "me_light_no_extra_container_bar"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "me_light_controls_respect_top_safe_area"
     },
@@ -631,7 +636,7 @@
       "test" : "learning_light_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 54.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, -116.0, 402.0, 54.0), intentionallyHidden=true",
       "passed" : true,
       "test" : "learning_light_controls_respect_top_safe_area"
     },
@@ -641,7 +646,12 @@
       "test" : "shuttle_light_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 116.0, 402.0, 106.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), safeTop=62.0",
+      "passed" : true,
+      "test" : "shuttle_light_no_extra_container_bar"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "shuttle_light_controls_respect_top_safe_area"
     },
@@ -651,7 +661,12 @@
       "test" : "booking_light_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 116.0, 402.0, 106.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), safeTop=62.0",
+      "passed" : true,
+      "test" : "booking_light_no_extra_container_bar"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "booking_light_controls_respect_top_safe_area"
     },
@@ -661,7 +676,12 @@
       "test" : "portal_light_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 116.0, 402.0, 106.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), safeTop=62.0",
+      "passed" : true,
+      "test" : "portal_light_no_extra_container_bar"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "portal_light_controls_respect_top_safe_area"
     },
@@ -711,7 +731,7 @@
       "test" : "me_dark_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 54.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, -116.0, 402.0, 54.0), intentionallyHidden=true",
       "passed" : true,
       "test" : "me_dark_controls_respect_top_safe_area"
     },
@@ -721,7 +741,12 @@
       "test" : "learning_dark_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 116.0, 402.0, 106.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), safeTop=62.0",
+      "passed" : true,
+      "test" : "learning_dark_no_extra_container_bar"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "learning_dark_controls_respect_top_safe_area"
     },
@@ -731,7 +756,7 @@
       "test" : "shuttle_dark_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 54.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, -116.0, 402.0, 54.0), intentionallyHidden=true",
       "passed" : true,
       "test" : "shuttle_dark_controls_respect_top_safe_area"
     },
@@ -741,7 +766,12 @@
       "test" : "booking_dark_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 116.0, 402.0, 106.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), safeTop=62.0",
+      "passed" : true,
+      "test" : "booking_dark_no_extra_container_bar"
+    },
+    {
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "booking_dark_controls_respect_top_safe_area"
     },
@@ -751,7 +781,7 @@
       "test" : "portal_dark_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 54.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, -116.0, 402.0, 54.0), intentionallyHidden=true",
       "passed" : true,
       "test" : "portal_dark_controls_respect_top_safe_area"
     },
@@ -806,7 +836,7 @@
       "test" : "portal_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 172.0, 402.0, 702.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 118.0, 402.0, 756.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "portal_web_extends_under_tab_bar"
     },
@@ -821,7 +851,7 @@
       "test" : "portal_detail_title_stays_inline"
     },
     {
-      "detail" : "expanded=172.0, restored=172.0, tracker=-1.0",
+      "detail" : "expanded=118.0, restored=118.0, tracker=-1.0",
       "passed" : true,
       "test" : "portal_native_title_restores_at_top"
     },
@@ -866,7 +896,7 @@
       "test" : "moodle_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 224.0, 402.0, 650.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
       "passed" : true,
       "test" : "moodle_web_extends_under_tab_bar"
     },
@@ -876,12 +906,12 @@
       "test" : "moodle_pull_keeps_title_stationary"
     },
     {
-      "detail" : "expanded=224.0, compact=172.0",
+      "detail" : "expanded=170.0, compact=118.0",
       "passed" : true,
       "test" : "moodle_native_title_collapses"
     },
     {
-      "detail" : "expanded=224.0, restored=224.0, tracker=0.0",
+      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
       "passed" : true,
       "test" : "moodle_native_title_restores_at_top"
     },
@@ -917,8 +947,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-28T12:04:20Z",
+  "date" : "2026-10-28T12:25:54Z",
   "focus" : "layout",
   "passed" : true,
-  "runID" : "35575141-e77a-4d91-955a-1a8e1d98f07f"
+  "runID" : "1d82e6ab-d15a-472a-b769-2e89607c4071"
 }

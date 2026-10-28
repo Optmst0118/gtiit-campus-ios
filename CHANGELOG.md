@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.9 (90) · 2026-10-28
+
+- 竖屏折叠时隐藏 split 外层导航栈额外生成的返回栏，修正一级页面工具栏和大标题整体下沉。保留页面自己的导航栏和真实详情返回。
+- 顶部布局回归新增精确上边界检查，防止额外一行导航栏仍被误判为安全区正确。
+
 ## 2.1.0-beta.8 (89) · 2026-10-28
 
 - 竖屏恢复预约场所切换在左、刷新和更多在右的原布局。
