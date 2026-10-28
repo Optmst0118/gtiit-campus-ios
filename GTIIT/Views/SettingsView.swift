@@ -42,7 +42,7 @@ struct SettingsView: View {
                     SettingsLabel(L10n.tr("存储空间"), symbol: "internaldrive")
                 }
                 NavigationLink {
-                    DownloadsView(center: app.downloads)
+                    CampusDetailPage(destination: .downloads)
                 } label: {
                     SettingsLabel(L10n.tr("下载管理"), symbol: "arrow.down.circle")
                 }

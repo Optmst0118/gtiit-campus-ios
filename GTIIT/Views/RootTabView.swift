@@ -325,7 +325,7 @@ private struct RootLifecycle: ViewModifier {
         }
         .sheet(isPresented: $app.showDownloads) {
             NavigationStack {
-                DownloadsView(center: app.downloads)
+                CampusDetailPage(destination: .downloads)
                     .onAppear { app.downloads.dismissPresentation() }
                     .toolbar {
                         ToolbarItem(placement: .confirmationAction) {

@@ -50,8 +50,7 @@ enum CalendarExamSelection {
     init(directory: URL? = nil) {
         cacheURL = (directory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("StudentExams")) .appendingPathComponent("summary.json")
         super.init()
-        if let data = try? Data(contentsOf: cacheURL), data.count < 500_000,
-           let snapshot = try? JSONDecoder().decode(Snapshot.self, from: data),
+        if let snapshot = ProtectedCampusCache.read(Snapshot.self, from: cacheURL, maxBytes: 500_000),
            snapshot.updatedAt <= Date(),
            snapshot.items.count <= 500, snapshot.items.allSatisfy(\.valid) {
             items = snapshot.items; semester = snapshot.semester; updatedAt = snapshot.updatedAt
@@ -61,10 +60,7 @@ enum CalendarExamSelection {
         guard items.count <= 500, items.allSatisfy(\.valid), !semester.isEmpty else { throw CocoaError(.coderReadCorrupt) }
         self.items = Array(Set(items)).sorted { $0.start! < $1.start! }; self.semester = semester; updatedAt = date
         failed = false; loginRequired = false
-        var folder = cacheURL.deletingLastPathComponent()
-        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [.protectionKey: FileProtectionType.complete])
-        var values = URLResourceValues(); values.isExcludedFromBackup = true; try folder.setResourceValues(values)
-        try JSONEncoder().encode(Snapshot(semester: semester, items: self.items, updatedAt: date)).write(to: cacheURL, options: [.atomic, .completeFileProtection])
+        try ProtectedCampusCache.write(Snapshot(semester: semester, items: self.items, updatedAt: date), to: cacheURL)
     }
     func refresh(force: Bool = false, allowed: @escaping () -> Bool) {
         guard !refreshing, allowed(), force || (attemptedAt ?? updatedAt).map({ Date().timeIntervalSince($0) >= Self.refreshInterval }) != false else { return }

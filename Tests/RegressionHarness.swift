@@ -364,7 +364,30 @@ private final class RetiredViewReference {
         check("moodle_explicit_clear_removes_cache", MoodleUpcomingStore(directory:folder).items.isEmpty && MoodleUpcomingStore(directory:folder).courseItems.isEmpty)
     }
 
+    func testSharedSummaryInfrastructure() {
+        struct Fixture: Codable { let text: String; let number: Double }
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let url = folder.appendingPathComponent("summary.json")
+        do {
+            try ProtectedCampusCache.write(Fixture(text:"Cached course",number:1),to:url)
+            let before = try Data(contentsOf:url)
+            check("shared_cache_existing_schema_decodes", ProtectedCampusCache.read(Fixture.self,from:url,maxBytes:4096)?.text == "Cached course")
+            check("shared_cache_oversized_read_rejected", ProtectedCampusCache.read(Fixture.self,from:url,maxBytes:1) == nil)
+            do { try ProtectedCampusCache.write(Fixture(text:"Invalid",number:.nan),to:url) } catch { }
+            check("shared_cache_encode_failure_preserves_prior_snapshot", (try? Data(contentsOf:url)) == before)
+            try Data("not JSON".utf8).write(to:url)
+            check("shared_cache_corrupt_snapshot_rejected", ProtectedCampusCache.read(Fixture.self,from:url,maxBytes:4096) == nil)
+        } catch { check("shared_cache_fixture",false,error.localizedDescription) }
+        let now = Date()
+        let store = MoodleUpcomingStore(directory:folder.appendingPathComponent("moodle"))
+        let works = [2,1].map { id in MoodleWork(url:"https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=\(id)",name:"HW \(id)",course:"Course",due:now.addingTimeInterval(3600).timeIntervalSince1970,opened:nil,status:"notSubmitted",source:"assignment",kind:"assign") }
+        store.accept(MoodleUpcomingResult(loginRequired:false,items:works,courses:1,checked:1,failed:0,courseList:nil,directoryRefreshed:false))
+        check("shared_upcoming_equal_deadlines_have_stable_order", store.upcoming(now:now).map(\.url) == works.reversed().map(\.url))
+        store.cancel(clear:true)
+    }
+
     func run() async {
+        testSharedSummaryInfrastructure()
         testMoodleCacheAndRange()
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "moodle" {
             await verifyUpcomingReader(); finish(); return

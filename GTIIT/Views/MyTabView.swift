@@ -73,7 +73,7 @@ struct MyTabView: View {
         }
         .id(navigationEpoch)
         .onChange(of: app.tabReselectToken) { _, _ in
-            if app.tabReselectTarget == .me, !rootVisible { showSettings = false; showInbox = false; navigationEpoch = UUID() }
+            if app.tabReselectTarget == .me, !rootVisible { showSettings = false; showInbox = false; serviceRoute = nil; navigationEpoch = UUID() }
         }
     }
 }
@@ -112,7 +112,7 @@ struct CampusShortcutsSection: View {
                     if active { app.showContextMenu("shortcuts") } else { app.hideContextMenu("shortcuts") }
                 })
                 .frame(height: gridHeight)
-        }.navigationDestination(isPresented: $calendar) { AcademicCalendarView() }
+        }.navigationDestination(isPresented: $calendar) { CampusDetailPage(destination: .academicCalendar) }
     }
     private var gridHeight: CGFloat {
         let columns = dynamicTypeSize.isAccessibilitySize ? 1 : 2
@@ -135,7 +135,7 @@ private struct MyUtilitiesSection: View {
     @EnvironmentObject private var app: AppModel
     var body: some View {
         VStack(spacing: 0) {
-            NavigationLink { DownloadsView(center: app.downloads) } label: { MyUtilityRow(title: L10n.tr("下载管理"), symbol: "arrow.down.circle") }
+            NavigationLink { CampusDetailPage(destination: .downloads) } label: { MyUtilityRow(title: L10n.tr("下载管理"), symbol: "arrow.down.circle") }
             Divider().padding(.leading, 50)
             NavigationLink { SettingsView() } label: { MyUtilityRow(title: L10n.tr("设置"), symbol: "gearshape") }
             Divider().padding(.leading, 50)
@@ -152,7 +152,7 @@ private struct LocalTimetableEntry: View {
         let _ = nativeLocale.identifier
         Group {
             if store.snapshot != nil {
-                NavigationLink { LocalTimetableView(store: store) } label: {
+                NavigationLink { CampusDetailPage(destination: .timetable) } label: {
                     TodayTimetableCard(store: store)
                         .padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
                 }

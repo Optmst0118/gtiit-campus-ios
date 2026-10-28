@@ -116,8 +116,8 @@ struct CampusCacheView: View {
                 }
                 if sync.studentCourses.isEmpty { Text(L10n.tr("暂无已缓存课程")).foregroundStyle(Color.secondary) }
             }
-            if upcoming.items.contains(where: { $0.relevant(days: settings.moodleUpcomingRange.rawValue) }) { Section(L10n.tr("临近作业")) {
-                ForEach(upcoming.items.filter { $0.relevant(days: settings.moodleUpcomingRange.rawValue) }.sorted { $0.priority() < $1.priority() }) { work in
+            if !upcoming.upcoming(days: settings.moodleUpcomingRange.rawValue).isEmpty { Section(L10n.tr("临近作业")) {
+                ForEach(upcoming.upcoming(days: settings.moodleUpcomingRange.rawValue)) { work in
                     VStack(alignment: .leading, spacing: 4) {
                         Text(work.displayName)
                         Text(work.course).font(.caption).foregroundStyle(Color.secondary)

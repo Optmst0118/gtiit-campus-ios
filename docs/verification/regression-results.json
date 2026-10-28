@@ -3,6 +3,31 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "shared_cache_existing_schema_decodes"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shared_cache_oversized_read_rejected"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shared_cache_encode_failure_preserves_prior_snapshot"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shared_cache_corrupt_snapshot_rejected"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "shared_upcoming_equal_deadlines_have_stable_order"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "physics_quiz_title_normalized_and_zero_removed"
     },
     {
@@ -1618,6 +1643,11 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "physics_relative_index_links_resolve_to_quiz_module"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "physics_hw01_quiz_canonical_title"
     },
     {
@@ -1681,7 +1711,7 @@
       "test" : "shuttle_light_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, -54.0, 402.0, 54.0), intentionallyHidden=true",
+      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "shuttle_light_controls_respect_top_safe_area"
     },
@@ -2056,7 +2086,7 @@
       "test" : "browser_has_history_before_clear"
     },
     {
-      "detail" : "cookies=2",
+      "detail" : "cookies=8",
       "passed" : true,
       "test" : "cache_clear_preserves_login_and_storage"
     },
@@ -2086,7 +2116,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 8ABE50DD-7D84-4653-BBBA-FAF1A8AA3F1A, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-27 14:49:26 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 95CF5B72-8F96-4071-A7B0-F4EBA2D6E749, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-28 04:18:23 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -2542,8 +2572,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-27T14:49:55Z",
+  "date" : "2026-10-28T04:18:52Z",
   "focus" : "full",
   "passed" : true,
-  "runID" : "207e2a0a-99ae-4126-b9d5-4b0717f6db29"
+  "runID" : "b9f9e797-362a-4590-89b9-f91c06d447bd"
 }

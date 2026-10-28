@@ -57,7 +57,7 @@ import UIKit
                 </style></head><body><div id="root"><main><h1>Campus content</h1>\(rows)<button id="tail">Last page action</button></main></div></body></html>
                 """, baseURL: site.homeURL)
         }
-        if ProcessInfo.processInfo.environment["UI_REVIEW_SERVICE"] == "1" {
+        if ProcessInfo.processInfo.environment["UI_REVIEW_SERVICE"] == "1" || ProcessInfo.processInfo.environment["UI_REVIEW_SERVICE_ROUTE"] == "1" {
             model.browser(for: .serviceHub).webView.loadHTMLString("""
             <html><head><meta name='viewport' content='width=device-width,initial-scale=1'></head><body><table>
             <thead><tr><th></th><th>#</th><th>TITLE</th><th>GROUP</th><th>OWNER</th><th>STATE</th><th>CREATED AT</th></tr></thead><tbody>
@@ -110,6 +110,9 @@ import UIKit
                 }
                 model.upcoming.accept(MoodleUpcomingResult(loginRequired:false,items:works,courses:1,checked:1,failed:0,courseList:[MoodleCourse(id:7001,name:"Synthetic Physics 2",shortname:"PHY2001",category:"Science",term:"Winter 2026",active:true)],directoryRefreshed:true))
             }
+        }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_SERVICE_ROUTE"] == "1" {
+            model.openWeb(SiteID.serviceHub.homeURL, site: .serviceHub, title: L10n.tr("服务中心"))
         }
         _app = StateObject(wrappedValue: model)
         let lock = AppLockController(authenticator: PreviewUnavailableAuthenticator())

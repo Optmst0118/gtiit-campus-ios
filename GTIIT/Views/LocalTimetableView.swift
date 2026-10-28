@@ -96,7 +96,7 @@ struct LocalTimetableView: View {
                 }
             }.padding(16)
         }.onChange(of: geometry.size.height, initial: true) { _, height in pagerHeight = max(380, height - 114) }
-        }.background(Theme.pageBackground).navigationTitle(L10n.tr("整周课表")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+        }.nativeDetailSurface(title: L10n.tr("整周课表"))
         .toolbar { ToolbarItem(placement: .topBarTrailing) { Button(L10n.tr("更新"), systemImage: "arrow.clockwise") { showImport = true } } }
         .sheet(isPresented: $showImport) { TimetableImportView() }
     }
@@ -343,7 +343,7 @@ struct TimetableSettingsView: View {
             } footer: { Text(L10n.tr("使用门户现有登录，识别后进入核对页。只有点击右上角蓝色勾后才保存。")) }
             if app.timetable.snapshot != nil {
                 Section {
-                    NavigationLink(L10n.tr("查看本地课表")) { LocalTimetableView(store: app.timetable) }
+                    NavigationLink(L10n.tr("查看本地课表")) { CampusDetailPage(destination: .timetable) }
                     Button(L10n.tr("删除本地课表"), role: .destructive) { clear = true }
                 }
             }
@@ -407,7 +407,7 @@ struct TimetableImportView: View {
                 if let error { errorSection(error) }
                 if app.timetable.snapshot != nil {
                     Section {
-                        NavigationLink(L10n.tr("查看本地课表")) { LocalTimetableView(store: app.timetable) }
+                        NavigationLink(L10n.tr("查看本地课表")) { CampusDetailPage(destination: .timetable) }
                         Button(L10n.tr("删除本地课表"), role: .destructive) { confirmClear = true }
                     }
                 }

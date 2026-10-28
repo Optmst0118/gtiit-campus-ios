@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.4-beta.8 (81) · 2026-10-28
+
+- 保留现有五个底栏和菜单位置，多个原生入口统一经 CampusDetailPage 创建原有详情，继续使用 AppModel 的同一份数据源。
+- 共用详情外观与作业文本组件，保留各页面的工具栏及详细／紧凑展示；统一临近筛选，截止时间相同的项目使用稳定顺序。
+- Moodle、Student 考试及校园课程／预约缓存共用受保护读写工具，旧路径、格式和各自校验／清理策略不变；编码失败保留原快照。
+- 修复服务中心详情下重选“我的”后，旧服务路由可能再次呈现的问题。
+
 ## 2.0.4-beta.7 (80) · 2026-10-28
 
 - 班车首页采用系统大标题与滚动收起行为，提醒／更多菜单使用原生工具栏，背景、内容边距和首页图标与其他原生页面一致。

@@ -1,0 +1,9 @@
+{
+  "Tools/version.json": "c6dac3b84b2d3b951fd3f69dfde3d4b6bbcab674dc9300156988547c89212880",
+  "GTIIT/Views/CampusDetailPage.swift": "50da495fb7cc3f7c7fcfcb7bc39d515c685ac855cc92923b790109bb4aa34db4",
+  "GTIIT/Components/NativeDetailSurface.swift": "5cb05ad6fb7a839079e1b398297426eaf86fe7d0784edf89691798e9c5474f39",
+  "GTIIT/Components/MoodleWorkText.swift": "3a94befbed350f354bcc687f69ca29149c68321d58eb6be5d3be933a66b6fa1f",
+  "GTIIT/Services/ProtectedCampusCache.swift": "b7975f504ba308711e432d2f8ce69b55eba50195c53c2b6d5718b0f46a3a6b3e",
+  "GTIIT/Services/MoodleUpcomingStore.swift": "0a467319f0dfb6da565e46cbe4b2aea486b92806618cf1cb941754bc003fcb55",
+  "GTIIT/Views/MyTabView.swift": "a2e7e728a2ed4b73207cc45ebedf512f219cd8002f98432d4d3c86ae367af241"
+}

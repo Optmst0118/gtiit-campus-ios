@@ -11,7 +11,7 @@
 
 把学校的官方网页集中到一个 iOS App，配合原生班车倒计时、离线课表、临近作业、临近考试、PDF 预览与下载管理。课表需用户确认后保存；日程摘要缓存在本机，校园业务在官方网页完成。
 
-**当前版本：2.0.4-beta.7（build 80）**。班车首页统一为原生大标题、工具栏与页面布局，精简重复说明。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次验证范围见 [2.0.4 beta.7 发布记录](docs/RELEASE-2.0.4-beta.7.md)。
+**当前版本：2.0.4-beta.8（build 81）**。整理共用详情、页面样式、作业摘要与缓存读写，保留现有五栏和菜单位置。版本统一定义于 [Tools/version.json](Tools/version.json)；变更见 [CHANGELOG](CHANGELOG.md)；本次范围见[结构整理记录](docs/STRUCTURE-CLEANUP-2.0.4-beta.8.md)。
 
 班车提醒与更多菜单位于右上角，教学周加班车控制收进菜单，方向卡片保留蓝／橙渐隐配色。[下一阶段菜单重构的三种方向](docs/design/navigation-directions-2.1.md)已整理为方案，尚未迁移当前底栏。
 

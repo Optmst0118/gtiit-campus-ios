@@ -6,7 +6,7 @@ struct StudentExamsEntry: View {
     @Environment(\.locale) private var locale
     @ObservedObject var store: StudentExamStore
     var body: some View {
-        NavigationLink { StudentExamsView(store: store) } label: {
+        NavigationLink { CampusDetailPage(destination: .exams) } label: {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Label(L10n.tr("临近考试"), systemImage: "pencil.and.list.clipboard").font(.headline)
@@ -61,8 +61,7 @@ struct StudentExamsView: View {
                 }
             }
             Button(L10n.tr("在 Student 核对")) { app.switchTo(.portal); app.browser(for: .portal).loadHome() }
-        }.navigationTitle(L10n.tr("临近考试")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
-            .scrollContentBackground(.hidden).background(Theme.pageBackground)
+        }.nativeDetailSurface(title: L10n.tr("临近考试"))
             .toolbar { ToolbarItem(placement: .topBarTrailing) { Button { refresh() } label: { Image(systemName: "arrow.clockwise") }.disabled(store.refreshing).accessibilityLabel(L10n.tr("更新考试安排")) } }
     }
     private func refresh() {

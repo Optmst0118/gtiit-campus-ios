@@ -86,8 +86,7 @@ struct AcademicCalendarView: View {
             }.frame(maxWidth: .infinity, alignment: .leading).padding(16).cardBackground()
             }.padding(20)
         }
-        .navigationTitle(L10n.tr("校历")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
-        .scrollContentBackground(.hidden).background(Theme.pageBackground)
+        .nativeDetailSurface(title: L10n.tr("校历"))
         .toolbar { ToolbarItem(placement: .topBarTrailing) {
             Menu {
                 Toggle(L10n.tr("显示考试时间"), isOn: $showExams)

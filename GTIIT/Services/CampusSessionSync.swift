@@ -31,8 +31,7 @@ import WebKit
         cacheURL = (directory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("CampusLocalCache")).appendingPathComponent("cache.json")
         super.init()
-        if let data = try? Data(contentsOf: cacheURL), data.count < 5_000_000,
-           let cache = try? JSONDecoder().decode(Cache.self, from: data), cache.version == 1 {
+        if let cache = ProtectedCampusCache.read(Cache.self, from: cacheURL, maxBytes: 5_000_000), cache.version == 1 {
             studentCourses = cache.courses.filter { !$0.name.isEmpty && $0.name.count <= 1000 }
             reservations = cache.reservations.filter(\.valid)
             coursesUpdatedAt = cache.coursesUpdatedAt; reservationsUpdatedAt = cache.reservationsUpdatedAt
@@ -162,10 +161,7 @@ import WebKit
     }
     private func persist() {
         do {
-            var folder = cacheURL.deletingLastPathComponent()
-            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [.protectionKey: FileProtectionType.complete])
-            var values = URLResourceValues(); values.isExcludedFromBackup = true; try folder.setResourceValues(values)
-            try JSONEncoder().encode(Cache(version: 1, courses: studentCourses, reservations: reservations, coursesUpdatedAt: coursesUpdatedAt, reservationsUpdatedAt: reservationsUpdatedAt)).write(to: cacheURL, options: [.atomic, .completeFileProtection])
+            try ProtectedCampusCache.write(Cache(version: 1, courses: studentCourses, reservations: reservations, coursesUpdatedAt: coursesUpdatedAt, reservationsUpdatedAt: reservationsUpdatedAt), to: cacheURL)
         } catch { /* Keep the prior atomic snapshot. The UI retains its last successful timestamp. */ }
     }
     func acceptCourses(_ courses: [CachedCampusCourse], at: Date = Date()) {

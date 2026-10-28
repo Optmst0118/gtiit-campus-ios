@@ -124,7 +124,7 @@ struct MoodleHomeView: View {
     let open: (MoodleDestination) -> Void
 
     private var upcoming: [MoodleWork] {
-        store.items.filter { $0.relevant(days: settings.moodleUpcomingRange.rawValue) }.sorted { $0.priority() < $1.priority() }
+        store.upcoming(days: settings.moodleUpcomingRange.rawValue)
     }
 
     private var columns: [GridItem] {
@@ -213,7 +213,7 @@ struct MoodleHomeView: View {
                         }.buttonStyle(CardPressStyle())
                     }
                     if upcoming.count > 5 {
-                        NavigationLink { MoodleUpcomingView(store: store) } label: {
+                        NavigationLink { CampusDetailPage(destination: .assignments) } label: {
                             Label(L10n.format("查看全部 %@ 项", String(upcoming.count)), systemImage: "arrow.up.right")
                                 .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity, minHeight: 44)
                         }.foregroundStyle(Theme.accent)
@@ -465,14 +465,7 @@ private struct MoodleWorkRowNative: View {
             Image(systemName: item.kind == "quiz" ? "pencil.and.list.clipboard" : "doc.text")
                 .foregroundStyle(item.kind == "quiz" ? Theme.orange : Theme.accent)
                 .frame(width: 24)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(item.displayName).font(.subheadline.weight(.semibold)).foregroundStyle(.primary).lineLimit(2)
-                Text(item.course).font(.caption).foregroundStyle(.secondary).lineLimit(1)
-                if let due = item.dueDate {
-                    Label(due.gtiitFormatted(), systemImage: "clock")
-                        .font(.caption).foregroundStyle(Theme.accent)
-                }
-            }
+            MoodleWorkText(item: item, compact: true)
             Spacer(minLength: 4)
             Image(systemName: "arrow.up.right").font(.caption).foregroundStyle(.tertiary)
         }

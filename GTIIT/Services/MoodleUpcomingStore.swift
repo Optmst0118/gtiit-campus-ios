@@ -51,8 +51,7 @@ import WebKit
         let root = directory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("MoodleUpcoming", isDirectory: true)
         cacheURL = root.appendingPathComponent("summary.json")
-        guard let data = try? Data(contentsOf: cacheURL), data.count < 5_000_000,
-              let cache = try? JSONDecoder().decode(Cache.self, from: data), cache.version == 3, (cache.updatedAt ?? .distantPast) <= Date() else { return }
+        guard let cache = ProtectedCampusCache.read(Cache.self, from: cacheURL, maxBytes: 5_000_000), cache.version == 3, (cache.updatedAt ?? .distantPast) <= Date() else { return }
         courseItems = cache.courseList ?? []
         directoryUpdatedAt = cache.directoryUpdatedAt
         needsReaderUpgrade = cache.readerVersion != 3
@@ -60,6 +59,11 @@ import WebKit
         items = cache.items.filter { MoodleWork.safeURL($0.url) != nil }
         directoryUpdatedAt = cache.directoryUpdatedAt
         updatedAt = cache.updatedAt; partial = cache.partial; checked = cache.checked; courses = cache.courses
+    }
+    func upcoming(now: Date = Date(), days: Int = 10) -> [MoodleWork] {
+        items.filter { $0.relevant(now: now, days: days) }.sorted {
+            $0.priority() == $1.priority() ? $0.url < $1.url : $0.priority() < $1.priority()
+        }
     }
     static func currentTerm(now: Date = Date()) -> (year: Int, season: String) {
         if let event = AcademicCalendarStore.events.last(where: {
@@ -113,12 +117,8 @@ import WebKit
     private func persist() {
         guard updatedAt != nil || !courseItems.isEmpty else { return }
         do {
-            var folder = cacheURL.deletingLastPathComponent()
-            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [.protectionKey: FileProtectionType.complete])
-            var values = URLResourceValues(); values.isExcludedFromBackup = true
-            try folder.setResourceValues(values)
             let cache = Cache(version: 3, term: Self.termKey(), items: items, updatedAt: updatedAt, partial: partial, checked: checked, courses: courses, courseList: courseItems, directoryUpdatedAt: directoryUpdatedAt, readerVersion: needsReaderUpgrade ? nil : 3)
-            try JSONEncoder().encode(cache).write(to: cacheURL, options: [.atomic, .completeFileProtection])
+            try ProtectedCampusCache.write(cache, to: cacheURL)
         } catch { /* Retain the current in-memory summary if local storage is unavailable. */ }
     }
     private var task: Task<Void, Never>?
