@@ -436,7 +436,8 @@ struct TimetableImportView: View {
         }
     }
     private var portal: some View {
-        SiteBrowserView(site: .portal)
+        NativeWebPageView(site: .portal, title: L10n.tr("门户课表"),
+            url: URL(string: "https://students.gtiit.edu.cn/enrollments")!)
             .safeAreaInset(edge: .top) {
                 HStack(spacing: 10) {
                     if busy { ProgressView() }
@@ -517,7 +518,8 @@ struct TimetableImportView: View {
         error = nil; draft = nil; shouldRecognize = true
         recognitionStatus = "正在打开门户课表…"
         recognitionID = UUID()
-        app.browser(for: .portal).load(URL(string: "https://students.gtiit.edu.cn/enrollments")!)
+        // The mounted detail loads the entry URL once; do not start a request
+        // while a previous portal host still owns the shared WebView.
         path = [.portal]
     }
     @MainActor private func recognizeAutomatically() async {
@@ -537,7 +539,7 @@ struct TimetableImportView: View {
             // Resume only after the portal's own signed-in navigation is present.
             if !restoredEnrollments, !browser.isLoading,
                let url = browser.webView.url, url.host == "students.gtiit.edu.cn",
-               url.path == "/" || url.path.isEmpty,
+               url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/")) != "enrollments",
                (try? await browser.webView.evaluateJavaScript("!!document.querySelector('a[href=\"/enrollments\"]')")) as? Bool == true {
                 restoredEnrollments = true
                 browser.load(URL(string: "https://students.gtiit.edu.cn/enrollments")!)

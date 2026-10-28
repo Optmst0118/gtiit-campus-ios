@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.2 (83) · 2026-10-28
+
+- 课表导入采用同层级网页详情，移除嵌套导航及提前加载共用网页；SSO 登录后可从其他门户页面返回课表。
+- 设备构建、签名检查及 65 项相关回归通过。模拟器门户访问证书失败，真实账号完整识别尚待核对。
+
 ## 2.1.0-beta.1 (82) · 2026-10-28
 
 - 独立 GTIIT Beta 安装通道：App、Widget、URL scheme、可选 App Group 分离，原版 2.0.4-beta.8 保留。

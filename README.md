@@ -11,7 +11,7 @@
 
 把学校的官方网页集中到一个 iOS App，配合原生班车倒计时、离线课表、临近作业、临近考试、PDF 预览与下载管理。课表需用户确认后保存；日程摘要缓存在本机，校园业务在官方网页完成。
 
-**实验版本：2.1.0-beta.1（build 82），安装名 GTIIT Beta**。底栏为首页／学习／班车／预约／校园。独立 Bundle ID `io.github.optmst0118.gtiit.beta`，与原版并存；首次使用需在 Beta 内重新登录，不迁移原版私人数据。稳定基线为 `v2.0.4-beta.8`（81），保留在 main 与标签中。
+**实验版本：2.1.0-beta.2（build 83），安装名 GTIIT Beta**。底栏为首页／学习／班车／预约／校园。独立 Bundle ID `io.github.optmst0118.gtiit.beta`，与原版并存；首次使用需在 Beta 内重新登录，不迁移原版私人数据。稳定基线为 `v2.0.4-beta.8`（81），保留在 main 与标签中。
 
 本分支 `codex/navigation-2.1-beta` 是独立发行通道，App、Widget、URL scheme 和可选 App Group 全部隔离。工程生成器和签名检查均使用 Beta 标识。请勿把本分支的安装包用于覆盖原版。详细入口映射见[2.1 Beta 发布记录](docs/RELEASE-2.1.0-beta.1.md)。
 
