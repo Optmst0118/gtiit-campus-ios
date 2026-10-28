@@ -18,8 +18,8 @@ struct ShuttleView: View {
             ScrollViewReader { proxy in
             TimelineView(.periodic(from: .now, by: 1)) { context in
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
-                        NativePageIcon(symbol: "bus.fill", tint: Theme.accent).id("shuttle.top")
+                    VStack(alignment: .leading, spacing: 16) {
+                        Color.clear.frame(height: 0).id("shuttle.top")
 
                         EqualHeightHStack(spacing: 12) {
                             ForEach(ShuttleDirection.allCases) { direction in
@@ -58,7 +58,7 @@ struct ShuttleView: View {
                             .cardBackground()
                         }.buttonStyle(CardPressStyle()).tint(Theme.accent)
                     }
-                    .padding(.horizontal, 20).padding(.top, 8).padding(.bottom, 30)
+                    .padding(.horizontal, 20).padding(.top, 12).padding(.bottom, 20)
                     .frame(maxWidth: 720).frame(maxWidth: .infinity)
                 }.background(Theme.pageBackground)
             }

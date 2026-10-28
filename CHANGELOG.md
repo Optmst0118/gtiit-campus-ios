@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.10 (91) · 2026-10-28
+
+- 删除班车大标题下的装饰图标，正文间距与首页一致：水平 20、顶部 12、区块间距 16；保留回到顶部锚点。
+
 ## 2.1.0-beta.9 (90) · 2026-10-28
 
 - 竖屏折叠时隐藏 split 外层导航栈额外生成的返回栏，修正一级页面工具栏和大标题整体下沉。保留页面自己的导航栏和真实详情返回。
