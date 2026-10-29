@@ -12,13 +12,14 @@ struct ShuttleActivitySummary: View {
     let state: ShuttleActivityAttributes.ContentState
     var isStale = false
     var island = false
+    var systemSurface = false
     var body: some View {
         ActivityGlassCard(title: ShuttleActivityWords.compact(attributes),
             caption: attributes.languageCode == "en" ? "Departs in" : "距发车",
             target: state.departureDate, expired: isStale,
             badge: attributes.destination,
             detail: attributes.departureTime + " · " + attributes.busLabel,
-            accent: ActivityPalette.orange, language: attributes.languageCode, island: island)
+            accent: ActivityPalette.orange, language: attributes.languageCode, island: island, systemSurface: systemSurface)
     }
 }
 
@@ -33,18 +34,19 @@ struct ActivityGlassCard: View {
     var language: String?
     var passedText: String? = nil
     var island = false
+    var systemSurface = false
     var body: some View {
         GeometryReader { geometry in
             HStack(spacing: 14) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title).font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(.white).lineLimit(island ? 1 : 2).minimumScaleFactor(0.8)
+                        .foregroundStyle(.primary).lineLimit(island ? 1 : 2).minimumScaleFactor(0.8)
                     Spacer(minLength: 0)
                     Text(caption).font(.system(size: 11)).foregroundStyle(accent)
                     ShuttleActivityCountdown(date: target, expired: expired, language: language, expiredLabel: passedText)
                         .font(.system(size: island ? 38 : 46, weight: .semibold, design: .rounded))
                         .foregroundStyle(accent)
-                    Text(detail).font(.system(size: 11).monospacedDigit()).foregroundStyle(.white.opacity(0.7))
+                    Text(detail).font(.system(size: 11).monospacedDigit()).foregroundStyle(.secondary)
                         .lineLimit(1).minimumScaleFactor(0.75)
                 }.frame(maxWidth: .infinity, alignment: .leading)
                 Text(badge).font(.system(size: island ? 30 : 36, weight: .bold, design: .rounded))
@@ -55,7 +57,7 @@ struct ActivityGlassCard: View {
             }
         }.frame(height: island ? 108 : 136)
             .padding(island ? 2 : 12)
-            .modifier(ActivityGlassMaterial(enabled: !island))
+            .modifier(ActivityGlassMaterial(enabled: !island && !systemSurface))
             .accessibilityElement(children: .combine)
     }
 }
@@ -65,6 +67,7 @@ struct CourseActivitySummary: View {
     let state: CourseActivityAttributes.ContentState
     var isStale = false
     var island = false
+    var systemSurface = false
     var body: some View {
         ActivityGlassCard(title: attributes.title,
             caption: attributes.language == "en" ? "Starts in" : "距上课",
@@ -72,7 +75,7 @@ struct CourseActivitySummary: View {
             badge: attributes.room.isEmpty ? "—" : attributes.room,
             detail: ShuttleActivityWords.time(state.start) + (attributes.building.isEmpty ? "" : " · " + attributes.building),
             accent: ActivityPalette.blue, language: attributes.language,
-            passedText: attributes.language == "en" ? "Started" : "已上课", island: island)
+            passedText: attributes.language == "en" ? "Started" : "已上课", island: island, systemSurface: systemSurface)
     }
 }
 
@@ -126,9 +129,7 @@ private struct ActivityGlassMaterial: ViewModifier {
     @ViewBuilder func body(content: Content) -> some View {
         if !enabled { content }
         else {
-            content.background(Color(red: 0.10, green: 0.12, blue: 0.15).opacity(0.92),
-                in: RoundedRectangle(cornerRadius: 30, style: .continuous))
-                .overlay { RoundedRectangle(cornerRadius: 30).strokeBorder(.white.opacity(0.12), lineWidth: 0.5) }
+            content.background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
         }
     }
 }

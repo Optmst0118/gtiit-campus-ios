@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.15 (96) · 2026-10-29
+
+- 锁屏实时活动交由系统绘制默认通透背景和外轮廓，移除内容层的重复圆角、边框与不透明底色；App 内示例使用系统薄材质。
+
 ## 2.1.0-beta.14 (95) · 2026-10-29
 
 - 修复锁屏实时活动只显示透明框：移除自定义 glassEffect，采用 ActivityKit 系统背景和可归档内容底色。

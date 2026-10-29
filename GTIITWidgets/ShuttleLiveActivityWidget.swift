@@ -5,8 +5,8 @@ import WidgetKit
 struct ShuttleLiveActivityWidget: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: ShuttleActivityAttributes.self) { context in
-            ShuttleActivitySummary(attributes: context.attributes, state: context.state, isStale: context.isStale)
-                .activityBackgroundTint(Color(red: 0.10, green: 0.12, blue: 0.15))
+            ShuttleActivitySummary(attributes: context.attributes, state: context.state, isStale: context.isStale, systemSurface: true)
+                .activityBackgroundTint(nil)
                 .activitySystemActionForegroundColor(.white)
                 .widgetURL(link(context.attributes))
         } dynamicIsland: { context in
