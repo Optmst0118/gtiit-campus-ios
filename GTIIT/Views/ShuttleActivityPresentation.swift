@@ -81,13 +81,14 @@ struct ShuttleActivityCountdown: View {
     var expired = false
     var language: String?
     var expiredLabel: String? = nil
+    var centered = false
     var body: some View {
         if expired || date <= Date() {
             Text(expiredLabel ?? ShuttleActivityWords.passed(language)).font(.caption).lineLimit(2)
         } else {
             Text(timerInterval: Date()...date, countsDown: true, showsHours: true)
                 .monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
-                .multilineTextAlignment(.leading).frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(centered ? .center : .leading).frame(maxWidth: .infinity, alignment: centered ? .center : .leading)
         }
     }
 }
@@ -124,11 +125,10 @@ private struct ActivityGlassMaterial: ViewModifier {
     let enabled: Bool
     @ViewBuilder func body(content: Content) -> some View {
         if !enabled { content }
-        else if #available(iOS 26.0, *) {
-            content.background(.black.opacity(0.65), in: RoundedRectangle(cornerRadius: 32))
-                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 32, style: .continuous))
-        } else {
-            content.background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 32, style: .continuous))
+        else {
+            content.background(Color(red: 0.10, green: 0.12, blue: 0.15).opacity(0.92),
+                in: RoundedRectangle(cornerRadius: 30, style: .continuous))
+                .overlay { RoundedRectangle(cornerRadius: 30).strokeBorder(.white.opacity(0.12), lineWidth: 0.5) }
         }
     }
 }

@@ -208,8 +208,8 @@ private struct ShuttleHomeView: View {
     private func row(_ departure: ShuttleDeparture) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(directionLabel(departure.trip.direction))
-                    .font(.subheadline.weight(.semibold))
+                Text(departure.trip.direction == .southToNorth ? (english ? "S → N" : "南 → 北") : (english ? "N → S" : "北 → 南"))
+                    .font(.system(size: 12, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.8)
                 Text(departure.trip.time).font(.caption.monospacedDigit()).foregroundStyle(.secondary)
             }
             Spacer(minLength: 4)

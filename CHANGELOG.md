@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.14 (95) · 2026-10-29
+
+- 修复锁屏实时活动只显示透明框：移除自定义 glassEffect，采用 ActivityKit 系统背景和可归档内容底色。
+
 ## 2.1.0-beta.13 (94) · 2026-10-29
 
 - 重构班车与课程实时活动的锁屏、展开灵动岛和紧凑展示：大倒计时与目的地／教室色块，移除班车轨迹装饰。

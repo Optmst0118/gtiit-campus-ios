@@ -6,7 +6,7 @@ struct ShuttleLiveActivityWidget: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: ShuttleActivityAttributes.self) { context in
             ShuttleActivitySummary(attributes: context.attributes, state: context.state, isStale: context.isStale)
-                .activityBackgroundTint(.clear)
+                .activityBackgroundTint(Color(red: 0.10, green: 0.12, blue: 0.15))
                 .activitySystemActionForegroundColor(.white)
                 .widgetURL(link(context.attributes))
         } dynamicIsland: { context in
@@ -18,9 +18,10 @@ struct ShuttleLiveActivityWidget: Widget {
             } compactLeading: {
                 Text(ShuttleActivityWords.compact(context.attributes))
                     .font(.system(size: 12, weight: .semibold)).foregroundStyle(ActivityPalette.orange)
+                    .lineLimit(1).frame(width: 58, alignment: .center)
             } compactTrailing: {
                 ShuttleActivityCountdown(date: context.state.departureDate, expired: context.isStale,
-                    language: context.attributes.languageCode)
+                    language: context.attributes.languageCode, centered: true)
                     .font(.system(size: 13, weight: .semibold)).foregroundStyle(ActivityPalette.orange)
                     .frame(width: 58)
             } minimal: {
