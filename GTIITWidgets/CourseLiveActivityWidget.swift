@@ -5,7 +5,8 @@ struct CourseLiveActivityWidget: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: CourseActivityAttributes.self) { context in
             CourseActivitySummary(attributes: context.attributes, state: context.state, isStale: context.isStale, systemSurface: true)
-                .activityBackgroundTint(nil).activitySystemActionForegroundColor(.white)
+                .environment(\.colorScheme, .dark)
+                .activityBackgroundTint(.clear).activitySystemActionForegroundColor(.white)
                 .widgetURL(URL(string: "gtiit-beta://timetable"))
         } dynamicIsland: { context in
             DynamicIsland {

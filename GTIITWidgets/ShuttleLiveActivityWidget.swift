@@ -6,7 +6,8 @@ struct ShuttleLiveActivityWidget: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: ShuttleActivityAttributes.self) { context in
             ShuttleActivitySummary(attributes: context.attributes, state: context.state, isStale: context.isStale, systemSurface: true)
-                .activityBackgroundTint(nil)
+                .environment(\.colorScheme, .dark)
+                .activityBackgroundTint(.clear)
                 .activitySystemActionForegroundColor(.white)
                 .widgetURL(link(context.attributes))
         } dynamicIsland: { context in
