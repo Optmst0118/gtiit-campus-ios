@@ -440,6 +440,8 @@ private struct RootLifecycle: ViewModifier {
             }
         }
         .onChange(of: settings.moodleUpcomingRange) { _, _ in app.upcoming.invalidate(); app.refreshMoodleSummary(force: true) }
+        .onChange(of: settings.studyReminderHour) { _, _ in app.syncMoodleDeadlineReminders() }
+        .onChange(of: settings.examRemindersEnabled) { _, _ in app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.moodleReminderLead) { _, _ in app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.moodleDeadlineRemindersEnabled) { _, _ in app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.shuttleTeachingWeek) { _, _ in syncShuttleSystemState() }

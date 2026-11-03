@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.18 (99) · 2026-11-03
+
+- 作业与个人考试按校园日期在提前天数内每天汇总提醒，默认 09:00，可在学习与提醒中调整小时；每天一条，最多预排 15 天。
+- 移除作业详情六小时跳过规则，保持已有缓存先显示及后台核对。
+- 班车 Widget 调整方向、时间和倒计时字号、对齐及列宽。
+
+## 2.1.0-beta.17 (98) · 2026-11-03
+
+- 课程实时活动提前 15 分钟预排，课前 5 分钟增加本地通知（需要通知权限）。
+- Moodle 更新超时后保留已完成的部分读取结果；仍需核对学校实际登录环境。
+
 ## 2.1.0-beta.16 (97) · 2026-10-29
 
 - 锁屏实时活动明确设置透明背景，避免 nil 系统默认值显示黑底。内容层继续不绘制外部底色。

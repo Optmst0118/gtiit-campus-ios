@@ -180,7 +180,7 @@ private struct ShuttleHomeView: View {
                 }.frame(maxHeight: .infinity)
             }
         default:
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 12) {
                 header
                 if entry.suggested != nil, let primary { tile(primary) }
                 else {
@@ -197,8 +197,8 @@ private struct ShuttleHomeView: View {
     }
     private func tile(_ departure: ShuttleDeparture) -> some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(directionLabel(departure.trip.direction)).font(.subheadline.weight(.semibold))
-            Text(departure.trip.time).font(.system(size: 30, weight: .semibold, design: .rounded)).monospacedDigit()
+            Text(directionLabel(departure.trip.direction)).font(.system(size: 13, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.8)
+            Text(departure.trip.time).font(.system(size: 32, weight: .semibold, design: .rounded)).monospacedDigit()
             ShuttleWidgetCountdown(date: departure.date, english: english)
                 .font(.caption.monospacedDigit()).foregroundStyle(ActivityPalette.orange)
                 .frame(height: 16)
@@ -206,7 +206,7 @@ private struct ShuttleHomeView: View {
     }
 
     private func row(_ departure: ShuttleDeparture) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 8) {
+        HStack(alignment: .center, spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(departure.trip.direction == .southToNorth ? (english ? "S → N" : "南 → 北") : (english ? "N → S" : "北 → 南"))
                     .font(.system(size: 12, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.8)
@@ -214,8 +214,8 @@ private struct ShuttleHomeView: View {
             }
             Spacer(minLength: 4)
             ShuttleWidgetCountdown(date: departure.date, english: english)
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                .foregroundStyle(ActivityPalette.orange).frame(width: 65, alignment: .trailing)
+                .font(.system(size: 19, weight: .semibold, design: .rounded))
+                .foregroundStyle(ActivityPalette.orange).frame(width: 72, alignment: .trailing)
         }
     }
 

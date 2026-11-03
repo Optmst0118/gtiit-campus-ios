@@ -100,6 +100,8 @@ enum EntryOrder {
     @Published var moodleUpcomingRange: MoodleUpcomingRange {
         didSet { defaults.set(moodleUpcomingRange.rawValue, forKey: "settings.moodleUpcomingRange") }
     }
+    @Published var studyReminderHour: Int { didSet { defaults.set(studyReminderHour, forKey: "settings.studyReminderHour") } }
+    @Published var examRemindersEnabled: Bool { didSet { defaults.set(examRemindersEnabled, forKey: "settings.examRemindersEnabled") } }
     @Published var moodleReminderLead: MoodleReminderLead {
         didSet { defaults.set(moodleReminderLead.rawValue, forKey: "settings.moodleReminderLead") }
     }
@@ -211,6 +213,8 @@ enum EntryOrder {
         let storedLead = defaults.integer(forKey: "settings.shuttleReminderLead")
         shuttleReminderLead = [5, 10, 15].contains(storedLead) ? storedLead : 10
         moodleUpcomingRange = MoodleUpcomingRange(rawValue: defaults.integer(forKey: "settings.moodleUpcomingRange")) ?? .ten
+        studyReminderHour = defaults.object(forKey: "settings.studyReminderHour") as? Int ?? 9
+        examRemindersEnabled = defaults.object(forKey: "settings.examRemindersEnabled") as? Bool ?? true
         moodleReminderLead = MoodleReminderLead(rawValue: defaults.integer(forKey: "settings.moodleReminderLead")) ?? .oneDay
         moodleDeadlineRemindersEnabled = defaults.object(forKey: "settings.moodleDeadlineRemindersEnabled") as? Bool ?? true
         privateShuttleReminders = defaults.bool(forKey: "settings.privateShuttleReminders")

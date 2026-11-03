@@ -19,7 +19,7 @@ import WidgetKit
                     departureTime: ShuttleActivityWords.time(date), busLabel: "1 号", directionRaw: "southToNorth", languageCode: "zh-Hans", departedLabel: "已发车")
                 id = try Activity.request(attributes: attributes, content: ActivityContent(state: .init(departureDate: date, busNumber: 1), staleDate: date), pushType: nil).id
             } else {
-                let start = now.addingTimeInterval(kind == "scheduled" ? 615 : 480)
+                let start = now.addingTimeInterval(kind == "scheduled" ? 915 : 480)
                 let plan = CourseActivityPlan(id: "review-" + UUID().uuidString, title: "Introduction to Robotics", room: "E1-205", building: "南校区", start: start, end: start.addingTimeInterval(5400))
                 let activity = try CourseLiveActivityController.request(plan: plan, language: "zh-Hans", now: now)
                 id = activity.id

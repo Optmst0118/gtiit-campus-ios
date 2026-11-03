@@ -88,7 +88,7 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "class_activity_ten_minute_lead"
+      "test" : "class_activity_fifteen_minute_lead"
     },
     {
       "detail" : "",
@@ -104,6 +104,56 @@
       "detail" : "",
       "passed" : true,
       "test" : "class_activity_absent_without_timetable"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "class_activity_after_start_moves_to_next"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "class_activity_plan_preserves_duration"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "activity_fits_system_lock_screen_height"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "activity_reserves_island_camera_height"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_timeline_nonempty_sorted_unique"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_timeline_covers_next_day"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reminders_calendar_days"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reminders_custom_hour"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reminders_no_past_catchup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reminders_empty"
     },
     {
       "detail" : "",
@@ -248,7 +298,7 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "submitted_assignment_detail_uses_six_hour_cache"
+      "test" : "submitted_assignment_detail_rechecked"
     },
     {
       "detail" : "",
@@ -432,8 +482,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-28T12:58:52Z",
+  "date" : "2026-11-03T09:01:10Z",
   "focus" : "moodle",
   "passed" : true,
-  "runID" : "9891dfdc-1ed1-45c5-ac8a-dfb9739369de"
+  "runID" : "edaa1064-4491-47ff-bb53-022be3b1a48b"
 }

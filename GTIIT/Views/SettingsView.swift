@@ -366,8 +366,12 @@ struct MoodleReminderSettingsView: View {
                 }
             }
             Section {
+                Picker(L10n.isEnglish ? "Reminder time" : "每日提醒时间", selection: $settings.studyReminderHour) {
+                    ForEach(0..<24) { hour in Text(String(format: "%02d:00", hour)).tag(hour) }
+                }
+                Toggle(L10n.isEnglish ? "Exam reminders" : "考试提醒", isOn: $settings.examRemindersEnabled)
                 Toggle(L10n.tr("未提交作业提醒"), isOn: $settings.moodleDeadlineRemindersEnabled)
-                Picker(L10n.tr("未提交作业提醒时间"), selection: $settings.moodleReminderLead) {
+                Picker(L10n.isEnglish ? "Days in advance" : "提前天数", selection: $settings.moodleReminderLead) {
                     ForEach(MoodleReminderLead.allCases) { lead in Text(lead.title).tag(lead) }
                 }.disabled(!settings.moodleDeadlineRemindersEnabled)
                 if reminders.authorizationStatus == .notDetermined {

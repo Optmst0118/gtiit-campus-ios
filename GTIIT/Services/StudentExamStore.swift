@@ -38,6 +38,7 @@ enum CalendarExamSelection {
     @Published private(set) var refreshing = false
     @Published private(set) var loginRequired = false
     @Published private(set) var failed = false
+    var onReminderSnapshot: (() -> Void)?
     static let refreshInterval: TimeInterval = 1800
     private let cacheURL: URL
     private var task: Task<Void, Never>?
@@ -59,6 +60,7 @@ enum CalendarExamSelection {
     func accept(semester: String, items: [StudentExam], at date: Date = Date()) throws {
         guard items.count <= 500, items.allSatisfy(\.valid), !semester.isEmpty else { throw CocoaError(.coderReadCorrupt) }
         self.items = Array(Set(items)).sorted { $0.start! < $1.start! }; self.semester = semester; updatedAt = date
+        onReminderSnapshot?()
         failed = false; loginRequired = false
         try ProtectedCampusCache.write(Snapshot(semester: semester, items: self.items, updatedAt: date), to: cacheURL)
     }
@@ -96,6 +98,6 @@ enum CalendarExamSelection {
     }
     func cancel(clear: Bool = false) {
         generation = UUID(); task?.cancel(); task = nil; webView?.stopLoading(); webView = nil; refreshing = false
-        if clear { items = []; semester = ""; updatedAt = nil; attemptedAt = nil; try? FileManager.default.removeItem(at: cacheURL) }
+        if clear { defer { onReminderSnapshot?() }; items = []; semester = ""; updatedAt = nil; attemptedAt = nil; try? FileManager.default.removeItem(at: cacheURL) }
     }
 }

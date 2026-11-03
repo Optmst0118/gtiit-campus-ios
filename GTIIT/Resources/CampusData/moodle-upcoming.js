@@ -169,10 +169,6 @@ try {
  let pages=[...assignments.values()];if(pages.length>240){failed+=pages.length-240;pages=pages.slice(0,240);}
  await pool(pages,async(a)=>{
    const cached=cachedWork.get(a.url);
-   if(!(typeof forceDetails==='boolean'&&forceDetails) && cached && cached.checkedAt && now-cached.checkedAt<6*3600 &&
-      (cached.status==='submitted' || (cached.due && cached.due>now+Math.max(days,10)*86400))){
-     merge({...cached,...a});return;
-   }
    const previous=cachedWork.get(a.url);
    if(previous)merge({...previous,...a});
    const doc=await html(a.url);
@@ -181,7 +177,7 @@ try {
    merge({...a,due:detail.due,opened:detail.opened,status:detail.status,source:'assignment',kind:a.kind,checkedAt:now});
  });
  await calendarJob;
- if(signal.aborted)throw Error('CANCELLED');
+ if(signal.aborted)failed++;
  const activeIDs=new Set(courses.map(c=>c.id));
  return JSON.stringify({loginRequired:false,items:[...map.values()].filter(x=>(!x.courseID||activeIDs.has(x.courseID))).map(({courseID,...item})=>item),courses:courseCount,courseList:allCourses,directoryRefreshed,checked,failed});
 } finally {controller.abort();clearTimeout(deadline);if(window.__gtiitUpcomingDirectory?.jobID===jobID)delete window.__gtiitUpcomingDirectory;if(window.__gtiitUpcomingJob===controller)delete window.__gtiitUpcomingJob;}

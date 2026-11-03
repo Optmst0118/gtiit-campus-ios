@@ -75,8 +75,10 @@ final class AppModel: ObservableObject {
             }
         }
         if settings.biometricLockEnabled { lock.lock() }
+        exams.onReminderSnapshot = { [weak self] in self?.syncMoodleDeadlineReminders() }
         upcoming.onReminderSnapshot = { [weak self] in self?.syncMoodleDeadlineReminders() }
-        upcoming.onClearReminders = { MoodleDeadlineReminders.shared.clear() }
+        upcoming.onClearReminders = { [weak self] in MoodleDeadlineReminders.shared.clear(); Task { @MainActor [weak self] in await Task.yield(); self?.syncMoodleDeadlineReminders() } }
+        ShuttleNotificationCenter.shared.onOpenStudy = { [weak self] in self?.select(tab: .me) }
         ShuttleNotificationCenter.shared.onOpenMoodle = { [weak self] url in
             self?.openWeb(url, site: .moodle)
         }
@@ -113,8 +115,10 @@ final class AppModel: ObservableObject {
         #if GTIIT_REGRESSION
         canRequest = false
         #endif
+        StudyDailyReminders.shared.update(works: settings.moodleDeadlineRemindersEnabled ? upcoming.items : [],
+            exams: settings.examRemindersEnabled ? exams.items : [], days: settings.moodleReminderLead.rawValue / 24, hour: settings.studyReminderHour, allowPermissionRequest: canRequest)
         MoodleDeadlineReminders.shared.update(items: upcoming.items, updatedAt: upcoming.updatedAt,
-            partial: upcoming.partial, enabled: settings.moodleDeadlineRemindersEnabled, allowPermissionRequest: canRequest, lead: settings.moodleReminderLead)
+            partial: upcoming.partial, enabled: false, allowPermissionRequest: canRequest, lead: settings.moodleReminderLead)
     }
 
     func refreshMoodleSummary(force: Bool = false) {

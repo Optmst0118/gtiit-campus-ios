@@ -1,6 +1,7 @@
 import ActivityKit
 import Foundation
 import UIKit
+import UserNotifications
 
 struct CourseActivityPlan: Equatable {
     let id: String
@@ -9,7 +10,7 @@ struct CourseActivityPlan: Equatable {
     let building: String
     let start: Date
     let end: Date
-    var activate: Date { start.addingTimeInterval(-600) }
+    var activate: Date { start.addingTimeInterval(-900) }
     static func upcoming(_ snapshot: TimetableSnapshot?, now: Date) -> [Self] {
         guard let snapshot else { return [] }
         let classes = CampusCalendarItem.timetable(snapshot).filter { $0.start > now }
@@ -51,6 +52,25 @@ struct CourseActivityPlan: Equatable {
             }
             guard !Task.isCancelled, token == generation else { return }
             UserDefaults.standard.set(Array(issued.suffix(150)), forKey: "course.activity.issued")
+            let center = UNUserNotificationCenter.current()
+            let pending = await center.pendingNotificationRequests()
+            let prefix = "course.fiveMinute."
+            let desiredIDs = Set(desired.filter { $0.start.addingTimeInterval(-300) > now }.map { prefix + $0.id })
+            center.removePendingNotificationRequests(withIdentifiers: pending.filter { $0.identifier.hasPrefix(prefix) && !desiredIDs.contains($0.identifier) }.map(\.identifier))
+            guard !Task.isCancelled, token == generation else { return }
+            let authorization = await center.notificationSettings()
+            if authorization.authorizationStatus == .authorized || authorization.authorizationStatus == .provisional {
+                for plan in desired where plan.start.addingTimeInterval(-300) > now {
+                    let content = UNMutableNotificationContent()
+                    content.title = plan.title
+                    content.body = language == "en" ? "Class starts in 5 minutes · " + plan.room : "5 分钟后上课 · " + plan.room
+                    content.sound = .default
+                    let delay = plan.start.addingTimeInterval(-300).timeIntervalSinceNow
+                    guard delay > 0, !Task.isCancelled, token == generation else { continue }
+                    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
+                    try? await center.add(UNNotificationRequest(identifier: prefix + plan.id, content: content, trigger: trigger))
+                }
+            }
             if !enabled || snapshot == nil { UserDefaults.standard.removeObject(forKey: "course.activity.issued"); return }
             guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
             for plan in desired {
@@ -73,7 +93,7 @@ struct CourseActivityPlan: Equatable {
         let content = ActivityContent(state: CourseActivityAttributes.ContentState(start: plan.start, end: plan.end), staleDate: plan.start)
         if #available(iOS 26.0, *), plan.activate > now {
             return try Activity.request(attributes: attributes, content: content, pushType: nil, style: .standard,
-                alertConfiguration: AlertConfiguration(title: "课前提醒", body: "课程将在 10 分钟后开始", sound: .default), start: plan.activate)
+                alertConfiguration: AlertConfiguration(title: "课前提醒", body: "课程将在 15 分钟后开始", sound: .default), start: plan.activate)
         }
         return try Activity.request(attributes: attributes, content: content, pushType: nil)
     }

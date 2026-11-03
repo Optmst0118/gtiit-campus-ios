@@ -15,6 +15,7 @@ final class ShuttleNotificationCenter: NSObject, ObservableObject {
     @Published private(set) var pendingCount = 0
     /// Set by AppModel to route a notification tap into the Shuttle tab.
     var onOpen: ((ShuttleDirection?) -> Void)?
+    var onOpenStudy: (() -> Void)?
     var onOpenMoodle: ((URL) -> Void)?
 
     private let center = UNUserNotificationCenter.current()
@@ -146,6 +147,10 @@ extension ShuttleNotificationCenter: UNUserNotificationCenterDelegate {
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse
     ) async {
+        if response.notification.request.identifier.hasPrefix("study.daily.") {
+            await MainActor.run { ShuttleNotificationCenter.shared.onOpenStudy?() }
+            return
+        }
         let userInfo = response.notification.request.content.userInfo
         if response.notification.request.identifier.hasPrefix(MoodleDeadlinePlan.prefix) {
             guard let raw = userInfo["moodleURL"] as? String, let url = MoodleWork.safeURL(raw) else { return }

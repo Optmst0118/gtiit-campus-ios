@@ -59,6 +59,7 @@
 		21DFA7D17AD35B95AEB11EFD /* ShuttleNotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8742C493D3C192765401E553 /* ShuttleNotificationCenter.swift */; };
 		93599D6CCF89AA3D06C87475 /* ShuttleReminderPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8803EC78E10B890187D93D98 /* ShuttleReminderPlan.swift */; };
 		5D74C2560D2211CBF77ABF74 /* StudentExamStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E9BA2A7A58278322D918E79 /* StudentExamStore.swift */; };
+		7FCA6E11498A9F5EF9B104D7 /* StudyDailyReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85D4A9ED88551C69ED11505 /* StudyDailyReminders.swift */; };
 		3ACB076C81FF8FC11E1570B9 /* TimetableExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF764FE1570E2311AC7BB40A /* TimetableExtractor.swift */; };
 		A729B4691C46D6547CE1A89E /* WebAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02EF5CD5DE5D29A2E1C8A75 /* WebAppearance.swift */; };
 		5994F7C3001534974E418DBD /* WebDataStoreRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BD19B151945EBF382F5E3FA /* WebDataStoreRegistry.swift */; };
@@ -164,6 +165,7 @@
 		8742C493D3C192765401E553 /* ShuttleNotificationCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleNotificationCenter.swift; sourceTree = "<group>"; };
 		8803EC78E10B890187D93D98 /* ShuttleReminderPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuttleReminderPlan.swift; sourceTree = "<group>"; };
 		0E9BA2A7A58278322D918E79 /* StudentExamStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudentExamStore.swift; sourceTree = "<group>"; };
+		B85D4A9ED88551C69ED11505 /* StudyDailyReminders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyDailyReminders.swift; sourceTree = "<group>"; };
 		AF764FE1570E2311AC7BB40A /* TimetableExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimetableExtractor.swift; sourceTree = "<group>"; };
 		F02EF5CD5DE5D29A2E1C8A75 /* WebAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppearance.swift; sourceTree = "<group>"; };
 		0BD19B151945EBF382F5E3FA /* WebDataStoreRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDataStoreRegistry.swift; sourceTree = "<group>"; };
@@ -352,6 +354,7 @@
 				8742C493D3C192765401E553 /* ShuttleNotificationCenter.swift */,
 				8803EC78E10B890187D93D98 /* ShuttleReminderPlan.swift */,
 				0E9BA2A7A58278322D918E79 /* StudentExamStore.swift */,
+				B85D4A9ED88551C69ED11505 /* StudyDailyReminders.swift */,
 				AF764FE1570E2311AC7BB40A /* TimetableExtractor.swift */,
 				F02EF5CD5DE5D29A2E1C8A75 /* WebAppearance.swift */,
 				0BD19B151945EBF382F5E3FA /* WebDataStoreRegistry.swift */,
@@ -546,6 +549,7 @@
 				21DFA7D17AD35B95AEB11EFD /* in Sources */,
 				93599D6CCF89AA3D06C87475 /* in Sources */,
 				5D74C2560D2211CBF77ABF74 /* in Sources */,
+				7FCA6E11498A9F5EF9B104D7 /* in Sources */,
 				3ACB076C81FF8FC11E1570B9 /* in Sources */,
 				A729B4691C46D6547CE1A89E /* in Sources */,
 				5994F7C3001534974E418DBD /* in Sources */,
@@ -686,7 +690,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 97;
+				CURRENT_PROJECT_VERSION = 99;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -696,7 +700,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.1.0;
-				GTIIT_RELEASE_LABEL = "2.1.0-beta.16";
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.18";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -712,7 +716,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 97;
+				CURRENT_PROJECT_VERSION = 99;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -722,7 +726,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.1.0;
-				GTIIT_RELEASE_LABEL = "2.1.0-beta.16";
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.18";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -920,9 +924,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "97";
+				CURRENT_PROJECT_VERSION = "99";
 				MARKETING_VERSION = "2.1.0";
-				GTIIT_RELEASE_LABEL = "2.1.0-beta.16";
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.18";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";
@@ -941,9 +945,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "97";
+				CURRENT_PROJECT_VERSION = "99";
 				MARKETING_VERSION = "2.1.0";
-				GTIIT_RELEASE_LABEL = "2.1.0-beta.16";
+				GTIIT_RELEASE_LABEL = "2.1.0-beta.18";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";
