@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta.19 (100) · 2026-11-04
+
+- 刷新开发签名并重新安装，解决描述文件到期后的不可用问题；系统 Beta 兼容性持续观察。
+
 ## 2.1.0-beta.18 (99) · 2026-11-03
 
 - 作业与个人考试按校园日期在提前天数内每天汇总提醒，默认 09:00，可在学习与提醒中调整小时；每天一条，最多预排 15 天。
