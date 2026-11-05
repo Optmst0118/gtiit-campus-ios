@@ -4,6 +4,7 @@ import SwiftUI
     @StateObject private var app: AppModel
     @StateObject private var settings: AppSettings
     init() {
+        ActivityLifecycleCleanup.register()
         LocalDiagnostics.shared.start()
         Theme.configureNavigationAppearance()
         let settings = AppSettings()

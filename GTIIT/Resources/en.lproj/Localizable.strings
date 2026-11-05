@@ -1012,3 +1012,25 @@
 "课程将在 15 分钟后开始" = "Your class starts in 10 minutes";
 
 "预排接下来的两节课，打开 App 时更新。" = "Schedules the next two classes and refreshes when you open the app.";
+
+"《%@》的《%@》，%@截止。" = "‘%@’: ‘%@’ is due %@.";
+"《%@》将在%@考试。" = "The %@ exam is on %@.";
+"还有 %@ 项作业没交。" = "You have %@ assignments left to submit.";
+"作业与考试提醒" = "Assignments and exams";
+"全部完成" = "All done";
+"打开 App 更新" = "Open app to refresh";
+"状态待核对" = "Status unverified";
+"暂无下一次截止" = "No upcoming deadline";
+"下次 %@" = "Next: %@";
+"+%@ 项" = "+%@ more";
+"今天 %@" = "Today %@";
+"明天 %@" = "Tomorrow %@";
+"下一班班车" = "Next shuttle";
+"去北校" = "To North";
+"去南校" = "To South";
+"已经没有作业了，接下来 3 天都没有作业。" = "You have no assignments left. Nothing is due in the next three days.";
+"接下来 3 天没有待交作业。" = "No assignments are due in the next three days.";
+"近期没有待交作业" = "Nothing due soon";
+"即将截止" = "Upcoming deadlines";
+"南校区 → 北校区" = "South → North";
+"北校区 → 南校区" = "North → South";

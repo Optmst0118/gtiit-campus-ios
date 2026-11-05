@@ -70,7 +70,7 @@ struct MoodleUpcomingView: View {
                         }.padding(.vertical, 6)
                     }.buttonStyle(CardPressStyle())
                 }
-            } header: { Text(L10n.tr("即将截止与最近开放")) } footer: {
+            } header: { Text(L10n.tr("即将截止")) } footer: {
                 if let date = store.updatedAt { Text(L10n.tr("最近更新") + " · " + date.gtiitFormatted()).font(.caption) }
             }
         }.nativeDetailSurface(title: L10n.tr("临近作业"))
@@ -78,7 +78,8 @@ struct MoodleUpcomingView: View {
                 Button { refresh() } label: { Image(systemName: "arrow.clockwise") }
                     .disabled(store.refreshing).accessibilityLabel(L10n.tr("更新日程"))
             } }
-            .onAppear { if store.updatedAt == nil { refresh() } }
+            .onAppear { app.refreshMoodleSummary(force: true) }
+            .refreshable { app.refreshMoodleSummary(force: true) }
     }
     private func refresh() {
         app.refreshMoodleSummary(force: true)

@@ -4,17 +4,29 @@ import UserNotifications
 struct StudyDailyPlan {
     let date: Date
     let lines: [String]
-    static func make(works: [MoodleWork], exams: [StudentExam], days: Int, hour: Int, now: Date) -> [Self] {
+    static func make(works: [MoodleWork], exams: [StudentExam], days: Int, hour: Int, now: Date, allowEmptySummary: Bool = false) -> [Self] {
         let calendar = CampusDate.calendar
         return (0...14).compactMap { offset in
             guard let day = calendar.date(byAdding: .day, value: offset, to: calendar.startOfDay(for: now)),
                   let fire = calendar.date(bySettingHour: min(23, max(0, hour)), minute: 0, second: 0, of: day), fire > now,
                   let end = calendar.date(byAdding: .day, value: days + 1, to: day) else { return nil }
             let workLines = works.filter { ["notSubmitted", "draft"].contains($0.status) && ($0.dueDate.map { $0 > fire && $0 < end } ?? false) }
-                .sorted { $0.dueDate! < $1.dueDate! }.map { $0.course + " · " + $0.displayName }
+                .sorted { $0.dueDate! < $1.dueDate! }.map {
+                    L10n.format("《%@》的《%@》，%@截止。", StudyWidgetSnapshot.courseName($0.course), $0.displayName,
+                                $0.dueDate!.gtiitFormatted(date: .abbreviated, time: .shortened))
+                }
             let examLines = exams.filter { $0.valid && ($0.start.map { $0 > fire && $0 < end } ?? false) }
-                .sorted { $0.start! < $1.start! }.map { $0.course + " · " + $0.date + " " + $0.time }
-            let lines = workLines + examLines
+                .sorted { $0.start! < $1.start! }.map { L10n.format("《%@》将在%@考试。", StudyWidgetSnapshot.courseName($0.course), $0.date + " " + $0.time) }
+            var lines = (workLines.isEmpty ? [] : [L10n.format("还有 %@ 项作业没交。", String(workLines.count))]) + workLines + examLines
+            if lines.isEmpty && allowEmptySummary && offset <= 1 && works.allSatisfy({ $0.status != "unknown" }) {
+                let nextThreeDays = calendar.date(byAdding: .day, value: 3, to: day)!
+                let remaining = works.filter { ["notSubmitted", "draft"].contains($0.status) }
+                if works.allSatisfy({ $0.isSubmitted }) {
+                    lines = [L10n.tr("已经没有作业了，接下来 3 天都没有作业。")]
+                } else if !remaining.isEmpty && !works.contains(where: { $0.status == "notOpen" && ($0.dueDate.map { $0 < nextThreeDays } ?? true) }) && !remaining.contains(where: { $0.dueDate.map { $0 < nextThreeDays } ?? true }) {
+                    lines = [L10n.tr("接下来 3 天没有待交作业。")]
+                }
+            }
             return lines.isEmpty ? nil : Self(date: fire, lines: lines)
         }
     }
@@ -23,7 +35,7 @@ struct StudyDailyPlan {
 @MainActor final class StudyDailyReminders {
     static let shared = StudyDailyReminders()
     private var task: Task<Void, Never>?
-    func update(works: [MoodleWork], exams: [StudentExam], days: Int, hour: Int, allowPermissionRequest: Bool = false) {
+    func update(works: [MoodleWork], exams: [StudentExam], days: Int, hour: Int, allowPermissionRequest: Bool = false, allowEmptySummary: Bool = false) {
         #if GTIIT_REGRESSION
         return
         #else
@@ -34,7 +46,7 @@ struct StudyDailyPlan {
             let pending = await center.pendingNotificationRequests()
             let own = pending.filter { $0.identifier.hasPrefix("study.daily.") }
             center.removePendingNotificationRequests(withIdentifiers: own.map(\.identifier))
-            let plans = StudyDailyPlan.make(works: works, exams: exams, days: days, hour: hour, now: now)
+            let plans = StudyDailyPlan.make(works: works, exams: exams, days: days, hour: hour, now: now, allowEmptySummary: allowEmptySummary)
             var status = await center.notificationSettings().authorizationStatus
             if status == .notDetermined && allowPermissionRequest && !plans.isEmpty {
                 _ = try? await center.requestAuthorization(options: [.alert, .sound])
@@ -44,7 +56,7 @@ struct StudyDailyPlan {
             let budget = max(0, min(15, 48 - (pending.count - own.count)))
             for plan in plans.prefix(budget) {
                 let content = UNMutableNotificationContent()
-                content.title = L10n.isEnglish ? "Upcoming assignments & exams" : "作业与考试提醒"
+                content.title = L10n.tr("作业与考试提醒")
                 content.body = plan.lines.prefix(12).joined(separator: "\n")
                 content.sound = .default
                 content.threadIdentifier = "study.daily"

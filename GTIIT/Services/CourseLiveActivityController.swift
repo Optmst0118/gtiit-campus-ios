@@ -13,7 +13,7 @@ struct CourseActivityPlan: Equatable {
     var activate: Date { start.addingTimeInterval(-900) }
     static func upcoming(_ snapshot: TimetableSnapshot?, now: Date) -> [Self] {
         guard let snapshot else { return [] }
-        let classes = CampusCalendarItem.timetable(snapshot).filter { $0.start > now }
+        let classes = CampusCalendarItem.timetable(snapshot).filter { $0.end.addingTimeInterval(300) > now }
         return Array(classes.prefix(2)).map { item in
             Self(id: item.id, title: item.title, room: snapshot.courses.first {
                 $0.name == item.title && $0.location == item.location && LocalCourse.minutes($0.start) == CampusDate.calendar.component(.hour, from: item.start) * 60 + CampusDate.calendar.component(.minute, from: item.start)
@@ -26,6 +26,7 @@ struct CourseActivityPlan: Equatable {
     static let shared = CourseLiveActivityController()
     private var task: Task<Void, Never>?
     private var generation = UUID()
+    private var expiryTask: Task<Void, Never>?
     func sync(snapshot: TimetableSnapshot?, enabled: Bool) {
         #if GTIIT_REGRESSION
         return
@@ -34,6 +35,7 @@ struct CourseActivityPlan: Equatable {
         task?.cancel()
         let token = UUID(); generation = token
         task = Task {
+            defer { scheduleExpiry() }
             let now = Date()
             let desired = enabled ? CourseActivityPlan.upcoming(snapshot, now: now) : []
             let language = L10n.language.rawValue
@@ -44,7 +46,7 @@ struct CourseActivityPlan: Equatable {
                     $0.title == activity.attributes.title && $0.room == activity.attributes.room && $0.building == activity.attributes.building &&
                     $0.start == activity.content.state.start && $0.end == activity.content.state.end
                 }
-                if !valid || activity.content.state.start.addingTimeInterval(300) < now {
+                if !valid || activity.content.state.end.addingTimeInterval(300) <= now {
                     issued.remove(activity.attributes.occurrenceID + "|" + activity.attributes.language)
                     UserDefaults.standard.set(Array(issued.suffix(150)), forKey: "course.activity.issued")
                     await activity.end(nil, dismissalPolicy: .immediate)
@@ -73,7 +75,7 @@ struct CourseActivityPlan: Equatable {
             }
             if !enabled || snapshot == nil { UserDefaults.standard.removeObject(forKey: "course.activity.issued"); return }
             guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
-            for plan in desired {
+            for plan in desired where plan.start > now {
                 if #unavailable(iOS 26.0) { if plan.activate > now { continue } }
                 let key = plan.id + "|" + language
                 if issued.contains(key) || Activity<CourseActivityAttributes>.activities.contains(where: { $0.attributes.occurrenceID == plan.id }) { continue }
@@ -85,6 +87,20 @@ struct CourseActivityPlan: Equatable {
             }
         }
         #endif
+    }
+    private func scheduleExpiry() {
+        ActivityLifecycleCleanup.schedule()
+        expiryTask?.cancel()
+        expiryTask = Task {
+            while !Task.isCancelled {
+                let activities = Activity<CourseActivityAttributes>.activities
+                guard let next = activities.map({ $0.content.state.end.addingTimeInterval(300) }).min() else { return }
+                do { try await Task.sleep(for: .seconds(max(0, next.timeIntervalSinceNow))) } catch { return }
+                for activity in Activity<CourseActivityAttributes>.activities where activity.content.state.end.addingTimeInterval(300) <= Date() {
+                    await activity.end(nil, dismissalPolicy: .immediate)
+                }
+            }
+        }
     }
     /// Production and debug verification use the identical ActivityKit request path.
     @discardableResult

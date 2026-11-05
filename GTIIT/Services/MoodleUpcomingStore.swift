@@ -44,6 +44,7 @@ import WebKit
     }
     private func failedAttempt() {
         error = true
+        onReminderSnapshot?()
         failureCount = min(failureCount + 1, 4)
         retryAfter = Date().addingTimeInterval(min(300, 15 * pow(2, Double(failureCount))))
     }
@@ -81,7 +82,7 @@ import WebKit
     }
     func accept(_ result: MoodleUpcomingResult, at date: Date = Date()) {
         loginRequired = result.loginRequired
-        guard !result.loginRequired else { cancel(); loginRequired = true; return }
+        guard !result.loginRequired else { cancel(); loginRequired = true; onReminderSnapshot?(); return }
         let previous = Dictionary(items.map { ($0.url, $0) }, uniquingKeysWith: { _, last in last })
         let incoming = result.items.filter { MoodleWork.safeURL($0.url) != nil }.map { item in
             // A submission observed after this scan began outranks its older result.

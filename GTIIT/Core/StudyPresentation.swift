@@ -1,0 +1,49 @@
+import Foundation
+
+/// Read-only presentation snapshot. No credentials or school requests cross targets.
+struct StudyWidgetSnapshot: Codable {
+    struct Item: Codable, Identifiable {
+        let id: String
+        let course: String
+        let title: String
+        let due: Date?
+        let pending: Bool
+    }
+    let items: [Item]
+    let updatedAt: Date?
+    let verified: Bool
+    var days: Int = 10
+    static let key = "study.widget.snapshot"
+    func pending(at now: Date) -> [Item] {
+        items.filter { $0.pending && StudyDeadlineWindow.contains($0.due, now: now, days: days) }.sorted {
+            if $0.due == $1.due { return $0.id < $1.id }
+            return ($0.due ?? .distantFuture) < ($1.due ?? .distantFuture)
+        }
+    }
+    static func courseName(_ raw: String) -> String {
+        let name = raw.replacingOccurrences(of: "^\\s*\\d{3,}\\s*[-–—:]?\\s*", with: "", options: .regularExpression)
+            .replacingOccurrences(of: "\\s*[-–—(]?\\s*(Winter|Spring|Summer|Fall|Autumn)\\s*\\d{4}\\s*\\)?\\s*$", with: "", options: [.regularExpression, .caseInsensitive])
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return (name == name.uppercased() ? name.capitalized : name)
+            .replacingOccurrences(of: "^Introduction To ", with: "", options: [.regularExpression, .caseInsensitive])
+    }
+    static func compactTitle(_ raw: String) -> String {
+        raw.replacingOccurrences(of: "^(Homework [0-9]+) Assignment$", with: "$1", options: .regularExpression)
+    }
+}
+
+enum StudyDeadlineWindow {
+    static func contains(_ due: Date?, now: Date, days: Int) -> Bool {
+        guard let due else { return false }
+        return due >= now && due <= now.addingTimeInterval(Double(max(1, min(30, days))) * 86400)
+    }
+}
+
+enum CourseLocationPresentation {
+    static func room(_ raw: String) -> String {
+        let value = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        let pattern = "(?i)(?<![a-z0-9])[a-z]{0,2}[0-9]{3,6}[a-z]?(?![a-z0-9])"
+        guard let range = value.range(of: pattern, options: .regularExpression) else { return value }
+        return String(value[range]).uppercased()
+    }
+}

@@ -22,13 +22,13 @@ struct ShuttleView: View {
                         Color.clear.frame(height: 0).id("shuttle.top")
 
                         EqualHeightHStack(spacing: 12) {
-                            ForEach(ShuttleDirection.allCases) { direction in
+                            ForEach(ShuttleDirection.allCases.sorted { $0 == proximity.direction && $1 != proximity.direction }) { direction in
                                 Button {
                                     settings.favoriteShuttleDirection = direction
                                     timetableDirection = direction
                                 } label: {
                                     DepartureColumn(
-                                        direction: direction, now: context.date,
+                                        direction: direction, suggested: proximity.direction == direction, now: context.date,
                                         departures: ShuttleSchedule.upcoming(direction, after: context.date,
                                             teachingWeek: settings.shuttleTeachingWeek))
                                         .contentShape(Rectangle())
@@ -65,6 +65,15 @@ struct ShuttleView: View {
             .navigationTitle(L10n.tr("Shuttle Bus时刻表"))
             .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
             .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        if proximity.authorization == .denied || proximity.authorization == .restricted {
+                            if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                        } else { proximity.activate(requestPermission: true) }
+                    } label: { Image(systemName: proximity.direction != nil ? "location.fill" : "location") }
+                    .accessibilityLabel(L10n.tr("按位置推荐方向"))
+                    .tint(proximity.direction != nil ? Theme.accent : .secondary)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showReminders = true } label: { Image(systemName: "bell") }
                         .accessibilityLabel(L10n.tr("班车提醒"))
@@ -107,6 +116,7 @@ struct ShuttleView: View {
 private struct DepartureColumn: View {
     @Environment(\.locale) private var nativeLocale
     let direction: ShuttleDirection
+    var suggested = false
     let now: Date
     let departures: [ShuttleDeparture]
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -120,6 +130,7 @@ private struct DepartureColumn: View {
             HStack(spacing: 6) {
                 Circle().fill(color).frame(width: 7, height: 7)
                 Text(direction.title).font(.headline)
+                if suggested { Image(systemName: "location.fill").font(.caption2) }
             }.foregroundStyle(color)
             if let next = departures.first {
                 VStack(alignment: .leading, spacing: 8) {

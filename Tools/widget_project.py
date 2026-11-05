@@ -21,7 +21,7 @@ def extend(text, root, uid, team):
     for p in widget_sources:
         ref=obj('widget:ref:'+p.name,f'\t\t\tisa = PBXFileReference;\n\t\t\tlastKnownFileType = sourcecode.swift;\n\t\t\tpath = {p.name};\n\t\t\tsourceTree = "<group>";');refs.append(ref)
         builds.append(obj('widget:build:'+p.name,f'\t\t\tisa = PBXBuildFile;\n\t\t\tfileRef = {ref};'))
-    shared=['Models/ShuttleTimelinePolicy.swift','Core/AppGroup.swift','Models/ShuttleActivityAttributes.swift','Models/CourseActivityAttributes.swift','Models/ShuttleSchedule.swift','Core/Localization.swift','Views/ShuttleActivityPresentation.swift','Services/CampusLocationRecommendation.swift']
+    shared=['Core/CampusColors.swift','Core/StudyPresentation.swift','Models/ShuttleTimelinePolicy.swift','Core/AppGroup.swift','Models/ShuttleActivityAttributes.swift','Models/CourseActivityAttributes.swift','Models/ShuttleSchedule.swift','Core/Localization.swift','Views/ShuttleActivityPresentation.swift','Services/CampusLocationRecommendation.swift']
     for rel in shared:
         builds.append(obj('widget:build:'+rel,f'\t\t\tisa = PBXBuildFile;\n\t\t\tfileRef = {uid("ref:GTIIT/"+rel)};'))
     group=obj('group:widget',f'\t\t\tisa = PBXGroup;\n\t\t\tchildren = {arr(refs)};\n\t\t\tpath = GTIITWidgets;\n\t\t\tsourceTree = "<group>";')
@@ -44,7 +44,7 @@ def extend(text, root, uid, team):
     for name in ['Debug','Release']:
         settings={'PRODUCT_BUNDLE_IDENTIFIER':'io.github.optmst0118.gtiit.beta.widgets','PRODUCT_NAME':'$(TARGET_NAME)','INFOPLIST_FILE':'GTIITWidgets/Info.plist','GENERATE_INFOPLIST_FILE':'NO','APPLICATION_EXTENSION_API_ONLY':'YES','SKIP_INSTALL':'YES','SWIFT_VERSION':'5.0','IPHONEOS_DEPLOYMENT_TARGET':'17.0','TARGETED_DEVICE_FAMILY':'1,2','CURRENT_PROJECT_VERSION':str(version['build']),'MARKETING_VERSION':version['marketing'],'GTIIT_RELEASE_LABEL':release_label(version),'CODE_SIGN_STYLE':'Automatic','LD_RUNPATH_SEARCH_PATHS':'$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks'}
         if team:settings['DEVELOPMENT_TEAM']=team
-        if os.environ.get('GTIIT_APP_GROUPS')=='1': settings['CODE_SIGN_ENTITLEMENTS']='GTIITWidgets/GTIITWidgets.entitlements'
+        if os.environ.get('GTIIT_APP_GROUPS', '1')=='1': settings['CODE_SIGN_ENTITLEMENTS']='GTIITWidgets/GTIITWidgets.entitlements'
         body='\n'.join(f'\t\t\t\t{k} = "{v}";' for k,v in settings.items())
         configs.append(obj('widget:config:'+name,f'\t\t\tisa = XCBuildConfiguration;\n\t\t\tbuildSettings = {{\n{body}\n\t\t\t}};\n\t\t\tname = {name};'))
     config=obj('widget:configlist',f'\t\t\tisa = XCConfigurationList;\n\t\t\tbuildConfigurations = {arr(configs)};\n\t\t\tdefaultConfigurationIsVisible = 0;\n\t\t\tdefaultConfigurationName = Release;')
@@ -58,5 +58,5 @@ def extend(text, root, uid, team):
     text=text.replace(f'{uid("target:app")} /* GTIIT */,',f'{uid("target:app")} /* GTIIT */,\n\t\t\t\t{target},',1)
     label=release_label(version)
     text=text.replace('MARKETING_VERSION = '+version['marketing']+';',f'MARKETING_VERSION = {version["marketing"]};\n\t\t\t\tGTIIT_RELEASE_LABEL = "{label}";')
-    if os.environ.get('GTIIT_APP_GROUPS')=='1':text=text.replace('ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;','ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;\n\t\t\t\tCODE_SIGN_ENTITLEMENTS = GTIIT/GTIIT.entitlements;')
+    if os.environ.get('GTIIT_APP_GROUPS', '1')=='1':text=text.replace('ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;','ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;\n\t\t\t\tCODE_SIGN_ENTITLEMENTS = GTIIT/GTIIT.entitlements;')
     return text.replace('\n\t};\n\trootObject','\n'+'\n'.join(objects)+'\n\t};\n\trootObject')

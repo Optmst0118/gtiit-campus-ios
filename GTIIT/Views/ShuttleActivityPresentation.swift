@@ -72,7 +72,7 @@ struct CourseActivitySummary: View {
         ActivityGlassCard(title: attributes.title,
             caption: attributes.language == "en" ? "Starts in" : "距上课",
             target: state.start, expired: isStale,
-            badge: attributes.room.isEmpty ? "—" : attributes.room,
+            badge: attributes.room.isEmpty ? "—" : CourseLocationPresentation.room(attributes.room),
             detail: ShuttleActivityWords.time(state.start) + (attributes.building.isEmpty ? "" : " · " + attributes.building),
             accent: ActivityPalette.blue, language: attributes.language,
             passedText: attributes.language == "en" ? "Started" : "已上课", island: island, systemSurface: systemSurface)

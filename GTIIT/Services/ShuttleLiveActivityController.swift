@@ -13,7 +13,7 @@ import UIKit
 
     func restore(now: Date = Date()) async {
         let all = Activity<ShuttleActivityAttributes>.activities
-        let valid = all.filter { $0.content.state.departureDate > now && $0.activityState != .ended && $0.activityState != .dismissed }
+        let valid = all.filter { $0.content.state.departureDate.addingTimeInterval(300) > now && $0.activityState != .ended && $0.activityState != .dismissed }
             .sorted { $0.content.state.departureDate < $1.content.state.departureDate }
         let keep = valid.first
         for item in all where item.id != keep?.id { await item.end(nil, dismissalPolicy: .immediate) }
@@ -58,6 +58,7 @@ import UIKit
         activity = nil
     }
     private func observe() {
+        ActivityLifecycleCleanup.schedule()
         stateTask?.cancel(); expiryTask?.cancel()
         guard let item = activity else { return }
         stateTask = Task { [weak self] in
@@ -67,7 +68,7 @@ import UIKit
             }
         }
         expiryTask = Task { [weak self] in
-            let delay = max(0, item.content.state.departureDate.timeIntervalSinceNow)
+            let delay = max(0, item.content.state.departureDate.addingTimeInterval(300).timeIntervalSinceNow)
             do { try await Task.sleep(for: .seconds(delay)) } catch { return }
             guard self?.activity?.id == item.id else { return }
             await item.end(nil, dismissalPolicy: .immediate); self?.activity = nil

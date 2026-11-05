@@ -1,3 +1,4 @@
+import WidgetKit
 import Combine
 import SafariServices
 import SwiftUI
@@ -15,6 +16,7 @@ final class AppModel: ObservableObject {
     @Published var showWelcome = false
     @Published var siteInfo: SiteID?
     @Published var showDownloads = false
+    @Published var nativePath: [CampusDetail] = []
     @Published private(set) var storageStates: [SiteID: Bool] = [:]
     @Published private(set) var tabReselectToken = 0
     @Published private(set) var tabReselectTarget: AppTab?
@@ -77,8 +79,8 @@ final class AppModel: ObservableObject {
         if settings.biometricLockEnabled { lock.lock() }
         exams.onReminderSnapshot = { [weak self] in self?.syncMoodleDeadlineReminders() }
         upcoming.onReminderSnapshot = { [weak self] in self?.syncMoodleDeadlineReminders() }
-        upcoming.onClearReminders = { [weak self] in MoodleDeadlineReminders.shared.clear(); Task { @MainActor [weak self] in await Task.yield(); self?.syncMoodleDeadlineReminders() } }
-        ShuttleNotificationCenter.shared.onOpenStudy = { [weak self] in self?.select(tab: .me) }
+        upcoming.onClearReminders = { [weak self] in AppGroup.defaults.removeObject(forKey: StudyWidgetSnapshot.key); WidgetCenter.shared.reloadTimelines(ofKind: "StudyHomeWidget"); MoodleDeadlineReminders.shared.clear(); Task { @MainActor [weak self] in await Task.yield(); self?.syncMoodleDeadlineReminders() } }
+        ShuttleNotificationCenter.shared.onOpenStudy = { [weak self] in self?.openNativeDetail(.assignments) }
         ShuttleNotificationCenter.shared.onOpenMoodle = { [weak self] url in
             self?.openWeb(url, site: .moodle)
         }
@@ -99,7 +101,11 @@ final class AppModel: ObservableObject {
             return
         }
         #endif
-        if url.host == "timetable" { select(tab: .me); return }
+        if ["study", "assignments", "timetable", "exams"].contains(url.host ?? "") {
+            let destination: CampusDetail = url.host == "timetable" ? .timetable : url.host == "exams" ? .exams : .assignments
+            openNativeDetail(destination)
+            return
+        }
         guard url.host == "shuttle" else { return }
         select(tab: .shuttle)
         if let raw = URLComponents(url: url, resolvingAgainstBaseURL: false)?
@@ -109,14 +115,28 @@ final class AppModel: ObservableObject {
         }
     }
 
+    func openNativeDetail(_ destination: CampusDetail) {
+        select(tab: .me)
+        nativePath = [destination]
+    }
+
     func syncMoodleDeadlineReminders() {
+        if AppGroup.isAvailable {
+            AppGroup.defaults.set(settings.language.rawValue, forKey: AppGroup.Key.language)
+            let snapshot = StudyWidgetSnapshot(items: upcoming.items.map {
+                .init(id: $0.id, course: StudyWidgetSnapshot.courseName($0.course), title: $0.displayName,
+                      due: $0.dueDate, pending: ["notSubmitted", "draft"].contains($0.status))
+            }, updatedAt: upcoming.updatedAt, verified: upcoming.updatedAt != nil && !upcoming.loginRequired && !upcoming.partial && !upcoming.error && !upcoming.items.contains(where: { $0.status == "unknown" && $0.relevant(days: settings.moodleUpcomingRange.rawValue) }), days: settings.moodleUpcomingRange.rawValue)
+            AppGroup.defaults.set(try? JSONEncoder().encode(snapshot), forKey: StudyWidgetSnapshot.key)
+            WidgetCenter.shared.reloadTimelines(ofKind: "StudyHomeWidget")
+        }
         var canRequest = settings.hasSeenWelcome && !showWelcome && !lock.isLocked && lock.isActive
             && !isClearingData && UIApplication.shared.applicationState == .active
         #if GTIIT_REGRESSION
         canRequest = false
         #endif
         StudyDailyReminders.shared.update(works: settings.moodleDeadlineRemindersEnabled ? upcoming.items : [],
-            exams: settings.examRemindersEnabled ? exams.items : [], days: settings.moodleReminderLead.rawValue / 24, hour: settings.studyReminderHour, allowPermissionRequest: canRequest)
+            exams: settings.examRemindersEnabled ? exams.items : [], days: settings.moodleReminderLead.rawValue / 24, hour: settings.studyReminderHour, allowPermissionRequest: canRequest, allowEmptySummary: settings.moodleDeadlineRemindersEnabled && upcoming.status == .current)
         MoodleDeadlineReminders.shared.update(items: upcoming.items, updatedAt: upcoming.updatedAt,
             partial: upcoming.partial, enabled: false, allowPermissionRequest: canRequest, lead: settings.moodleReminderLead)
     }

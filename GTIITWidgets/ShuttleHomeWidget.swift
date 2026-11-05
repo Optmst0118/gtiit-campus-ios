@@ -49,13 +49,17 @@ struct ShuttleHomeProvider: AppIntentTimelineProvider {
         let now = Date()
         let location = useLocation ? await WidgetLocationFetcher().request() : nil
         let nearby = location.flatMap { CampusProximity.direction(for: $0, now: now) }
-        let end = now.addingTimeInterval(24 * 3600)
+        let cachedDate = Date(timeIntervalSince1970: AppGroup.defaults.double(forKey: "shuttle.nearby.date"))
+        let cached = useLocation && now.timeIntervalSince(cachedDate) >= 0 && now.timeIntervalSince(cachedDate) < CampusProximity.recommendationLifetime
+            ? AppGroup.defaults.string(forKey: "shuttle.nearby.direction").flatMap(ShuttleDirection.init(rawValue:)) : nil
+        let nearbyDirection = nearby ?? cached
+        let expiry = (nearby != nil ? now : cachedDate).addingTimeInterval(CampusProximity.recommendationLifetime)
+        let refresh = useLocation ? now.addingTimeInterval(CampusProximity.recommendationLifetime) : now.addingTimeInterval(24 * 3600)
         let entries = ShuttleTimelinePolicy.dates(after: now, teachingWeek: teaching,
-            locationExpiry: location?.timestamp.addingTimeInterval(121)).map { date in
-            let stillNearby = location.map { date.timeIntervalSince($0.timestamp) <= 120 } ?? false
-            return entry(at: date, teaching: teaching, direction: manual ?? (stillNearby ? nearby : nil))
+            locationExpiry: nearbyDirection == nil ? nil : expiry).map { date in
+            entry(at: date, teaching: teaching, direction: manual ?? (date < expiry ? nearbyDirection : nil))
         }
-        return Timeline(entries: entries, policy: .after(end))
+        return Timeline(entries: entries, policy: .after(refresh))
     }
     private func configuredDirection(_ config: ShuttleWidgetConfiguration) -> ShuttleDirection? {
         switch config.direction {
@@ -85,6 +89,7 @@ struct ShuttleHomeProvider: AppIntentTimelineProvider {
     private var finished = false
     func request() async -> CLLocation? {
         guard manager.isAuthorizedForWidgetUpdates else { return nil }
+        if let cached = manager.location, CampusProximity.direction(for: cached) != nil { return cached }
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
         return await withCheckedContinuation { continuation in
@@ -121,7 +126,7 @@ struct ShuttleHomeWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "ShuttleHomeWidget", provider: ShuttleDefaultProvider()) { entry in
             ShuttleHomeView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+                .containerBackground(WidgetStyle.background, for: .widget)
                 .widgetURL(entry.url)
         }
         .configurationDisplayName("Shuttle next bus")
@@ -133,7 +138,7 @@ struct ShuttleConfiguredWidget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: "ShuttleConfiguredWidget", intent: ShuttleWidgetConfiguration.self, provider: ShuttleHomeProvider()) { entry in
             ShuttleHomeView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+                .containerBackground(WidgetStyle.background, for: .widget)
                 .widgetURL(entry.url)
         }
         .configurationDisplayName("Shuttle next bus · configurable")
@@ -142,8 +147,10 @@ struct ShuttleConfiguredWidget: Widget {
     }
 }
 
-private struct ShuttleHomeView: View {
-    @Environment(\.widgetFamily) private var family
+struct ShuttleHomeView: View {
+    @Environment(\.widgetFamily) private var systemFamily
+    var familyOverride: WidgetFamily? = nil
+    private var family: WidgetFamily { familyOverride ?? systemFamily }
     let entry: ShuttleHomeEntry
 
     private var english: Bool { entry.english }
@@ -168,60 +175,47 @@ private struct ShuttleHomeView: View {
                     Text(english ? "No bus" : "暂无班次").font(.headline)
                 }
             }
-        case .systemMedium:
-            VStack(alignment: .leading, spacing: 12) {
-                header
-                HStack(spacing: 18) {
-                    if let primary, entry.suggested != nil { tile(primary) }
-                    else {
-                        if let north = entry.north { tile(north) }
-                        if let south = entry.south { Divider(); tile(south) }
-                    }
-                }.frame(maxHeight: .infinity)
-            }
         default:
-            VStack(alignment: .leading, spacing: 12) {
-                header
-                if entry.suggested != nil, let primary { tile(primary) }
-                else {
-                    if let north = entry.north { row(north) }
-                    if let south = entry.south { row(south) }
+            WidgetFrame(title: WidgetStyle.text("班车", english: english), symbol: "bus.fill", located: entry.suggested != nil) {
+                HStack(alignment: .top, spacing: WidgetStyle.gap) {
+                    ForEach(departures) { departure in
+                        tile(departure).frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
-                Spacer(minLength: 0)
+            } footer: {
+                HStack(spacing: WidgetStyle.gap) {
+                    ForEach(departures) { departure in
+                        Text(routeLabel(departure.trip.direction))
+                            .foregroundStyle(WidgetStyle.routeColor(departure.trip.direction))
+                            .frame(maxWidth: .infinity, alignment: .leading).lineLimit(1)
+                    }
+                }
             }
         }
     }
-    private var header: some View {
-        Text(english ? "NEXT SHUTTLE" : "下一班班车")
-            .font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+    private var departures: [ShuttleDeparture] {
+        let available = [entry.north, entry.south].compactMap { $0 }
+        if let primary, entry.suggested != nil { return [primary] }
+        if family == .systemMedium || family == .systemLarge { return available }
+        return Array(available.sorted { $0.date < $1.date }.prefix(1))
     }
     private func tile(_ departure: ShuttleDeparture) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
-            Text(directionLabel(departure.trip.direction)).font(.system(size: 13, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.8)
-            Text(departure.trip.time).font(.system(size: 32, weight: .semibold, design: .rounded)).monospacedDigit()
-            ShuttleWidgetCountdown(date: departure.date, english: english)
-                .font(.caption.monospacedDigit()).foregroundStyle(ActivityPalette.orange)
-                .frame(height: 16)
-        }.frame(maxWidth: .infinity, alignment: .leading)
+        VStack(alignment: .leading, spacing: WidgetStyle.rowGap) {
+            Text(departure.trip.time).font(WidgetStyle.time).monospacedDigit()
+                .lineLimit(1).minimumScaleFactor(0.85)
+            HStack(alignment: .firstTextBaseline, spacing: WidgetStyle.rowGap) {
+                Image(systemName: "timer").font(WidgetStyle.footer)
+                ShuttleWidgetCountdown(date: departure.date, english: english)
+            }.font(WidgetStyle.countdown).foregroundStyle(WidgetStyle.routeColor(departure.trip.direction))
+        }.frame(maxWidth: .infinity, alignment: .topLeading)
     }
-
-    private func row(_ departure: ShuttleDeparture) -> some View {
-        HStack(alignment: .center, spacing: 8) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(departure.trip.direction == .southToNorth ? (english ? "S → N" : "南 → 北") : (english ? "N → S" : "北 → 南"))
-                    .font(.system(size: 12, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.8)
-                Text(departure.trip.time).font(.caption.monospacedDigit()).foregroundStyle(.secondary)
-            }
-            Spacer(minLength: 4)
-            ShuttleWidgetCountdown(date: departure.date, english: english)
-                .font(.system(size: 19, weight: .semibold, design: .rounded))
-                .foregroundStyle(ActivityPalette.orange).frame(width: 72, alignment: .trailing)
-        }
+    private func routeLabel(_ direction: ShuttleDirection) -> String {
+        WidgetStyle.text(direction == .southToNorth ? "南校区 → 北校区" : "北校区 → 南校区", english: english)
     }
 
     private func directionLabel(_ direction: ShuttleDirection) -> String {
-        if direction == .southToNorth { return english ? "To North" : "去北校" }
-        return english ? "To South" : "去南校"
+        if direction == .southToNorth { return WidgetStyle.text("去北校", english: english) }
+        return WidgetStyle.text("去南校", english: english)
     }
 
     private var inlineText: String {

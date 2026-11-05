@@ -2,16 +2,8 @@ import SwiftUI
 
 enum Theme {
     /// 天蓝用于操作，橙色用于方向和信息高亮；深色模式提高亮度。
-    static let accent = Color(uiColor: UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.35, green: 0.76, blue: 1, alpha: 1)
-            : UIColor(red: 0.02, green: 0.42, blue: 0.67, alpha: 1)
-    })
-    static let orange = Color(uiColor: UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 1, green: 0.66, blue: 0.36, alpha: 1)
-            : UIColor(red: 0.71, green: 0.29, blue: 0.06, alpha: 1)
-    })
+    static let accent = Color(uiColor: CampusColors.accent)
+    static let orange = Color(uiColor: CampusColors.orange)
     static let iconBackground = Color(uiColor: UIColor { traits in
         traits.userInterfaceStyle == .dark ? UIColor(red: 0.028, green: 0.118, blue: 0.275, alpha: 1) : UIColor(red: 0.71, green: 0.89, blue: 0.98, alpha: 1)
     })
@@ -42,11 +34,7 @@ enum Theme {
     static func pageHex(for scheme: ColorScheme) -> String {
         scheme == .dark ? "#0e141c" : "#f2f7fa"
     }
-    static let cardBackground = Color(uiColor: UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 27/255.0, green: 37/255.0, blue: 50/255.0, alpha: 1)
-            : .white
-    })
+    static let cardBackground = Color(uiColor: CampusColors.surface)
 
     /// iOS 26 owns the Liquid Glass/scroll-edge transition. Older systems use
     /// UIKit's transparent edge and default material rather than an opaque plate.

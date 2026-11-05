@@ -13,7 +13,7 @@ struct MyTabView: View {
     var body: some View {
         let _ = nativeLocale.identifier
 
-        NavigationStack {
+        NavigationStack(path: $app.nativePath) {
             ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -50,6 +50,7 @@ struct MyTabView: View {
                     .accessibilityLabel(L10n.tr("设置"))
                 }
             }
+            .navigationDestination(for: CampusDetail.self) { CampusDetailPage(destination: $0) }
             .navigationDestination(isPresented: $showSettings) { SettingsView() }
             .navigationDestination(isPresented: $showInbox) { CampusInboxView(sync: app.campusSync, upcoming: app.upcoming) }
             .task {
@@ -67,7 +68,7 @@ struct MyTabView: View {
         }
         .id(navigationEpoch)
         .onChange(of: app.tabReselectToken) { _, _ in
-            if app.tabReselectTarget == .me, !rootVisible { showSettings = false; showInbox = false; navigationEpoch = UUID() }
+            if app.tabReselectTarget == .me, !rootVisible { app.nativePath = []; showSettings = false; showInbox = false; navigationEpoch = UUID() }
         }
     }
 }

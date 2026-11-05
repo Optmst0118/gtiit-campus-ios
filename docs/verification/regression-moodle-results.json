@@ -108,7 +108,17 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "class_activity_after_start_moves_to_next"
+      "test" : "class_activity_keeps_running_class"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "class_activity_keeps_until_end_plus_five"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "class_activity_expires_at_end_plus_five"
     },
     {
       "detail" : "",
@@ -153,6 +163,36 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "course_room_short"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "course_room_six_digits"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "study_course_without_code"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reminders_sentence"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reminders_no_course_code"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reminders_verified_empty_sentence"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "daily_reminders_empty"
     },
     {
@@ -193,6 +233,36 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "upcoming_excludes_past_unsubmitted"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_excludes_opened_without_deadline"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_uses_same_upcoming_deadline_window"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_drops_item_as_deadline_passes"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_course_readable_without_generic_prefix"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_shortens_redundant_assignment_title"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "upcoming_default_includes_10th_day"
     },
     {
@@ -219,6 +289,31 @@
       "detail" : "",
       "passed" : true,
       "test" : "physics_activity_url_rejects_action"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_deeplink_assignments"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_deeplink_study"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_deeplink_timetable"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_deeplink_exams"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_deeplink_shuttle_direction"
     },
     {
       "detail" : "",
@@ -482,8 +577,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-11-03T09:01:10Z",
+  "date" : "2026-11-05T08:40:20Z",
   "focus" : "moodle",
   "passed" : true,
-  "runID" : "edaa1064-4491-47ff-bb53-022be3b1a48b"
+  "runID" : "7ed56302-af1f-41c5-8ce7-f95f0425dadb"
 }

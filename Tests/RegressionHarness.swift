@@ -330,12 +330,34 @@ private final class RetiredViewReference {
         }
         check("physics_quiz_title_normalized_and_zero_removed", work(2).displayName == "Homework 1 Assignment")
         check("physics_real_exam_title_not_renamed", work(2,name: "Midterm 1").displayName == "Midterm 1")
+        check("upcoming_excludes_past_unsubmitted", !work(-0.01).relevant(now: now))
+        var noDeadline = work(1); noDeadline.due = nil
+        check("upcoming_excludes_opened_without_deadline", !noDeadline.relevant(now: now))
+        let widgetFixture = StudyWidgetSnapshot(items: [
+            .init(id: "old", course: "Old", title: "Old", due: now.addingTimeInterval(-1), pending: true),
+            .init(id: "next", course: "Physics", title: "Next", due: now.addingTimeInterval(3600), pending: true),
+            .init(id: "future", course: "Physics", title: "Future", due: now.addingTimeInterval(11*86400), pending: true),
+            .init(id: "submitted", course: "Physics", title: "Done", due: now.addingTimeInterval(1800), pending: false),
+            .init(id: "unknownDate", course: "Physics", title: "No date", due: nil, pending: true)
+        ], updatedAt: now, verified: true)
+        check("widget_uses_same_upcoming_deadline_window", widgetFixture.pending(at: now).map(\.id) == ["next"])
+        check("widget_drops_item_as_deadline_passes", widgetFixture.pending(at: now.addingTimeInterval(3601)).isEmpty)
+        check("widget_course_readable_without_generic_prefix", StudyWidgetSnapshot.courseName("00350001 - INTRODUCTION TO ROBOTICS - Winter 2026") == "Robotics")
+        check("widget_shortens_redundant_assignment_title", StudyWidgetSnapshot.compactTitle("Homework 4 Assignment") == "Homework 4")
         check("upcoming_default_includes_10th_day", work(10).relevant(now: now))
         check("upcoming_excludes_10day_boundary_overflow_even_if_recently_opened", !work(10.001).relevant(now: now))
         check("upcoming_range_3_and_30_days", !work(4).relevant(now: now,days:3) && work(29).relevant(now:now,days:30))
         check("physics_finished_quiz_hidden_in_all_ranges", !work(2,status:"submitted").relevant(now:now,days:30))
         check("physics_forceview_url_canonicalized", MoodleWork.activityURL(URL(string: "https://moodle.gtiit.edu.cn/moodle/mod/quiz/view.php?id=159591&forceview=1")!)?.absoluteString == "https://moodle.gtiit.edu.cn/moodle/mod/quiz/view.php?id=159591")
         check("physics_activity_url_rejects_action", MoodleWork.activityURL(URL(string: "https://moodle.gtiit.edu.cn/moodle/mod/quiz/view.php?id=1&action=delete")!) == nil)
+        let routeSettings = AppSettings(defaults: UserDefaults(suiteName: "regression.widget.routes")!)
+        let routeApp = AppModel(settings: routeSettings)
+        for (host, expected) in [("assignments", CampusDetail.assignments), ("study", .assignments), ("timetable", .timetable), ("exams", .exams)] {
+            routeApp.handleShuttleURL(URL(string: "gtiit-beta://" + host)!)
+            check("widget_deeplink_" + host, routeApp.selectedTab == .me && routeApp.nativePath == [expected])
+        }
+        routeApp.handleShuttleURL(URL(string: "gtiit-beta://shuttle?direction=northToSouth")!)
+        check("widget_deeplink_shuttle_direction", routeApp.selectedTab == .shuttle && routeSettings.favoriteShuttleDirection == .northToSouth)
         let suite = "regression.upcomingrange." + UUID().uuidString, prefs: UserDefaults
         prefs = UserDefaults(suiteName:suite)!
         defer { prefs.removePersistentDomain(forName:suite) }
@@ -430,7 +452,9 @@ private final class RetiredViewReference {
         check("class_activity_room_and_two_slot_cap", classPlans.count == 2 && classPlans[0].room == "E205" && classPlans[0].building == "SC")
         check("class_activity_identity_stable", classPlans == CourseActivityPlan.upcoming(activitySnapshot, now: classNow.addingTimeInterval(10)))
         check("class_activity_absent_without_timetable", CourseActivityPlan.upcoming(nil, now: classNow).isEmpty)
-        check("class_activity_after_start_moves_to_next", CourseActivityPlan.upcoming(activitySnapshot, now: classPlans[0].start).allSatisfy { $0.start > classPlans[0].start })
+        check("class_activity_keeps_running_class", CourseActivityPlan.upcoming(activitySnapshot, now: classPlans[0].start).first?.id == classPlans[0].id)
+        check("class_activity_keeps_until_end_plus_five", CourseActivityPlan.upcoming(activitySnapshot, now: classPlans[0].end.addingTimeInterval(299)).first?.id == classPlans[0].id)
+        check("class_activity_expires_at_end_plus_five", CourseActivityPlan.upcoming(activitySnapshot, now: classPlans[0].end.addingTimeInterval(300)).allSatisfy { $0.id != classPlans[0].id })
         check("class_activity_plan_preserves_duration", classPlans.allSatisfy { $0.end > $0.start && $0.activate < $0.start })
         let activityAttributes = ShuttleActivityAttributes(directionTitle: "南 → 北", origin: "南校区", destination: "北校区", departureTime: "08:00", busLabel: "1 号", departedLabel: "已发车")
         let activityState = ShuttleActivityAttributes.ContentState(departureDate: Date().addingTimeInterval(300), busNumber: 1)
@@ -451,6 +475,12 @@ private final class RetiredViewReference {
         check("daily_reminders_calendar_days", dailyPlans.count == 3 && dailyPlans.first?.date == dailyNow.addingTimeInterval(3600))
         check("daily_reminders_custom_hour", StudyDailyPlan.make(works: [dailyWork], exams: [], days: 2, hour: 10, now: dailyNow).first?.date == dailyNow.addingTimeInterval(7200))
         check("daily_reminders_no_past_catchup", StudyDailyPlan.make(works: [dailyWork], exams: [], days: 2, hour: 9, now: dailyNow.addingTimeInterval(7200)).first?.date == dailyNow.addingTimeInterval(25 * 3600))
+        check("course_room_short", CourseLocationPresentation.room("South Campus Building 12 · B104") == "B104")
+        check("course_room_six_digits", CourseLocationPresentation.room("SC 304313") == "304313")
+        check("study_course_without_code", StudyWidgetSnapshot.courseName("00350001 - Robotics - Winter 2026") == "Robotics")
+        check("daily_reminders_sentence", dailyPlans.first?.lines.first == L10n.format("还有 %@ 项作业没交。", "1"))
+        check("daily_reminders_no_course_code", dailyPlans.first?.lines.joined().contains(" · ") == false)
+        check("daily_reminders_verified_empty_sentence", StudyDailyPlan.make(works: [], exams: [], days: 2, hour: 9, now: dailyNow, allowEmptySummary: true).first?.lines == [L10n.tr("已经没有作业了，接下来 3 天都没有作业。")])
         check("daily_reminders_empty", StudyDailyPlan.make(works: [], exams: [], days: 2, hour: 9, now: dailyNow).isEmpty)
         testSharedSummaryInfrastructure()
         testMoodleCacheAndRange()

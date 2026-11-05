@@ -412,6 +412,7 @@ private struct RootLifecycle: ViewModifier {
                 app.prepareLaunchIfAllowed()
                 app.syncMoodleDeadlineReminders()
             } else {
+                ActivityLifecycleCleanup.schedule()
                 app.yilong.close()
                 app.lock.setInactive(settings: settings)
             }
@@ -439,7 +440,7 @@ private struct RootLifecycle: ViewModifier {
                 CourseLiveActivityController.shared.sync(snapshot: app.timetable.snapshot, enabled: courseAutoActivity)
             }
         }
-        .onChange(of: settings.moodleUpcomingRange) { _, _ in app.upcoming.invalidate(); app.refreshMoodleSummary(force: true) }
+        .onChange(of: settings.moodleUpcomingRange) { _, _ in app.upcoming.invalidate(); app.syncMoodleDeadlineReminders(); app.refreshMoodleSummary(force: true) }
         .onChange(of: settings.studyReminderHour) { _, _ in app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.examRemindersEnabled) { _, _ in app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.moodleReminderLead) { _, _ in app.syncMoodleDeadlineReminders() }

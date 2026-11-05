@@ -114,6 +114,9 @@ import UIKit
         if ProcessInfo.processInfo.environment["UI_REVIEW_SERVICE_ROUTE"] == "1" {
             model.openWeb(SiteID.serviceHub.homeURL, site: .serviceHub, title: L10n.tr("服务中心"))
         }
+        if let host = ProcessInfo.processInfo.environment["UI_REVIEW_NATIVE_ROUTE"], let url = URL(string: "gtiit-beta://" + host) {
+            model.handleShuttleURL(url)
+        }
         _app = StateObject(wrappedValue: model)
         let lock = AppLockController(authenticator: PreviewUnavailableAuthenticator())
         lock.lock()

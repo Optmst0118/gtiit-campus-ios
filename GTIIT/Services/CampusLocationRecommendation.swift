@@ -1,9 +1,13 @@
 import CoreLocation
 import Foundation
+#if os(iOS) && !GTIIT_REGRESSION
+import WidgetKit
+#endif
 
 /// WGS84 campus centroids: OpenStreetMap ways 536680356 / 1313755916.
 /// Raw location stays in memory and is never shared with extensions or saved.
 enum CampusProximity {
+    static let recommendationLifetime: TimeInterval = 15 * 60
     static let north = CLLocation(latitude: 23.41262, longitude: 116.63664)
     static let south = CLLocation(latitude: 23.40428, longitude: 116.63133)
     static func direction(for location: CLLocation, now: Date = Date()) -> ShuttleDirection? {
@@ -42,12 +46,28 @@ enum CampusProximity {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         authorization = manager.authorizationStatus
         if visible { activate() }
-        if authorization != .authorizedWhenInUse && authorization != .authorizedAlways { resolvedDirection = nil }
+        if authorization != .authorizedWhenInUse && authorization != .authorizedAlways {
+            resolvedDirection = nil
+            AppGroup.defaults.removeObject(forKey: "shuttle.nearby.direction")
+            AppGroup.defaults.removeObject(forKey: "shuttle.nearby.date")
+        }
     }
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard visible else { return }
         fixDate = locations.last?.timestamp
         resolvedDirection = locations.last.flatMap { CampusProximity.direction(for: $0) }
+        #if !GTIIT_REGRESSION
+        if let direction = resolvedDirection, let fixDate, AppGroup.isAvailable {
+            let previous = AppGroup.defaults.string(forKey: "shuttle.nearby.direction")
+            let previousDate = AppGroup.defaults.double(forKey: "shuttle.nearby.date")
+            AppGroup.defaults.set(direction.rawValue, forKey: "shuttle.nearby.direction")
+            AppGroup.defaults.set(fixDate.timeIntervalSince1970, forKey: "shuttle.nearby.date")
+            if previous != direction.rawValue || Date().timeIntervalSince1970 - previousDate > 300 {
+                WidgetCenter.shared.reloadTimelines(ofKind: "ShuttleHomeWidget")
+                WidgetCenter.shared.reloadTimelines(ofKind: "ShuttleConfiguredWidget")
+            }
+        }
+        #endif
     }
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) { resolvedDirection = nil }
 }
