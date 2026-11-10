@@ -1,0 +1,96 @@
+{
+  "before": {
+    "samples": 11178,
+    "graphUpdates": 7596,
+    "timelineUpdates": 157,
+    "top": [
+      [
+        "static App.main()",
+        11144
+      ],
+      [
+        "UIApplicationMain",
+        11144
+      ],
+      [
+        "closure #1 in KitRendererCommon(_:)",
+        11144
+      ],
+      [
+        "start",
+        11144
+      ],
+      [
+        "_CFRunLoopRunSpecificWithOptions",
+        11144
+      ],
+      [
+        "runApp<A>(_:)",
+        11144
+      ],
+      [
+        "GSEventRunModal",
+        11144
+      ],
+      [
+        "main",
+        11144
+      ],
+      [
+        "__CFRunLoopRun",
+        11140
+      ],
+      [
+        "__CFRUNLOOP_IS_SERVICING_THE_MAIN_DISPATCH_QUEUE__",
+        10617
+      ]
+    ]
+  },
+  "after": {
+    "samples": 2287,
+    "graphUpdates": 38,
+    "timelineUpdates": 9,
+    "top": [
+      [
+        "_CFRunLoopRunSpecificWithOptions",
+        2212
+      ],
+      [
+        "__CFRunLoopRun",
+        2205
+      ],
+      [
+        "GSEventRunModal",
+        2128
+      ],
+      [
+        "UIApplicationMain",
+        2128
+      ],
+      [
+        "closure #1 in KitRendererCommon(_:)",
+        2128
+      ],
+      [
+        "runApp<A>(_:)",
+        2126
+      ],
+      [
+        "static App.main()",
+        2125
+      ],
+      [
+        "main",
+        2125
+      ],
+      [
+        "start",
+        2124
+      ],
+      [
+        "UC::DriverCore::continueProcessing()",
+        1775
+      ]
+    ]
+  }
+}

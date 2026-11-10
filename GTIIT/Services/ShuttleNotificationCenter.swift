@@ -15,8 +15,9 @@ final class ShuttleNotificationCenter: NSObject, ObservableObject {
     @Published private(set) var pendingCount = 0
     @Published private(set) var delivered: [UNNotification] = []
     /// Set by AppModel to route a notification tap into the Shuttle tab.
+    var onMessage: ((UNNotification) -> Void)?
     var onOpen: ((ShuttleDirection?) -> Void)?
-    var onOpenStudy: (() -> Void)?
+    var onOpenStudy: ((Bool) -> Void)?
     var onOpenMoodle: ((URL) -> Void)?
 
     private let center = UNUserNotificationCenter.current()
@@ -53,7 +54,9 @@ final class ShuttleNotificationCenter: NSObject, ObservableObject {
         authorizationStatus = settings.authorizationStatus
         let requests = await center.pendingNotificationRequests()
         pendingCount = requests.filter { $0.identifier.hasPrefix(Self.identifierPrefix) }.count
-        delivered = await center.deliveredNotifications().sorted { $0.date > $1.date }
+        let current = await center.deliveredNotifications().sorted { $0.date > $1.date }
+        delivered = current
+        for message in current { onMessage?(message) }
     }
 
     func requestAuthorization() async -> Bool {
@@ -143,6 +146,7 @@ extension ShuttleNotificationCenter: UNUserNotificationCenterDelegate {
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
         await MainActor.run {
+            ShuttleNotificationCenter.shared.onMessage?(notification)
             _ = Task { @MainActor in
                 try? await Task.sleep(for: .seconds(1))
                 await ShuttleNotificationCenter.shared.refreshStatus()
@@ -155,8 +159,9 @@ extension ShuttleNotificationCenter: UNUserNotificationCenterDelegate {
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse
     ) async {
+        await MainActor.run { ShuttleNotificationCenter.shared.onMessage?(response.notification) }
         if response.notification.request.identifier.hasPrefix("study.daily.") {
-            await MainActor.run { ShuttleNotificationCenter.shared.onOpenStudy?() }
+            await MainActor.run { ShuttleNotificationCenter.shared.onOpenStudy?(response.notification.request.content.userInfo["studyDestination"] as? String == "exams") }
             return
         }
         let userInfo = response.notification.request.content.userInfo

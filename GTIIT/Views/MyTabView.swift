@@ -6,7 +6,6 @@ struct MyTabView: View {
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
     @State private var showSettings = false
-    @State private var showInbox = false
     @State private var rootVisible = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var navigationEpoch = UUID()
@@ -41,7 +40,7 @@ struct MyTabView: View {
             .onDisappear { rootVisible = false }
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    CampusInboxToolbarButton(sync: app.campusSync, upcoming: app.upcoming, exams: app.exams) { showInbox = true }
+                    CampusInboxToolbarButton(store: app.messages) { app.openNativeDetail(.inbox) }
                     Button {
                         showSettings = true
                     } label: {
@@ -52,7 +51,6 @@ struct MyTabView: View {
             }
             .navigationDestination(for: CampusDetail.self) { CampusDetailPage(destination: $0) }
             .navigationDestination(isPresented: $showSettings) { SettingsView() }
-            .navigationDestination(isPresented: $showInbox) { CampusInboxView(sync: app.campusSync, upcoming: app.upcoming, exams: app.exams) }
             .task {
                 #if DEBUG
                     if ProcessInfo.processInfo.environment["GTIIT_SETTINGS"] == "1" { showSettings = true }
@@ -68,7 +66,7 @@ struct MyTabView: View {
         }
         .id(navigationEpoch)
         .onChange(of: app.tabReselectToken) { _, _ in
-            if app.tabReselectTarget == .me, !rootVisible { app.nativePath = []; showSettings = false; showInbox = false; navigationEpoch = UUID() }
+            if app.tabReselectTarget == .me, !rootVisible { app.nativePath = []; showSettings = false; navigationEpoch = UUID() }
         }
     }
 }

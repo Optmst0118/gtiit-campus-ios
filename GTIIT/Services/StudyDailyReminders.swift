@@ -4,6 +4,7 @@ import UserNotifications
 struct StudyDailyPlan {
     let date: Date
     let lines: [String]
+    let containsAssignments: Bool
     static func make(works: [MoodleWork], exams: [StudentExam], days: Int, hour: Int, now: Date, allowEmptySummary: Bool = false, includePastToday: Bool = false, horizonDays: Int = 31) -> [Self] {
         let calendar = CampusDate.calendar
         // Parse each exam only once, outside the planning horizon loop.
@@ -37,7 +38,7 @@ struct StudyDailyPlan {
                     lines = [L10n.tr("接下来 3 天没有待交作业。")]
                 }
             }
-            return lines.isEmpty ? nil : Self(date: fire, lines: lines)
+            return lines.isEmpty ? nil : Self(date: fire, lines: lines, containsAssignments: !workLines.isEmpty)
         }
     }
 }
@@ -98,10 +99,12 @@ struct StudyDailyPlan {
                 content.body = plan.lines.prefix(12).joined(separator: "\n")
                 content.sound = .default
                 content.threadIdentifier = "study.daily"
+                content.userInfo = ["studyDestination": plan.containsAssignments ? "assignments" : "exams"]
                 var components = CampusDate.calendar.dateComponents([.year,.month,.day,.hour,.minute], from: plan.date)
                 components.timeZone = CampusDate.calendar.timeZone
                 let id = "study.daily." + String(Int(plan.date.timeIntervalSince1970))
                 if let old = existing[id], old.content.title == content.title, old.content.body == content.body,
+                   old.content.userInfo["studyDestination"] as? String == content.userInfo["studyDestination"] as? String,
                    let trigger = old.trigger as? UNCalendarNotificationTrigger, trigger.dateComponents == components { continue }
                 do {
                     try await delivery.add(UNNotificationRequest(identifier: id, content: content,

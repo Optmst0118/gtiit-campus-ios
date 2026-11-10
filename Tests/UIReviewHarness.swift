@@ -22,6 +22,7 @@ import UIKit
         settings.appearance = ProcessInfo.processInfo.environment["UI_REVIEW_DARK"] == "1" ? .dark : .light
         _settings = StateObject(wrappedValue: settings)
         let model = AppModel(settings: settings)
+        if ProcessInfo.processInfo.environment["UI_REVIEW_STUDY_LAYOUT"] == "1" { model.messages.clear() }
         if ProcessInfo.processInfo.environment["UI_REVIEW_TIMETABLE"] == "1" {
             let classes = (1...5).flatMap { day in
                 (0..<5).map { index in
@@ -116,6 +117,31 @@ import UIKit
         }
         if let host = ProcessInfo.processInfo.environment["UI_REVIEW_NATIVE_ROUTE"], let url = URL(string: "gtiit-beta://" + host) {
             model.handleShuttleURL(url)
+        }
+        if ProcessInfo.processInfo.environment["UI_REVIEW_STUDY_LAYOUT"] == "1" {
+            model.lock.setInactive(settings: settings)
+            let day = CampusDate.calendar.startOfDay(for: Date())
+            let courses = ["Engineering Graphics", "Physics 2", "Ordinary Differential Equations", "Introduction to Robotics"]
+            var works: [MoodleWork] = []
+            for index in 0..<7 {
+                let title = index == 0 ? "Tutorial 4" : "Homework \(index + 2) Assignment"
+                let offset = Double(index < 2 ? 1 : index) * 86400.0 + 86340.0
+                let due = day.addingTimeInterval(offset).timeIntervalSince1970
+                let opened: Double? = index >= 5 ? day.addingTimeInterval(Double(index - 3) * 86400.0 + 60.0).timeIntervalSince1970 : nil
+                works.append(MoodleWork(url: "https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=\(index + 1)", name: title, course: courses[index % 4], due: due, opened: opened, status: index == 1 ? "draft" : "notSubmitted", source: "assignment", kind: "assign"))
+            }
+            model.upcoming.accept(MoodleUpcomingResult(loginRequired: false, items: works, courses: 4, checked: 7, failed: 0, courseList: nil, directoryRefreshed: false))
+            let examCourses = ["Ordinary Differential Equations", "Thermodynamics 1", "Thermodynamics 1", "Creative Mechanical Engineering"]
+            let offsets = [11.0, 15.0, 71.0, 76.0]
+            var exams: [StudentExam] = []
+            for index in 0..<4 {
+                let session = index < 2 ? "Mid" : index == 2 ? "A" : "B"
+                let date = CampusDate.key(day.addingTimeInterval(offsets[index] * 86400.0))
+                let venue = index < 2 ? "SC L-110 · L-111 · L-112" : ""
+                exams.append(StudentExam(course: examCourses[index], code: "TEST\(index)", session: session, date: date, time: "09:00", duration: 3, venue: venue))
+            }
+            try? model.exams.accept(semester: "Synthetic", items: exams)
+            model.messages.append(CampusMessage(id: "synthetic.assignment", date: Date().addingTimeInterval(-300), title: L10n.tr("作业与考试提醒"), body: "Physics 2 · Homework 3 · 23:59\nThermodynamics 1 · 7 days", destination: .study))
         }
         _app = StateObject(wrappedValue: model)
         let lock = AppLockController(authenticator: PreviewUnavailableAuthenticator())
@@ -232,6 +258,7 @@ import UIKit
                     LockScreenView().environmentObject(previewLock)
                 } else {
                     RootTabView().environmentObject(app).environmentObject(settings)
+                        .task { if environment["UI_REVIEW_OPEN_INBOX"] == "1" { app.openNativeDetail(.inbox) } }
                 }
             }
             .modifier(ContextMenuBackdrop(active: app.contextMenuSource != nil && (environment["UI_REVIEW_SHORTCUTS"] == "1" || environment["UI_REVIEW_DOWNLOADS"] == "1")))

@@ -54,6 +54,9 @@ struct RootTabView: View {
             .overlay { YilongOverlay(controller: app.yilong).allowsHitTesting(!app.lock.isLocked) }
             .onOpenURL { app.handleShuttleURL($0) }
             .modifier(RootLifecycle(app: app, settings: settings))
+            .onReceive(Timer.publish(every: 60, on: .main, in: .common).autoconnect()) { date in
+                if scenePhase == .active && !app.lock.isLocked { app.refreshMessageEvents(now: date) }
+            }
             .environment(\.campusSidebarNavigation, sidebar)
         }.background(Theme.pageBackground.ignoresSafeArea())
     }

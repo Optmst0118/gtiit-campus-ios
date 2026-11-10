@@ -1,123 +1,35 @@
 import SwiftUI
-import UserNotifications
 
 struct CampusInboxView: View {
     @EnvironmentObject private var app: AppModel
-    @ObservedObject var sync: CampusSessionSync
-    @ObservedObject var upcoming: MoodleUpcomingStore
-    @ObservedObject var exams: StudentExamStore
-    @EnvironmentObject private var settings: AppSettings
-    @ObservedObject private var notifications = ShuttleNotificationCenter.shared
-    @AppStorage("campusInboxBeta") private var beta = false
+    @ObservedObject var store: CampusMessageStore
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 30)) { context in
-            let assignments = CampusInboxPolicy.assignments(upcoming.items, now: context.date)
-            let reservations = CampusInboxPolicy.reservations(sync.reservations, now: context.date)
-            let loginSites = SiteID.allCases
-            let digest = StudyDailyPlan.make(works: settings.moodleDeadlineRemindersEnabled ? upcoming.items.filter { ($0.dueDate ?? .distantPast) > context.date } : [], exams: settings.examRemindersEnabled ? exams.items : [], days: settings.moodleReminderLead.rawValue / 24, hour: settings.studyReminderHour, now: context.date, includePastToday: true, horizonDays: 0).first { CampusDate.calendar.isDate($0.date, inSameDayAs: context.date) }
-            List {
-                if let digest {
-                    Section(L10n.tr("今日提醒")) {
-                        Text(digest.lines.joined(separator: "\n")).font(.subheadline)
-                    }
-                }
-                if !exams.upcoming.isEmpty {
-                    Section(L10n.tr("临近考试")) {
-                        ForEach(exams.upcoming.filter { ($0.daysUntil(from: context.date) ?? 999) <= 31 }) { exam in
-                            StudentExamRow(exam: exam)
-                        }
-                    }
-                }
-                if !notifications.delivered.isEmpty {
-                    Section(L10n.tr("已送达")) {
-                        ForEach(notifications.delivered, id: \.request.identifier) { notification in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(notification.request.content.title)
-                                if !notification.request.content.body.isEmpty {
-                                    Text(notification.request.content.body).font(.subheadline).foregroundStyle(.secondary)
-                                }
-                                Text(notification.date.gtiitFormatted()).font(.caption).foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-                }
-                if beta || !assignments.isEmpty { Section(L10n.tr("24 小时内截止")) {
-                    if assignments.isEmpty { Text(L10n.tr("暂无即将截止的作业")).foregroundStyle(Color.secondary) }
-                    ForEach(assignments) { work in
-                        Button {
-                            if let url = MoodleWork.safeURL(work.url) { app.openWeb(url, site: .moodle, title: work.displayName) }
-                        } label: {
-                            Label {
-                                VStack(alignment: .leading, spacing: 5) {
-                                    Text(work.displayName).foregroundStyle(Color.primary)
-                                    Text(work.course).font(.subheadline).foregroundStyle(Color.secondary)
-                                    MoodleDeadlineDate(item: work)
-                                }
-                            } icon: { Image(systemName: "doc.text").foregroundStyle(Theme.accent) }
-                        }
-                    }
-                }
-                }
-                if beta || !reservations.isEmpty { Section(L10n.tr("6 小时内的预约")) {
-                    if reservations.isEmpty { Text(L10n.tr("暂无即将开始的预约")).foregroundStyle(Color.secondary) }
-                    ForEach(reservations) { reservation in
-                        Button {
-                            if let url = CachedRoomReservation.safeURL(reservation.url) { app.openWeb(url, site: .rooms, title: L10n.tr("我的预约")) }
-                        } label: {
-                            Label {
-                                VStack(alignment: .leading, spacing: 5) {
-                                    Text(reservation.title).foregroundStyle(Color.primary)
-                                    if !reservation.location.isEmpty { Text(reservation.location).font(.subheadline).foregroundStyle(Color.secondary) }
-                                    Text(reservation.start.gtiitFormatted(date: .abbreviated, time: .shortened)).font(.caption).foregroundStyle(Theme.accent)
-                                }
-                            } icon: { Image(systemName: "calendar.badge.clock").foregroundStyle(Theme.accent) }
-                        }
-                    }
-                }
-                }
-                if !loginSites.isEmpty { Section(L10n.tr("登录状态")) {
-                    ForEach(loginSites) { site in
-                        Button {
-                            if site == .sports, let url = URL(string: "https://gtiit.mike-x.com/kcr2S") { app.openWeb(url, site: site, title: site.displayName) }
-                            else { app.openSite(site) }
-                        } label: {
-                            HStack(spacing: 12) {
-                                Image(systemName: site.symbol).foregroundStyle(Theme.accent).frame(width: 24)
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(site.displayName).foregroundStyle(Color.primary)
-                                    Text(sync.displayTitle(for: site)).font(.caption)
-                                        .foregroundStyle(sync.states[site] == .needsLogin ? Theme.orange : Color.secondary)
-                                }
-                                Spacer()
-                                if sync.states[site] == .checking { ProgressView() }
-                                else if sync.states[site] == .signedIn { Image(systemName: "checkmark.circle.fill").foregroundStyle(Theme.accent) }
-                                else { Image(systemName: "chevron.right").font(.caption).foregroundStyle(Color.secondary) }
-                            }
-                        }
-                    }
-                }
-                }
-                if beta { Section { NavigationLink { CampusCacheView(sync: sync, upcoming: upcoming, exams: app.exams) } label: { Label(L10n.tr("本地校园信息"), systemImage: "internaldrive") } } }
-            }
-            .scrollContentBackground(.hidden).background(Theme.pageBackground)
-            .refreshable { app.refreshCampusSessions(force: true); app.refreshMoodleSummary(force: true); exams.refresh(force: true, allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData }); await notifications.refreshStatus() }
-        }
-        .navigationTitle(L10n.tr("通知中心")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
-        .task {
-            while !Task.isCancelled {
-                await notifications.refreshStatus()
-                do { try await Task.sleep(for: .seconds(30)) } catch { return }
-            }
-        }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Toggle(L10n.tr("显示全部通知项目"), isOn: $beta)
+        List {
+            if store.messages.isEmpty { ContentUnavailableView(L10n.tr("通知中心"), systemImage: "bell") }
+            ForEach(store.messages) { message in
+                Button {
+                    store.markRead(message.id)
+                    app.openMessage(message)
                 } label: {
-                    Text(L10n.tr("Beta")).font(.subheadline.weight(.medium))
-                }.accessibilityLabel(L10n.tr("Beta 通知预览"))
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: message.symbol).font(.title3).foregroundStyle(Theme.accent).frame(width: 28).padding(.top, 2)
+                        VStack(alignment: .leading, spacing: 5) {
+                            HStack(alignment: .firstTextBaseline) {
+                                Text(message.title).font(.subheadline.weight(.semibold)).foregroundStyle(.primary)
+                                Spacer(minLength: 8)
+                                Text(message.date.formatted(.relative(presentation: .numeric, unitsStyle: .abbreviated).locale(L10n.locale))).font(.caption).foregroundStyle(.secondary).fixedSize()
+                            }
+                            Text(message.body).font(.subheadline).foregroundStyle(.primary).fixedSize(horizontal: false, vertical: true)
+                        }
+                        Circle().fill(Theme.accent).frame(width: 6, height: 6).padding(.top, 6).opacity(message.read ? 0 : 1)
+                    }.padding(.vertical, 7).contentShape(Rectangle())
+                }.buttonStyle(.plain).listRowBackground(Theme.cardBackground)
             }
-        }
+        }.listStyle(.insetGrouped).nativeDetailSurface(title: L10n.tr("通知中心"))
+        .toolbar { ToolbarItem(placement: .topBarTrailing) {
+            Button { store.markAllRead() } label: { Image(systemName: "checkmark") }
+                .accessibilityLabel(L10n.tr("全部已读")).disabled(store.unreadCount == 0)
+        } }
     }
 }
 
@@ -182,21 +94,12 @@ struct CampusCacheView: View {
 }
 
 struct CampusInboxToolbarButton: View {
-    @ObservedObject var sync: CampusSessionSync
-    @ObservedObject var upcoming: MoodleUpcomingStore
-    @ObservedObject var exams: StudentExamStore
+    @ObservedObject var store: CampusMessageStore
     let action: () -> Void
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 30)) { context in
-            let examCount = exams.upcoming.filter { [0,3,7,14,31].contains($0.daysUntil(from: context.date) ?? -1) }.count
-            let count = examCount + CampusInboxPolicy.assignments(upcoming.items, now: context.date).count
-                + CampusInboxPolicy.reservations(sync.reservations, now: context.date).count
-                + CampusInboxPolicy.loginSites(sync.states, beta: false).count
-            Button(action: action) {
-                Image(systemName: count > 0 ? "bell.badge" : "bell")
-
-            }.accessibilityLabel(L10n.tr("通知中心"))
-                .accessibilityValue(L10n.format("%@ 条通知", String(count)))
-        }
+        Button(action: action) { Image(systemName: store.unreadCount > 0 ? "bell.badge" : "bell") }
+            .accessibilityLabel(L10n.tr("通知中心"))
+            .accessibilityValue(L10n.format("%@ 条通知", String(store.unreadCount)))
+            .accessibilityIdentifier("home.inbox")
     }
 }

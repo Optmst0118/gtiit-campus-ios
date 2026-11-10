@@ -456,7 +456,122 @@
       "test" : "moodle_explicit_clear_removes_cache"
     },
     {
-      "detail" : "300 synthetic exams; seconds=0.9464789628982544",
+      "detail" : "",
+      "passed" : true,
+      "test" : "messages_unknown_login_is_not_an_event"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "messages_login_expiration_once_per_session"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "messages_new_expired_session_is_new_event"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "messages_daily_exam_milestone_deduplicated"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_date_is_numeric_month_slash_day"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_final_sitting_b_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "messages_expired_login_not_repeated_after_relaunch"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "messages_survive_relaunch_with_read_state"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "messages_restore_deduplication"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "messages_mark_all_read"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "messages_explicit_clear_persists"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_home_push_0_completes"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_parent_update_0_keeps_route"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_home_pop_0_completes"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_home_push_1_completes"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_parent_update_1_keeps_route"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_home_pop_1_completes"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_home_push_2_completes"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_parent_update_2_keeps_route"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_home_pop_2_completes"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_home_push_3_completes"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_parent_update_3_keeps_route"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_home_pop_3_completes"
+    },
+    {
+      "detail" : "200 persisted messages; seconds=0.09798407554626465",
       "passed" : true,
       "test" : "inbox_actual_screen_first_render_bounded"
     },
@@ -792,8 +907,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-11-10T14:55:02Z",
+  "date" : "2026-11-10T15:56:11Z",
   "focus" : "study",
   "passed" : true,
-  "runID" : "d60cdd8e-ba3f-4c69-a539-843b72bc4168"
+  "runID" : "d2756e35-e3c8-4884-acfa-9bd83f2a60bf"
 }

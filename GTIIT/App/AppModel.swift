@@ -25,6 +25,7 @@ final class AppModel: ObservableObject {
     func showContextMenu(_ source: String) { contextMenuSource = source }
     func hideContextMenu(_ source: String) { if contextMenuSource == source { contextMenuSource = nil } }
 
+    let messages = CampusMessageStore()
     let timetable = LocalTimetableStore()
     let upcoming = MoodleUpcomingStore()
     let campusSync = CampusSessionSync()
@@ -55,6 +56,7 @@ final class AppModel: ObservableObject {
     init(settings: AppSettings? = nil) {
         let settings = settings ?? AppSettings()
         self.settings = settings
+        messages.connect(sync: campusSync)
         selectedTab = settings.startupTab
         visitedTabs = [settings.startupTab]
         bookingSegment = settings.defaultBooking
@@ -86,7 +88,8 @@ final class AppModel: ObservableObject {
         exams.onReminderSnapshot = { [weak self] in self?.syncMoodleDeadlineReminders() }
         upcoming.onReminderSnapshot = { [weak self] in self?.syncMoodleDeadlineReminders() }
         upcoming.onClearReminders = { [weak self] in self?.summaryBrowser?.webView.stopLoading(); self?.summaryBrowser = nil; AppGroup.defaults.removeObject(forKey: StudyWidgetSnapshot.key); WidgetCenter.shared.reloadTimelines(ofKind: "StudyHomeWidget"); MoodleDeadlineReminders.shared.clear(); Task { @MainActor [weak self] in await Task.yield(); self?.syncMoodleDeadlineReminders() } }
-        ShuttleNotificationCenter.shared.onOpenStudy = { [weak self] in self?.openNativeDetail(.assignments) }
+        ShuttleNotificationCenter.shared.onMessage = { [weak self] in self?.messages.ingest($0) }
+        ShuttleNotificationCenter.shared.onOpenStudy = { [weak self] examOnly in self?.openNativeDetail(examOnly ? .exams : .assignments) }
         ShuttleNotificationCenter.shared.onOpenMoodle = { [weak self] url in
             self?.openWeb(url, site: .moodle)
         }
@@ -133,7 +136,30 @@ final class AppModel: ObservableObject {
         nativePath = [destination]
     }
 
+    func refreshMessageEvents(now: Date = Date()) {
+        messages.recordStudy(works: settings.moodleDeadlineRemindersEnabled ? upcoming.items : [],
+            exams: settings.examRemindersEnabled ? exams.items : [], days: settings.moodleReminderLead.rawValue / 24,
+            hour: settings.studyReminderHour, now: now)
+        messages.recordReservations(campusSync.reservations, now: now)
+    }
+    func openMessage(_ message: CampusMessage) {
+        switch message.destination {
+        case .study: openNativeDetail(.assignments)
+        case .exams: openNativeDetail(.exams)
+        case .assignments:
+            if let raw = message.value, let url = MoodleWork.safeURL(raw) { openWeb(url, site: .moodle) }
+            else { openNativeDetail(.assignments) }
+        case .reservation:
+            if let raw = message.value, let url = CachedRoomReservation.safeURL(raw) { openWeb(url, site: .rooms) }
+        case .login:
+            if let raw = message.value, let site = SiteID(rawValue: raw) { openSite(site) }
+        case .shuttle:
+            select(tab: .shuttle)
+            if let raw = message.value, let direction = ShuttleDirection(rawValue: raw) { settings.favoriteShuttleDirection = direction }
+        }
+    }
     func syncMoodleDeadlineReminders() {
+        refreshMessageEvents()
         if AppGroup.isAvailable {
             AppGroup.defaults.set(settings.language.rawValue, forKey: AppGroup.Key.language)
             let snapshot = StudyWidgetSnapshot(items: upcoming.items.map {
@@ -415,6 +441,7 @@ final class AppModel: ObservableObject {
         guard !isClearingData else { return }
         isClearingData = true
         defer { isClearingData = false }
+        messages.clear()
         campusSync.clear()
         upcoming.cancel(clear: true)
         moodleAutoLogin.reset(); moodleAutoLoginStarted = false; pendingWebRoute = nil; settings.followedMoodleCourseIDs = []

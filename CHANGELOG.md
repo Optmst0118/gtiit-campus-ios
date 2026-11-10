@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3.0-beta.2 (108) · 2026-11-10
+
+- 通知中心改为持久消息流与统一跳转，修复通知导航中的持续渲染失效；登录失效消息跨启动去重。
+- 作业日期时间线与右列对齐；考试采用MM/dd日期列、期中/期末分组及A/B考标记。
+- 通知列表恢复统一页面背景、主题圆角列表与分割线。
+
 ## 2.2.0-beta.2 (106) · 2026-11-10
 
 - 修复通知首屏重复生成整月摘要和解析日期导致的阻塞。

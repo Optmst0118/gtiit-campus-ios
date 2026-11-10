@@ -66,21 +66,46 @@ struct StudentExamsView: View {
 }
 struct StudentExamRow: View {
     let exam: StudentExam
+    @State private var now = Date()
+    @Environment(\.dynamicTypeSize) private var typeSize
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(exam.course).font(.headline).foregroundStyle(.primary).fixedSize(horizontal: false, vertical: true)
-            HStack { Text(exam.code); Text(exam.session).fontWeight(.medium) }.font(.caption).foregroundStyle(.secondary)
+        HStack(alignment: .center, spacing: 12) {
             if let date = exam.start {
-                Label { Text(date, format: .dateTime.month().day().weekday().hour().minute().timeZone(.specificName(.short))).monospacedDigit() } icon: { Image(systemName: "calendar") }.font(.subheadline).foregroundStyle(Theme.accent)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(exam.shortDateLabel).font(.system(.title3, design: .rounded).weight(.semibold)).monospacedDigit().foregroundStyle(Theme.accent)
+                    Text(date, format: .dateTime.weekday(.abbreviated)).font(.caption).foregroundStyle(.secondary)
+                }.frame(width: 66, alignment: .leading)
+                Rectangle().fill(Color.secondary.opacity(0.3)).frame(width: 1, height: 66)
             }
-            TimelineView(.periodic(from: .now, by: 60)) { context in
-                if let days = exam.daysUntil(from: context.date), days >= 0 {
-                    Text(L10n.format("还有 %@ 天", String(days))).font(.subheadline.weight(.medium)).foregroundStyle(Theme.accent)
-                }
+            VStack(alignment: .leading, spacing: 5) {
+                Text(StudyWidgetSnapshot.courseName(exam.course)).font(.headline).foregroundStyle(.primary).fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 6) {
+                    Text(timeRange).monospacedDigit()
+                    if let sitting = exam.sitting { Text(sitting).font(.caption.weight(.semibold)).padding(.horizontal, 6).padding(.vertical, 2).background(Theme.accent.opacity(0.12), in: Capsule()) }
+                }.font(.subheadline).foregroundStyle(.primary)
+                Text(exam.venue.isEmpty ? L10n.tr("地点待定") : exam.venue).font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                if typeSize.isAccessibilitySize { countdown }
+            }.frame(maxWidth: .infinity, alignment: .leading)
+            if !typeSize.isAccessibilitySize { countdown }
+        }.environment(\.timeZone, CampusDate.calendar.timeZone)
+            .accessibilityElement(children: .combine)
+            .onReceive(Timer.publish(every: 60, on: .main, in: .common).autoconnect()) { now = $0 }
+    }
+    private var countdown: some View {
+        Group {
+            if let days = exam.daysUntil(from: now), days >= 0 {
+                Text(L10n.format("%@天", String(days))).font(.headline).monospacedDigit().foregroundStyle(Theme.accent).fixedSize()
             }
-            Label(exam.venue.isEmpty ? L10n.tr("地点待定") : exam.venue, systemImage: "mappin.and.ellipse").font(.subheadline).foregroundStyle(.secondary)
-            if exam.duration > 0 { Text(L10n.format("时长 %@ 小时", String(exam.duration))).font(.caption).foregroundStyle(.secondary) }
-        }.environment(\.timeZone, TimeZone(identifier: "Asia/Shanghai")!).accessibilityElement(children: .combine)
+        }
+    }
+    private var timeRange: String {
+        guard let start = exam.start else { return exam.time }
+        var style = Date.FormatStyle().hour(.twoDigits(amPM: .omitted)).minute(.twoDigits)
+        style.timeZone = CampusDate.calendar.timeZone
+        let beginning = start.formatted(style)
+        guard exam.duration > 0 else { return beginning }
+        let end = start.addingTimeInterval(exam.duration * 3600)
+        return beginning + "–" + end.formatted(style)
     }
 }
 

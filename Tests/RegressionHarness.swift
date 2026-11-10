@@ -337,6 +337,84 @@ private final class RetiredViewReference {
         browser.webView.removeFromSuperview()
     }
 
+    func testMessageEvents() {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("messages-" + UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let store = CampusMessageStore(directory: folder)
+        let now = CampusDate.parse("2026-11-10")!.addingTimeInterval(12 * 3600)
+        store.recordLogin([.sports: .unknown], now: now)
+        check("messages_unknown_login_is_not_an_event", store.messages.isEmpty)
+        store.recordLogin([.sports: .signedIn], now: now)
+        store.recordLogin([.sports: .checking], now: now)
+        store.recordLogin([.sports: .needsLogin], now: now)
+        store.recordLogin([.sports: .checking], now: now)
+        store.recordLogin([.sports: .needsLogin], now: now)
+        check("messages_login_expiration_once_per_session", store.messages.count == 1)
+        store.recordLogin([.sports: .signedIn], now: now)
+        store.recordLogin([.sports: .needsLogin], now: now)
+        check("messages_new_expired_session_is_new_event", store.messages.count == 2)
+        let exam = StudentExam(course: "Physics", code: "TEST", session: "Final B", date: "2026-11-13", time: "09:00", duration: 2, venue: "SC L-110")
+        store.recordStudy(works: [], exams: [exam], days: 1, hour: 8, now: now)
+        store.recordStudy(works: [], exams: [exam], days: 1, hour: 8, now: now)
+        check("messages_daily_exam_milestone_deduplicated", store.messages.filter { $0.destination == .exams }.count == 1)
+        check("exam_date_is_numeric_month_slash_day", exam.shortDateLabel == "11/13")
+        check("exam_final_sitting_b_preserved", exam.kind == .final && exam.sitting == L10n.tr("B 考"))
+        let loginKey = "campus.session.wasSignedIn.\(SiteID.sports.rawValue)"
+        let previousLogin = UserDefaults.standard.object(forKey: loginKey)
+        UserDefaults.standard.set(true, forKey: loginKey)
+        defer {
+            if let previousLogin { UserDefaults.standard.set(previousLogin, forKey: loginKey) }
+            else { UserDefaults.standard.removeObject(forKey: loginKey) }
+        }
+        let reloaded = CampusMessageStore(directory: folder)
+        reloaded.recordLogin([.sports: .needsLogin], now: now)
+        check("messages_expired_login_not_repeated_after_relaunch", reloaded.messages.count == store.messages.count)
+        let first = store.messages[0]
+        store.markRead(first.id)
+        let restored = CampusMessageStore(directory: folder)
+        check("messages_survive_relaunch_with_read_state", restored.messages == store.messages && restored.messages.first?.read == true)
+        restored.append(first)
+        check("messages_restore_deduplication", restored.messages.count == 3)
+        restored.markAllRead()
+        check("messages_mark_all_read", restored.unreadCount == 0)
+        restored.clear()
+        check("messages_explicit_clear_persists", CampusMessageStore(directory: folder).messages.isEmpty)
+    }
+
+    func testInboxNavigation() async {
+        let suite = "inbox-navigation-" + UUID().uuidString
+        let prefs = UserDefaults(suiteName: suite)!
+        defer { prefs.removePersistentDomain(forName: suite) }
+        let settings = AppSettings(defaults: prefs)
+        settings.hasSeenWelcome = true; settings.preloadSitesOnLaunch = false; settings.startupTab = .me
+        settings.hiddenMySections = Set(settings.mySectionOrder)
+        let app = AppModel(settings: settings)
+        app.lock.setInactive(settings: settings)
+        let original = window!.rootViewController
+        defer { window!.rootViewController = original }
+        let host = UIHostingController(rootView: RootTabView().environmentObject(app).environmentObject(settings).environment(\.scenePhase, .inactive))
+        window!.rootViewController = host
+        window!.layoutIfNeeded()
+        try? await Task.sleep(for: .milliseconds(300))
+        func navigations(_ controller: UIViewController) -> [UINavigationController] {
+            ((controller as? UINavigationController).map { [$0] } ?? []) + controller.children.flatMap { navigations($0) }
+        }
+        for cycle in 0..<4 {
+            let begin = Date()
+            app.openNativeDetail(.inbox) // Exactly the action used by the home bell.
+            try? await Task.sleep(for: .milliseconds(350))
+            let pushed = navigations(host).contains { $0.topViewController?.navigationItem.title == L10n.tr("通知中心") }
+            check("inbox_home_push_\(cycle)_completes", pushed && Date().timeIntervalSince(begin) < 2)
+            app.objectWillChange.send()
+            try? await Task.sleep(for: .milliseconds(100))
+            check("inbox_parent_update_\(cycle)_keeps_route", app.nativePath == [.inbox])
+            app.nativePath = []
+            let popped = await wait(2) { !navigations(host).contains { $0.topViewController?.navigationItem.title == L10n.tr("通知中心") } }
+            check("inbox_home_pop_\(cycle)_completes", popped)
+        }
+        app.upcoming.cancel(); app.exams.cancel(); app.campusSync.cancel()
+    }
+
     func testInboxFirstRender() async {
         let suite = "inbox-performance-" + UUID().uuidString
         let prefs = UserDefaults(suiteName: suite)!
@@ -346,17 +424,19 @@ private final class RetiredViewReference {
         let app = AppModel(settings: settings)
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent(suite)
         defer { try? FileManager.default.removeItem(at: folder) }
-        let exams = StudentExamStore(directory: folder)
-        let day = CampusDate.key(CampusDate.calendar.date(byAdding: .day, value: 14, to: Date())!)
-        try? exams.accept(semester: "Synthetic", items: (0..<300).map { StudentExam(course: "Synthetic course", code: "E\($0)", session: "Mid", date: day, time: "09:00", duration: 2, venue: "SC L-110") })
+        let messages = CampusMessageStore(directory: folder)
+        for index in 0..<200 {
+            messages.append(CampusMessage(id: "synthetic-\(index)", date: Date().addingTimeInterval(Double(-index)),
+                title: "Synthetic reminder", body: "Physics 2 · Homework 3 · 23:59", destination: .study))
+        }
         let original = window!.rootViewController
         defer { window!.rootViewController = original }
-        let host = UIHostingController(rootView: CampusInboxView(sync: app.campusSync, upcoming: app.upcoming, exams: exams).environmentObject(app).environmentObject(settings))
+        let host = UIHostingController(rootView: CampusInboxView(store: messages).environmentObject(app).environmentObject(settings))
         let begin = Date()
         window!.rootViewController = UINavigationController(rootViewController: host)
         window!.layoutIfNeeded(); host.view.layoutIfNeeded()
         let elapsed = Date().timeIntervalSince(begin)
-        check("inbox_actual_screen_first_render_bounded", elapsed < 2, "300 synthetic exams; seconds=\(elapsed)")
+        check("inbox_actual_screen_first_render_bounded", elapsed < 2, "200 persisted messages; seconds=\(elapsed)")
         await Task.yield()
     }
 
@@ -576,6 +656,8 @@ private final class RetiredViewReference {
             await verifyUpcomingReader(); finish(); return
         }
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "study" {
+            testMessageEvents()
+            await testInboxNavigation()
             await testInboxFirstRender()
             await studentExamChecks(); await testCampusInbox(); await testMoodleDeadlineReminders(); finish(); return
         }

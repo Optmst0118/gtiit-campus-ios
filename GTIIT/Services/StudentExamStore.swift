@@ -22,8 +22,20 @@ struct StudentExam: Codable, Identifiable, Hashable {
     var kind: StudentExamKind {
         let value = session.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if value.contains("mid") || value.contains("期中") { return .midterm }
-        if ["a", "b", "final", "final exam", "final examination", "moed a", "moed b"].contains(value) || value.contains("期末") { return .final }
+        if ["a", "b", "final", "final exam", "final examination", "moed a", "moed b"].contains(value) || value.contains("期末") || value.hasPrefix("final ") { return .final }
         return .other
+    }
+    var shortDateLabel: String {
+        guard let start else { return date }
+        let parts = CampusDate.calendar.dateComponents([.month, .day], from: start)
+        return String(format: "%02d/%02d", parts.month ?? 0, parts.day ?? 0)
+    }
+    var sitting: String? {
+        guard kind == .final else { return nil }
+        let words = session.lowercased().split { !$0.isLetter }.map(String.init)
+        if words.contains("b") || session.contains("B考") || session.contains("B 考") { return L10n.tr("B 考") }
+        if words.contains("a") || session.contains("A考") || session.contains("A 考") { return L10n.tr("A 考") }
+        return nil
     }
     func daysUntil(from now: Date = Date()) -> Int? {
         guard let start else { return nil }
@@ -80,6 +92,9 @@ enum CalendarExamSelection {
         try ProtectedCampusCache.write(Snapshot(semester: semester, items: self.items, updatedAt: date), to: cacheURL)
     }
     func refresh(force: Bool = false, allowed: @escaping () -> Bool) {
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["UI_REVIEW_STUDY_LAYOUT"] == "1" { return }
+        #endif
         guard !refreshing, allowed(), (attemptedAt.map { Date().timeIntervalSince($0) >= 60 } ?? true), force || (attemptedAt ?? updatedAt).map({ Date().timeIntervalSince($0) >= Self.refreshInterval }) != false else { return }
         guard let url = Bundle.main.url(forResource: "student-exams", withExtension: "js", subdirectory: "CampusData"), let script = try? String(contentsOf: url, encoding: .utf8) else { failed = true; return }
         let config = WKWebViewConfiguration(); config.websiteDataStore = WebDataStoreRegistry.shared.store(for: .portal)
