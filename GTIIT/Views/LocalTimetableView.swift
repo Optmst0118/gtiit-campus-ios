@@ -38,6 +38,7 @@ struct TodayTimetableCard: View {
                     Text(L10n.tr("从门户导入课表")).font(.subheadline).foregroundStyle(.secondary)
                 }
             }.accessibilityElement(children: .combine)
+            .onAppear { store.restoreCachedSnapshot() }
         }
     }
     private func time(_ course: LocalCourse) -> some View {

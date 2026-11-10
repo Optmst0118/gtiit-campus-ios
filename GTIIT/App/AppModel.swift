@@ -154,10 +154,16 @@ final class AppModel: ObservableObject {
             partial: upcoming.partial, enabled: false, allowPermissionRequest: canRequest, lead: settings.moodleReminderLead)
     }
 
+    func restoreStudyCaches() {
+        timetable.restoreCachedSnapshot()
+        upcoming.restoreCachedSnapshot()
+    }
+
     func refreshMoodleSummary(force: Bool = false, onOpen: Bool = false) {
         #if DEBUG
         if ProcessInfo.processInfo.environment["UI_REVIEW_INBOX"] == "1" || ProcessInfo.processInfo.environment["UI_REVIEW_MOODLE_CACHE"] == "1" { return }
         #endif
+        restoreStudyCaches()
         upcoming.upcomingDays = settings.moodleUpcomingRange.rawValue
         upcoming.priorityCourseIDs = Set(upcoming.courseItems.filter { $0.matches(timetable.snapshot) }.map(\.id))
             .union(settings.followedMoodleCourseIDs)

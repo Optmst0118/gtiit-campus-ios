@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.2.0-beta.2 (106) · 2026-11-10
+
+- 修复通知首屏重复生成整月摘要和解析日期导致的阻塞。
+- 补充前台、解锁后的作业与课表缓存恢复，保持学期边界和现有数据。
+- 期中/期末考试分组；班车紧凑态使用系统箭头表示方向，文案改为已出发。
+- 保存两屏各三种待选视觉方案，选择后再实施。
+
 ## 2.2.0-beta.1 (105) · 2026-11-10
 
 - 合并作业与考试每日摘要，考试在 31/14/7/3 天及当天提醒，展示倒计天数；通知中心增加今日摘要与考试列表。

@@ -337,6 +337,29 @@ private final class RetiredViewReference {
         browser.webView.removeFromSuperview()
     }
 
+    func testInboxFirstRender() async {
+        let suite = "inbox-performance-" + UUID().uuidString
+        let prefs = UserDefaults(suiteName: suite)!
+        defer { prefs.removePersistentDomain(forName: suite) }
+        let settings = AppSettings(defaults: prefs)
+        settings.preloadSitesOnLaunch = false
+        let app = AppModel(settings: settings)
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(suite)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let exams = StudentExamStore(directory: folder)
+        let day = CampusDate.key(CampusDate.calendar.date(byAdding: .day, value: 14, to: Date())!)
+        try? exams.accept(semester: "Synthetic", items: (0..<300).map { StudentExam(course: "Synthetic course", code: "E\($0)", session: "Mid", date: day, time: "09:00", duration: 2, venue: "SC L-110") })
+        let original = window!.rootViewController
+        defer { window!.rootViewController = original }
+        let host = UIHostingController(rootView: CampusInboxView(sync: app.campusSync, upcoming: app.upcoming, exams: exams).environmentObject(app).environmentObject(settings))
+        let begin = Date()
+        window!.rootViewController = UINavigationController(rootViewController: host)
+        window!.layoutIfNeeded(); host.view.layoutIfNeeded()
+        let elapsed = Date().timeIntervalSince(begin)
+        check("inbox_actual_screen_first_render_bounded", elapsed < 2, "300 synthetic exams; seconds=\(elapsed)")
+        await Task.yield()
+    }
+
     func testMoodleCacheAndRange() {
         let now = Date(timeIntervalSince1970: 1793091600)
         func work(_ days: Double, status: String = "notSubmitted", name: String = "HW 01 Integrals") -> MoodleWork {
@@ -388,6 +411,13 @@ private final class RetiredViewReference {
         cache.accept(MoodleUpcomingResult(loginRequired:false,items:[work(2)],courses:1,checked:1,failed:0,courseList:[course],directoryRefreshed:true))
         let restored = MoodleUpcomingStore(directory:folder)
         check("moodle_cached_texts_present_synchronously_on_init", restored.items.first?.displayName == "Homework 1 Assignment" && restored.courseItems.first?.name == "Physics 2")
+        let lateFolder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: lateFolder) }
+        let waiting = MoodleUpcomingStore(directory: lateFolder)
+        try? FileManager.default.createDirectory(at: lateFolder, withIntermediateDirectories: true)
+        try? FileManager.default.copyItem(at: folder.appendingPathComponent("summary.json"), to: lateFolder.appendingPathComponent("summary.json"))
+        waiting.restoreCachedSnapshot()
+        check("moodle_cache_recovers_after_initial_unavailable_file", waiting.items.count == 1 && waiting.updatedAt != nil)
         restored.invalidate()
         check("moodle_invalidation_keeps_cache_and_timestamp_visible", restored.updatedAt != nil && restored.items.count == 1 && restored.courseItems.count == 1)
         restored.accept(MoodleUpcomingResult(loginRequired:true,items:[],courses:0,checked:0,failed:0,courseList:nil,directoryRefreshed:false))
@@ -504,6 +534,21 @@ private final class RetiredViewReference {
             check("exam_\(days)_day_milestone_in_daily_digest", StudyDailyPlan.make(works: [], exams: [exam], days: 2, hour: 9, now: dailyNow).first?.date == dailyNow.addingTimeInterval(3600))
             check("exam_\(days)_calendar_day_count", exam.daysUntil(from: dailyNow) == days)
         }
+        let examFixture = StudentExam(course: "Synthetic", code: "S", session: "Mid", date: "2026-11-17", time: "09:00", duration: 2, venue: "L-110")
+        check("exam_midterm_and_final_grouping", examFixture.kind == .midterm && StudentExam(course: "Final", code: "F", session: "Moed B", date: "2027-01-20", time: "10:00", duration: 2, venue: "SC").kind == .final)
+        let shortPlan = StudyDailyPlan.make(works: [dailyWork], exams: [examFixture], days: 2, hour: 9, now: dailyNow, includePastToday: true, horizonDays: 0)
+        let fullPlan = StudyDailyPlan.make(works: [dailyWork], exams: [examFixture], days: 2, hour: 9, now: dailyNow, includePastToday: true)
+        check("inbox_today_matches_scheduled_digest_without_future_horizon", shortPlan.count == 1 && shortPlan.first?.date == fullPlan.first?.date && shortPlan.first?.lines == fullPlan.first?.lines)
+        let cacheFolder = FileManager.default.temporaryDirectory.appendingPathComponent("timetable-late-" + UUID().uuidString)
+        let waitingTimetable = LocalTimetableStore(directory: cacheFolder)
+        let savedTimetable = LocalTimetableStore(directory: cacheFolder)
+        let cacheFixture = TimetableSnapshot(semester: "Winter", validFrom: "2026-11-01", validUntil: "2027-01-31", courses: [syncCourse])
+        try? savedTimetable.save(cacheFixture)
+        waitingTimetable.restoreCachedSnapshot()
+        check("timetable_recovers_cache_after_initial_unavailable_file", waitingTimetable.snapshot?.courses == cacheFixture.courses)
+        try? FileManager.default.removeItem(at: cacheFolder)
+        waitingTimetable.restoreCachedSnapshot()
+        check("timetable_keeps_memory_snapshot_on_disk_read_failure", waitingTimetable.snapshot?.courses == cacheFixture.courses)
         check("daily_reminders_empty", StudyDailyPlan.make(works: [], exams: [], days: 2, hour: 9, now: dailyNow).isEmpty)
         let dailyDelivery = MockDailyNotifications()
         let dailyCenter = StudyDailyReminders(delivery: dailyDelivery)
@@ -531,6 +576,7 @@ private final class RetiredViewReference {
             await verifyUpcomingReader(); finish(); return
         }
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "study" {
+            await testInboxFirstRender()
             await studentExamChecks(); await testCampusInbox(); await testMoodleDeadlineReminders(); finish(); return
         }
         await testCampusInbox()

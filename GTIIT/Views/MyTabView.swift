@@ -23,7 +23,7 @@ struct MyTabView: View {
                         case .timetable: LocalTimetableEntry(store: app.timetable)
                         case .assignments: MoodleUpcomingEntry(store: app.upcoming)
                         case .exams:
-                            if !app.exams.upcoming.isEmpty { StudentExamsEntry(store: app.exams) }
+                            StudentExamsEntry(store: app.exams)
                         case .shortcuts: CampusShortcutsSection()
                         case .none: EmptyView()
                         }

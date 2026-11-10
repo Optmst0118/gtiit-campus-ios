@@ -14,7 +14,7 @@ struct CampusInboxView: View {
             let assignments = CampusInboxPolicy.assignments(upcoming.items, now: context.date)
             let reservations = CampusInboxPolicy.reservations(sync.reservations, now: context.date)
             let loginSites = SiteID.allCases
-            let digest = StudyDailyPlan.make(works: settings.moodleDeadlineRemindersEnabled ? upcoming.items.filter { ($0.dueDate ?? .distantPast) > context.date } : [], exams: settings.examRemindersEnabled ? exams.items : [], days: settings.moodleReminderLead.rawValue / 24, hour: settings.studyReminderHour, now: context.date, includePastToday: true).first { CampusDate.calendar.isDate($0.date, inSameDayAs: context.date) }
+            let digest = StudyDailyPlan.make(works: settings.moodleDeadlineRemindersEnabled ? upcoming.items.filter { ($0.dueDate ?? .distantPast) > context.date } : [], exams: settings.examRemindersEnabled ? exams.items : [], days: settings.moodleReminderLead.rawValue / 24, hour: settings.studyReminderHour, now: context.date, includePastToday: true, horizonDays: 0).first { CampusDate.calendar.isDate($0.date, inSameDayAs: context.date) }
             List {
                 if let digest {
                     Section(L10n.tr("今日提醒")) {

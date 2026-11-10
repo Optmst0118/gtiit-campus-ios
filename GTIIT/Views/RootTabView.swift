@@ -411,6 +411,7 @@ private struct RootLifecycle: ViewModifier {
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
+                app.restoreStudyCaches()
                 app.cancelBackgroundMoodleRefresh()
                 Haptics.prepare()
                 syncShuttleSystemState()
@@ -460,9 +461,13 @@ private struct RootLifecycle: ViewModifier {
         .onChange(of: settings.favoriteShuttleDirection) { _, _ in syncShuttleSystemState() }
         .onChange(of: settings.language) { _, _ in syncShuttleSystemState(); app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.privateShuttleReminders) { _, _ in syncShuttleSystemState() }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.protectedDataDidBecomeAvailableNotification)) { _ in
+            app.restoreStudyCaches()
+        }
         .onChange(of: app.lock.isLocked) { _, locked in
             if !locked {
                 Haptics.success()
+                app.restoreStudyCaches()
                 app.prepareLaunchIfAllowed()
                 app.refreshMoodleSummary(onOpen: true)
                 app.exams.refresh(force: true, allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData })

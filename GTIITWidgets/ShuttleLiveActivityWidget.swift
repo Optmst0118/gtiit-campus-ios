@@ -17,11 +17,14 @@ struct ShuttleLiveActivityWidget: Widget {
                         isStale: context.isStale, island: true)
                 }
             } compactLeading: {
-                Text(context.attributes.languageCode == "en" ?
-                    (context.attributes.destination.lowercased().contains("north") ? "North" : "South") :
-                    (context.attributes.destination.contains("北") ? "北校" : "南校"))
-                    .font(.system(size: 13, weight: .semibold)).foregroundStyle(ActivityPalette.orange)
-                    .lineLimit(1).frame(width: 58, alignment: .center)
+                HStack(spacing: 2) {
+                    Text(ShuttleActivityWords.northbound(context.attributes) ? (context.attributes.languageCode == "en" ? "S" : "南") : (context.attributes.languageCode == "en" ? "N" : "北"))
+                    Image(systemName: "arrow.right").font(.system(size: 10, weight: .semibold))
+                    Text(ShuttleActivityWords.northbound(context.attributes) ? (context.attributes.languageCode == "en" ? "N" : "北") : (context.attributes.languageCode == "en" ? "S" : "南"))
+                }
+                .font(.system(size: 13, weight: .semibold)).foregroundStyle(ActivityPalette.orange)
+                .frame(width: 58, alignment: .center)
+                .accessibilityLabel(ShuttleActivityWords.route(context.attributes))
             } compactTrailing: {
                 ShuttleActivityCountdown(date: context.state.departureDate, expired: context.isStale,
                     language: context.attributes.languageCode, centered: true)

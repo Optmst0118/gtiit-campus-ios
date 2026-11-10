@@ -233,6 +233,26 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "exam_midterm_and_final_grouping"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "inbox_today_matches_scheduled_digest_without_future_horizon"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_recovers_cache_after_initial_unavailable_file"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "timetable_keeps_memory_snapshot_on_disk_read_failure"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "daily_reminders_empty"
     },
     {
@@ -403,6 +423,11 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "moodle_cache_recovers_after_initial_unavailable_file"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "moodle_invalidation_keeps_cache_and_timestamp_visible"
     },
     {
@@ -429,6 +454,11 @@
       "detail" : "",
       "passed" : true,
       "test" : "moodle_explicit_clear_removes_cache"
+    },
+    {
+      "detail" : "300 synthetic exams; seconds=0.9464789628982544",
+      "passed" : true,
+      "test" : "inbox_actual_screen_first_render_bounded"
     },
     {
       "detail" : "",
@@ -762,8 +792,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-11-10T13:46:12Z",
+  "date" : "2026-11-10T14:55:02Z",
   "focus" : "study",
   "passed" : true,
-  "runID" : "1dcaeec9-81f6-4ea3-8f4d-a42bb9e03674"
+  "runID" : "d60cdd8e-ba3f-4c69-a539-843b72bc4168"
 }

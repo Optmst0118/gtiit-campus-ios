@@ -1,6 +1,11 @@
 import Combine
 import WebKit
 
+enum StudentExamKind: String, CaseIterable {
+    case midterm, final, other
+    var title: String { L10n.tr(self == .midterm ? "期中考试" : self == .final ? "期末考试" : "其他考试") }
+}
+
 struct StudentExam: Codable, Identifiable, Hashable {
     let course: String
     let code: String
@@ -11,9 +16,14 @@ struct StudentExam: Codable, Identifiable, Hashable {
     let venue: String
     var id: String { [code, session, date, time].joined(separator: "|") }
     var start: Date? {
-        let formatter = DateFormatter(); formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(identifier: "Asia/Shanghai"); formatter.dateFormat = "yyyy-MM-dd HH:mm"; formatter.isLenient = false
-        return formatter.date(from: date + " " + time)
+        guard let day = CampusDate.parse(date), let minutes = LocalCourse.minutes(time) else { return nil }
+        return CampusDate.calendar.date(byAdding: .minute, value: minutes, to: day)
+    }
+    var kind: StudentExamKind {
+        let value = session.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if value.contains("mid") || value.contains("期中") { return .midterm }
+        if ["a", "b", "final", "final exam", "final examination", "moed a", "moed b"].contains(value) || value.contains("期末") { return .final }
+        return .other
     }
     func daysUntil(from now: Date = Date()) -> Int? {
         guard let start else { return nil }

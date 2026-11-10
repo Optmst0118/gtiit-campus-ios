@@ -91,7 +91,7 @@ struct MoodleUpcomingView: View {
                     .accessibilityLabel(L10n.tr(store.refreshing ? "取消更新" : "更新日程"))
             } }
             .onReceive(Timer.publish(every: 30, on: .main, in: .common).autoconnect()) { now = $0 }
-            .onAppear { app.refreshMoodleSummary() }
+            .onAppear { app.restoreStudyCaches(); app.refreshMoodleSummary() }
             .refreshable { app.refreshMoodleSummary(force: true) }
     }
     private func refresh() {

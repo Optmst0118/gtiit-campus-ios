@@ -4,9 +4,15 @@ import UserNotifications
 struct StudyDailyPlan {
     let date: Date
     let lines: [String]
-    static func make(works: [MoodleWork], exams: [StudentExam], days: Int, hour: Int, now: Date, allowEmptySummary: Bool = false, includePastToday: Bool = false) -> [Self] {
+    static func make(works: [MoodleWork], exams: [StudentExam], days: Int, hour: Int, now: Date, allowEmptySummary: Bool = false, includePastToday: Bool = false, horizonDays: Int = 31) -> [Self] {
         let calendar = CampusDate.calendar
-        return (0...31).compactMap { offset in
+        // Parse each exam only once, outside the planning horizon loop.
+        let preparedExams = exams.compactMap { exam -> (exam: StudentExam, start: Date, day: Date)? in
+            guard !exam.course.isEmpty, exam.course.count <= 240, exam.duration >= 0, exam.duration <= 24,
+                  let start = exam.start else { return nil }
+            return (exam, start, calendar.startOfDay(for: start))
+        }.sorted { $0.start == $1.start ? $0.exam.id < $1.exam.id : $0.start < $1.start }
+        return (0...max(0, min(31, horizonDays))).compactMap { offset in
             guard let day = calendar.date(byAdding: .day, value: offset, to: calendar.startOfDay(for: now)),
                   let fire = calendar.date(bySettingHour: min(23, max(0, hour)), minute: 0, second: 0, of: day), (fire > now || (includePastToday && offset == 0)),
                   let end = calendar.date(byAdding: .day, value: days + 1, to: day) else { return nil }
@@ -15,8 +21,12 @@ struct StudyDailyPlan {
                     L10n.format("《%@》的《%@》，%@截止。", StudyWidgetSnapshot.courseName($0.course), $0.displayName,
                                 $0.dueDate!.gtiitFormatted(date: .abbreviated, time: .shortened))
                 }
-            let examLines = exams.filter { $0.valid && ($0.start.map { $0 > fire } ?? false) && [0,3,7,14,31].contains($0.daysUntil(from: fire) ?? -1) }
-                .sorted { $0.start! < $1.start! }.map { L10n.format("《%@》将在%@考试。", StudyWidgetSnapshot.courseName($0.course), $0.date + " " + $0.time) + " · " + L10n.format("还有 %@ 天", String($0.daysUntil(from: fire) ?? 0)) }
+            let examLines = preparedExams.compactMap { entry -> String? in
+                let remaining = calendar.dateComponents([.day], from: day, to: entry.day).day ?? -1
+                guard entry.start > fire, [0,3,7,14,31].contains(remaining) else { return nil }
+                return L10n.format("《%@》将在%@考试。", StudyWidgetSnapshot.courseName(entry.exam.course), entry.exam.date + " " + entry.exam.time)
+                    + " · " + L10n.format("还有 %@ 天", String(remaining))
+            }
             var lines = examLines + (workLines.isEmpty ? [] : [L10n.format("还有 %@ 项作业没交。", String(workLines.count))]) + workLines
             if lines.isEmpty && allowEmptySummary && offset <= 1 && works.allSatisfy({ $0.status != "unknown" }) {
                 let nextThreeDays = calendar.date(byAdding: .day, value: 3, to: day)!

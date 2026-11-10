@@ -52,6 +52,10 @@ import WebKit
         let root = directory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("MoodleUpcoming", isDirectory: true)
         cacheURL = root.appendingPathComponent("summary.json")
+        restoreCachedSnapshot()
+    }
+    func restoreCachedSnapshot() {
+        guard updatedAt == nil, items.isEmpty else { return }
         guard let cache = ProtectedCampusCache.read(Cache.self, from: cacheURL, maxBytes: 5_000_000), cache.version == 3, (cache.updatedAt ?? .distantPast) <= Date() else { return }
         courseItems = cache.courseList ?? []
         directoryUpdatedAt = cache.directoryUpdatedAt

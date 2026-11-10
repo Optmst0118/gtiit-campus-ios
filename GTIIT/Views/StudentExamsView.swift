@@ -3,31 +3,27 @@ import SwiftUI
 struct StudentExamsEntry: View {
     @EnvironmentObject private var app: AppModel
     @Environment(\.scenePhase) private var phase
-    @Environment(\.locale) private var locale
     @ObservedObject var store: StudentExamStore
+    private var groups: [StudentExamKind] { [.midterm, .final] + (store.upcoming.contains { $0.kind == .other } ? [.other] : []) }
     var body: some View {
-        NavigationLink { CampusDetailPage(destination: .exams) } label: {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Label(L10n.tr("临近考试"), systemImage: "pencil.and.list.clipboard").font(.headline)
-                    Spacer()
-                    if store.refreshing { ProgressView().controlSize(.small) }
-                }.foregroundStyle(Theme.accent)
-                if let exam = store.upcoming.first {
-                    if exam.start != nil { StudentExamRow(exam: exam) }
-                    else {
-                        HStack(alignment: .firstTextBaseline) {
-                            Text(exam.course).font(.subheadline).lineLimit(1)
-                            Spacer()
-                            Text(exam.start ?? .now, format: .dateTime.month().day()).font(.caption).foregroundStyle(.secondary)
-                            Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
-                        }
-                    }
-                }
-                else { Text(L10n.tr(store.loginRequired ? "登录 Student 后查看考试" : store.refreshing ? "正在核对考试安排…" : store.failed ? "更新未完成，点按重试" : store.updatedAt == nil ? "连接 Student 后查看考试安排" : "暂无即将举行的考试")).font(.subheadline).foregroundStyle(.secondary) }
-                if store.upcoming.count > 1 { Text(L10n.format("另有 %@ 场考试", String(store.upcoming.count - 1))).font(.caption).foregroundStyle(.secondary) }
-            }.padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
-        }.buttonStyle(CardPressStyle())
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label(L10n.tr("临近考试"), systemImage: "pencil.and.list.clipboard").font(.headline)
+                Spacer()
+                if store.refreshing { ProgressView().controlSize(.small) }
+            }.foregroundStyle(Theme.accent)
+            ForEach(groups, id: \.self) { kind in
+                let exams = store.upcoming.filter { $0.kind == kind }
+                NavigationLink { CampusDetailPage(destination: .exams) } label: {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack { Text(kind.title).font(.headline); Spacer(); Image(systemName: "chevron.right").font(.caption).foregroundStyle(.secondary) }
+                        if let exam = exams.first { StudentExamRow(exam: exam) }
+                        else { Text(L10n.tr(store.loginRequired ? "登录 Student 后查看考试" : "暂无即将举行的考试")).font(.subheadline).foregroundStyle(.secondary) }
+                        if exams.count > 1 { Text(L10n.format("另有 %@ 场考试", String(exams.count - 1))).font(.caption).foregroundStyle(.secondary) }
+                    }.padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
+                }.buttonStyle(CardPressStyle())
+            }
+        }
         .task {
             while !Task.isCancelled {
                 refresh()
@@ -41,34 +37,32 @@ struct StudentExamsEntry: View {
 struct StudentExamsView: View {
     @EnvironmentObject private var app: AppModel
     @ObservedObject var store: StudentExamStore
+    private var groups: [StudentExamKind] { [.midterm, .final] + (store.upcoming.contains { $0.kind == .other } ? [.other] : []) }
     var body: some View {
         List {
-            Section {
-                if store.refreshing && store.upcoming.isEmpty {
-                    HStack { ProgressView(); Text(L10n.tr("正在核对考试安排…")) }
-                }
-                if store.loginRequired {
-                    Button(L10n.tr("前往 Student 登录")) { app.openSite(.portal) }
-                } else if store.failed {
-                    Button(L10n.tr("更新未完成，点按重试")) { refresh() }
-                } else if store.upcoming.isEmpty && !store.refreshing {
-                    ContentUnavailableView(L10n.tr("暂无即将举行的考试"), systemImage: "calendar.badge.checkmark")
-                }
-                ForEach(store.upcoming) { exam in StudentExamRow(exam: exam).padding(.vertical, 6) }
-            } header: { Text(L10n.tr("考试安排")) } footer: {
-                if let date = store.updatedAt {
-                    Text(L10n.tr("最近更新") + " · " + date.gtiitFormatted()).font(.caption)
+            if store.loginRequired { Section { Button(L10n.tr("前往 Student 登录")) { app.openSite(.portal) } } }
+            else if store.failed { Section { Button(L10n.tr("更新未完成，点按重试")) { refresh() } } }
+            ForEach(groups, id: \.self) { kind in
+                let exams = store.upcoming.filter { $0.kind == kind }
+                Section(kind.title) {
+                    if exams.isEmpty { Text(L10n.tr("暂无即将举行的考试")).foregroundStyle(.secondary) }
+                    ForEach(exams) { exam in StudentExamRow(exam: exam).padding(.vertical, 6) }
                 }
             }
-            Button(L10n.tr("在 Student 核对")) { app.openSite(.portal) }
+            Section {
+                Button(L10n.tr("在 Student 核对")) { app.openSite(.portal) }
+            } footer: {
+                if let date = store.updatedAt { Text(L10n.tr("最近更新") + " · " + date.gtiitFormatted()).font(.caption) }
+            }
         }.nativeDetailSurface(title: L10n.tr("临近考试"))
             .onAppear { refresh() }
             .refreshable { refresh() }
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button { refresh() } label: { Image(systemName: "arrow.clockwise") }.disabled(store.refreshing).accessibilityLabel(L10n.tr("更新考试安排")) } }
+            .toolbar { ToolbarItem(placement: .topBarTrailing) {
+                Button { if store.refreshing { store.cancel() } else { refresh() } } label: { Image(systemName: store.refreshing ? "xmark" : "arrow.clockwise") }
+                    .accessibilityLabel(L10n.tr(store.refreshing ? "取消更新" : "更新考试安排"))
+            } }
     }
-    private func refresh() {
-        store.refresh(force: true, allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData })
-    }
+    private func refresh() { store.refresh(force: true, allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData }) }
 }
 struct StudentExamRow: View {
     let exam: StudentExam

@@ -61,6 +61,10 @@ struct TimetableSnapshot: Codable {
     init(directory: URL? = nil) {
         let directory = directory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("LocalTimetable", isDirectory: true)
         file = directory.appendingPathComponent("timetable-v1.json")
+        restoreCachedSnapshot()
+    }
+    func restoreCachedSnapshot() {
+        guard snapshot == nil else { return }
         if FileManager.default.fileExists(atPath: file.path) {
             do {
                 let candidate = try JSONDecoder().decode(TimetableSnapshot.self, from: Data(contentsOf: file))

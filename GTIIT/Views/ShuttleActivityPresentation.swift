@@ -122,9 +122,13 @@ enum ShuttleActivityWords {
         return attributes.origin + " → " + attributes.destination
     }
     static func planned(_ language: String?) -> String { language == "en" ? "Departs in" : "距计划发车" }
-    static func passed(_ language: String?) -> String { language == "en" ? "Scheduled time passed" : "计划时间已过" }
+    static func passed(_ language: String?) -> String { language == "en" ? "Departed" : "已出发" }
+    static func northbound(_ attributes: ShuttleActivityAttributes) -> Bool {
+        if let raw = attributes.directionRaw { return raw == ShuttleDirection.southToNorth.rawValue }
+        return attributes.destination.contains("北") || attributes.destination.lowercased().contains("north")
+    }
     static func compact(_ attributes: ShuttleActivityAttributes) -> String {
-        let northbound = attributes.directionRaw == ShuttleDirection.southToNorth.rawValue || attributes.destination.contains("北") || attributes.destination.lowercased().contains("north")
+        let northbound = northbound(attributes)
         return attributes.languageCode == "en" ? (northbound ? "S→N" : "N→S") : (northbound ? "南→北" : "北→南")
     }
 }

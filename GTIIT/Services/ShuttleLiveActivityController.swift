@@ -31,7 +31,7 @@ import UIKit
         let attributes = ShuttleActivityAttributes(directionTitle: direction.title, origin: direction.origin,
             destination: direction.destination, departureTime: departure.trip.time,
             busLabel: L10n.format("%@ 号车", String(departure.trip.bus)), directionRaw: direction.rawValue,
-            languageCode: L10n.language.rawValue, departedLabel: L10n.tr("计划时间已过"))
+            languageCode: L10n.language.rawValue, departedLabel: L10n.tr("已出发"))
         do {
             activity = try Activity.request(attributes: attributes,
                 content: ActivityContent(state: .init(departureDate: departure.date, busNumber: departure.trip.bus), staleDate: departure.date), pushType: nil)
