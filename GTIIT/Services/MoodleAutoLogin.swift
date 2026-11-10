@@ -14,6 +14,10 @@ final class MoodleAutoLogin {
     private var tried: Set<String> = []
     private var retryTask: Task<Void, Never>?
 
+    /// A verified successful sign-in begins a new session. A later expiry may
+    /// try the normal SSO link again, without retrying failed redirects in a loop.
+    func sessionDidAuthenticate() { tried.removeAll() }
+
     func reset() {
         generation = UUID()
         cancellables.removeAll(); retryTask?.cancel(); retryTask = nil

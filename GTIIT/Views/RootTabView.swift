@@ -16,6 +16,11 @@ struct RootTabView: View {
         GeometryReader { geometry in
             let sidebar = PrimaryNavigationLayout.usesSidebar(geometry.size)
             ZStack {
+                StudentExamProbe(store: app.exams)
+                if let reader = app.summaryBrowser {
+                    CampusSessionProbeHost(webView: reader.webView).id(ObjectIdentifier(reader.webView))
+                        .allowsHitTesting(false).accessibilityHidden(true).opacity(0.01)
+                }
                 if let probe = app.campusSync.probe {
                     CampusSessionProbeHost(webView: probe).id(ObjectIdentifier(probe))
                         .allowsHitTesting(false).accessibilityHidden(true).opacity(0.01)
@@ -350,6 +355,7 @@ private struct RootLifecycle: ViewModifier {
         .overlay {
             if app.isClearingData {
                 ZStack {
+                StudentExamProbe(store: app.exams)
                     Color(uiColor: .systemBackground).opacity(0.95).ignoresSafeArea()
                     ProgressView(L10n.tr("正在清理网页数据…")).padding()
                 }.accessibilityAddTraits(.isModal)
@@ -405,14 +411,18 @@ private struct RootLifecycle: ViewModifier {
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
+                app.cancelBackgroundMoodleRefresh()
                 Haptics.prepare()
                 syncShuttleSystemState()
                 app.lock.setActive(settings: settings)
                 CourseLiveActivityController.shared.sync(snapshot: app.timetable.snapshot, enabled: courseAutoActivity)
                 app.prepareLaunchIfAllowed()
+                app.refreshMoodleSummary(onOpen: true)
+                app.exams.refresh(force: true, allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData })
                 app.syncMoodleDeadlineReminders()
             } else {
                 ActivityLifecycleCleanup.schedule()
+                if settings.hasSeenWelcome { ActivityLifecycleCleanup.scheduleStudyRefresh() }
                 app.yilong.close()
                 app.lock.setInactive(settings: settings)
             }
@@ -420,10 +430,11 @@ private struct RootLifecycle: ViewModifier {
         .task(id: scenePhase) {
             guard scenePhase == .active else { return }
             app.syncMoodleDeadlineReminders()
+            if settings.hasSeenWelcome && !app.showWelcome { app.refreshMoodleSummary(onOpen: true); app.exams.refresh(force: true, allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData }); app.refreshRoomCacheIfAllowed() }
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(300))
                 guard !Task.isCancelled else { return }
-                if settings.hasSeenWelcome && !app.showWelcome { app.refreshMoodleSummary(); app.refreshRoomCacheIfAllowed() }
+                if settings.hasSeenWelcome && !app.showWelcome { app.refreshMoodleSummary(); app.exams.refresh(allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData }); app.refreshRoomCacheIfAllowed() }
             }
         }
         .task(id: courseAutoActivity) {
@@ -453,6 +464,8 @@ private struct RootLifecycle: ViewModifier {
             if !locked {
                 Haptics.success()
                 app.prepareLaunchIfAllowed()
+                app.refreshMoodleSummary(onOpen: true)
+                app.exams.refresh(force: true, allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData })
                 app.syncMoodleDeadlineReminders()
             } else {
                 app.yilong.close()

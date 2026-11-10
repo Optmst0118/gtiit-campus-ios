@@ -15,6 +15,10 @@ struct StudentExam: Codable, Identifiable, Hashable {
         formatter.timeZone = TimeZone(identifier: "Asia/Shanghai"); formatter.dateFormat = "yyyy-MM-dd HH:mm"; formatter.isLenient = false
         return formatter.date(from: date + " " + time)
     }
+    func daysUntil(from now: Date = Date()) -> Int? {
+        guard let start else { return nil }
+        return CampusDate.calendar.dateComponents([.day], from: CampusDate.calendar.startOfDay(for: now), to: CampusDate.calendar.startOfDay(for: start)).day
+    }
     var valid: Bool { !course.isEmpty && course.count <= 240 && start != nil && duration >= 0 && duration <= 24 }
 }
 
@@ -41,8 +45,9 @@ enum CalendarExamSelection {
     var onReminderSnapshot: (() -> Void)?
     static let refreshInterval: TimeInterval = 1800
     private let cacheURL: URL
+    private var watchdog: Task<Void, Never>?
     private var task: Task<Void, Never>?
-    private var webView: WKWebView?
+    @Published private(set) var webView: WKWebView?
     private var attemptedAt: Date?
     private var generation = UUID()
     private struct Snapshot: Codable { let semester: String; let items: [StudentExam]; let updatedAt: Date }
@@ -65,30 +70,36 @@ enum CalendarExamSelection {
         try ProtectedCampusCache.write(Snapshot(semester: semester, items: self.items, updatedAt: date), to: cacheURL)
     }
     func refresh(force: Bool = false, allowed: @escaping () -> Bool) {
-        guard !refreshing, allowed(), force || (attemptedAt ?? updatedAt).map({ Date().timeIntervalSince($0) >= Self.refreshInterval }) != false else { return }
+        guard !refreshing, allowed(), (attemptedAt.map { Date().timeIntervalSince($0) >= 60 } ?? true), force || (attemptedAt ?? updatedAt).map({ Date().timeIntervalSince($0) >= Self.refreshInterval }) != false else { return }
         guard let url = Bundle.main.url(forResource: "student-exams", withExtension: "js", subdirectory: "CampusData"), let script = try? String(contentsOf: url, encoding: .utf8) else { failed = true; return }
         let config = WKWebViewConfiguration(); config.websiteDataStore = WebDataStoreRegistry.shared.store(for: .portal)
         let webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 390, height: 844), configuration: config)
         self.webView = webView; refreshing = true; failed = false; attemptedAt = Date()
         let token = UUID(); generation = token
+        watchdog?.cancel()
+        watchdog = Task { [weak self] in
+            do { try await Task.sleep(for: .seconds(40)) } catch { return }
+            guard let self, generation == token, refreshing else { return }
+            cancel(); failed = true
+        }
         webView.load(URLRequest(url: SiteID.portal.homeURL))
         task = Task { [weak self] in
             guard let self else { return }
-            defer { if generation == token { refreshing = false; self.webView?.stopLoading(); self.webView = nil; task = nil } }
+            defer { if generation == token { refreshing = false; watchdog?.cancel(); self.webView?.stopLoading(); self.webView = nil; task = nil } }
             for _ in 0..<60 {
                 do { try await Task.sleep(for: .milliseconds(500)) } catch { return }
                 guard allowed(), !Task.isCancelled, generation == token else { return }
                 guard let current = webView.url else { continue }
                 guard !webView.isLoading else { continue }
                 if current.host != SiteID.portal.host {
-                    cancel(clear: true); loginRequired = true; return
+                    cancel(); loginRequired = true; onReminderSnapshot?(); return
                 }
                 do {
                     let raw = try await webView.callAsyncJavaScript(script, arguments: [:], in: nil, contentWorld: .page)
                     guard generation == token, allowed(), !Task.isCancelled else { return }
                     guard let string = raw as? String, string.utf8.count < 500_000 else { throw CocoaError(.coderReadCorrupt) }
                     let result = try JSONDecoder().decode(Result.self, from: Data(string.utf8))
-                    if result.state == "login" { cancel(clear: true); loginRequired = true; return }
+                    if result.state == "login" { cancel(); loginRequired = true; onReminderSnapshot?(); return }
                     if result.state == "ready", let semester = result.semester, let items = result.items { try accept(semester: semester, items: items); return }
                     if result.state == "changed" { break }
                 } catch { if !webView.isLoading { failed = true } }
@@ -97,7 +108,7 @@ enum CalendarExamSelection {
         }
     }
     func cancel(clear: Bool = false) {
-        generation = UUID(); task?.cancel(); task = nil; webView?.stopLoading(); webView = nil; refreshing = false
+        generation = UUID(); watchdog?.cancel(); task?.cancel(); task = nil; webView?.stopLoading(); webView = nil; refreshing = false
         if clear { defer { onReminderSnapshot?() }; items = []; semester = ""; updatedAt = nil; attemptedAt = nil; try? FileManager.default.removeItem(at: cacheURL) }
     }
 }

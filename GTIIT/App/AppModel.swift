@@ -45,6 +45,9 @@ final class AppModel: ObservableObject {
     private var didScheduleSummaryWarmup = false
     private var moodleAutoLoginStarted = false
     private var refreshAfterMoodleLogin = false
+    private var backgroundMoodleToken: UUID?
+    private let summaryRouter = BackgroundMoodleRouter()
+    @Published private(set) var summaryBrowser: BrowserModel?
 
     private var browsers: [SiteID: BrowserModel] = [:]
     private var toastTask: Task<Void, Never>?
@@ -77,9 +80,12 @@ final class AppModel: ObservableObject {
             }
         }
         if settings.biometricLockEnabled { lock.lock() }
+        campusSync.onSignedIn = { [weak self] site in
+            if site == .moodle { self?.moodleAutoLogin.sessionDidAuthenticate() }
+        }
         exams.onReminderSnapshot = { [weak self] in self?.syncMoodleDeadlineReminders() }
         upcoming.onReminderSnapshot = { [weak self] in self?.syncMoodleDeadlineReminders() }
-        upcoming.onClearReminders = { [weak self] in AppGroup.defaults.removeObject(forKey: StudyWidgetSnapshot.key); WidgetCenter.shared.reloadTimelines(ofKind: "StudyHomeWidget"); MoodleDeadlineReminders.shared.clear(); Task { @MainActor [weak self] in await Task.yield(); self?.syncMoodleDeadlineReminders() } }
+        upcoming.onClearReminders = { [weak self] in self?.summaryBrowser?.webView.stopLoading(); self?.summaryBrowser = nil; AppGroup.defaults.removeObject(forKey: StudyWidgetSnapshot.key); WidgetCenter.shared.reloadTimelines(ofKind: "StudyHomeWidget"); MoodleDeadlineReminders.shared.clear(); Task { @MainActor [weak self] in await Task.yield(); self?.syncMoodleDeadlineReminders() } }
         ShuttleNotificationCenter.shared.onOpenStudy = { [weak self] in self?.openNativeDetail(.assignments) }
         ShuttleNotificationCenter.shared.onOpenMoodle = { [weak self] url in
             self?.openWeb(url, site: .moodle)
@@ -115,6 +121,13 @@ final class AppModel: ObservableObject {
         }
     }
 
+    func openMailAssistant() {
+        guard let url = URL(string: "ms-outlook://") else { return }
+        UIApplication.shared.open(url) { success in
+            if !success, let web = URL(string: "https://outlook.office.com/mail/") { UIApplication.shared.open(web) }
+        }
+    }
+
     func openNativeDetail(_ destination: CampusDetail) {
         select(tab: .me)
         nativePath = [destination]
@@ -141,17 +154,58 @@ final class AppModel: ObservableObject {
             partial: upcoming.partial, enabled: false, allowPermissionRequest: canRequest, lead: settings.moodleReminderLead)
     }
 
-    func refreshMoodleSummary(force: Bool = false) {
+    func refreshMoodleSummary(force: Bool = false, onOpen: Bool = false) {
         #if DEBUG
         if ProcessInfo.processInfo.environment["UI_REVIEW_INBOX"] == "1" || ProcessInfo.processInfo.environment["UI_REVIEW_MOODLE_CACHE"] == "1" { return }
         #endif
         upcoming.upcomingDays = settings.moodleUpcomingRange.rawValue
         upcoming.priorityCourseIDs = Set(upcoming.courseItems.filter { $0.matches(timetable.snapshot) }.map(\.id))
             .union(settings.followedMoodleCourseIDs)
-        upcoming.refresh(browser: browser(for: .moodle), force: force) { [weak self] in
+        if summaryBrowser == nil { summaryBrowser = BrowserModel(site: .moodle, router: summaryRouter) }
+        guard let reader = summaryBrowser else { return }
+        if reader.hasLoadedOnce && !reader.isLoading,
+           reader.currentURL?.host != SiteID.moodle.host || reader.currentURL?.path.contains("/login/") == true {
+            reader.loadHome()
+        }
+        if upcoming.error && !reader.isLoading { reader.loadHome() }
+        let started = upcoming.refresh(browser: reader, force: force || onOpen, refreshDetails: !onOpen) { [weak self] in
             guard let self else { return false }
             return !self.lock.isLocked && self.lock.isActive && !self.isClearingData
         }
+        if force && started == nil && !upcoming.refreshing { toast(L10n.tr("请稍后重试更新")) }
+    }
+
+    /// A separate read-only WebKit host shares only Moodle's existing store.
+    /// Never interact with login forms or the user's visible browser.
+    func refreshMoodleInBackground() async -> Bool {
+        let allowed: () -> Bool = { [weak self] in
+            guard let self else { return false }
+            return UIApplication.shared.applicationState == .background && UIApplication.shared.isProtectedDataAvailable
+                && self.settings.hasSeenWelcome && !self.settings.biometricLockEnabled
+                && !self.lock.isLocked && !self.isClearingData && !self.showWelcome
+        }
+        guard allowed(), !upcoming.refreshing, !Task.isCancelled else { return false }
+        if let updatedAt = upcoming.updatedAt, upcoming.status == .current,
+           Date().timeIntervalSince(updatedAt) < MoodleUpcomingStore.refreshInterval { return true }
+        upcoming.upcomingDays = settings.moodleUpcomingRange.rawValue
+        upcoming.priorityCourseIDs = Set(upcoming.courseItems.filter { $0.matches(timetable.snapshot) }.map(\.id))
+            .union(settings.followedMoodleCourseIDs)
+        let router = BackgroundMoodleRouter()
+        let browser = BrowserModel(site: .moodle, router: router)
+        // BrowserModel holds its router weakly; keep the read-only policy alive
+        // until WebKit has stopped, including on cancellation.
+        defer { browser.webView.stopLoading(); withExtendedLifetime(router) {} }
+        guard let token = upcoming.refresh(browser: browser, background: true, allowed: allowed) else { return false }
+        backgroundMoodleToken = token
+        defer { if backgroundMoodleToken == token { backgroundMoodleToken = nil } }
+        return await withTaskCancellationHandler {
+            await upcoming.waitForRefresh(token)
+        } onCancel: { [weak self] in
+            Task { @MainActor in self?.upcoming.cancelRefresh(token) }
+        }
+    }
+    func cancelBackgroundMoodleRefresh() {
+        if let token = backgroundMoodleToken { upcoming.cancelRefresh(token); backgroundMoodleToken = nil }
     }
 
     private func warmUpCampusSummaries() {
@@ -397,6 +451,22 @@ final class AppModel: ObservableObject {
     }
 }
 
+@MainActor private final class BackgroundMoodleRouter: BrowserRouter {
+    var externalLinkMode: ExternalLinkMode { .webView }
+    var browserMayRecoverDocument: Bool { false }
+    func browserWebDarkModeEnabled(for site: SiteID) -> Bool { false }
+    func browserInitialURL(for site: SiteID) -> URL { site.homeURL }
+    func browserDidFinish(url: URL, site: SiteID) {}
+    func browserRouteToOtherSite(url: URL, from site: SiteID) {}
+    func browserOpenExternal(url: URL) {}
+    func browserOpenInAppSafari(url: URL) {}
+    func browserPresentShare(items: [Any]) {}
+    func browserPresent(viewController: UIViewController) -> Bool { false }
+    func browserToast(_ message: String) {}
+    func browserDownload(_ download: WKDownload, webView: WKWebView, site: SiteID) { download.cancel(nil) }
+    func browserClearData(for site: SiteID) async {}
+}
+
 // MARK: - BrowserRouter
 
 extension AppModel: BrowserRouter {
@@ -417,7 +487,7 @@ extension AppModel: BrowserRouter {
             refreshRoomCacheIfAllowed(force: true)
         }
         settings.remember(url, for: site)
-        if site == .portal && (url.host != site.host || url.path.contains("login") || url.path.contains("logout")) { exams.cancel(clear: true) }
+        if site == .portal && (url.host != site.host || url.path.contains("login") || url.path.contains("logout")) { exams.cancel(clear: url.path.contains("logout")) }
         if site == .moodle {
             if let browser = browsers[site] { upcoming.observeActivity(browser: browser) }
             if url.path.contains("/login/") {

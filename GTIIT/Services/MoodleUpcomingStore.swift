@@ -122,26 +122,36 @@ import WebKit
             try ProtectedCampusCache.write(cache, to: cacheURL)
         } catch { /* Retain the current in-memory summary if local storage is unavailable. */ }
     }
+    private var watchdog: Task<Void, Never>?
     private var task: Task<Void, Never>?
     private weak var webView: WKWebView?
     private var generation = UUID()
 
-    func refresh(browser: BrowserModel, force: Bool = false, allowed: @escaping () -> Bool) {
-        guard !refreshing, allowed(), force || retryAfter.map({ $0 <= Date() }) != false else { return }
-        guard force || needsReaderUpgrade || (attemptedAt ?? updatedAt).map({ Date().timeIntervalSince($0) >= Self.refreshInterval }) != false else { return }
-        guard let script = try? Self.readerScript() else { error = true; return }
+    @discardableResult
+    func refresh(browser: BrowserModel, force: Bool = false, background: Bool = false, refreshDetails: Bool = true, allowed: @escaping () -> Bool) -> UUID? {
+        guard !refreshing, allowed(), (attemptedAt.map { Date().timeIntervalSince($0) >= 60 } ?? true), retryAfter.map({ $0 <= Date() }) != false else { return nil }
+        guard force || needsReaderUpgrade || (attemptedAt ?? updatedAt).map({ Date().timeIntervalSince($0) >= Self.refreshInterval }) != false else { return nil }
+        guard let script = try? Self.readerScript() else { error = true; return nil }
         LocalDiagnostics.shared.record("moodleSummaryRefresh")
         refreshing = true; error = false; loginRequired = false
         webView = browser.webView
         let token = UUID(); generation = token
+        attemptedAt = Date()
+        watchdog?.cancel()
+        watchdog = Task { [weak self] in
+            do { try await Task.sleep(for: .seconds(background ? 28 : 65)) } catch { return }
+            guard let self, self.generation == token, self.refreshing else { return }
+            self.cancelRefresh(token)
+            self.failedAttempt()
+        }
         task = Task { [weak self] in
             guard let self else { return }
-            defer { if self.generation == token { self.refreshing = false; self.task = nil } }
+            defer { if self.generation == token { self.refreshing = false; self.task = nil; self.watchdog?.cancel() } }
             // A freshly created BrowserModel starts with isLoading == false
             // before navigation begins. Wait for a real first load instead of
             // evaluating the summary script against an empty document.
             var waited = 0
-            while (waited < 30) && (!browser.hasLoadedOnce || browser.isLoading) {
+            while (waited < (background ? 16 : 30)) && (!browser.hasLoadedOnce || browser.isLoading) {
                 guard allowed(), !Task.isCancelled else { return }
                 try? await Task.sleep(for: .milliseconds(500))
                 waited += 1
@@ -154,7 +164,7 @@ import WebKit
                 let term = Self.currentTerm()
                 let directoryJSON = String(data: try JSONEncoder().encode(self.courseItems), encoding: .utf8) ?? "[]"
                 let itemsJSON = String(data: try JSONEncoder().encode(self.items), encoding: .utf8) ?? "[]"
-                let refreshDirectory = force || (self.directoryUpdatedAt.map { Date().timeIntervalSince($0) >= 6 * 3600 } ?? true)
+                let refreshDirectory = self.needsReaderUpgrade || (self.directoryUpdatedAt.map { Date().timeIntervalSince($0) >= 6 * 3600 } ?? true)
                 let progress = Task { [weak self] in
                     await self?.observeDirectory(browser: browser, token: token, allowed: allowed)
                 }
@@ -163,7 +173,8 @@ import WebKit
                     "now": Date().timeIntervalSince1970, "jobID": token.uuidString,
                     "termYear": term.year, "termSeason": term.season,
                     "cachedDirectoryJSON": directoryJSON, "refreshDirectory": refreshDirectory,
-                    "cachedItemsJSON": itemsJSON, "forceDetails": force || self.needsReaderUpgrade, "upcomingDays": self.upcomingDays, "priorityIDs": Array(self.priorityCourseIDs)
+                    "cachedItemsJSON": itemsJSON, "forceDetails": (force && refreshDetails) || self.needsReaderUpgrade, "upcomingDays": self.upcomingDays, "priorityIDs": Array(self.priorityCourseIDs),
+                    "readTimeoutMs": background ? 18000 : 45000
                 ], in: nil, contentWorld: .page)
                 guard self.generation == token, allowed(), !Task.isCancelled else { return }
                 guard let string = value as? String, string.utf8.count < 1_000_000 else { throw CocoaError(.coderReadCorrupt) }
@@ -175,6 +186,17 @@ import WebKit
                 self.failedAttempt()
             }
         }
+        return token
+    }
+    func waitForRefresh(_ token: UUID) async -> Bool {
+        guard generation == token, let current = task else { return false }
+        let previousUpdate = updatedAt
+        await current.value
+        return generation == token && !error && !loginRequired && updatedAt != nil && updatedAt != previousUpdate
+    }
+    func cancelRefresh(_ token: UUID) {
+        guard generation == token else { return }
+        cancel()
     }
     /// A token-scoped, one-shot course preview; it never marks work as fresh.
     /// The parent refresh owns cancellation and the final atomic cache update.
@@ -237,8 +259,8 @@ import WebKit
 
     func cancel(clear: Bool = false) {
         let previous = generation.uuidString
-        if refreshing { attemptedAt = updatedAt }
-        generation = UUID(); task?.cancel(); task = nil; refreshing = false
+        // Preserve attempt time on cancellation to prevent rapid retry bursts.
+        generation = UUID(); watchdog?.cancel(); task?.cancel(); task = nil; refreshing = false
         if let webView { Task { try? await webView.evaluateJavaScript("if(window.__gtiitUpcomingJob?.jobID === '\(previous)') window.__gtiitUpcomingJob.abort()") } }
         if clear { onClearReminders?() }
         if clear { directoryUpdatedAt = nil; retryAfter = nil; failureCount = 0; priorityCourseIDs = []; try? FileManager.default.removeItem(at: cacheURL); attemptedAt = nil; items = []; courseItems = []; updatedAt = nil; checked = 0; courses = 0; partial = false; error = false; loginRequired = false }

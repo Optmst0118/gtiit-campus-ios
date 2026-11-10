@@ -18,7 +18,7 @@ struct CampusServicesView: View {
                         NavigationLink { CampusDetailPage(destination: .academicCalendar) } label: {
                             CampusMenuRow(title: "校历", symbol: "calendar")
                         }
-                        Link(destination: URL(string: "https://outlook.office.com/mail/")!) {
+                        Button { app.openMailAssistant() } label: {
                             CampusMenuRow(title: "邮箱助手", symbol: "envelope")
                         }
                     }

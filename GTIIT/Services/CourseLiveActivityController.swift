@@ -13,8 +13,10 @@ struct CourseActivityPlan: Equatable {
     var activate: Date { start.addingTimeInterval(-900) }
     static func upcoming(_ snapshot: TimetableSnapshot?, now: Date) -> [Self] {
         guard let snapshot else { return [] }
-        let classes = CampusCalendarItem.timetable(snapshot).filter { $0.end.addingTimeInterval(300) > now }
-        return Array(classes.prefix(2)).map { item in
+        let classes = CampusCalendarItem.timetable(snapshot).filter { $0.end.addingTimeInterval(600) > now }
+        // Preserve chronological order and let ActivityKit enforce the
+        // device's actual capacity; a fixed two-class cutoff misses later classes.
+        return classes.map { item in
             Self(id: item.id, title: item.title, room: snapshot.courses.first {
                 $0.name == item.title && $0.location == item.location && LocalCourse.minutes($0.start) == CampusDate.calendar.component(.hour, from: item.start) * 60 + CampusDate.calendar.component(.minute, from: item.start)
             }?.room ?? item.location, building: snapshot.courses.first { $0.name == item.title && $0.location == item.location }?.building ?? "", start: item.start, end: item.end)
@@ -27,11 +29,12 @@ struct CourseActivityPlan: Equatable {
     private var task: Task<Void, Never>?
     private var generation = UUID()
     private var expiryTask: Task<Void, Never>?
+    private var reservingShuttleSlot = false
     func sync(snapshot: TimetableSnapshot?, enabled: Bool) {
         #if GTIIT_REGRESSION
         return
         #else
-        guard UIApplication.shared.applicationState == .active else { return }
+        guard UIApplication.shared.applicationState == .active, !reservingShuttleSlot else { return }
         task?.cancel()
         let token = UUID(); generation = token
         task = Task {
@@ -46,7 +49,7 @@ struct CourseActivityPlan: Equatable {
                     $0.title == activity.attributes.title && $0.room == activity.attributes.room && $0.building == activity.attributes.building &&
                     $0.start == activity.content.state.start && $0.end == activity.content.state.end
                 }
-                if !valid || activity.content.state.end.addingTimeInterval(300) <= now {
+                if !valid || activity.content.state.end.addingTimeInterval(600) <= now {
                     issued.remove(activity.attributes.occurrenceID + "|" + activity.attributes.language)
                     UserDefaults.standard.set(Array(issued.suffix(150)), forKey: "course.activity.issued")
                     await activity.end(nil, dismissalPolicy: .immediate)
@@ -57,22 +60,10 @@ struct CourseActivityPlan: Equatable {
             let center = UNUserNotificationCenter.current()
             let pending = await center.pendingNotificationRequests()
             let prefix = "course.fiveMinute."
-            let desiredIDs = Set(desired.filter { $0.start.addingTimeInterval(-300) > now }.map { prefix + $0.id })
-            center.removePendingNotificationRequests(withIdentifiers: pending.filter { $0.identifier.hasPrefix(prefix) && !desiredIDs.contains($0.identifier) }.map(\.identifier))
+            // Remove reminders scheduled by older builds; the course Live Activity
+            // is now the sole pre-class reminder.
+            center.removePendingNotificationRequests(withIdentifiers: pending.filter { $0.identifier.hasPrefix(prefix) }.map(\.identifier))
             guard !Task.isCancelled, token == generation else { return }
-            let authorization = await center.notificationSettings()
-            if authorization.authorizationStatus == .authorized || authorization.authorizationStatus == .provisional {
-                for plan in desired where plan.start.addingTimeInterval(-300) > now {
-                    let content = UNMutableNotificationContent()
-                    content.title = plan.title
-                    content.body = language == "en" ? "Class starts in 5 minutes · " + plan.room : "5 分钟后上课 · " + plan.room
-                    content.sound = .default
-                    let delay = plan.start.addingTimeInterval(-300).timeIntervalSinceNow
-                    guard delay > 0, !Task.isCancelled, token == generation else { continue }
-                    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
-                    try? await center.add(UNNotificationRequest(identifier: prefix + plan.id, content: content, trigger: trigger))
-                }
-            }
             if !enabled || snapshot == nil { UserDefaults.standard.removeObject(forKey: "course.activity.issued"); return }
             guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
             for plan in desired where plan.start > now {
@@ -88,15 +79,31 @@ struct CourseActivityPlan: Equatable {
         }
         #endif
     }
+    /// On a capacity error, yield the furthest pending course to a shuttle the
+    /// user explicitly starts. The course remains eligible for a later refill.
+    func reserveSlotForShuttle() async -> Bool {
+        guard #available(iOS 26.0, *), !reservingShuttleSlot,
+              let pending = Activity<CourseActivityAttributes>.activities
+                .filter({ $0.activityState == .pending && $0.content.state.start > Date() })
+                .max(by: { $0.content.state.start < $1.content.state.start }) else { return false }
+        reservingShuttleSlot = true
+        generation = UUID(); task?.cancel()
+        await pending.end(nil, dismissalPolicy: .immediate)
+        var issued = Set(UserDefaults.standard.stringArray(forKey: "course.activity.issued") ?? [])
+        issued.remove(pending.attributes.occurrenceID + "|" + pending.attributes.language)
+        UserDefaults.standard.set(Array(issued), forKey: "course.activity.issued")
+        return true
+    }
+    func finishReservingShuttleSlot() { reservingShuttleSlot = false }
     private func scheduleExpiry() {
         ActivityLifecycleCleanup.schedule()
         expiryTask?.cancel()
         expiryTask = Task {
             while !Task.isCancelled {
                 let activities = Activity<CourseActivityAttributes>.activities
-                guard let next = activities.map({ $0.content.state.end.addingTimeInterval(300) }).min() else { return }
+                guard let next = activities.map({ $0.content.state.end.addingTimeInterval(600) }).min() else { return }
                 do { try await Task.sleep(for: .seconds(max(0, next.timeIntervalSinceNow))) } catch { return }
-                for activity in Activity<CourseActivityAttributes>.activities where activity.content.state.end.addingTimeInterval(300) <= Date() {
+                for activity in Activity<CourseActivityAttributes>.activities where activity.content.state.end.addingTimeInterval(600) <= Date() {
                     await activity.end(nil, dismissalPolicy: .immediate)
                 }
             }

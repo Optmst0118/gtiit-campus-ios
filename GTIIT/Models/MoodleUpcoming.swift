@@ -42,7 +42,7 @@ struct MoodleWork: Codable, Identifiable {
     var openedDate: Date? { opened.map { Date(timeIntervalSince1970: $0) } }
     func relevant(now: Date = Date(), days: Int = 10) -> Bool {
         guard !isSubmitted, Self.safeURL(url) != nil else { return false }
-        return StudyDeadlineWindow.contains(dueDate, now: now, days: days)
+        return (openedDate.map { $0 <= now } ?? true) && StudyDeadlineWindow.contains(dueDate, now: now, days: days)
     }
     func priority(now: Date = Date()) -> TimeInterval {
         due ?? opened ?? .greatestFiniteMagnitude

@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>BGTaskSchedulerPermittedIdentifiers</key>
-    <array><string>io.github.optmst0118.gtiit.beta.activity-cleanup</string></array>
+    <array><string>io.github.optmst0118.gtiit.beta.activity-cleanup</string><string>io.github.optmst0118.gtiit.beta.study-refresh</string></array>
     <key>UIBackgroundModes</key>
     <array><string>fetch</string></array>
 	<key>CFBundleDevelopmentRegion</key>

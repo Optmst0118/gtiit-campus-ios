@@ -93,7 +93,7 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "class_activity_room_and_two_slot_cap"
+      "test" : "class_activity_all_upcoming_planned_in_order"
     },
     {
       "detail" : "",
@@ -113,12 +113,12 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "class_activity_keeps_until_end_plus_five"
+      "test" : "class_activity_keeps_until_end_plus_ten"
     },
     {
       "detail" : "",
       "passed" : true,
-      "test" : "class_activity_expires_at_end_plus_five"
+      "test" : "class_activity_expires_at_end_plus_ten"
     },
     {
       "detail" : "",
@@ -193,7 +193,67 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "exam_3_day_milestone_in_daily_digest"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_3_calendar_day_count"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_7_day_milestone_in_daily_digest"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_7_calendar_day_count"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_14_day_milestone_in_daily_digest"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_14_calendar_day_count"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_31_day_milestone_in_daily_digest"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_31_calendar_day_count"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "daily_reminders_empty"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reconcile_keeps_unchanged_requests"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_failed_replacement_preserves_pending"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_failed_replacement_retries"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_removed_when_no_longer_needed"
     },
     {
       "detail" : "",
@@ -249,6 +309,16 @@
       "detail" : "",
       "passed" : true,
       "test" : "widget_drops_item_as_deadline_passes"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_timeline_covers_deadline_and_stale_boundary"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_timeline_covers_entering_window"
     },
     {
       "detail" : "",
@@ -368,6 +438,21 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "assignment_no_submission_phrase"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "quiz_first_attempt_action"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "quiz_finished_outweighs_action"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "assignment_detail_preserves_calendar_open_date"
     },
     {
@@ -409,6 +494,16 @@
       "detail" : "",
       "passed" : true,
       "test" : "upcoming_recent_cache_does_not_trigger_scan"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "background_wrong_token_cannot_cancel_refresh"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "background_cancel_preserves_cached_snapshot"
     },
     {
       "detail" : "",
@@ -493,7 +588,7 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "upcoming_six_requests_parallel_bounded_and_complete"
+      "test" : "upcoming_two_requests_parallel_bounded_and_complete"
     },
     {
       "detail" : "",
@@ -504,6 +599,11 @@
       "detail" : "",
       "passed" : true,
       "test" : "upcoming_submitted_not_in_todo"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "quiz_literal_not_submitted_recognized"
     },
     {
       "detail" : "",
@@ -577,8 +677,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-11-05T08:40:20Z",
+  "date" : "2026-11-10T13:41:28Z",
   "focus" : "moodle",
   "passed" : true,
-  "runID" : "7ed56302-af1f-41c5-8ce7-f95f0425dadb"
+  "runID" : "6f5875f7-16b8-4f0a-ba7e-8c009f588ce9"
 }

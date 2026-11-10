@@ -20,6 +20,23 @@ struct StudyWidgetSnapshot: Codable {
             return ($0.due ?? .distantFuture) < ($1.due ?? .distantFuture)
         }
     }
+    /// Presentation boundaries can change even when no new network snapshot arrives.
+    func timelineDates(from now: Date) -> [Date] {
+        let horizon = now.addingTimeInterval(86400)
+        var dates = [now]
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Shanghai")!
+        if let midnight = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)) {
+            dates.append(midnight)
+        }
+        if let updatedAt { dates.append(updatedAt.addingTimeInterval(6 * 3600)) }
+        let window = Double(max(1, min(30, days))) * 86400
+        for item in items where item.pending {
+            guard let due = item.due else { continue }
+            dates.append(contentsOf: [due.addingTimeInterval(-window), due.addingTimeInterval(-86400), due.addingTimeInterval(1)])
+        }
+        return Array(Set(dates.filter { $0 >= now && $0 <= horizon })).sorted()
+    }
     static func courseName(_ raw: String) -> String {
         let name = raw.replacingOccurrences(of: "^\\s*\\d{3,}\\s*[-–—:]?\\s*", with: "", options: .regularExpression)
             .replacingOccurrences(of: "\\s*[-–—(]?\\s*(Winter|Spring|Summer|Fall|Autumn)\\s*\\d{4}\\s*\\)?\\s*$", with: "", options: [.regularExpression, .caseInsensitive])

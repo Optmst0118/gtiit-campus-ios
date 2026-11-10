@@ -12,13 +12,30 @@ import WebKit
     @Published private(set) var reservations: [CachedRoomReservation] = []
     @Published private(set) var coursesUpdatedAt: Date?
     @Published private(set) var reservationsUpdatedAt: Date?
+    var onSignedIn: ((SiteID) -> Void)?
     private var hasStarted = false
+    private var lastFullCheck: Date?
     private var task: Task<Void, Never>?
     private var generation = UUID()
     private var revisions: [SiteID: Int] = [:]
     private var networkFailed = false
     private var lastRoomAttempt: Date?
     private var pendingRoomRefresh = false
+    private func signedInKey(_ site: SiteID) -> String { "campus.session.wasSignedIn.\(site.rawValue)" }
+    func displayTitle(for site: SiteID) -> String {
+        let state = states[site] ?? .unknown
+        if state == .needsLogin && !UserDefaults.standard.bool(forKey: signedInKey(site)) {
+            return L10n.tr("未登录")
+        }
+        return state.title
+    }
+    private func record(_ state: CampusLoginState, for site: SiteID) {
+        states[site] = state
+        if state == .signedIn {
+            UserDefaults.standard.set(true, forKey: signedInKey(site))
+            onSignedIn?(site)
+        }
+    }
     private let cacheURL: URL
     private struct Cache: Codable {
         let version: Int
@@ -38,7 +55,7 @@ import WebKit
         }
     }
     func start(force: Bool = false, sites: [SiteID] = SiteID.allCases, allowed: @escaping @MainActor () -> Bool) {
-        guard !checking, allowed(), force || !hasStarted else { return }
+        guard !checking, allowed(), force || !hasStarted || lastFullCheck.map({ Date().timeIntervalSince($0) >= 900 }) == true else { return }
         if sites == SiteID.allCases { hasStarted = true }; checking = true
         for site in sites { states[site] = .checking }
         let token = UUID(); generation = token
@@ -69,7 +86,7 @@ import WebKit
                 networkFailed = false; web.load(URLRequest(url: target))
                 let state = await check(web, site: site, token: token, allowed: allowed)
                 guard !Task.isCancelled, generation == token, allowed() else { return }
-                if revisions[site, default: 0] == revision { states[site] = state }
+                if revisions[site, default: 0] == revision { record(state, for: site) }
                 if state == .signedIn {
                     if site == .rooms { await readReservations(web, token: token) }
                     if site == .portal {
@@ -86,6 +103,7 @@ import WebKit
                 }
                 web.stopLoading(); web.navigationDelegate = nil; probe = nil
             }
+            if sites == SiteID.allCases { lastFullCheck = Date() }
         }
     }
     func refreshRooms(force: Bool = false, allowed: @escaping @MainActor () -> Bool) {
@@ -104,8 +122,13 @@ import WebKit
         cancel()
         if site == nil || site == .portal { studentCourses = []; coursesUpdatedAt = nil }
         if site == nil || site == .rooms { reservations = []; reservationsUpdatedAt = nil }
-        if let site { states[site] = .needsLogin; revisions[site, default: 0] += 1 }
-        else { states = [:]; revisions = [:] }
+        if let site {
+            UserDefaults.standard.removeObject(forKey: signedInKey(site))
+            states[site] = .needsLogin; revisions[site, default: 0] += 1
+        } else {
+            for site in SiteID.allCases { UserDefaults.standard.removeObject(forKey: signedInKey(site)) }
+            states = [:]; revisions = [:]
+        }
         persist()
     }
     func observe(_ web: WKWebView, site: SiteID) {
@@ -114,7 +137,7 @@ import WebKit
         let token = generation
         Task { [weak self, weak web] in
             guard let self, let web, let state = await Self.state(in: web, site: site), revisions[site] == revision else { return }
-            if state == .signedIn || state == .needsLogin { states[site] = state }
+            if state == .signedIn || state == .needsLogin { record(state, for: site) }
             if site == .portal, state == .signedIn { await readCourses(web, token: token) }
         }
     }

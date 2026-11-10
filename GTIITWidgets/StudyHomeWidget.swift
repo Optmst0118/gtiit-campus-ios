@@ -11,7 +11,7 @@ struct StudyHomeProvider: TimelineProvider {
     func getSnapshot(in context: Context, completion: @escaping (StudyHomeEntry) -> Void) { completion(read()) }
     func getTimeline(in context: Context, completion: @escaping (Timeline<StudyHomeEntry>) -> Void) {
         let current = read()
-        let dates = [current.date] + (current.snapshot?.items.compactMap(\.due).filter { $0 >= current.date && $0 < current.date.addingTimeInterval(86400) }.map { $0.addingTimeInterval(1) } ?? [])
+        let dates = current.snapshot?.timelineDates(from: current.date) ?? [current.date]
         let entries = Set(dates).sorted().map { StudyHomeEntry(date: $0, snapshot: current.snapshot, english: current.english) }
         completion(Timeline(entries: entries, policy: .after(current.date.addingTimeInterval(900))))
     }

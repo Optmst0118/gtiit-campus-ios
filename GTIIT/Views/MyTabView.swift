@@ -41,7 +41,7 @@ struct MyTabView: View {
             .onDisappear { rootVisible = false }
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    CampusInboxToolbarButton(sync: app.campusSync, upcoming: app.upcoming) { showInbox = true }
+                    CampusInboxToolbarButton(sync: app.campusSync, upcoming: app.upcoming, exams: app.exams) { showInbox = true }
                     Button {
                         showSettings = true
                     } label: {
@@ -52,7 +52,7 @@ struct MyTabView: View {
             }
             .navigationDestination(for: CampusDetail.self) { CampusDetailPage(destination: $0) }
             .navigationDestination(isPresented: $showSettings) { SettingsView() }
-            .navigationDestination(isPresented: $showInbox) { CampusInboxView(sync: app.campusSync, upcoming: app.upcoming) }
+            .navigationDestination(isPresented: $showInbox) { CampusInboxView(sync: app.campusSync, upcoming: app.upcoming, exams: app.exams) }
             .task {
                 #if DEBUG
                     if ProcessInfo.processInfo.environment["GTIIT_SETTINGS"] == "1" { showSettings = true }
@@ -116,13 +116,7 @@ struct CampusShortcutsSection: View {
         return CGFloat(rows) * height + CGFloat(max(0, rows - 1)) * 12
     }
 
-    private func openMailAssistant() {
-        guard let outlook = URL(string: "ms-outlook://") else { return }
-        openURL(outlook) { accepted in
-            guard !accepted, let web = URL(string: "https://outlook.office.com/mail/") else { return }
-            openURL(web)
-        }
-    }
+    private func openMailAssistant() { app.openMailAssistant() }
 
 }
 

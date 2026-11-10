@@ -14,7 +14,7 @@ const parseDate = value => {
 
 const readMoodleActivity = (doc, kind) => {
  let due=null,opened=null,status='unknown',recognized=false;
- for(const row of doc.querySelectorAll('.submissionstatustable tr')){
+ for(const row of doc.querySelectorAll('.submissionstatustable tr, [data-region=\"submission-status\"] tr, table.generaltable tr')){
   const cells=[...row.children];if(cells.length<2)continue;
   const key=activityClean(cells[0].textContent),value=activityClean(cells[1].textContent);
   if(/^(Due date|截止日期|到期日|截止时间)$/i.test(key))due=parseDate(value);
@@ -40,7 +40,7 @@ const readMoodleActivity = (doc, kind) => {
    // Never infer completion from a grade, a Review link or a start button.
    if(states.some(t=>/^(In progress|Overdue|进行中|正在进行|超时|逾期未提交)$/i.test(t))){status='draft';recognized=true;}
    else if(states.some(t=>/^(Finished|Completed|已完成|完成|已结束|结束)$/i.test(t))){status='submitted';recognized=true;}
-   else if(states.some(t=>/^(Never submitted|Abandoned|从未提交|未提交|已放弃)$/i.test(t))){status='notSubmitted';recognized=true;}
+   else if(states.some(t=>/^(Not submitted|No attempt|Never submitted|Abandoned|从未提交|未提交|已放弃)$/i.test(t))){status='notSubmitted';recognized=true;}
   }
   for(const el of doc.querySelectorAll('.quizinfo p,.quizinfo li')){
    const text=activityClean(el.textContent);
@@ -52,6 +52,16 @@ const readMoodleActivity = (doc, kind) => {
   const t=Number(el.getAttribute('data-timestamp')),label=activityClean(el.parentElement?.textContent);
   if(t>0&&/due|close|截止|到期|关闭/i.test(label))due=t;
   if(t>0&&/open|opened|开放|开始/i.test(label))opened=t;
+ }
+ if(status==='unknown'){
+  const scope=doc.querySelector('#region-main')||doc.body;
+  const text=String(scope?.textContent||'').replace(/\s+/g,' ').slice(0,50000);
+  if(/you have not made a submission yet[.!]?/i.test(text)){status='notSubmitted';recognized=true;}
+  // Starting a new attempt is not proof against a completed prior attempt.
+  else if(kind==='quiz' && !doc.querySelector('table.quizattemptsummary') &&
+    [...doc.querySelectorAll('button,input[type=submit],a.btn')].some(e=>/^attempt quiz now[.!]?$/i.test(activityClean(e.value||e.textContent)))){
+    status='notSubmitted';recognized=true;
+  }
  }
  return {due,opened,status,recognized};
 };

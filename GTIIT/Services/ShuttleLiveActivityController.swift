@@ -13,7 +13,7 @@ import UIKit
 
     func restore(now: Date = Date()) async {
         let all = Activity<ShuttleActivityAttributes>.activities
-        let valid = all.filter { $0.content.state.departureDate.addingTimeInterval(300) > now && $0.activityState != .ended && $0.activityState != .dismissed }
+        let valid = all.filter { $0.content.state.departureDate.addingTimeInterval(600) > now && $0.activityState != .ended && $0.activityState != .dismissed }
             .sorted { $0.content.state.departureDate < $1.content.state.departureDate }
         let keep = valid.first
         for item in all where item.id != keep?.id { await item.end(nil, dismissalPolicy: .immediate) }
@@ -36,7 +36,24 @@ import UIKit
             activity = try Activity.request(attributes: attributes,
                 content: ActivityContent(state: .init(departureDate: departure.date, busNumber: departure.trip.bus), staleDate: departure.date), pushType: nil)
             errorMessage = nil; observe()
-        } catch { errorMessage = L10n.tr("未能开启倒计时，请重试。") }
+        } catch {
+            guard let reason = error as? ActivityAuthorizationError else {
+                errorMessage = L10n.tr("未能开启倒计时，请重试。"); return
+            }
+            switch reason {
+            case .globalMaximumExceeded, .targetMaximumExceeded:
+                guard await CourseLiveActivityController.shared.reserveSlotForShuttle() else {
+                    errorMessage = L10n.tr("未能开启倒计时，请重试。"); return
+                }
+                defer { CourseLiveActivityController.shared.finishReservingShuttleSlot() }
+                do {
+                    activity = try Activity.request(attributes: attributes,
+                        content: ActivityContent(state: .init(departureDate: departure.date, busNumber: departure.trip.bus), staleDate: departure.date), pushType: nil)
+                    errorMessage = nil; observe()
+                } catch { errorMessage = L10n.tr("未能开启倒计时，请重试。") }
+            default: errorMessage = L10n.tr("未能开启倒计时，请重试。")
+            }
+        }
     }
     private func removeDuplicates(except id: String) async {
         for item in Activity<ShuttleActivityAttributes>.activities where item.id != id { await item.end(nil, dismissalPolicy: .immediate) }
@@ -68,7 +85,7 @@ import UIKit
             }
         }
         expiryTask = Task { [weak self] in
-            let delay = max(0, item.content.state.departureDate.addingTimeInterval(300).timeIntervalSinceNow)
+            let delay = max(0, item.content.state.departureDate.addingTimeInterval(600).timeIntervalSinceNow)
             do { try await Task.sleep(for: .seconds(delay)) } catch { return }
             guard self?.activity?.id == item.id else { return }
             await item.end(nil, dismissalPolicy: .immediate); self?.activity = nil

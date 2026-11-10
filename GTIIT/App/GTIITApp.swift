@@ -8,8 +8,12 @@ import SwiftUI
         LocalDiagnostics.shared.start()
         Theme.configureNavigationAppearance()
         let settings = AppSettings()
+        let model = AppModel(settings: settings)
+        ActivityLifecycleCleanup.registerStudyRefresh { [weak model] in
+            await model?.refreshMoodleInBackground() ?? false
+        }
         _settings = StateObject(wrappedValue: settings)
-        _app = StateObject(wrappedValue: AppModel(settings: settings))
+        _app = StateObject(wrappedValue: model)
     }
     var body: some Scene {
         WindowGroup {

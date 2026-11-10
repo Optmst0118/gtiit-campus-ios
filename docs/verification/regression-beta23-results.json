@@ -1,0 +1,629 @@
+{
+  "checks": [
+    {
+      "detail": "",
+      "passed": true,
+      "test": "calendar_unified_chronological_and_unique"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "calendar_holiday_end_is_exclusive"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "calendar_exam_duration_preserved"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "calendar_classes_skip_holiday_and_deduplicate"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "calendar_classes_keep_location_and_time"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "deadline_red_at_48h"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "deadline_normal_beyond_48h"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "deadline_red_overdue_draft"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "deadline_submitted_not_red"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "deadline_missing_not_red"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "followed_filter_default_off"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "followed_filter_persists"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "personal_break_starts_after_last_b"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "personal_break_marks_month_grid"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "personal_break_excludes_next_term"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "personal_break_uses_latest_eligible_b"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "personal_break_no_b_keeps_school_calendar"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "class_activity_fifteen_minute_lead"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "class_activity_all_upcoming_planned_in_order"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "class_activity_identity_stable"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "class_activity_absent_without_timetable"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "class_activity_keeps_running_class"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "class_activity_keeps_until_end_plus_ten"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "class_activity_expires_at_end_plus_ten"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "class_activity_plan_preserves_duration"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "activity_fits_system_lock_screen_height"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "activity_reserves_island_camera_height"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "widget_timeline_nonempty_sorted_unique"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "widget_timeline_covers_next_day"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "daily_reminders_calendar_days"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "daily_reminders_custom_hour"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "daily_reminders_no_past_catchup"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "course_room_short"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "course_room_six_digits"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "study_course_without_code"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "daily_reminders_sentence"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "daily_reminders_no_course_code"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "daily_reminders_verified_empty_sentence"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "daily_reminders_empty"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "daily_reconcile_keeps_unchanged_requests"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "daily_failed_replacement_preserves_pending"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "daily_failed_replacement_retries"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "daily_removed_when_no_longer_needed"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "shared_cache_existing_schema_decodes"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "shared_cache_oversized_read_rejected"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "shared_cache_encode_failure_preserves_prior_snapshot"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "shared_cache_corrupt_snapshot_rejected"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "shared_upcoming_equal_deadlines_have_stable_order"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "physics_quiz_title_normalized_and_zero_removed"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "physics_real_exam_title_not_renamed"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_excludes_past_unsubmitted"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_excludes_opened_without_deadline"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "widget_uses_same_upcoming_deadline_window"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "widget_drops_item_as_deadline_passes"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "widget_timeline_covers_deadline_and_stale_boundary"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "widget_timeline_covers_entering_window"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "widget_course_readable_without_generic_prefix"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "widget_shortens_redundant_assignment_title"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_default_includes_10th_day"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_excludes_10day_boundary_overflow_even_if_recently_opened"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_range_3_and_30_days"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "physics_finished_quiz_hidden_in_all_ranges"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "physics_forceview_url_canonicalized"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "physics_activity_url_rejects_action"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "widget_deeplink_assignments"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "widget_deeplink_study"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "widget_deeplink_timetable"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "widget_deeplink_exams"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "widget_deeplink_shuttle_direction"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_default_range_10days"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_range_persisted"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "moodle_cached_texts_present_synchronously_on_init"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "moodle_invalidation_keeps_cache_and_timestamp_visible"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "moodle_signin_redirect_does_not_erase_cached_text"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "moodle_partial_refresh_preserves_cached_work_and_courses"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "moodle_positive_finished_status_replaces_cached_pending"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "moodle_scan_cannot_undo_newer_observed_submission"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "moodle_explicit_clear_removes_cache"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_fixture_ready"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "assignment_detail_preserves_calendar_open_date"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_reads_active_course_pages_and_pagination"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_skips_old_terms_future_and_hidden_courses"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_requests_complete_course_list"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "cached_course_directory_avoids_repeat_requests"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "submitted_assignment_detail_rechecked"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_summary_survives_store_restart"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_cache_excluded_from_backup"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_recent_cache_does_not_trigger_scan"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "background_wrong_token_cannot_cancel_refresh"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "background_cancel_preserves_cached_snapshot"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_course_directory_present_before_clear"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_clear_removes_in_memory_courses"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_clear_removes_persistent_summary"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "shortcut_default_entries_preserved"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "shortcut_changes_survive_restart"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "my_entry_order_and_visibility_survive_restart"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "shortcut_reorder_survives_restart"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "my_entry_order_migrates_unknown_duplicate_and_missing"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "shortcut_empty_selection_is_preserved"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_assignment_missing_from_timeline_found"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_homework_title_canonical"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_chinese_date_and_submitted_status"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_calendar_open_and_dedup"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_unsafe_links_rejected"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_read_only_requests"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_directory_published_before_assignment_details"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_two_requests_parallel_bounded_and_complete"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_job_progress_and_requests_cleaned_up"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_submitted_not_in_todo"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "quiz_literal_not_submitted_recognized"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "physics_real_finished_attempt_hidden_even_with_reattempt_button"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "physics_relative_index_links_resolve_to_quiz_module"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "physics_hw01_quiz_canonical_title"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "physics_quiz_close_date_parsed"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "physics_unfinished_attempt_not_hidden_by_prior_finished_attempt"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "physics_abandoned_attempt_not_misclassified_finished"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "physics_quiz_missing_timeline_discovered_from_course_index"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "moodle_calendar_second_page_activity_read_and_checked"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "quiz_status_extraction_does_not_export_grades"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_failed_course_reports_partial_retains_other_course"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_empty_active_set_never_falls_back_to_all_courses"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_unready_session_not_treated_as_logout"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_login_required_no_data"
+    },
+    {
+      "detail": "",
+      "passed": true,
+      "test": "upcoming_url_rejects_actions_and_other_hosts"
+    }
+  ],
+  "completed": true,
+  "date": "2026-11-10T12:48:03Z",
+  "focus": "moodle",
+  "passed": true,
+  "runID": "e014d5f7-79af-4d0b-8f96-8df5a704909d"
+}

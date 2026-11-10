@@ -13,6 +13,7 @@ final class ShuttleNotificationCenter: NSObject, ObservableObject {
 
     @Published private(set) var authorizationStatus: UNAuthorizationStatus = .notDetermined
     @Published private(set) var pendingCount = 0
+    @Published private(set) var delivered: [UNNotification] = []
     /// Set by AppModel to route a notification tap into the Shuttle tab.
     var onOpen: ((ShuttleDirection?) -> Void)?
     var onOpenStudy: (() -> Void)?
@@ -52,6 +53,7 @@ final class ShuttleNotificationCenter: NSObject, ObservableObject {
         authorizationStatus = settings.authorizationStatus
         let requests = await center.pendingNotificationRequests()
         pendingCount = requests.filter { $0.identifier.hasPrefix(Self.identifierPrefix) }.count
+        delivered = await center.deliveredNotifications().sorted { $0.date > $1.date }
     }
 
     func requestAuthorization() async -> Bool {
@@ -140,7 +142,13 @@ extension ShuttleNotificationCenter: UNUserNotificationCenterDelegate {
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
-        [.banner, .list, .sound]
+        await MainActor.run {
+            _ = Task { @MainActor in
+                try? await Task.sleep(for: .seconds(1))
+                await ShuttleNotificationCenter.shared.refreshStatus()
+            }
+        }
+        return [.banner, .list, .sound]
     }
 
     nonisolated func userNotificationCenter(

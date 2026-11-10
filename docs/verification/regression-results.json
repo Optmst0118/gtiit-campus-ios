@@ -88,7 +88,7 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "class_activity_ten_minute_lead"
+      "test" : "class_activity_fifteen_minute_lead"
     },
     {
       "detail" : "",
@@ -108,7 +108,17 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "class_activity_after_start_moves_to_next"
+      "test" : "class_activity_keeps_running_class"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "class_activity_keeps_until_end_plus_five"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "class_activity_expires_at_end_plus_five"
     },
     {
       "detail" : "",
@@ -134,6 +144,76 @@
       "detail" : "",
       "passed" : true,
       "test" : "widget_timeline_covers_next_day"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reminders_calendar_days"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reminders_custom_hour"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reminders_no_past_catchup"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "course_room_short"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "course_room_six_digits"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "study_course_without_code"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reminders_sentence"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reminders_no_course_code"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reminders_verified_empty_sentence"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reminders_empty"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_reconcile_keeps_unchanged_requests"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_failed_replacement_preserves_pending"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_failed_replacement_retries"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "daily_removed_when_no_longer_needed"
     },
     {
       "detail" : "",
@@ -173,6 +253,46 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "upcoming_excludes_past_unsubmitted"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "upcoming_excludes_opened_without_deadline"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_uses_same_upcoming_deadline_window"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_drops_item_as_deadline_passes"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_timeline_covers_deadline_and_stale_boundary"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_timeline_covers_entering_window"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_course_readable_without_generic_prefix"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_shortens_redundant_assignment_title"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "upcoming_default_includes_10th_day"
     },
     {
@@ -199,6 +319,31 @@
       "detail" : "",
       "passed" : true,
       "test" : "physics_activity_url_rejects_action"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_deeplink_assignments"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_deeplink_study"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_deeplink_timetable"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_deeplink_exams"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "widget_deeplink_shuttle_direction"
     },
     {
       "detail" : "",
@@ -1668,7 +1813,7 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "submitted_assignment_detail_uses_six_hour_cache"
+      "test" : "submitted_assignment_detail_rechecked"
     },
     {
       "detail" : "",
@@ -1684,6 +1829,16 @@
       "detail" : "",
       "passed" : true,
       "test" : "upcoming_recent_cache_does_not_trigger_scan"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "background_wrong_token_cannot_cancel_refresh"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "background_cancel_preserves_cached_snapshot"
     },
     {
       "detail" : "",
@@ -1951,72 +2106,77 @@
       "test" : "rotation_keeps_detail_19"
     },
     {
-      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "detail" : "navigation=(0.0, 0.0, 382.0, 678.0), window=(0.0, 0.0, 466.0, 678.0)",
       "passed" : true,
       "test" : "me_light_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), safeTop=62.0",
-      "passed" : true,
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), safeTop=0.0",
+      "passed" : false,
       "test" : "me_light_no_extra_container_bar"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "me_light_controls_respect_top_safe_area"
     },
     {
-      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "detail" : "navigation=(0.0, 0.0, 382.0, 678.0), window=(0.0, 0.0, 466.0, 678.0)",
       "passed" : true,
       "test" : "learning_light_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, -116.0, 402.0, 54.0), intentionallyHidden=true",
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), safeTop=0.0",
+      "passed" : false,
+      "test" : "learning_light_no_extra_container_bar"
+    },
+    {
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "learning_light_controls_respect_top_safe_area"
     },
     {
-      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "detail" : "navigation=(0.0, 0.0, 382.0, 678.0), window=(0.0, 0.0, 466.0, 678.0)",
       "passed" : true,
       "test" : "shuttle_light_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), safeTop=62.0",
-      "passed" : true,
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), safeTop=0.0",
+      "passed" : false,
       "test" : "shuttle_light_no_extra_container_bar"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "shuttle_light_controls_respect_top_safe_area"
     },
     {
-      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "detail" : "navigation=(0.0, 0.0, 382.0, 678.0), window=(0.0, 0.0, 466.0, 678.0)",
       "passed" : true,
       "test" : "booking_light_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), safeTop=62.0",
-      "passed" : true,
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), safeTop=0.0",
+      "passed" : false,
       "test" : "booking_light_no_extra_container_bar"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "booking_light_controls_respect_top_safe_area"
     },
     {
-      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "detail" : "navigation=(0.0, 0.0, 382.0, 678.0), window=(0.0, 0.0, 466.0, 678.0)",
       "passed" : true,
       "test" : "portal_light_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), safeTop=62.0",
-      "passed" : true,
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), safeTop=0.0",
+      "passed" : false,
       "test" : "portal_light_no_extra_container_bar"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "portal_light_controls_respect_top_safe_area"
     },
@@ -2061,62 +2221,77 @@
       "test" : "sports_light_push_reaches_window_top"
     },
     {
-      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "detail" : "navigation=(0.0, 0.0, 382.0, 678.0), window=(0.0, 0.0, 466.0, 678.0)",
       "passed" : true,
       "test" : "me_dark_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, -116.0, 402.0, 54.0), intentionallyHidden=true",
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), safeTop=0.0",
+      "passed" : false,
+      "test" : "me_dark_no_extra_container_bar"
+    },
+    {
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "me_dark_controls_respect_top_safe_area"
     },
     {
-      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "detail" : "navigation=(0.0, 0.0, 382.0, 678.0), window=(0.0, 0.0, 466.0, 678.0)",
       "passed" : true,
       "test" : "learning_dark_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), safeTop=62.0",
-      "passed" : true,
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), safeTop=0.0",
+      "passed" : false,
       "test" : "learning_dark_no_extra_container_bar"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "learning_dark_controls_respect_top_safe_area"
     },
     {
-      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "detail" : "navigation=(0.0, 0.0, 382.0, 678.0), window=(0.0, 0.0, 466.0, 678.0)",
       "passed" : true,
       "test" : "shuttle_dark_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, -116.0, 402.0, 54.0), intentionallyHidden=true",
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), safeTop=0.0",
+      "passed" : false,
+      "test" : "shuttle_dark_no_extra_container_bar"
+    },
+    {
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "shuttle_dark_controls_respect_top_safe_area"
     },
     {
-      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "detail" : "navigation=(0.0, 0.0, 382.0, 678.0), window=(0.0, 0.0, 466.0, 678.0)",
       "passed" : true,
       "test" : "booking_dark_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), safeTop=62.0",
-      "passed" : true,
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), safeTop=0.0",
+      "passed" : false,
       "test" : "booking_dark_no_extra_container_bar"
     },
     {
-      "detail" : "bar=(0.0, 62.0, 402.0, 106.0), intentionallyHidden=false",
+      "detail" : "bar=(0.0, 24.0, 382.0, 110.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "booking_dark_controls_respect_top_safe_area"
     },
     {
-      "detail" : "navigation=(0.0, 0.0, 402.0, 874.0), window=(0.0, 0.0, 402.0, 874.0)",
+      "detail" : "navigation=(0.0, 0.0, 382.0, 678.0), window=(0.0, 0.0, 466.0, 678.0)",
       "passed" : true,
       "test" : "portal_dark_navigation_reaches_window_top"
     },
     {
-      "detail" : "bar=(0.0, -116.0, 402.0, 54.0), intentionallyHidden=true",
+      "detail" : "bar=(0.0, 24.0, 382.0, 58.0), safeTop=0.0",
+      "passed" : false,
+      "test" : "portal_dark_no_extra_container_bar"
+    },
+    {
+      "detail" : "bar=(0.0, 24.0, 382.0, 58.0), intentionallyHidden=false",
       "passed" : true,
       "test" : "portal_dark_controls_respect_top_safe_area"
     },
@@ -2171,7 +2346,7 @@
       "test" : "portal_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 118.0, 402.0, 756.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 84.0, 382.0, 594.0), tab=(0.0, 595.0, 382.0, 83.0)",
       "passed" : true,
       "test" : "portal_web_extends_under_tab_bar"
     },
@@ -2186,17 +2361,17 @@
       "test" : "portal_detail_title_stays_inline"
     },
     {
-      "detail" : "expanded=118.0, restored=118.0, tracker=-1.0",
+      "detail" : "expanded=84.0, restored=84.0, tracker=-1.0",
       "passed" : true,
       "test" : "portal_native_title_restores_at_top"
     },
     {
-      "detail" : "tail=791.0, bar=791.0, inset=0.0",
+      "detail" : "tail=595.0, bar=595.0, inset=0.0",
       "passed" : true,
       "test" : "portal_last_action_scrolls_above_bar"
     },
     {
-      "detail" : "fixed=791.0, bar=791.0",
+      "detail" : "fixed=595.0, bar=595.0",
       "passed" : true,
       "test" : "portal_inner_scroll_fixed_action_above_glass"
     },
@@ -2231,7 +2406,7 @@
       "test" : "moodle_glass_host_ready"
     },
     {
-      "detail" : "web=(0.0, 170.0, 402.0, 704.0), tab=(0.0, 791.0, 402.0, 83.0)",
+      "detail" : "web=(0.0, 136.0, 382.0, 542.0), tab=(0.0, 595.0, 382.0, 83.0)",
       "passed" : true,
       "test" : "moodle_web_extends_under_tab_bar"
     },
@@ -2241,17 +2416,17 @@
       "test" : "moodle_pull_keeps_title_stationary"
     },
     {
-      "detail" : "expanded=170.0, compact=118.0",
+      "detail" : "expanded=136.0, compact=84.0",
       "passed" : true,
       "test" : "moodle_native_title_collapses"
     },
     {
-      "detail" : "expanded=170.0, restored=170.0, tracker=0.0",
+      "detail" : "expanded=136.0, restored=136.0, tracker=0.0",
       "passed" : true,
       "test" : "moodle_native_title_restores_at_top"
     },
     {
-      "detail" : "tail=791.0, bar=791.0, inset=83.0",
+      "detail" : "tail=595.0, bar=595.0, inset=83.0",
       "passed" : true,
       "test" : "moodle_last_action_scrolls_above_bar"
     },
@@ -2411,7 +2586,7 @@
       "test" : "popup_restores_browser_window"
     },
     {
-      "detail" : "[Regression.DownloadItem(id: 75E1A17B-190A-4639-A81D-6EE7BD1F9A98, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-10-29 03:02:45 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
+      "detail" : "[Regression.DownloadItem(id: 69A80C2F-CFF4-430D-A499-B68B97C5B26F, site: Regression.SiteID.portal, filename: \"review.pdf\", createdAt: 2026-11-08 14:43:09 +0000, state: Regression.DownloadItem.State.completed, progress: 1.0, bytes: 2009, error: nil, destinationBookmark: nil)]",
       "passed" : true,
       "test" : "renderable_pdf_attachment_download"
     },
@@ -2867,8 +3042,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-10-29T03:03:15Z",
+  "date" : "2026-11-08T14:43:39Z",
   "focus" : "full",
-  "passed" : true,
-  "runID" : "252720f4-8c59-4276-a820-26571ab83d8a"
+  "passed" : false,
+  "runID" : "d6863851-bcca-4999-9cc0-b1a7fca0e966"
 }

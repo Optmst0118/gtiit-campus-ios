@@ -75,6 +75,20 @@ private final class RetiredViewReference {
     }
     func remove(_ identifiers: [String]) { for id in identifiers { requests[id] = nil } }
 }
+@MainActor final class MockDailyNotifications: DailyNotificationDelivery {
+    var status: UNAuthorizationStatus = .authorized
+    var requests: [String: UNNotificationRequest] = [:]
+    var additions = 0
+    var failAdds = false
+    func authorization() async -> UNAuthorizationStatus { status }
+    func requestAuthorization() async -> Bool { status = .authorized; return true }
+    func pending() async -> [UNNotificationRequest] { Array(requests.values) }
+    func add(_ request: UNNotificationRequest) async throws {
+        if failAdds { throw CocoaError(.fileWriteUnknown) }
+        additions += 1; requests[request.identifier] = request
+    }
+    func removePending(_ identifiers: [String]) { for id in identifiers { requests[id] = nil } }
+}
 @main @MainActor final class RegressionApp: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var results: [[String: Any]] = []
@@ -342,6 +356,9 @@ private final class RetiredViewReference {
         ], updatedAt: now, verified: true)
         check("widget_uses_same_upcoming_deadline_window", widgetFixture.pending(at: now).map(\.id) == ["next"])
         check("widget_drops_item_as_deadline_passes", widgetFixture.pending(at: now.addingTimeInterval(3601)).isEmpty)
+        let widgetDates = widgetFixture.timelineDates(from: now)
+        check("widget_timeline_covers_deadline_and_stale_boundary", widgetDates.contains(now.addingTimeInterval(3601)) && widgetDates.contains(now.addingTimeInterval(6 * 3600)))
+        check("widget_timeline_covers_entering_window", widgetDates.contains(now.addingTimeInterval(86400)))
         check("widget_course_readable_without_generic_prefix", StudyWidgetSnapshot.courseName("00350001 - INTRODUCTION TO ROBOTICS - Winter 2026") == "Robotics")
         check("widget_shortens_redundant_assignment_title", StudyWidgetSnapshot.compactTitle("Homework 4 Assignment") == "Homework 4")
         check("upcoming_default_includes_10th_day", work(10).relevant(now: now))
@@ -446,15 +463,15 @@ private final class RetiredViewReference {
         let onlyA = StudentExam(course: "Test A", code: "PA", session: "A", date: "2027-02-15", time: "09:00", duration: 2, venue: "E101")
         check("personal_break_no_b_keeps_school_calendar", !AcademicCalendarStore.holidays(year: "2026-2027", exams: [onlyA]).contains { $0.id == "break-2026-2027-Winter" })
         let classNow = CampusDate.parse("2026-10-28")!.addingTimeInterval(7*3600)
-        let activitySnapshot = TimetableSnapshot(semester: "Test", validFrom: "2026-10-28", validUntil: "2026-11-10", courses: [LocalCourse(name: "Test Class", code: "ACT", group: "L1", weekday: 3, start: "09:00", end: "11:00", room: "E205", building: "SC")])
+        let activitySnapshot = TimetableSnapshot(semester: "Test", validFrom: "2026-10-28", validUntil: "2026-11-18", courses: [LocalCourse(name: "Test Class", code: "ACT", group: "L1", weekday: 3, start: "09:00", end: "11:00", room: "E205", building: "SC")])
         let classPlans = CourseActivityPlan.upcoming(activitySnapshot, now: classNow)
         check("class_activity_fifteen_minute_lead", classPlans.first?.start.timeIntervalSince(classPlans.first!.activate) == 900)
-        check("class_activity_room_and_two_slot_cap", classPlans.count == 2 && classPlans[0].room == "E205" && classPlans[0].building == "SC")
+        check("class_activity_all_upcoming_planned_in_order", classPlans.count >= 3 && classPlans.map(\.start) == classPlans.map(\.start).sorted() && classPlans[0].room == "E205" && classPlans[0].building == "SC")
         check("class_activity_identity_stable", classPlans == CourseActivityPlan.upcoming(activitySnapshot, now: classNow.addingTimeInterval(10)))
         check("class_activity_absent_without_timetable", CourseActivityPlan.upcoming(nil, now: classNow).isEmpty)
         check("class_activity_keeps_running_class", CourseActivityPlan.upcoming(activitySnapshot, now: classPlans[0].start).first?.id == classPlans[0].id)
-        check("class_activity_keeps_until_end_plus_five", CourseActivityPlan.upcoming(activitySnapshot, now: classPlans[0].end.addingTimeInterval(299)).first?.id == classPlans[0].id)
-        check("class_activity_expires_at_end_plus_five", CourseActivityPlan.upcoming(activitySnapshot, now: classPlans[0].end.addingTimeInterval(300)).allSatisfy { $0.id != classPlans[0].id })
+        check("class_activity_keeps_until_end_plus_ten", CourseActivityPlan.upcoming(activitySnapshot, now: classPlans[0].end.addingTimeInterval(599)).first?.id == classPlans[0].id)
+        check("class_activity_expires_at_end_plus_ten", CourseActivityPlan.upcoming(activitySnapshot, now: classPlans[0].end.addingTimeInterval(600)).allSatisfy { $0.id != classPlans[0].id })
         check("class_activity_plan_preserves_duration", classPlans.allSatisfy { $0.end > $0.start && $0.activate < $0.start })
         let activityAttributes = ShuttleActivityAttributes(directionTitle: "南 → 北", origin: "南校区", destination: "北校区", departureTime: "08:00", busLabel: "1 号", departedLabel: "已发车")
         let activityState = ShuttleActivityAttributes.ContentState(departureDate: Date().addingTimeInterval(300), busNumber: 1)
@@ -481,11 +498,40 @@ private final class RetiredViewReference {
         check("daily_reminders_sentence", dailyPlans.first?.lines.first == L10n.format("还有 %@ 项作业没交。", "1"))
         check("daily_reminders_no_course_code", dailyPlans.first?.lines.joined().contains(" · ") == false)
         check("daily_reminders_verified_empty_sentence", StudyDailyPlan.make(works: [], exams: [], days: 2, hour: 9, now: dailyNow, allowEmptySummary: true).first?.lines == [L10n.tr("已经没有作业了，接下来 3 天都没有作业。")])
+        for days in [3,7,14,31] {
+            let start = CampusDate.calendar.date(byAdding: .day, value: days, to: CampusDate.calendar.startOfDay(for: dailyNow))!.addingTimeInterval(10*3600)
+            let exam = StudentExam(course: "Milestone", code: "M", session: "A", date: CampusDate.key(start), time: "10:00", duration: 2, venue: "SC")
+            check("exam_\(days)_day_milestone_in_daily_digest", StudyDailyPlan.make(works: [], exams: [exam], days: 2, hour: 9, now: dailyNow).first?.date == dailyNow.addingTimeInterval(3600))
+            check("exam_\(days)_calendar_day_count", exam.daysUntil(from: dailyNow) == days)
+        }
         check("daily_reminders_empty", StudyDailyPlan.make(works: [], exams: [], days: 2, hour: 9, now: dailyNow).isEmpty)
+        let dailyDelivery = MockDailyNotifications()
+        let dailyCenter = StudyDailyReminders(delivery: dailyDelivery)
+        func reconcileDaily(_ work: [MoodleWork]) async {
+            dailyCenter.update(works: work, exams: [], days: 2, hour: 9, now: dailyNow)
+            await dailyCenter.waitForUpdates()
+        }
+        await reconcileDaily([dailyWork])
+        let original = dailyDelivery.requests
+        let originalAdds = dailyDelivery.additions
+        await reconcileDaily([dailyWork])
+        check("daily_reconcile_keeps_unchanged_requests", dailyDelivery.additions == originalAdds && dailyDelivery.requests.count == original.count && !original.isEmpty)
+        let changedWork = MoodleWork(url: dailyWork.url, name: "Changed homework", course: dailyWork.course, due: dailyWork.due, opened: nil, status: "notSubmitted", source: "assignment", kind: "assign")
+        dailyDelivery.failAdds = true
+        await reconcileDaily([changedWork])
+        check("daily_failed_replacement_preserves_pending", dailyCenter.failed && dailyDelivery.requests.keys.sorted() == original.keys.sorted() && dailyDelivery.requests.values.allSatisfy { $0.content.body.contains("Homework") })
+        dailyDelivery.failAdds = false
+        await reconcileDaily([changedWork])
+        check("daily_failed_replacement_retries", !dailyCenter.failed && dailyDelivery.requests.values.allSatisfy { $0.content.body.contains("Changed homework") })
+        await reconcileDaily([])
+        check("daily_removed_when_no_longer_needed", dailyDelivery.requests.isEmpty)
         testSharedSummaryInfrastructure()
         testMoodleCacheAndRange()
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "moodle" {
             await verifyUpcomingReader(); finish(); return
+        }
+        if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "study" {
+            await studentExamChecks(); await testCampusInbox(); await testMoodleDeadlineReminders(); finish(); return
         }
         await testCampusInbox()
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "inbox" { finish(); return }
@@ -1535,7 +1581,7 @@ extension RegressionApp {
             if(testFail&&u.searchParams.get('id')==='2')throw Error('UNAVAILABLE');
             body=u.pathname.includes('/quiz/')?(u.searchParams.get('id')==='2'?'<a href="view.php?id=77">HW 01 Integrals</a>'+(window.extraQuiz?'<a href="view.php?id=78">HW 02 Electric Field</a>':''):''):'<a href="https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id='+u.searchParams.get('id')+'">Synthetic assignment '+u.searchParams.get('id')+'</a>';
           }else if(u.pathname.includes('/quiz/')){
-            const state=window.quizMode==='finished'?'Finished<span class="statedetails">Submitted Tuesday, 20 October 2026, 3:41 PM</span>':window.quizMode==='abandoned'?'Never submitted':'In progress';
+            const state=window.quizMode==='notSubmitted'?'Not submitted':window.quizMode==='finished'?'Finished<span class="statedetails">Submitted Tuesday, 20 October 2026, 3:41 PM</span>':window.quizMode==='abandoned'?'Never submitted':'In progress';
             body='<div class="quizinfo"><p>This quiz will close on Thursday, 29 October 2026, 11:59 PM.</p></div><table class="generaltable quizattemptsummary"><thead><tr><th>Attempt</th><th>State</th><th>Grade</th><th>Review</th></tr></thead><tbody><tr><td>1</td><td>'+state+'</td><td>GRADE_SENTINEL</td><td>Review</td></tr>'+(window.quizMode==='newattempt'?'<tr><td>2</td><td>Finished<span class="statedetails">Submitted Tuesday, 20 October 2026, 3:41 PM</span></td><td>GRADE_SENTINEL</td><td>Review</td></tr>':'')+'</tbody></table><button>Re-attempt quiz</button>';
             if(u.searchParams.get('id')!=='77')body+='<div data-region="activity-dates"><span>Due <span data-timestamp="'+(1792620000+9*86400)+'"></span></span></div>';
           }else{
@@ -1551,6 +1597,16 @@ extension RegressionApp {
         check("upcoming_fixture_ready", await wait { web.title == "Upcoming fixture" && !web.isLoading })
         do {
             let script = try MoodleUpcomingStore.readerScript()
+            let helperURL = Bundle.main.url(forResource: "moodle-activity", withExtension: "js", subdirectory: "CampusData")!
+            let helper = try String(contentsOf: helperURL, encoding: .utf8)
+            for (name, html, kind, expected) in [
+                ("assignment_no_submission_phrase", "<main id='region-main'>" + String(repeating: "Course details ", count: 30) + "You have not made a submission yet.</main>", "assign", "notSubmitted"),
+                ("quiz_first_attempt_action", "<button>Attempt quiz now</button>", "quiz", "notSubmitted"),
+                ("quiz_finished_outweighs_action", "<table class='quizattemptsummary'><thead><tr><th>State</th></tr></thead><tbody><tr><td>Finished</td></tr></tbody></table><button>Attempt quiz now</button>", "quiz", "submitted")
+            ] {
+                let raw = try await web.callAsyncJavaScript(helper + "\nreturn readMoodleActivity(new DOMParser().parseFromString(html,'text/html'), kind).status;", arguments: ["html": html, "kind": kind], in: nil, contentWorld: .page)
+                check(name, raw as? String == expected)
+            }
             func read() async throws -> MoodleUpcomingResult {
                 let raw = try await web.callAsyncJavaScript(script, arguments: ["now": 1792620000, "jobID": "fixture"], in: nil, contentWorld: .page)
                 return try JSONDecoder().decode(MoodleUpcomingResult.self, from: Data((raw as! String).utf8))
@@ -1566,7 +1622,7 @@ extension RegressionApp {
             let itemsJSON = String(data: try JSONEncoder().encode(result.items), encoding: .utf8)!
             let beforeDirectoryCalls = await js(web, "classifications.length")
             let detailCount = await js(web, "calls.filter(c=>new URL(c.url).pathname.endsWith('view.php')&&new URL(c.url).searchParams.get('id')==='2').length")
-            _ = try await web.callAsyncJavaScript(script, arguments: ["now": 1792620000, "jobID": "cached-fixture", "cachedDirectoryJSON": directoryJSON, "refreshDirectory": false, "cachedItemsJSON": itemsJSON], in: nil, contentWorld: .page)
+            _ = try await web.callAsyncJavaScript(script, arguments: ["now": 1792620000, "jobID": "cached-fixture", "cachedDirectoryJSON": directoryJSON, "refreshDirectory": false, "cachedItemsJSON": itemsJSON, "forceDetails": true], in: nil, contentWorld: .page)
             check("cached_course_directory_avoids_repeat_requests", await js(web, "classifications.length") == beforeDirectoryCalls)
             check("submitted_assignment_detail_rechecked", Int(await js(web, "calls.filter(c=>new URL(c.url).pathname.endsWith('view.php')&&new URL(c.url).searchParams.get('id')==='2').length"))! > Int(detailCount)!)
             let cache = MoodleUpcomingStore(directory: folder)
@@ -1588,6 +1644,16 @@ extension RegressionApp {
             let cachedBrowser = BrowserModel(site: .moodle, router: cachedRouter)
             restored.refresh(browser: cachedBrowser, allowed: { true })
             check("upcoming_recent_cache_does_not_trigger_scan", !restored.refreshing && restored.items.count == 3 && MoodleUpcomingStore.refreshInterval == 1800)
+            if let token = restored.refresh(browser: cachedBrowser, force: true, background: true, allowed: { true }) {
+                restored.cancelRefresh(UUID())
+                check("background_wrong_token_cannot_cancel_refresh", restored.refreshing)
+                restored.cancelRefresh(token)
+                let completed = await restored.waitForRefresh(token)
+                check("background_cancel_preserves_cached_snapshot", !completed && !restored.refreshing && restored.items.count == 3)
+            } else {
+                check("background_wrong_token_cannot_cancel_refresh", false)
+                check("background_cancel_preserves_cached_snapshot", false)
+            }
             check("upcoming_course_directory_present_before_clear", !restored.courseItems.isEmpty)
             restored.cancel(clear: true)
             check("upcoming_clear_removes_in_memory_courses", restored.courseItems.isEmpty && restored.items.isEmpty && restored.status == .notConnected)
@@ -1629,11 +1695,14 @@ extension RegressionApp {
             let stressJSON = String(data: try JSONEncoder().encode(stressDirectory), encoding: .utf8)!
             let stressRaw = try await web.callAsyncJavaScript(script, arguments: ["now": 1792620000, "jobID": "concurrency-fixture", "cachedDirectoryJSON": stressJSON, "refreshDirectory": false, "cachedItemsJSON": "[]"], in: nil, contentWorld: .page)
             let stressResult = try JSONDecoder().decode(MoodleUpcomingResult.self, from: Data((stressRaw as! String).utf8))
-            let peakBounded = await js(web, "peakRequests===6")
-            check("upcoming_six_requests_parallel_bounded_and_complete", stressResult.checked == 12 && stressResult.courses == 12 && peakBounded == "true")
+            let peakBounded = await js(web, "peakRequests<=2 && peakRequests>0")
+            check("upcoming_two_requests_parallel_bounded_and_complete", stressResult.checked == 12 && stressResult.courses == 12 && peakBounded == "true")
             check("upcoming_job_progress_and_requests_cleaned_up", await js(web, "inflight===0 && !window.__gtiitUpcomingJob && !window.__gtiitUpcomingDirectory") == "true")
 
             check("upcoming_submitted_not_in_todo", result.items.filter { $0.relevant(now: Date(timeIntervalSince1970: 1792620000)) }.count == 2)
+            _ = await js(web,"quizMode='notSubmitted'")
+            let notSubmitted = try await read()
+            check("quiz_literal_not_submitted_recognized", notSubmitted.items.first { $0.kind == "quiz" }?.status == "notSubmitted")
             _ = await js(web,"quizMode='finished'")
             let finishedQuiz = try await read()
             check("physics_real_finished_attempt_hidden_even_with_reattempt_button", finishedQuiz.items.first { $0.kind == "quiz" }?.isSubmitted == true)

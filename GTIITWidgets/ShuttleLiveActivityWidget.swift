@@ -17,8 +17,10 @@ struct ShuttleLiveActivityWidget: Widget {
                         isStale: context.isStale, island: true)
                 }
             } compactLeading: {
-                Text(ShuttleActivityWords.compact(context.attributes))
-                    .font(.system(size: 12, weight: .semibold)).foregroundStyle(ActivityPalette.orange)
+                Text(context.attributes.languageCode == "en" ?
+                    (context.attributes.destination.lowercased().contains("north") ? "North" : "South") :
+                    (context.attributes.destination.contains("北") ? "北校" : "南校"))
+                    .font(.system(size: 13, weight: .semibold)).foregroundStyle(ActivityPalette.orange)
                     .lineLimit(1).frame(width: 58, alignment: .center)
             } compactTrailing: {
                 ShuttleActivityCountdown(date: context.state.departureDate, expired: context.isStale,

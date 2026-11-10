@@ -1,20 +1,45 @@
 import SwiftUI
+import UserNotifications
 
 struct CampusInboxView: View {
     @EnvironmentObject private var app: AppModel
     @ObservedObject var sync: CampusSessionSync
     @ObservedObject var upcoming: MoodleUpcomingStore
+    @ObservedObject var exams: StudentExamStore
+    @EnvironmentObject private var settings: AppSettings
+    @ObservedObject private var notifications = ShuttleNotificationCenter.shared
     @AppStorage("campusInboxBeta") private var beta = false
     var body: some View {
         TimelineView(.periodic(from: .now, by: 30)) { context in
             let assignments = CampusInboxPolicy.assignments(upcoming.items, now: context.date)
             let reservations = CampusInboxPolicy.reservations(sync.reservations, now: context.date)
-            let loginSites = CampusInboxPolicy.loginSites(sync.states, beta: beta)
-            let empty = assignments.isEmpty && reservations.isEmpty && loginSites.isEmpty
+            let loginSites = SiteID.allCases
+            let digest = StudyDailyPlan.make(works: settings.moodleDeadlineRemindersEnabled ? upcoming.items.filter { ($0.dueDate ?? .distantPast) > context.date } : [], exams: settings.examRemindersEnabled ? exams.items : [], days: settings.moodleReminderLead.rawValue / 24, hour: settings.studyReminderHour, now: context.date, includePastToday: true).first { CampusDate.calendar.isDate($0.date, inSameDayAs: context.date) }
             List {
-                if empty && !beta {
-                    ContentUnavailableView(L10n.tr("暂无新通知"), systemImage: "bell")
-                        .listRowBackground(Color.clear)
+                if let digest {
+                    Section(L10n.tr("今日提醒")) {
+                        Text(digest.lines.joined(separator: "\n")).font(.subheadline)
+                    }
+                }
+                if !exams.upcoming.isEmpty {
+                    Section(L10n.tr("临近考试")) {
+                        ForEach(exams.upcoming.filter { ($0.daysUntil(from: context.date) ?? 999) <= 31 }) { exam in
+                            StudentExamRow(exam: exam)
+                        }
+                    }
+                }
+                if !notifications.delivered.isEmpty {
+                    Section(L10n.tr("已送达")) {
+                        ForEach(notifications.delivered, id: \.request.identifier) { notification in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(notification.request.content.title)
+                                if !notification.request.content.body.isEmpty {
+                                    Text(notification.request.content.body).font(.subheadline).foregroundStyle(.secondary)
+                                }
+                                Text(notification.date.gtiitFormatted()).font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                    }
                 }
                 if beta || !assignments.isEmpty { Section(L10n.tr("24 小时内截止")) {
                     if assignments.isEmpty { Text(L10n.tr("暂无即将截止的作业")).foregroundStyle(Color.secondary) }
@@ -60,7 +85,7 @@ struct CampusInboxView: View {
                                 Image(systemName: site.symbol).foregroundStyle(Theme.accent).frame(width: 24)
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(site.displayName).foregroundStyle(Color.primary)
-                                    Text((sync.states[site] ?? .unknown).title).font(.caption)
+                                    Text(sync.displayTitle(for: site)).font(.caption)
                                         .foregroundStyle(sync.states[site] == .needsLogin ? Theme.orange : Color.secondary)
                                 }
                                 Spacer()
@@ -75,9 +100,15 @@ struct CampusInboxView: View {
                 if beta { Section { NavigationLink { CampusCacheView(sync: sync, upcoming: upcoming, exams: app.exams) } label: { Label(L10n.tr("本地校园信息"), systemImage: "internaldrive") } } }
             }
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
-            .refreshable { app.refreshCampusSessions(force: true); app.refreshMoodleSummary(force: true) }
+            .refreshable { app.refreshCampusSessions(force: true); app.refreshMoodleSummary(force: true); exams.refresh(force: true, allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData }); await notifications.refreshStatus() }
         }
         .navigationTitle(L10n.tr("通知中心")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+        .task {
+            while !Task.isCancelled {
+                await notifications.refreshStatus()
+                do { try await Task.sleep(for: .seconds(30)) } catch { return }
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
@@ -153,10 +184,12 @@ struct CampusCacheView: View {
 struct CampusInboxToolbarButton: View {
     @ObservedObject var sync: CampusSessionSync
     @ObservedObject var upcoming: MoodleUpcomingStore
+    @ObservedObject var exams: StudentExamStore
     let action: () -> Void
     var body: some View {
         TimelineView(.periodic(from: .now, by: 30)) { context in
-            let count = CampusInboxPolicy.assignments(upcoming.items, now: context.date).count
+            let examCount = exams.upcoming.filter { [0,3,7,14,31].contains($0.daysUntil(from: context.date) ?? -1) }.count
+            let count = examCount + CampusInboxPolicy.assignments(upcoming.items, now: context.date).count
                 + CampusInboxPolicy.reservations(sync.reservations, now: context.date).count
                 + CampusInboxPolicy.loginSites(sync.states, beta: false).count
             Button(action: action) {

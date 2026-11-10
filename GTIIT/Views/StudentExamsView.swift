@@ -14,7 +14,7 @@ struct StudentExamsEntry: View {
                     if store.refreshing { ProgressView().controlSize(.small) }
                 }.foregroundStyle(Theme.accent)
                 if let exam = store.upcoming.first {
-                    if let start = exam.start, start.timeIntervalSinceNow <= 14 * 86400 { StudentExamRow(exam: exam) }
+                    if exam.start != nil { StudentExamRow(exam: exam) }
                     else {
                         HStack(alignment: .firstTextBaseline) {
                             Text(exam.course).font(.subheadline).lineLimit(1)
@@ -62,13 +62,15 @@ struct StudentExamsView: View {
             }
             Button(L10n.tr("在 Student 核对")) { app.openSite(.portal) }
         }.nativeDetailSurface(title: L10n.tr("临近考试"))
+            .onAppear { refresh() }
+            .refreshable { refresh() }
             .toolbar { ToolbarItem(placement: .topBarTrailing) { Button { refresh() } label: { Image(systemName: "arrow.clockwise") }.disabled(store.refreshing).accessibilityLabel(L10n.tr("更新考试安排")) } }
     }
     private func refresh() {
         store.refresh(force: true, allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData })
     }
 }
-private struct StudentExamRow: View {
+struct StudentExamRow: View {
     let exam: StudentExam
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -77,8 +79,24 @@ private struct StudentExamRow: View {
             if let date = exam.start {
                 Label { Text(date, format: .dateTime.month().day().weekday().hour().minute().timeZone(.specificName(.short))).monospacedDigit() } icon: { Image(systemName: "calendar") }.font(.subheadline).foregroundStyle(Theme.accent)
             }
+            TimelineView(.periodic(from: .now, by: 60)) { context in
+                if let days = exam.daysUntil(from: context.date), days >= 0 {
+                    Text(L10n.format("还有 %@ 天", String(days))).font(.subheadline.weight(.medium)).foregroundStyle(Theme.accent)
+                }
+            }
             Label(exam.venue.isEmpty ? L10n.tr("地点待定") : exam.venue, systemImage: "mappin.and.ellipse").font(.subheadline).foregroundStyle(.secondary)
             if exam.duration > 0 { Text(L10n.format("时长 %@ 小时", String(exam.duration))).font(.caption).foregroundStyle(.secondary) }
         }.environment(\.timeZone, TimeZone(identifier: "Asia/Shanghai")!).accessibilityElement(children: .combine)
+    }
+}
+
+struct StudentExamProbe: View {
+    @ObservedObject var store: StudentExamStore
+    var body: some View {
+        Group {
+            if let web = store.webView {
+                CampusSessionProbeHost(webView: web).id(ObjectIdentifier(web))
+            }
+        }.allowsHitTesting(false).accessibilityHidden(true).opacity(0.01)
     }
 }

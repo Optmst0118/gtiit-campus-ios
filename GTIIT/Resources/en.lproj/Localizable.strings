@@ -944,6 +944,8 @@
 "6 小时内的预约" = "Bookings in the next 6 hours";
 "尚未确认登录状态" = "Sign-in status not confirmed";
 "已登录" = "Signed in";
+"未登录" = "Signed out";
+"已送达" = "Delivered";
 "暂无即将开始的预约" = "No upcoming bookings";
 "暂无即将截止的作业" = "No assignments due soon";
 "暂无已缓存课程" = "No cached courses";
@@ -1034,3 +1036,13 @@
 "即将截止" = "Upcoming deadlines";
 "南校区 → 北校区" = "South → North";
 "北校区 → 南校区" = "North → South";
+
+"即将开放" = "Opening soon";
+
+"暂无即将开放的作业" = "No assignments opening soon";
+
+"今日提醒" = "Today";
+
+"请稍后重试更新" = "Please wait briefly before refreshing again";
+
+"取消更新" = "Cancel refresh";

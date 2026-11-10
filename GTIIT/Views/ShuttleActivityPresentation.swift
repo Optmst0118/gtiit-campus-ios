@@ -29,6 +29,7 @@ struct ActivityGlassCard: View {
     let target: Date
     var expired = false
     let badge: String
+    var shortBadge: String? = nil
     let detail: String
     let accent: Color
     var language: String?
@@ -49,7 +50,10 @@ struct ActivityGlassCard: View {
                     Text(detail).font(.system(size: 11).monospacedDigit()).foregroundStyle(.secondary)
                         .lineLimit(1).minimumScaleFactor(0.75)
                 }.frame(maxWidth: .infinity, alignment: .leading)
-                Text(badge).font(.system(size: island ? 30 : 36, weight: .bold, design: .rounded))
+                ViewThatFits(in: .horizontal) {
+                    Text(badge).fixedSize()
+                    Text(shortBadge ?? badge).fixedSize()
+                }.font(.system(size: island ? 30 : 36, weight: .bold, design: .rounded))
                     .lineLimit(2).minimumScaleFactor(0.55).multilineTextAlignment(.center)
                     .foregroundStyle(Color(red: 0.06, green: 0.10, blue: 0.14))
                     .padding(10).frame(width: geometry.size.width * 0.43, height: geometry.size.height)
@@ -72,7 +76,8 @@ struct CourseActivitySummary: View {
         ActivityGlassCard(title: attributes.title,
             caption: attributes.language == "en" ? "Starts in" : "距上课",
             target: state.start, expired: isStale,
-            badge: attributes.room.isEmpty ? "—" : CourseLocationPresentation.room(attributes.room),
+            badge: attributes.room.isEmpty ? "—" : attributes.room,
+            shortBadge: CourseLocationPresentation.room(attributes.room),
             detail: ShuttleActivityWords.time(state.start) + (attributes.building.isEmpty ? "" : " · " + attributes.building),
             accent: ActivityPalette.blue, language: attributes.language,
             passedText: attributes.language == "en" ? "Started" : "已上课", island: island, systemSurface: systemSurface)

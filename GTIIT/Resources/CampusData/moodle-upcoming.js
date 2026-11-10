@@ -9,7 +9,7 @@ const controller = new AbortController();
 controller.jobID = jobID;
 window.__gtiitUpcomingJob = controller;
 const signal = controller.signal;
-const deadline = setTimeout(()=>controller.abort(), 100000);
+const deadline = setTimeout(()=>controller.abort(), typeof readTimeoutMs === 'number' ? Math.max(1000, Math.min(100000, readTimeoutMs)) : 100000);
 const base = new URL(M.cfg.wwwroot);
 if (base.origin !== location.origin || base.pathname.replace(/\/$/,'') !== '/moodle') throw Error('UNEXPECTED_ROOT');
 const clean = x => String(x ?? '').replace(/\s+/g,' ').trim().slice(0,240);
@@ -21,7 +21,7 @@ const safeURL = (value, kind) => {
 };
 // A single request budget covers calendar RPCs, course pages and assignments.
 // Cancellation drains queued work as well as aborting in-flight fetches.
-const requestLimit=6, waiters=[];let activeRequests=0;
+const requestLimit=2, waiters=[];let activeRequests=0,totalRequests=0;
 const acquire=()=>new Promise((resolve,reject)=>{
  const run=()=>{if(signal.aborted){reject(Error('CANCELLED'));return;}
   activeRequests++;resolve(()=>{activeRequests--;waiters.shift()?.();});};
@@ -30,11 +30,13 @@ const acquire=()=>new Promise((resolve,reject)=>{
 signal.addEventListener('abort',()=>{for(const run of waiters.splice(0))run();},{once:true});
 const request = async (url, options={}) => {
   if(signal.aborted) throw Error('CANCELLED');
+  if(++totalRequests>96)throw Error('REQUEST_BUDGET');
   const release=await acquire();
+  await new Promise(resolve=>setTimeout(resolve,250));
   const local = new AbortController();
   const stop=()=>local.abort(); signal.addEventListener('abort',stop,{once:true});
   const timer=setTimeout(stop,12000);
-  try { const response=await fetch(url,{...options,credentials:'same-origin',signal:local.signal});
+  try { const response=await fetch(url,{...options,credentials:'same-origin',cache:'no-cache',signal:local.signal});
     if(!response.ok || new URL(response.url).origin!==base.origin || /\/login\//.test(new URL(response.url).pathname)) throw Error('UNAVAILABLE');
     const body = await response.text();
     return {text:async()=>body,json:async()=>JSON.parse(body)};
@@ -170,6 +172,9 @@ try {
  await pool(pages,async(a)=>{
    const cached=cachedWork.get(a.url);
    const previous=cachedWork.get(a.url);
+   const age=previous?.checkedAt ? now-previous.checkedAt : Infinity;
+   const freshFor=previous?.status==='submitted'?21600:previous?.status==='unknown'?60:300;
+   if(!(typeof forceDetails==='boolean'&&forceDetails) && previous && age<freshFor){merge({...previous,...a});return;}
    if(previous)merge({...previous,...a});
    const doc=await html(a.url);
    const detail=readMoodleActivity(doc,a.kind);

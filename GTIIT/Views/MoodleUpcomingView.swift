@@ -46,7 +46,12 @@ struct MoodleUpcomingView: View {
     @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var app: AppModel
     @ObservedObject var store: MoodleUpcomingStore
-    private var upcoming: [MoodleWork] { store.upcoming(days: settings.moodleUpcomingRange.rawValue) }
+    @State private var now = Date()
+    private var upcoming: [MoodleWork] { store.upcoming(now: now, days: settings.moodleUpcomingRange.rawValue) }
+    private var opening: [MoodleWork] {
+        store.items.filter { !$0.isSubmitted && StudyDeadlineWindow.contains($0.openedDate, now: now, days: settings.moodleUpcomingRange.rawValue) && ($0.openedDate ?? .distantPast) > now }
+            .sorted { $0.openedDate! < $1.openedDate! }
+    }
     var body: some View {
         let _ = nativeLocale.identifier
         List {
@@ -73,12 +78,20 @@ struct MoodleUpcomingView: View {
             } header: { Text(L10n.tr("即将截止")) } footer: {
                 if let date = store.updatedAt { Text(L10n.tr("最近更新") + " · " + date.gtiitFormatted()).font(.caption) }
             }
+            Section(L10n.tr("即将开放")) {
+                ForEach(opening) { item in
+                    Button { open(item) } label: { MoodleWorkText(item: item) }
+                        .buttonStyle(CardPressStyle())
+                }
+                if opening.isEmpty { Text(L10n.tr("暂无即将开放的作业")).foregroundStyle(.secondary) }
+            }
         }.nativeDetailSurface(title: L10n.tr("临近作业"))
             .toolbar { ToolbarItem(placement: .topBarTrailing) {
-                Button { refresh() } label: { Image(systemName: "arrow.clockwise") }
-                    .disabled(store.refreshing).accessibilityLabel(L10n.tr("更新日程"))
+                Button { if store.refreshing { store.cancel() } else { refresh() } } label: { Image(systemName: store.refreshing ? "xmark" : "arrow.clockwise") }
+                    .accessibilityLabel(L10n.tr(store.refreshing ? "取消更新" : "更新日程"))
             } }
-            .onAppear { app.refreshMoodleSummary(force: true) }
+            .onReceive(Timer.publish(every: 30, on: .main, in: .common).autoconnect()) { now = $0 }
+            .onAppear { app.refreshMoodleSummary() }
             .refreshable { app.refreshMoodleSummary(force: true) }
     }
     private func refresh() {

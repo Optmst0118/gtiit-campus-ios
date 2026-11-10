@@ -16,11 +16,12 @@ struct CourseLiveActivityWidget: Widget {
                 }
             } compactLeading: {
                 ViewThatFits(in: .horizontal) {
+                    Text([context.attributes.building, context.attributes.room].filter { !$0.isEmpty }.joined(separator: " · ")).fixedSize()
                     Text(CourseLocationPresentation.room(context.attributes.room)).fixedSize()
                     Text(context.attributes.building).fixedSize()
                     Image(systemName: "mappin")
                 }.font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(ActivityPalette.blue).frame(width: 58, alignment: .center)
+                    .foregroundStyle(ActivityPalette.blue).frame(maxWidth: 110, alignment: .center)
             } compactTrailing: {
                 ShuttleActivityCountdown(date: context.state.start, expired: context.isStale,
                     language: context.attributes.language, expiredLabel: context.attributes.language == "en" ? "Started" : "已上课", centered: true)
