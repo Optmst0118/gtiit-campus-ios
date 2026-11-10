@@ -337,6 +337,29 @@ private final class RetiredViewReference {
         browser.webView.removeFromSuperview()
     }
 
+    func testExamWidgetRoutes() {
+        let date = CampusDate.parse("2026-11-22")!.addingTimeInterval(9 * 3600)
+        let item = ExamWidgetSnapshot.Item(id: "exam", course: "Physics", date: date, end: date.addingTimeInterval(7200), venue: "SC L-110", sitting: "A 考")
+        let snapshot = ExamWidgetSnapshot(items: [item], updatedAt: date)
+        check("exam_widget_stays_during_exam", snapshot.upcoming(at: date.addingTimeInterval(3600)).count == 1)
+        check("exam_widget_expires_at_end", snapshot.upcoming(at: item.end).isEmpty)
+        check("exam_widget_url_uses_campus_day", item.calendarURL.absoluteString == "gtiit-beta://calendar?date=2026-11-22")
+        check("exam_widget_timeline_includes_end", snapshot.timelineDates(from: date).contains(item.end))
+        let prefs = UserDefaults(suiteName: "exam-route-test")!
+        defer { prefs.removePersistentDomain(forName: "exam-route-test") }
+        let settings = AppSettings(defaults: prefs); settings.preloadSitesOnLaunch = false
+        let app = AppModel(settings: settings)
+        app.handleShuttleURL(item.calendarURL)
+        check("exam_widget_opens_calendar_selected_day", app.selectedTab == .me && app.nativePath == [.calendarDay("2026-11-22")])
+        app.handleShuttleURL(URL(string: "gtiit-beta://calendar?date=2026-02-31")!)
+        check("exam_widget_rejects_invalid_day", app.nativePath == [.calendarDay("2026-11-22")])
+        app.nativePath = [.assignments]
+        app.openWeb(URL(string: "https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php?id=1")!, site: .moodle)
+        check("assignment_web_keeps_parent_page", app.selectedTab == .me && app.nativePath.count == 2 && app.nativePath.first == .assignments)
+        app.nativePath.removeLast()
+        check("assignment_web_pop_returns_to_assignments", app.nativePath == [.assignments])
+    }
+
     func testMessageEvents() {
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent("messages-" + UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: folder) }
@@ -401,7 +424,7 @@ private final class RetiredViewReference {
         }
         for cycle in 0..<4 {
             let begin = Date()
-            app.openNativeDetail(.inbox) // Exactly the action used by the home bell.
+            app.pushNativeDetail(.inbox) // Exactly the action used by the home bell.
             try? await Task.sleep(for: .milliseconds(350))
             let pushed = navigations(host).contains { $0.topViewController?.navigationItem.title == L10n.tr("通知中心") }
             check("inbox_home_push_\(cycle)_completes", pushed && Date().timeIntervalSince(begin) < 2)
@@ -412,6 +435,15 @@ private final class RetiredViewReference {
             let popped = await wait(2) { !navigations(host).contains { $0.topViewController?.navigationItem.title == L10n.tr("通知中心") } }
             check("inbox_home_pop_\(cycle)_completes", popped)
         }
+        app.pushNativeDetail(.settings)
+        try? await Task.sleep(for: .milliseconds(350))
+        app.pushNativeDetail(.calendarDay("2026-11-22"))
+        try? await Task.sleep(for: .milliseconds(350))
+        check("third_level_route_preserves_settings_parent", app.nativePath == [.settings, .calendarDay("2026-11-22")])
+        app.nativePath.removeLast()
+        let settingsReturned = await wait(2) { navigations(host).contains { $0.topViewController?.navigationItem.title == L10n.tr("设置") } }
+        check("third_level_pop_returns_to_settings_not_home", settingsReturned && app.nativePath == [.settings])
+        app.nativePath = []
         app.upcoming.cancel(); app.exams.cancel(); app.campusSync.cancel()
     }
 
@@ -656,6 +688,7 @@ private final class RetiredViewReference {
             await verifyUpcomingReader(); finish(); return
         }
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "study" {
+            testExamWidgetRoutes()
             testMessageEvents()
             await testInboxNavigation()
             await testInboxFirstRender()

@@ -28,6 +28,15 @@ import WidgetKit
             north: ShuttleSchedule.upcoming(.southToNorth, after: now, teachingWeek: true, limit: 1).first,
             south: ShuttleSchedule.upcoming(.northToSouth, after: now, teachingWeek: true, limit: 1).first, english: english))
     }
+    static func exam(_ family: WidgetFamily, english: Bool = false) -> some View {
+        let courses = ["Ordinary Differential Equations", "Thermodynamics 1", "Creative Mechanical Engineering"]
+        var items: [ExamWidgetSnapshot.Item] = []
+        for index in 0..<6 {
+            let date = now.addingTimeInterval(Double(index + 1) * 86400)
+            items.append(ExamWidgetSnapshot.Item(id: String(index), course: courses[index % 3], date: date, end: date.addingTimeInterval(7200), venue: "SC L-110 · L-111", sitting: index > 2 ? "A 考" : nil))
+        }
+        return ExamHomeView(familyOverride: family, entry: .init(date: now, snapshot: .init(items: items, updatedAt: now), english: english))
+    }
     static func render() {
         let root = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let warmup = ImageRenderer(content: study(.systemSmall).frame(width: 170, height: 170))
@@ -42,6 +51,7 @@ import WidgetKit
                     renderer.scale = 2
                     try? renderer.uiImage?.pngData()?.write(to: root.appendingPathComponent("\(name)-\(label)-\(dark ? "dark" : "light").png"))
                 }
+                save(exam(family), "exam"); save(exam(family, english: true), "exam-en")
                 save(study(family), "study"); save(study(family, english: true), "study-en")
                 if family != .systemLarge {
                     save(shuttle(family), "shuttle")

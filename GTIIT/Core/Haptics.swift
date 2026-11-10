@@ -1,4 +1,5 @@
 import UIKit
+import SwiftUI
 
 /// Short, deliberate tactile events; one event per interaction.
 @MainActor enum Haptics {
@@ -30,7 +31,25 @@ import UIKit
         guard accept() else { return }
         soft.impactOccurred(intensity: 0.95); soft.prepare()
     }
+    static func navigationCompleted() {
+        // A destination reached after an explicit tactile action must not buzz twice.
+        guard ProcessInfo.processInfo.systemUptime - lastEvent >= 0.6 else { return }
+        light()
+    }
     static func success() { guard accept() else { return }; notification.notificationOccurred(.success); notification.prepare() }
     static func warning() { guard accept() else { return }; notification.notificationOccurred(.warning); notification.prepare() }
     static func error() { guard accept() else { return }; notification.notificationOccurred(.error); notification.prepare() }
+}
+
+// Settings feedback is attached to committed value changes, not touch-down,
+// so scrolling past a control does not vibrate.
+
+@MainActor extension Binding where Value: Equatable {
+    func withSelectionFeedback() -> Binding<Value> {
+        Binding(get: { wrappedValue }, set: { value in
+            guard value != wrappedValue else { return }
+            Haptics.selection()
+            wrappedValue = value
+        })
+    }
 }

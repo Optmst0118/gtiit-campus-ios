@@ -9,7 +9,7 @@ struct LanguageSettingsView: View {
         List {
             Section {
                 ForEach(AppLanguage.allCases) { language in
-                    Button { settings.language = language } label: {
+                    Button { Haptics.selection(); settings.language = language } label: {
                         HStack {
                             Text(language.title).foregroundStyle(.primary)
                             Spacer()

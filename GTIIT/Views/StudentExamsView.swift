@@ -14,14 +14,21 @@ struct StudentExamsEntry: View {
             }.foregroundStyle(Theme.accent)
             ForEach(groups, id: \.self) { kind in
                 let exams = store.upcoming.filter { $0.kind == kind }
-                NavigationLink { CampusDetailPage(destination: .exams) } label: {
-                    VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 10) {
+                    NavigationLink { CampusDetailPage(destination: .exams) } label: {
                         HStack { Text(kind.title).font(.headline); Spacer(); Image(systemName: "chevron.right").font(.caption).foregroundStyle(.secondary) }
-                        if let exam = exams.first { StudentExamRow(exam: exam) }
-                        else { Text(L10n.tr(store.loginRequired ? "登录 Student 后查看考试" : "暂无即将举行的考试")).font(.subheadline).foregroundStyle(.secondary) }
-                        if exams.count > 1 { Text(L10n.format("另有 %@ 场考试", String(exams.count - 1))).font(.caption).foregroundStyle(.secondary) }
-                    }.padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
-                }.buttonStyle(CardPressStyle())
+                    }.buttonStyle(.plain)
+                    if let exam = exams.first {
+                        NavigationLink { AcademicCalendarView(selectedDate: exam.start) } label: { StudentExamRow(exam: exam) }.buttonStyle(.plain)
+                    } else {
+                        Text(L10n.tr(store.loginRequired ? "登录 Student 后查看考试" : "暂无即将举行的考试")).font(.subheadline).foregroundStyle(.secondary)
+                    }
+                    if exams.count > 1 {
+                        NavigationLink { CampusDetailPage(destination: .exams) } label: {
+                            Text(L10n.format("另有 %@ 场考试", String(exams.count - 1))).font(.caption).foregroundStyle(.secondary)
+                        }.buttonStyle(.plain)
+                    }
+                }.padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
             }
         }
         .task {
@@ -46,7 +53,7 @@ struct StudentExamsView: View {
                 let exams = store.upcoming.filter { $0.kind == kind }
                 Section(kind.title) {
                     if exams.isEmpty { Text(L10n.tr("暂无即将举行的考试")).foregroundStyle(.secondary) }
-                    ForEach(exams) { exam in StudentExamRow(exam: exam).padding(.vertical, 6) }
+                    ForEach(exams) { exam in NavigationLink { AcademicCalendarView(selectedDate: exam.start) } label: { StudentExamRow(exam: exam).padding(.vertical, 6) } }
                 }
             }
             Section {
@@ -69,7 +76,7 @@ struct StudentExamRow: View {
     @State private var now = Date()
     @Environment(\.dynamicTypeSize) private var typeSize
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .top, spacing: 12) {
             if let date = exam.start {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(exam.shortDateLabel).font(.system(.title3, design: .rounded).weight(.semibold)).monospacedDigit().foregroundStyle(Theme.accent)

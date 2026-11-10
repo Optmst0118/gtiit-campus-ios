@@ -107,7 +107,6 @@ private struct BrowserChrome: View {
     private var menu: some View {
         Menu {
             Button { model.loadHome() } label: { Label(L10n.tr("回到站点首页"), systemImage: "house") }
-            Toggle(isOn: appearanceBinding) { Label(L10n.tr("暗色适配"), systemImage: "moon") }.disabled(!settings.webDarkMode)
             Button { app.showDownloads = true } label: { Label(L10n.tr("下载"), systemImage: "arrow.down.circle") }
             Button { model.reloadFromOrigin() } label: { Label(L10n.tr("强制刷新（忽略缓存）"), systemImage: "arrow.trianglehead.2.clockwise.rotate.90") }
             Button { app.siteInfo = model.site } label: { Label(L10n.tr("站点说明"), systemImage: "info.circle") }

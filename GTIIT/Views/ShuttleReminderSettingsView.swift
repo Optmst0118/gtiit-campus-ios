@@ -9,7 +9,6 @@ struct ShuttleReminderSettingsView: View {
     @State private var message: String?
 
     var body: some View {
-        NavigationStack {
             Form {
                 Section {
                     LabeledContent(L10n.tr("通知权限"), value: statusText)
@@ -28,12 +27,12 @@ struct ShuttleReminderSettingsView: View {
                 }
 
                 Section {
-                    Picker(L10n.tr("常用方向"), selection: $settings.favoriteShuttleDirection) {
+                    Picker(L10n.tr("常用方向"), selection: $settings.favoriteShuttleDirection.withSelectionFeedback()) {
                         ForEach(ShuttleDirection.allCases) { direction in
                             Text(direction.title).tag(direction)
                         }
                     }
-                    Picker(L10n.tr("提前时间"), selection: $settings.shuttleReminderLead) {
+                    Picker(L10n.tr("提前时间"), selection: $settings.shuttleReminderLead.withSelectionFeedback()) {
                         Text(L10n.tr("5 分钟")).tag(5)
                         Text(L10n.tr("10 分钟")).tag(10)
                         Text(L10n.tr("15 分钟")).tag(15)
@@ -48,7 +47,7 @@ struct ShuttleReminderSettingsView: View {
                             message = nil
                         }
                     }
-                    Toggle(L10n.tr("隐藏提醒详情"), isOn: $settings.privateShuttleReminders)
+                    Toggle(L10n.tr("隐藏提醒详情"), isOn: $settings.privateShuttleReminders.withSelectionFeedback())
                 }
 
                 if let message {
@@ -59,14 +58,8 @@ struct ShuttleReminderSettingsView: View {
             }
             .navigationTitle(L10n.tr("班车提醒"))
             .navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(L10n.tr("完成")) { dismiss() }
-                }
-            }
             .task { await notifications.refreshStatus() }
             .onChange(of: scenePhase) { _, phase in if phase == .active { Task { await notifications.refreshStatus() } } }
-        }
     }
 
     private var statusText: String {

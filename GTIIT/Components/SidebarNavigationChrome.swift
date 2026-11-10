@@ -135,7 +135,14 @@ private struct SidebarNavigationProbe: UIViewControllerRepresentable {
         private let gestureProxy = BackGestureProxy()
         override func loadView() { view = UIView(); view.isUserInteractionEnabled = false }
         override func didMove(toParent parent: UIViewController?) { super.didMove(toParent: parent); refreshSoon() }
-        override func viewWillAppear(_ animated: Bool) { super.viewWillAppear(animated); refreshSoon() }
+        override func viewWillAppear(_ animated: Bool) {
+            super.viewWillAppear(animated); refreshSoon()
+            if animated, let coordinator = transitionCoordinator {
+                coordinator.animate(alongsideTransition: nil) { context in
+                    if !context.isCancelled { Haptics.navigationCompleted() }
+                }
+            }
+        }
         override func viewDidAppear(_ animated: Bool) { super.viewDidAppear(animated); refreshSoon() }
         override func viewWillDisappear(_ animated: Bool) {
             super.viewWillDisappear(animated)

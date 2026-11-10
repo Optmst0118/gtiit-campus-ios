@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.4.0-beta.1 (110) · 2026-11-11
+
+- 新增三尺寸临近考试组件、校历指定日期深链；考试日期顶部对齐。
+- 校历月份改系统分页，移除每格重复日期/假期计算。
+- 修复内部导航重置来源栈，集中各业务偏好到首页设置，补充触感和中英文文案。
+
 ## 2.3.0-beta.2 (108) · 2026-11-10
 
 - 通知中心改为持久消息流与统一跳转，修复通知导航中的持续渲染失效；登录失效消息跨启动去重。

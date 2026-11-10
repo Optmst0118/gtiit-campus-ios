@@ -344,9 +344,9 @@ struct TimetableSettingsView: View {
                 }
             } footer: { Text(L10n.tr("使用门户现有登录，识别后进入核对页。只有点击右上角蓝色勾后才保存。")) }
             Section {
-                Toggle(L10n.tr("课前 15 分钟实时活动"), isOn: $courseAutoActivity)
+                Toggle(L10n.tr("课前 15 分钟实时活动"), isOn: $courseAutoActivity.withSelectionFeedback())
                 NavigationLink(L10n.tr("实时活动示例")) { ActivityExamplesView() }
-            } footer: { Text(L10n.tr("预排接下来的两节课，打开 App 时更新。")) }
+            }
             if app.timetable.snapshot != nil {
                 Section {
                     NavigationLink(L10n.tr("查看本地课表")) { CampusDetailPage(destination: .timetable) }

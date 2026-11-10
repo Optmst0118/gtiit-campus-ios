@@ -81,8 +81,7 @@ struct BookingTabView: View {
         guard settings.nativeBookingEnabled, let route = app.pendingWebRoute,
               route.site == .rooms || route.site == .sports else { return }
         app.pendingWebRoute = nil
-        path = NavigationPath()
-        navigationEpoch = UUID()
+        if route.replacesStack { path = NavigationPath(); navigationEpoch = UUID() }
         path.append(BookingDestination(site: route.site, title: route.title, url: route.url))
     }
 }

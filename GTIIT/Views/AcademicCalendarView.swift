@@ -9,11 +9,24 @@ struct AcademicCalendarView: View {
     @State private var mode = 0
     @State private var day = Date()
     @State private var examRevision = 0
-    @State private var showPast = false
+    @AppStorage("calendar.showPast") private var showPast = false
     @State private var showPDF = false
     @State private var exporting = false
     @State private var exportMessage: String?
     @State private var confirmExport = false
+    private let selectedDate: Date?
+    init(selectedDate: Date? = nil) {
+        self.selectedDate = selectedDate
+        if let selectedDate {
+            let c = CampusDate.calendar.dateComponents([.year, .month], from: selectedDate)
+            let first = (c.year ?? 2026) - ((c.month ?? 1) < 8 ? 1 : 0)
+            let candidate = "\(first)-\(first + 1)"
+            _year = State(initialValue: AcademicCalendarStore.years.contains(candidate) ? candidate : AcademicCalendarStore.defaultYear())
+            _day = State(initialValue: selectedDate)
+            _mode = State(initialValue: 1)
+        }
+    }
+    private var displaysExams: Bool { selectedDate != nil || showExams }
     private var events: [AcademicEvent] { AcademicCalendarStore.holidays(year: year, exams: app.exams.items) }
     private var today: Date { CampusDate.calendar.startOfDay(for: Date()) }
     private var visible: [AcademicEvent] {
@@ -22,7 +35,7 @@ struct AcademicCalendarView: View {
         return events.filter { ($0.endDate ?? $0.startDate ?? .distantPast) >= today }
     }
     private var calendarExams: [StudentExam] {
-        showExams ? CalendarExamSelection.items(app.exams.items, range: yearRange, day: mode == 1 ? day : nil, from: showPast ? nil : today) : []
+        displaysExams ? CalendarExamSelection.items(app.exams.items, range: yearRange, day: mode == 1 ? day : nil, from: showPast ? nil : today) : []
     }
     var body: some View {
         let _ = nativeLocale.identifier
@@ -48,7 +61,7 @@ struct AcademicCalendarView: View {
             }.padding(16).cardBackground()
             if mode == 1 {
                 VStack {
-                    AcademicMonthPicker(day: $day, range: yearRange, year: year, locale: nativeLocale, examDates: showExams ? Set(app.exams.items.map(\.date)) : [], personalExams: app.exams.items)
+                    AcademicMonthPicker(day: $day, range: yearRange, year: year, locale: nativeLocale, examDates: displaysExams ? Set(app.exams.items.map(\.date)) : [], personalExams: app.exams.items)
                         .id(year)
                         .padding(20)
                 }.cardBackground()
@@ -76,8 +89,6 @@ struct AcademicCalendarView: View {
         .toolbar { ToolbarItem(placement: .topBarTrailing) {
             Menu {
                 Button(L10n.tr("导入考试与假期到 Apple 日历"), systemImage: "calendar.badge.plus") { confirmExport = true }.disabled(exporting)
-                Toggle(L10n.tr("显示考试时间"), isOn: $showExams)
-                Toggle(L10n.tr("显示全部事项"), isOn: $showPast)
                 Button(L10n.tr("查看原始 PDF"), systemImage: "doc.richtext") { showPDF = true }
             } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel(L10n.tr("校历选项"))
         } }
@@ -215,6 +226,10 @@ private struct AcademicMonthPicker: View {
         return (0...12).compactMap { CampusDate.calendar.date(byAdding: .month, value: $0, to: first) }
     }
     var body: some View {
+        let holidays = AcademicCalendarStore.holidays(year: year, exams: personalExams).compactMap { event -> ClosedRange<Date>? in
+            guard let start = event.startDate, let end = event.endDate ?? event.startDate else { return nil }
+            return start...end
+        }
         VStack(spacing: 16) {
             HStack {
                 Menu {
@@ -235,31 +250,25 @@ private struct AcademicMonthPicker: View {
                         .frame(maxWidth: .infinity).accessibilityHidden(true)
                 }
             }
-            GeometryReader { geometry in
-                ScrollViewReader { reader in
-                    ScrollView(.horizontal) {
-                        HStack(spacing: 0) {
-                            ForEach(months, id: \.self) { date in
-                                LazyVGrid(columns: columns, spacing: 4) {
-                                    ForEach(0..<42) { index in
-                                        if let cell = cells(for: date)[index] { dateCell(cell) }
-                                        else { Color.clear.frame(height: 44).accessibilityHidden(true) }
-                                    }
-                                }.frame(width: geometry.size.width).id(date)
-                            }
-                        }.scrollTargetLayout()
-                    }.scrollIndicators(.hidden).scrollTargetBehavior(.paging)
-                        .scrollPosition(id: Binding<Date?>(get: { shown }, set: { if let date = $0 { selectMonth(date) } }), anchor: .center)
-                        .task { await Task.yield(); reader.scrollTo(shown, anchor: .center) }
+            TabView(selection: monthSelection) {
+                ForEach(months, id: \.self) { date in
+                    let dates = cells(for: date)
+                    LazyVGrid(columns: columns, spacing: 4) {
+                        ForEach(0..<42) { index in
+                            if let cell = dates[index] { dateCell(cell, holidays: holidays) }
+                            else { Color.clear.frame(height: 44).accessibilityHidden(true) }
+                        }
+                    }.tag(date)
                 }
-            }.frame(height: 284)
+            }.tabViewStyle(.page(indexDisplayMode: .never)).frame(height: 284)
+
 
 
         }
     }
-    private func dateCell(_ date: Date) -> some View {
+    private func dateCell(_ date: Date, holidays: [ClosedRange<Date>]) -> some View {
         let selected = CampusDate.calendar.isDate(date, inSameDayAs: day)
-        let holiday = AcademicCalendarStore.isDayOff(date, year: year, exams: personalExams)
+        let holiday = CampusDate.calendar.isDateInWeekend(date) || holidays.contains { $0.contains(date) }
         let today = CampusDate.calendar.isDateInToday(date)
         return Button { day = date; Haptics.selection() } label: {
             Text(String(CampusDate.calendar.component(.day, from: date)))

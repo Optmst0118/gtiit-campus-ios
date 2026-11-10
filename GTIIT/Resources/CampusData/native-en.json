@@ -977,7 +977,7 @@
   "《%@》的《%@》，%@截止。": "‘%@’: ‘%@’ is due %@.",
   "《%@》将在%@考试。": "The %@ exam is on %@.",
   "还有 %@ 项作业没交。": "You have %@ assignments left to submit.",
-  "作业与考试提醒": "Assignments and exams",
+  "作业与考试提醒": "Assignment and exam reminders",
   "全部完成": "All done",
   "打开 App 更新": "Open app to refresh",
   "状态待核对": "Status unverified",
@@ -1007,5 +1007,8 @@
   "全部已读": "Mark all as read",
   "%@天": "%@d",
   "A 考": "Sitting A",
-  "B 考": "Sitting B"
+  "B 考": "Sitting B",
+  "校历与日历同步": "Calendar and sync",
+  "考试日期、地点与倒计时": "Exam dates, locations and countdowns",
+  "+%@ 场": "+%@ exams"
 }

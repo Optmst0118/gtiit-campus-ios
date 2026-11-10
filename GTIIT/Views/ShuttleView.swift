@@ -75,15 +75,14 @@ struct ShuttleView: View {
                     .tint(proximity.direction != nil ? Theme.accent : .secondary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { showReminders = true } label: { Image(systemName: "bell") }
-                        .accessibilityLabel(L10n.tr("班车提醒"))
+                    Button { app.openNativeDetail(.settings) } label: { Image(systemName: "gearshape") }
+                        .accessibilityLabel(L10n.tr("设置"))
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button(L10n.tr("完整时刻表"), systemImage: "clock") {
                             timetableDirection = settings.favoriteShuttleDirection
                         }
-                        Toggle(L10n.tr("教学周加班车"), isOn: $settings.shuttleTeachingWeek)
                         if proximity.authorization == .notDetermined {
                             Button(L10n.tr("按位置推荐方向"), systemImage: "location") {
                                 proximity.activate(requestPermission: true)
@@ -94,7 +93,6 @@ struct ShuttleView: View {
                 }
             }
             .sheet(item: $timetableDirection) { direction in ShuttleTimetableView(initialDirection: direction) }
-            .sheet(isPresented: $showReminders) { ShuttleReminderSettingsView() }
             .onAppear {
                 proximity.activate()
                 withAnimation(reduceMotion ? nil : .easeOut(duration: 0.35)) { appeared = true }

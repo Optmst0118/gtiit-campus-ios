@@ -123,7 +123,7 @@ final class TabReselectProbeView: UIView, UIGestureRecognizerDelegate {
                     view.frame.width < bar.bounds.width * 0.95 &&
                     !(view is UIVisualEffectView)
             }
-            .sorted { $0.frame.minX < $1.frame.minX }
+            .sorted { bar.bounds.height > bar.bounds.width ? $0.frame.minY < $1.frame.minY : $0.frame.minX < $1.frame.minX }
         if let label = tabLabel(at: point, in: bar),
             let tab = tabs.first(where: { label.localizedCaseInsensitiveContains($0.title) }) {
             return tab
@@ -133,8 +133,9 @@ final class TabReselectProbeView: UIView, UIGestureRecognizerDelegate {
             return tabs[index]
         }
         guard bar.bounds.width > 0 else { return nil }
-        let width = bar.bounds.width / CGFloat(tabs.count)
-        let index = Int((point.x - bar.bounds.minX) / width)
+        let vertical = bar.bounds.height > bar.bounds.width
+        let length = (vertical ? bar.bounds.height : bar.bounds.width) / CGFloat(tabs.count)
+        let index = Int(((vertical ? point.y - bar.bounds.minY : point.x - bar.bounds.minX)) / length)
         return tabs[min(max(index, 0), tabs.count - 1)]
     }
 }

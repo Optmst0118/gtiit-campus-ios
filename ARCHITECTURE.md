@@ -30,3 +30,7 @@
 ## 下载、隐私与恢复
 
 `DownloadCoordinator`、`DownloadLocation`、`PDFPreviewCoordinator` 使用原 WebKit 会话处理 PDF 预览、下载及用户选定目录；下载索引独立于保存目录。`LocalAuthenticator` / App 锁及 `WebDataStoreRegistry` 处理本地保护与会话清理。避免重放 POST 或一次性链接、覆盖文件或卸载清理用户数据。
+
+## 考试组件与日期路由（2.4）
+
+`ExamWidgetSnapshot` 是 App Group 内的只读、语言无关摘要，App在考试更新及语言切换时同步。`ExamHomeWidget` 提供三种尺寸，系统时间线覆盖校园零点、考试开始和结束；通过 `gtiit-beta://calendar?date=YYYY-MM-DD` 进入校历选中日期。应用内考试使用当前栈继续进入校历；`CampusWebRoute.replacesStack` 仅允许跨入口重置，当前业务内部追加路径。设置统一在首页类型化路径下；保留原偏好键，不迁移登录或清空缓存。

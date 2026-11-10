@@ -20,7 +20,7 @@ struct DownloadsView: View {
         let _ = nativeLocale.identifier
 
         VStack(alignment: .leading, spacing: 16) {
-            Button { chooseFolder = true } label: { locationRow }
+            Button { app.pushNativeDetail(.settings) } label: { locationRow }
                 .buttonStyle(.plain)
                 .font(.body)
                 .padding(16)
@@ -46,24 +46,17 @@ struct DownloadsView: View {
         .nativeDetailSurface(title: L10n.tr("下载管理"))
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                Button { grid.toggle() } label: {
+                Button { Haptics.selection(); grid.toggle() } label: {
                     Image(systemName: grid ? "list.bullet" : "square.grid.2x2")
                 }.accessibilityLabel(grid ? L10n.tr("切换列表视图") : L10n.tr("切换网格视图"))
                 Menu {
-                    Picker(L10n.tr("排序方式"), selection: $sortRaw) {
+                    Picker(L10n.tr("排序方式"), selection: $sortRaw.withSelectionFeedback()) {
                         ForEach(DownloadSort.allCases) { Text($0.title).tag($0.rawValue) }
                     }
-                    Picker(L10n.tr("顺序"), selection: $ascending) {
+                    Picker(L10n.tr("顺序"), selection: $ascending.withSelectionFeedback()) {
                         Text(L10n.tr("升序")).tag(true); Text(L10n.tr("降序")).tag(false)
                     }
                     Divider()
-                    Picker(L10n.tr("文件保留（仅本机）"), selection: $settings.downloadRetention) {
-                        ForEach(DownloadRetention.allCases) { Text($0.title).tag($0) }
-                    }
-                    Button(L10n.tr("更改下载位置"), systemImage: "folder") { chooseFolder = true }
-                    if center.defaultFolderBookmark != nil {
-                        Button(L10n.tr("恢复默认 Downloads 位置")) { center.resetDefaultFolder() }
-                    }
                 } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel(L10n.tr("排序与下载选项"))
             }
         }
@@ -234,7 +227,7 @@ private struct DownloadThumbnail: View {
     }
 }
 
-private struct DownloadFolderPicker: UIViewControllerRepresentable {
+struct DownloadFolderPicker: UIViewControllerRepresentable {
     let picked: (URL) -> Void
     func makeCoordinator() -> Coordinator { Coordinator(picked: picked) }
     func makeUIViewController(context: Context) -> UIDocumentPickerViewController {

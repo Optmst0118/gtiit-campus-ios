@@ -30,11 +30,12 @@ struct StudentExam: Codable, Identifiable, Hashable {
         let parts = CampusDate.calendar.dateComponents([.month, .day], from: start)
         return String(format: "%02d/%02d", parts.month ?? 0, parts.day ?? 0)
     }
-    var sitting: String? {
+    var sitting: String? { sittingKey.map { L10n.tr($0) } }
+    var sittingKey: String? {
         guard kind == .final else { return nil }
         let words = session.lowercased().split { !$0.isLetter }.map(String.init)
-        if words.contains("b") || session.contains("B考") || session.contains("B 考") { return L10n.tr("B 考") }
-        if words.contains("a") || session.contains("A考") || session.contains("A 考") { return L10n.tr("A 考") }
+        if words.contains("b") || session.contains("B考") || session.contains("B 考") { return "B 考" }
+        if words.contains("a") || session.contains("A考") || session.contains("A 考") { return "A 考" }
         return nil
     }
     func daysUntil(from now: Date = Date()) -> Int? {

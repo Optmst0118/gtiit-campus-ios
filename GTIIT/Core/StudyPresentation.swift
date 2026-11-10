@@ -64,3 +64,29 @@ enum CourseLocationPresentation {
         return String(value[range]).uppercased()
     }
 }
+
+struct ExamWidgetSnapshot: Codable {
+    struct Item: Codable, Identifiable {
+        let id: String
+        let course: String
+        let date: Date
+        let end: Date
+        let venue: String
+        let sitting: String?
+        var calendarURL: URL {
+            var calendar = Calendar(identifier: .gregorian)
+            calendar.timeZone = TimeZone(identifier: "Asia/Shanghai")!
+            let c = calendar.dateComponents([.year, .month, .day], from: date)
+            return URL(string: String(format: "gtiit-beta://calendar?date=%04d-%02d-%02d", c.year!, c.month!, c.day!))!
+        }
+    }
+    let items: [Item]
+    let updatedAt: Date?
+    static let key = "exams.widget.snapshot"
+    func upcoming(at now: Date) -> [Item] { items.filter { $0.end > now }.sorted { $0.date == $1.date ? $0.id < $1.id : $0.date < $1.date } }
+    func timelineDates(from now: Date) -> [Date] {
+        var c = Calendar(identifier: .gregorian); c.timeZone = TimeZone(identifier: "Asia/Shanghai")!
+        let midnight = c.date(byAdding: .day, value: 1, to: c.startOfDay(for: now))!
+        return Array(Set([now, midnight] + items.flatMap { [$0.date, $0.end] }.filter { $0 > now && $0 < midnight })).sorted()
+    }
+}

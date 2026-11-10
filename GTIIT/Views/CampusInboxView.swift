@@ -8,6 +8,7 @@ struct CampusInboxView: View {
             if store.messages.isEmpty { ContentUnavailableView(L10n.tr("通知中心"), systemImage: "bell") }
             ForEach(store.messages) { message in
                 Button {
+                    Haptics.light()
                     store.markRead(message.id)
                     app.openMessage(message)
                 } label: {
@@ -27,7 +28,7 @@ struct CampusInboxView: View {
             }
         }.listStyle(.insetGrouped).nativeDetailSurface(title: L10n.tr("通知中心"))
         .toolbar { ToolbarItem(placement: .topBarTrailing) {
-            Button { store.markAllRead() } label: { Image(systemName: "checkmark") }
+            Button { Haptics.selection(); store.markAllRead() } label: { Image(systemName: "checkmark") }
                 .accessibilityLabel(L10n.tr("全部已读")).disabled(store.unreadCount == 0)
         } }
     }

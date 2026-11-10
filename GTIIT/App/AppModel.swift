@@ -110,6 +110,9 @@ final class AppModel: ObservableObject {
             return
         }
         #endif
+        if url.host == "calendar", let raw = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "date" })?.value, CampusDate.parse(raw) != nil {
+            openNativeDetail(.calendarDay(raw)); return
+        }
         if ["study", "assignments", "timetable", "exams"].contains(url.host ?? "") {
             let destination: CampusDetail = url.host == "timetable" ? .timetable : url.host == "exams" ? .exams : .assignments
             openNativeDetail(destination)
@@ -131,6 +134,11 @@ final class AppModel: ObservableObject {
         }
     }
 
+    func pushNativeDetail(_ destination: CampusDetail) {
+        Haptics.light()
+        if selectedTab == .me { nativePath.append(destination) }
+        else { openNativeDetail(destination) }
+    }
     func openNativeDetail(_ destination: CampusDetail) {
         select(tab: .me)
         nativePath = [destination]
@@ -144,11 +152,11 @@ final class AppModel: ObservableObject {
     }
     func openMessage(_ message: CampusMessage) {
         switch message.destination {
-        case .study: openNativeDetail(.assignments)
-        case .exams: openNativeDetail(.exams)
+        case .study: pushNativeDetail(.assignments)
+        case .exams: pushNativeDetail(.exams)
         case .assignments:
             if let raw = message.value, let url = MoodleWork.safeURL(raw) { openWeb(url, site: .moodle) }
-            else { openNativeDetail(.assignments) }
+            else { pushNativeDetail(.assignments) }
         case .reservation:
             if let raw = message.value, let url = CachedRoomReservation.safeURL(raw) { openWeb(url, site: .rooms) }
         case .login:
@@ -160,6 +168,14 @@ final class AppModel: ObservableObject {
     }
     func syncMoodleDeadlineReminders() {
         refreshMessageEvents()
+        if AppGroup.isAvailable {
+            let snapshot = ExamWidgetSnapshot(items: exams.items.compactMap { exam in
+                guard let date = exam.start else { return nil }
+                return ExamWidgetSnapshot.Item(id: exam.id, course: exam.course, date: date, end: date.addingTimeInterval(max(60, exam.duration * 3600)), venue: exam.venue, sitting: exam.sittingKey)
+            }, updatedAt: exams.updatedAt)
+            AppGroup.defaults.set(try? JSONEncoder().encode(snapshot), forKey: ExamWidgetSnapshot.key)
+            WidgetCenter.shared.reloadTimelines(ofKind: "ExamHomeWidget")
+        }
         if AppGroup.isAvailable {
             AppGroup.defaults.set(settings.language.rawValue, forKey: AppGroup.Key.language)
             let snapshot = StudyWidgetSnapshot(items: upcoming.items.map {
@@ -385,10 +401,15 @@ final class AppModel: ObservableObject {
         guard !isClearingData, !lock.isLocked, url.scheme == "https",
               SiteID.site(for: url) == site else { return }
         Haptics.light()
+        if selectedTab == .me, !nativePath.isEmpty {
+            nativePath.append(.web(CampusWebRoute(site: site, url: url, title: title ?? site.displayName)))
+            return
+        }
+        let replacesStack = selectedTab != AppTab.tab(for: site)
         switchTo(site)
         if site == .portal || site == .serviceHub || (site == .moodle && settings.nativeMoodleEnabled) ||
             ((site == .rooms || site == .sports) && settings.nativeBookingEnabled) {
-            pendingWebRoute = CampusWebRoute(site: site, url: url, title: title ?? site.displayName)
+            pendingWebRoute = CampusWebRoute(site: site, url: url, title: title ?? site.displayName, replacesStack: replacesStack)
         } else { browser(for: site).load(url) }
     }
 

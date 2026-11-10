@@ -1058,3 +1058,6 @@
 "%@天" = "%@d";
 "A 考" = "Sitting A";
 "B 考" = "Sitting B";
+"校历与日历同步" = "Calendar and sync";
+"考试日期、地点与倒计时" = "Exam dates, locations and countdowns";
+"+%@ 场" = "+%@ exams";

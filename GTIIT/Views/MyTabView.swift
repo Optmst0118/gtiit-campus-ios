@@ -5,7 +5,6 @@ struct MyTabView: View {
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var settings: AppSettings
-    @State private var showSettings = false
     @State private var rootVisible = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var navigationEpoch = UUID()
@@ -40,9 +39,9 @@ struct MyTabView: View {
             .onDisappear { rootVisible = false }
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    CampusInboxToolbarButton(store: app.messages) { app.openNativeDetail(.inbox) }
+                    CampusInboxToolbarButton(store: app.messages) { app.pushNativeDetail(.inbox) }
                     Button {
-                        showSettings = true
+                        app.pushNativeDetail(.settings)
                     } label: {
                         Image(systemName: "gearshape")
                     }
@@ -50,10 +49,9 @@ struct MyTabView: View {
                 }
             }
             .navigationDestination(for: CampusDetail.self) { CampusDetailPage(destination: $0) }
-            .navigationDestination(isPresented: $showSettings) { SettingsView() }
             .task {
                 #if DEBUG
-                    if ProcessInfo.processInfo.environment["GTIIT_SETTINGS"] == "1" { showSettings = true }
+                    if ProcessInfo.processInfo.environment["GTIIT_SETTINGS"] == "1" { app.pushNativeDetail(.settings) }
                 #endif
             }
             .onChange(of: app.tabReselectToken) { _, _ in
@@ -66,7 +64,7 @@ struct MyTabView: View {
         }
         .id(navigationEpoch)
         .onChange(of: app.tabReselectToken) { _, _ in
-            if app.tabReselectTarget == .me, !rootVisible { app.nativePath = []; showSettings = false; navigationEpoch = UUID() }
+            if app.tabReselectTarget == .me, !rootVisible { app.nativePath = []; navigationEpoch = UUID() }
         }
     }
 }

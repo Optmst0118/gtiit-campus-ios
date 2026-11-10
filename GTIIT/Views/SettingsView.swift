@@ -12,7 +12,7 @@ struct SettingsView: View {
                 NavigationLink { AppearancePreferencesView() } label: { SettingsLabel(L10n.tr("外观与语言"), symbol: "paintpalette") }
                 NavigationLink { HomePreferencesView() } label: { SettingsLabel(L10n.tr("首页与布局"), symbol: "rectangle.grid.1x2") }
                 NavigationLink { LearningSettingsView() } label: { SettingsLabel(L10n.tr("学习与提醒"), symbol: "calendar.badge.plus") }
-                NavigationLink { CalendarSyncSettingsView() } label: { SettingsLabel(L10n.tr("日历同步"), symbol: "calendar.badge.plus") }
+                NavigationLink { CalendarPreferencesView() } label: { SettingsLabel(L10n.tr("校历与日历同步"), symbol: "calendar.badge.plus") }
                 NavigationLink { ShuttlePreferencesView() } label: { SettingsLabel(L10n.tr("班车偏好"), symbol: "bus") }
                 if settings.yilongUnlocked {
                     NavigationLink { YilongSettingsView() } label: { SettingsLabel(L10n.tr("以龙"), symbol: "sparkles") }
@@ -31,7 +31,7 @@ struct SettingsView: View {
         .scrollContentBackground(.hidden)
         .background(Theme.pageBackground)
         .navigationTitle(L10n.tr("设置"))
-        .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
+        .navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
     }
 }
 struct SettingsLabel: View {
@@ -61,11 +61,11 @@ private struct PrivacySettingsView: View {
 
         Form {
             Section {
-                Toggle(L10n.format("使用%@锁定", String(describing: app.lock.biometryLabel)), isOn: $settings.biometricLockEnabled)
+                Toggle(L10n.format("使用%@锁定", String(describing: app.lock.biometryLabel)), isOn: $settings.biometricLockEnabled.withSelectionFeedback())
                     .disabled(!app.lock.isBiometryAvailable && !settings.biometricLockEnabled)
                 if settings.biometricLockEnabled {
                     SettingsChoicePicker(
-                        L10n.tr("离开 App 后锁定"), selection: $settings.lockDelay, choices: LockDelay.allCases,
+                        L10n.tr("离开 App 后锁定"), selection: $settings.lockDelay.withSelectionFeedback(), choices: LockDelay.allCases,
                         title: { $0.title })
                     Button(L10n.tr("立即锁定")) { app.lock.lock() }
                 }
@@ -97,28 +97,36 @@ private struct BrowsingSettingsView: View {
         Form {
             Section {
                 SettingsChoicePicker(
-                    L10n.tr("其他网站链接"), selection: $settings.externalLinks, choices: ExternalLinkMode.allCases,
+                    L10n.tr("其他网站链接"), selection: $settings.externalLinks.withSelectionFeedback(), choices: ExternalLinkMode.allCases,
                     title: { $0.title })
             } footer: {
                 Text(L10n.tr("只影响主动点击的普通外站链接。登录、表单和重定向保留原网页上下文。不同浏览器可能需要分别登录。"))
             }
             Section {
-                Toggle(L10n.tr("重新打开上次浏览的页面"), isOn: $settings.restoreLastPage)
+                Toggle(L10n.tr("重新打开上次浏览的页面"), isOn: $settings.restoreLastPage.withSelectionFeedback())
             } footer: {
                 Text(L10n.tr("只在本机记住校园站点内不含查询参数的普通 HTTPS 地址；认证和表单页面不保存。关闭后删除已记住的地址。编辑内容与滚动位置不跨启动保存。"))
             }
             Section {
-                Toggle(L10n.tr("网页暗色适配"), isOn: $settings.webDarkMode)
+                Toggle(L10n.tr("网页暗色适配"), isOn: $settings.webDarkMode.withSelectionFeedback())
             } footer: {
                 Text(L10n.tr("随 App 外观切换，仅调整校园站点的网页配色。图片与二维码保留原色，登录和表单仍由学校网页处理。各站更多菜单可单独恢复原色。"))
             }
+            Section(L10n.tr("暗色适配")) {
+                ForEach(SiteID.allCases) { site in
+                    Toggle(site.displayName, isOn: Binding(get: { !settings.originalColorSites.contains(site) }, set: { enabled in
+                        Haptics.selection()
+                        if enabled { settings.originalColorSites.remove(site) } else { settings.originalColorSites.insert(site) }
+                    })).disabled(!settings.webDarkMode)
+                }
+            }
             Section {
-                Toggle(L10n.tr("新版预约界面（Alpha）"), isOn: $settings.nativeBookingEnabled)
+                Toggle(L10n.tr("新版预约界面（Alpha）"), isOn: $settings.nativeBookingEnabled.withSelectionFeedback())
             } footer: {
                 Text(L10n.tr("关闭后回到旧版网页预约界面；新版为原生重绘预览，最终预约仍在学校官方页面完成。"))
             }
             Section {
-                Toggle(L10n.tr("新版 Moodle 界面（Alpha）"), isOn: $settings.nativeMoodleEnabled)
+                Toggle(L10n.tr("新版 Moodle 界面（Alpha）"), isOn: $settings.nativeMoodleEnabled.withSelectionFeedback())
             } footer: {
                 Text(L10n.tr("关闭后回到旧版 Moodle 网页；新版为原生课程与工具入口，课程内容和提交仍在官方页面完成。"))
             }
@@ -140,7 +148,7 @@ struct SitesSettingsView: View {
                     .keyboardType(.emailAddress)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
-                Toggle(L10n.tr("登录页自动填入邮箱"), isOn: $settings.prefillLoginEmail)
+                Toggle(L10n.tr("登录页自动填入邮箱"), isOn: $settings.prefillLoginEmail.withSelectionFeedback())
             } header: {
                 Text(L10n.tr("账号邮箱"))
             } footer: {
@@ -215,6 +223,8 @@ struct SiteDataView: View {
     }
 }
 struct StorageSettingsView: View {
+    @EnvironmentObject private var settings: AppSettings
+    @State private var chooseFolder = false
     @Environment(\.locale) private var nativeLocale
     @EnvironmentObject private var app: AppModel
     @ObservedObject private var center: DownloadCoordinator
@@ -244,6 +254,15 @@ struct StorageSettingsView: View {
             } footer: {
                 Text(L10n.tr("下载大小按本机现有文件计算。网页缓存的准确字节数无法从 WebKit 获取。"))
             }
+            Section {
+                Picker(L10n.tr("文件保留（仅本机）"), selection: $settings.downloadRetention.withSelectionFeedback()) {
+                    ForEach(DownloadRetention.allCases) { Text($0.title).tag($0) }
+                }
+                Button(L10n.tr("更改下载位置")) { Haptics.light(); chooseFolder = true }
+                if center.defaultFolderBookmark != nil {
+                    Button(L10n.tr("恢复默认 Downloads 位置")) { center.resetDefaultFolder(); Haptics.success() }
+                }
+            }
             if WebDataStoreRegistry.shared.pendingCleanupCount > 0 {
                 Section {
                     Text(L10n.tr("部分旧缓存尚在被系统释放。新的浏览会话已与旧数据隔离。"))
@@ -264,7 +283,15 @@ struct StorageSettingsView: View {
                 Button(L10n.tr("清理本机下载"), role: .destructive) { action = .downloads }
                 Button(L10n.tr("清除全部登录与网页数据"), role: .destructive) { action = .all }
             }.disabled(app.isClearingData)
-        }.navigationTitle(L10n.tr("存储空间")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+        }.sheet(isPresented: $chooseFolder) {
+            DownloadFolderPicker { url in
+                do { try center.selectDefaultFolder(url); Haptics.success() }
+                catch { center.reportError(error.localizedDescription); Haptics.error() }
+            }
+        }.alert(L10n.tr("文件操作未完成"), isPresented: Binding(get: { center.locationError != nil }, set: { if !$0 { center.locationError = nil } })) {
+            Button(L10n.tr("好")) { center.locationError = nil }
+        } message: { Text(center.locationError ?? "") }
+        .navigationTitle(L10n.tr("存储空间")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
             .task {
                 let bytes = await Task.detached(priority: .utility) { AppStorageFootprint.totalBytes() }.value
@@ -321,11 +348,12 @@ struct ShortcutSettingsView: View {
 }
 
 struct LearningSettingsView: View {
+    @EnvironmentObject private var settings: AppSettings
     var body: some View {
         List {
             NavigationLink { TimetableSettingsView() } label: { SettingsLabel(L10n.tr("课表"), symbol: "calendar") }
-            NavigationLink { MoodleReminderSettingsView() } label: { SettingsLabel(L10n.tr("作业提醒"), symbol: "bell.badge") }
-            NavigationLink { MoodleLayoutSettingsView(embedded: true) } label: { SettingsLabel(L10n.tr("Moodle 布局"), symbol: "square.grid.2x2") }
+            NavigationLink { MoodleReminderSettingsView() } label: { SettingsLabel(L10n.tr("作业与考试提醒"), symbol: "bell.badge") }
+            Toggle(L10n.tr("只显示关注课程"), isOn: $settings.onlyFollowedMoodleCourses.withSelectionFeedback())
         }.navigationTitle(L10n.tr("学习与提醒")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
             .scrollContentBackground(.hidden).background(Theme.pageBackground)
@@ -361,17 +389,17 @@ struct MoodleReminderSettingsView: View {
     var body: some View {
         Form {
             Section(L10n.tr("临近作业")) {
-                Picker(L10n.tr("临近作业范围"), selection: $settings.moodleUpcomingRange) {
+                Picker(L10n.tr("临近作业范围"), selection: $settings.moodleUpcomingRange.withSelectionFeedback()) {
                     ForEach(MoodleUpcomingRange.allCases) { range in Text(range.title).tag(range) }
                 }
             }
             Section {
-                Picker(L10n.isEnglish ? "Reminder time" : "每日提醒时间", selection: $settings.studyReminderHour) {
+                Picker(L10n.isEnglish ? "Reminder time" : "每日提醒时间", selection: $settings.studyReminderHour.withSelectionFeedback()) {
                     ForEach(0..<24) { hour in Text(String(format: "%02d:00", hour)).tag(hour) }
                 }
-                Toggle(L10n.isEnglish ? "Exam reminders" : "考试提醒", isOn: $settings.examRemindersEnabled)
-                Toggle(L10n.tr("未提交作业提醒"), isOn: $settings.moodleDeadlineRemindersEnabled)
-                Picker(L10n.isEnglish ? "Days in advance" : "提前天数", selection: $settings.moodleReminderLead) {
+                Toggle(L10n.isEnglish ? "Exam reminders" : "考试提醒", isOn: $settings.examRemindersEnabled.withSelectionFeedback())
+                Toggle(L10n.tr("未提交作业提醒"), isOn: $settings.moodleDeadlineRemindersEnabled.withSelectionFeedback())
+                Picker(L10n.isEnglish ? "Days in advance" : "提前天数", selection: $settings.moodleReminderLead.withSelectionFeedback()) {
                     ForEach(MoodleReminderLead.allCases) { lead in Text(lead.title).tag(lead) }
                 }.disabled(!settings.moodleDeadlineRemindersEnabled)
                 if reminders.authorizationStatus == .notDetermined {
@@ -388,7 +416,7 @@ struct MoodleReminderSettingsView: View {
                 }
             }
         }
-        .navigationTitle(L10n.tr("作业提醒")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
+        .navigationTitle(L10n.tr("作业与考试提醒")).navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
         .scrollContentBackground(.hidden).background(Theme.pageBackground)
         .task { await reminders.refreshAuthorization() }
         .onChange(of: scenePhase) { _, phase in
@@ -403,9 +431,9 @@ struct AppearancePreferencesView: View {
         List {
             NavigationLink { LanguageSettingsView() } label: { SettingsLabel(L10n.tr("语言"), symbol: "globe") }
             SettingsChoicePicker(
-                    L10n.tr("外观"), selection: $settings.appearance, choices: AppAppearance.allCases,
+                    L10n.tr("外观"), selection: $settings.appearance.withSelectionFeedback(), choices: AppAppearance.allCases,
                     title: { $0.title })
-            Toggle(L10n.tr("触感反馈"), isOn: $settings.hapticsEnabled)
+            Toggle(L10n.tr("触感反馈"), isOn: $settings.hapticsEnabled.withSelectionFeedback())
         }.nativeDetailSurface(title: L10n.tr("外观与语言"))
     }
 }
@@ -417,8 +445,8 @@ struct HomePreferencesView: View {
             NavigationLink { MyEntrySettingsView() } label: { SettingsLabel(L10n.tr("管理首页卡片"), symbol: "rectangle.grid.1x2") }
             NavigationLink { ShortcutSettingsView() } label: { SettingsLabel(L10n.tr("管理常用入口"), symbol: "square.grid.2x2") }
             NavigationLink { MoodleLayoutSettingsView(embedded: true) } label: { SettingsLabel(L10n.tr("学习页布局"), symbol: "book") }
-            Picker(L10n.tr("默认预约分类"), selection: $settings.defaultBooking) { ForEach(BookingSegment.allCases) { Text($0.title).tag($0) } }
-            Picker(L10n.tr("启动页面"), selection: $settings.startupTab) { ForEach(AppTab.allCases) { Text($0.title).tag($0) } }
+            Picker(L10n.tr("默认预约分类"), selection: $settings.defaultBooking.withSelectionFeedback()) { ForEach(BookingSegment.allCases) { Text($0.title).tag($0) } }
+            Picker(L10n.tr("启动页面"), selection: $settings.startupTab.withSelectionFeedback()) { ForEach(AppTab.allCases) { Text($0.title).tag($0) } }
             Button(L10n.tr("重新查看启动说明")) { app.showWelcome = true }
         }.nativeDetailSurface(title: L10n.tr("首页与布局"))
     }
@@ -429,7 +457,7 @@ struct WebsitePreferencesView: View {
         List {
             NavigationLink { SitesSettingsView() } label: { SettingsLabel(L10n.tr("站点与登录"), symbol: "person.crop.rectangle") }
             NavigationLink { BrowsingSettingsView() } label: { SettingsLabel(L10n.tr("网页浏览"), symbol: "safari") }
-            Toggle(L10n.tr("启动时预加载网站"), isOn: $settings.preloadSitesOnLaunch)
+            Toggle(L10n.tr("启动时预加载网站"), isOn: $settings.preloadSitesOnLaunch.withSelectionFeedback())
         }.nativeDetailSurface(title: L10n.tr("网站与登录"))
     }
 }
@@ -438,10 +466,24 @@ struct ShuttlePreferencesView: View {
     @State private var reminder = false
     var body: some View {
         List {
-            Picker(L10n.tr("常用方向"), selection: $settings.favoriteShuttleDirection) { ForEach(ShuttleDirection.allCases) { Text($0.title).tag($0) } }
-            Toggle(L10n.tr("教学周"), isOn: $settings.shuttleTeachingWeek)
-            Button(L10n.tr("发车提醒")) { reminder = true }
+            Picker(L10n.tr("常用方向"), selection: $settings.favoriteShuttleDirection.withSelectionFeedback()) { ForEach(ShuttleDirection.allCases) { Text($0.title).tag($0) } }
+            Toggle(L10n.tr("教学周"), isOn: $settings.shuttleTeachingWeek.withSelectionFeedback())
+            NavigationLink(L10n.tr("发车提醒")) { ShuttleReminderSettingsView() }
         }.nativeDetailSurface(title: L10n.tr("班车偏好"))
-            .sheet(isPresented: $reminder) { ShuttleReminderSettingsView() }
+
+    }
+}
+
+struct CalendarPreferencesView: View {
+    @AppStorage("calendar.showExams") private var showExams = false
+    @AppStorage("calendar.showPast") private var showPast = false
+    var body: some View {
+        Form {
+            Section {
+                Toggle(L10n.tr("显示考试时间"), isOn: $showExams.withSelectionFeedback())
+                Toggle(L10n.tr("显示全部事项"), isOn: $showPast.withSelectionFeedback())
+            }
+            NavigationLink { CalendarSyncSettingsView() } label: { SettingsLabel(L10n.tr("日历同步"), symbol: "calendar.badge.plus") }
+        }.nativeDetailSurface(title: L10n.tr("校历与日历同步"))
     }
 }

@@ -458,6 +458,46 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "exam_widget_stays_during_exam"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_widget_expires_at_end"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_widget_url_uses_campus_day"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_widget_timeline_includes_end"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_widget_opens_calendar_selected_day"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_widget_rejects_invalid_day"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "assignment_web_keeps_parent_page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "assignment_web_pop_returns_to_assignments"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "messages_unknown_login_is_not_an_event"
     },
     {
@@ -571,7 +611,17 @@
       "test" : "inbox_home_pop_3_completes"
     },
     {
-      "detail" : "200 persisted messages; seconds=0.09798407554626465",
+      "detail" : "",
+      "passed" : true,
+      "test" : "third_level_route_preserves_settings_parent"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "third_level_pop_returns_to_settings_not_home"
+    },
+    {
+      "detail" : "200 persisted messages; seconds=0.1427900791168213",
       "passed" : true,
       "test" : "inbox_actual_screen_first_render_bounded"
     },
@@ -907,8 +957,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-11-10T15:56:11Z",
+  "date" : "2026-11-10T20:02:30Z",
   "focus" : "study",
   "passed" : true,
-  "runID" : "d2756e35-e3c8-4884-acfa-9bd83f2a60bf"
+  "runID" : "53d41127-e4d8-488d-8917-cecf73fa2a56"
 }

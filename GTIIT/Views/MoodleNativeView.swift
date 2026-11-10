@@ -92,8 +92,7 @@ struct MoodleTabView: View {
     private func consumePendingURL() {
         guard settings.nativeMoodleEnabled, let route = app.pendingWebRoute, route.site == .moodle else { return }
         app.pendingWebRoute = nil
-        path = NavigationPath()
-        navigationEpoch = UUID()
+        if route.replacesStack { path = NavigationPath(); navigationEpoch = UUID() }
         path.append(MoodleDestination(title: route.title, url: route.url))
     }
 }
@@ -151,24 +150,11 @@ struct MoodleHomeView: View {
         }
         .background(Theme.pageBackground)
         .modifier(PrimaryPageScrollToTop(tab: .learning, anchor: "moodle.top"))
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Toggle(L10n.tr("只显示关注课程"), isOn: $settings.onlyFollowedMoodleCourses)
-                    Button { showLayout = true } label: {
-                        Label(L10n.tr("编辑 Moodle 布局"), systemImage: "slider.horizontal.3")
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                }
-                .accessibilityLabel(L10n.tr("Moodle 布局"))
-            }
-        }
+        .toolbar { ToolbarItem(placement: .topBarTrailing) {
+            Button { app.openNativeDetail(.settings) } label: { Image(systemName: "gearshape") }
+                .accessibilityLabel(L10n.tr("设置"))
+        } }
         .sheet(isPresented: $showImport) { TimetableImportView(automatic: true) }
-        .sheet(isPresented: $showLayout) {
-            MoodleLayoutSettingsView()
-                .environmentObject(settings)
-        }
         .task { refreshIfNeeded() }
         .onChange(of: app.lock.isLocked) { _, locked in if !locked { refreshIfNeeded() } }
     }
@@ -576,7 +562,7 @@ struct MoodleHistoryView: View {
         }
         .background(Theme.pageBackground)
         .navigationTitle(L10n.tr("历史课程"))
-        .navigationBarTitleDisplayMode(.large).nativeNavigationSurface(large: true)
+        .navigationBarTitleDisplayMode(.inline).nativeNavigationSurface()
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {

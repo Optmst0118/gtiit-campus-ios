@@ -707,7 +707,7 @@
 				CODE_SIGN_ENTITLEMENTS = GTIIT/GTIIT.entitlements;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 109;
+				CURRENT_PROJECT_VERSION = 110;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -716,8 +716,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3.0;
-				GTIIT_RELEASE_LABEL = "2.3.0-beta.3";
+				MARKETING_VERSION = 2.4.0;
+				GTIIT_RELEASE_LABEL = "2.4.0-beta.1";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -734,7 +734,7 @@
 				CODE_SIGN_ENTITLEMENTS = GTIIT/GTIIT.entitlements;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 109;
+				CURRENT_PROJECT_VERSION = 110;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -743,8 +743,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3.0;
-				GTIIT_RELEASE_LABEL = "2.3.0-beta.3";
+				MARKETING_VERSION = 2.4.0;
+				GTIIT_RELEASE_LABEL = "2.4.0-beta.1";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -784,6 +784,16 @@
 		62355224D8C9118C68624481 = {
 			isa = PBXBuildFile;
 			fileRef = 5D12849FCF94D04B44C3B5FF;
+		};
+		C5923EE9864850A4F34802D9 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ExamHomeWidget.swift;
+			sourceTree = "<group>";
+		};
+		A86D786483C2A24C5D44F5D3 = {
+			isa = PBXBuildFile;
+			fileRef = C5923EE9864850A4F34802D9;
 		};
 		05177471098ED7E6839E0FFC = {
 			isa = PBXFileReference;
@@ -879,6 +889,7 @@
 			isa = PBXGroup;
 			children = (
 				5D12849FCF94D04B44C3B5FF,
+				C5923EE9864850A4F34802D9,
 				05177471098ED7E6839E0FFC,
 				D9886E9BA934DB60DE7633B1,
 				FB710DA1B28E6D6E1486F4DA,
@@ -927,6 +938,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				62355224D8C9118C68624481,
+				A86D786483C2A24C5D44F5D3,
 				E75ECA58EA5864141479CF75,
 				07AD686217F3B997490BBAB8,
 				FA15CE7F5797D0D73345374D,
@@ -976,9 +988,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "109";
-				MARKETING_VERSION = "2.3.0";
-				GTIIT_RELEASE_LABEL = "2.3.0-beta.3";
+				CURRENT_PROJECT_VERSION = "110";
+				MARKETING_VERSION = "2.4.0";
+				GTIIT_RELEASE_LABEL = "2.4.0-beta.1";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";
@@ -998,9 +1010,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "109";
-				MARKETING_VERSION = "2.3.0";
-				GTIIT_RELEASE_LABEL = "2.3.0-beta.3";
+				CURRENT_PROJECT_VERSION = "110";
+				MARKETING_VERSION = "2.4.0";
+				GTIIT_RELEASE_LABEL = "2.4.0-beta.1";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";
