@@ -4,7 +4,7 @@
 
 ## 应用与导航
 
-- 原生 iOS 17+，Swift / SwiftUI、UIKit、WebKit；`GTIIT/App/GTIITApp.swift` 创建 `AppSettings`、`AppModel`，`Views/RootTabView.swift` 组织首页、学习、班车、预约、校园。横屏使用侧栏，竖屏底栏；详见对应视图及 `docs/verification/rotation-beta6/`、`portrait-doublebar-beta9/`。
+- 原生 iOS 17+，Swift / SwiftUI、UIKit、WebKit；`GTIIT/App/GTIITApp.swift` 创建 `AppSettings`、`AppModel`，`Views/RootTabView.swift` 组织首页、学习、班车、预约、校园。iPhone使用系统TabView/NavigationStack，Duo横屏自动呈现侧边紧凑玻璃栏；iPad保留分栏；详见对应视图及 `docs/verification/rotation-beta6/`、`portrait-doublebar-beta9/`。
 - `Models/SiteID.swift` 定义 Student、Moodle、练习房、体育和 Service Hub 五个站点；首次引导使用前四个。`Services/BrowserModel.swift`、`BrowserRouter.swift`、`WebDataStoreRegistry.swift` 负责 WebKit 导航、各站独立会话及清理；`WebAppearance.swift` 和 `Resources/WebAppearance/` 负责外观。Safari 会话不自动共享。提交、POST、认证、弹窗与 Cookie 必须保留原上下文。
 - `Core/Localization.swift`、`Resources/CampusData/native-en.json` 及 `*.lproj` 处理本地语言；网页内容由原站负责。
 

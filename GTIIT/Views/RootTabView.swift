@@ -14,7 +14,7 @@ struct RootTabView: View {
         let _ = nativeLocale.identifier
 
         GeometryReader { geometry in
-            let sidebar = PrimaryNavigationLayout.usesSidebar(geometry.size)
+            let sidebar = UIDevice.current.userInterfaceIdiom != .phone && PrimaryNavigationLayout.usesSidebar(geometry.size)
             ZStack {
                 StudentExamProbe(store: app.exams)
                 if let reader = app.summaryBrowser {
@@ -28,6 +28,11 @@ struct RootTabView: View {
                 if !app.launch.didFinish {
                     WebPrewarmHost(models: app.launch.models).opacity(0.01)
                 }
+                if UIDevice.current.userInterfaceIdiom == .phone {
+                    // Let the system coordinate the tab/navigation bars across
+                    // Duo displays and poses, including its vertical glass rail.
+                    tabs(sidebar: false)
+                } else {
                 NativePrimaryNavigation(wide: sidebar, onVisibilityChange: { sidebarVisible = $0 },
                     sidebar: sidebarContent.environmentObject(app).environmentObject(settings)
                         .environment(\.locale, nativeLocale).preferredColorScheme(colorScheme),
@@ -40,6 +45,7 @@ struct RootTabView: View {
                     // starts below the island and cannot cover the top inset.
                     // Keep horizontal safe areas for the landscape sidebar.
                     .ignoresSafeArea(.container, edges: .vertical)
+                }
             }
             .background {
                 if sidebar && sidebarVisible && UIDevice.current.userInterfaceIdiom == .phone {

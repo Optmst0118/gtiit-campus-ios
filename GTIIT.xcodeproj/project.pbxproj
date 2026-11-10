@@ -707,7 +707,7 @@
 				CODE_SIGN_ENTITLEMENTS = GTIIT/GTIIT.entitlements;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 108;
+				CURRENT_PROJECT_VERSION = 109;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -717,7 +717,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.3.0;
-				GTIIT_RELEASE_LABEL = "2.3.0-beta.2";
+				GTIIT_RELEASE_LABEL = "2.3.0-beta.3";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -734,7 +734,7 @@
 				CODE_SIGN_ENTITLEMENTS = GTIIT/GTIIT.entitlements;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 108;
+				CURRENT_PROJECT_VERSION = 109;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -744,7 +744,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.3.0;
-				GTIIT_RELEASE_LABEL = "2.3.0-beta.2";
+				GTIIT_RELEASE_LABEL = "2.3.0-beta.3";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -976,9 +976,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "108";
+				CURRENT_PROJECT_VERSION = "109";
 				MARKETING_VERSION = "2.3.0";
-				GTIIT_RELEASE_LABEL = "2.3.0-beta.2";
+				GTIIT_RELEASE_LABEL = "2.3.0-beta.3";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";
@@ -998,9 +998,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "108";
+				CURRENT_PROJECT_VERSION = "109";
 				MARKETING_VERSION = "2.3.0";
-				GTIIT_RELEASE_LABEL = "2.3.0-beta.2";
+				GTIIT_RELEASE_LABEL = "2.3.0-beta.3";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";
