@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 import UserNotifications
 
@@ -25,8 +26,12 @@ struct StudyDailyPlan {
             let examLines = preparedExams.compactMap { entry -> String? in
                 let remaining = calendar.dateComponents([.day], from: day, to: entry.day).day ?? -1
                 guard entry.start > fire, [0,3,7,14,31].contains(remaining) else { return nil }
-                return L10n.format("《%@》将在%@考试。", StudyWidgetSnapshot.courseName(entry.exam.course), entry.exam.date + " " + entry.exam.time)
-                    + " · " + L10n.format("还有 %@ 天", String(remaining))
+                let course = StudyWidgetSnapshot.courseName(entry.exam.course).split(whereSeparator: \.isWhitespace).joined(separator: " ")
+                let parts = calendar.dateComponents([.month, .day, .hour, .minute], from: entry.start)
+                let date = String(format: "%02d/%02d", parts.month ?? 0, parts.day ?? 0)
+                let time = String(format: "%02d:%02d", parts.hour ?? 0, parts.minute ?? 0)
+                if remaining == 0 { return L10n.format("《%@》今天 %@ 考试。", course, time) }
+                return L10n.format("《%@》%@ %@ 考试，距今 %@ 天。", course, date, time, String(remaining))
             }
             var lines = examLines + (workLines.isEmpty ? [] : [L10n.format("还有 %@ 项作业没交。", String(workLines.count))]) + workLines
             if lines.isEmpty && allowEmptySummary && offset <= 1 && works.allSatisfy({ $0.status != "unknown" }) {
@@ -60,18 +65,18 @@ struct StudyDailyPlan {
     func removePending(_ identifiers: [String]) { center.removePendingNotificationRequests(withIdentifiers: identifiers) }
 }
 
-@MainActor final class StudyDailyReminders {
+@MainActor final class StudyDailyReminders: ObservableObject {
     static let shared = StudyDailyReminders()
     private var task: Task<Void, Never>?
     private let delivery: any DailyNotificationDelivery
     private let isTestDelivery: Bool
-    private(set) var failed = false
+    @Published private(set) var failed = false
     init(delivery: (any DailyNotificationDelivery)? = nil) {
         isTestDelivery = delivery != nil
         self.delivery = delivery ?? SystemDailyNotifications()
     }
     func waitForUpdates() async { await task?.value }
-    func update(works: [MoodleWork], exams: [StudentExam], days: Int, hour: Int, allowPermissionRequest: Bool = false, allowEmptySummary: Bool = false, now: Date = Date()) {
+    func update(enabled: Bool = true, works: [MoodleWork], exams: [StudentExam], days: Int, hour: Int, allowPermissionRequest: Bool = false, allowEmptySummary: Bool = false, now: Date = Date()) {
         #if GTIIT_REGRESSION
         guard isTestDelivery else { return }
         #endif
@@ -81,7 +86,7 @@ struct StudyDailyPlan {
             failed = false
             let pending = await delivery.pending()
             let own = pending.filter { $0.identifier.hasPrefix("study.daily.") }
-            let plans = StudyDailyPlan.make(works: works, exams: exams, days: days, hour: hour, now: now, allowEmptySummary: allowEmptySummary)
+            let plans = enabled ? StudyDailyPlan.make(works: works, exams: exams, days: days, hour: hour, now: now, allowEmptySummary: allowEmptySummary) : []
             let budget = max(0, min(15, 48 - (pending.count - own.count)))
             let selected = Array(plans.prefix(budget))
             let desiredIDs = Set(selected.map { "study.daily." + String(Int($0.date.timeIntervalSince1970)) })

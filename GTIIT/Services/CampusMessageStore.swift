@@ -11,6 +11,7 @@ struct CampusMessage: Codable, Identifiable, Equatable {
     let destination: Destination
     var value: String? = nil
     var read = false
+    var loginSite: SiteID? { destination == .login ? value.flatMap(SiteID.init(rawValue:)) : nil }
     var symbol: String {
         switch destination {
         case .study, .assignments: return "checklist"
@@ -28,15 +29,16 @@ struct CampusMessage: Codable, Identifiable, Equatable {
     private let file: URL
     private var subscriptions = Set<AnyCancellable>()
     private var seen: Set<String> = []
+    private var deleted: [String] = []
     private var signedIn = Set<SiteID>()
     private var expired = Set<SiteID>()
-    private struct Archive: Codable { let messages: [CampusMessage]; let seen: Set<String>; var expired: Set<SiteID>? = nil }
+    private struct Archive: Codable { let messages: [CampusMessage]; let seen: Set<String>; var expired: Set<SiteID>? = nil; var deleted: [String]? = nil }
     var unreadCount: Int { messages.filter { !$0.read }.count }
     init(directory: URL? = nil) {
         file = (directory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("CampusMessages")).appendingPathComponent("events.json")
         if let archive = ProtectedCampusCache.read(Archive.self, from: file, maxBytes: 2_000_000) {
-            messages = Array(archive.messages.prefix(200)); seen = archive.seen; expired = archive.expired ?? []
+            messages = Array(archive.messages.prefix(200)); seen = archive.seen; expired = archive.expired ?? []; deleted = archive.deleted ?? []
         }
     }
     func connect(sync: CampusSessionSync) {
@@ -44,9 +46,18 @@ struct CampusMessage: Codable, Identifiable, Equatable {
         sync.$reservations.sink { [weak self] in self?.recordReservations($0, now: Date()) }.store(in: &subscriptions)
     }
     func append(_ message: CampusMessage) {
-        guard !seen.contains(message.id) else { return }
+        guard !seen.contains(message.id), !deleted.contains(message.id) else { return }
         seen.insert(message.id)
         messages = Array((messages + [message]).sorted { $0.date == $1.date ? $0.id < $1.id : $0.date > $1.date }.prefix(200))
+        persist()
+    }
+    func delete(_ id: String) {
+        remove(ids: [id])
+    }
+    private func remove(ids: Set<String>) {
+        guard !ids.isEmpty else { return }
+        deleted = Array((deleted + ids.sorted()).suffix(2000))
+        messages.removeAll { ids.contains($0.id) }
         persist()
     }
     func markRead(_ id: String) {
@@ -61,7 +72,11 @@ struct CampusMessage: Codable, Identifiable, Equatable {
         for (site, state) in states {
             if state == .signedIn {
                 signedIn.insert(site)
-                if expired.remove(site) != nil { persist() }
+                let resolved = Set(messages.lazy.filter { $0.loginSite == site }.map(\.id))
+                let wasExpired = expired.remove(site) != nil
+                // Removing in one publication clears the resolved unread count too.
+                if !resolved.isEmpty { remove(ids: resolved) }
+                else if wasExpired { persist() }
             }
             if state == .needsLogin, (signedIn.contains(site) || UserDefaults.standard.bool(forKey: "campus.session.wasSignedIn.\(site.rawValue)")), expired.insert(site).inserted {
                 append(CampusMessage(id: "login.\(site.rawValue).\(UUID().uuidString)", date: now,
@@ -76,9 +91,9 @@ struct CampusMessage: Codable, Identifiable, Equatable {
                 destination: .reservation, value: item.url))
         }
     }
-    func recordStudy(works: [MoodleWork], exams: [StudentExam], days: Int, hour: Int, now: Date = Date()) {
+    func recordStudy(works: [MoodleWork], exams: [StudentExam], days: Int, hour: Int, now: Date = Date(), allowEmptySummary: Bool = false) {
         guard let plan = StudyDailyPlan.make(works: works, exams: exams, days: days, hour: hour,
-            now: now, includePastToday: true, horizonDays: 0).first, plan.date <= now else { return }
+            now: now, allowEmptySummary: allowEmptySummary, includePastToday: true, horizonDays: 0).first, plan.date <= now else { return }
         append(CampusMessage(id: "study.daily." + String(Int(plan.date.timeIntervalSince1970)), date: plan.date,
             title: L10n.tr("作业与考试提醒"), body: plan.lines.prefix(12).joined(separator: "\n"), destination: plan.containsAssignments ? .study : .exams))
     }
@@ -96,10 +111,10 @@ struct CampusMessage: Codable, Identifiable, Equatable {
             body: request.content.body, destination: destination, value: value))
     }
     func clear() {
-        messages = []; seen = []; signedIn = []; expired = []; persist()
+        messages = []; seen = []; signedIn = []; expired = []; deleted = []; persist()
     }
     private func persist() {
         if seen.count > 2000 { seen = Set(messages.map(\.id)) }
-        try? ProtectedCampusCache.write(Archive(messages: messages, seen: seen, expired: expired), to: file)
+        try? ProtectedCampusCache.write(Archive(messages: messages, seen: seen, expired: expired, deleted: deleted), to: file)
     }
 }

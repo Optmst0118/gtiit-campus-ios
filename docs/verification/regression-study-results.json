@@ -278,6 +278,11 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "daily_master_off_removes_only_daily_requests"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "shared_cache_existing_schema_decodes"
     },
     {
@@ -508,7 +513,27 @@
     {
       "detail" : "",
       "passed" : true,
-      "test" : "messages_new_expired_session_is_new_event"
+      "test" : "messages_new_expired_session_replaces_resolved_event"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "messages_login_group_latest_first"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "messages_checking_does_not_resolve_login"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "messages_single_delete_persists_and_cannot_reappear"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "messages_confirmed_login_clears_only_matching_site"
     },
     {
       "detail" : "",
@@ -524,6 +549,11 @@
       "detail" : "",
       "passed" : true,
       "test" : "exam_final_sitting_b_preserved"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "exam_digest_uses_clean_campus_date_and_time"
     },
     {
       "detail" : "",
@@ -621,7 +651,7 @@
       "test" : "third_level_pop_returns_to_settings_not_home"
     },
     {
-      "detail" : "200 persisted messages; seconds=0.1427900791168213",
+      "detail" : "200 persisted messages; seconds=0.11752498149871826",
       "passed" : true,
       "test" : "inbox_actual_screen_first_render_bounded"
     },
@@ -957,8 +987,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-11-10T20:02:30Z",
+  "date" : "2026-11-11T15:17:09Z",
   "focus" : "study",
   "passed" : true,
-  "runID" : "53d41127-e4d8-488d-8917-cecf73fa2a56"
+  "runID" : "1b8accd5-bfa8-4017-b9d5-289d72005a49"
 }

@@ -145,9 +145,12 @@ final class AppModel: ObservableObject {
     }
 
     func refreshMessageEvents(now: Date = Date()) {
-        messages.recordStudy(works: settings.moodleDeadlineRemindersEnabled ? upcoming.items : [],
-            exams: settings.examRemindersEnabled ? exams.items : [], days: settings.moodleReminderLead.rawValue / 24,
-            hour: settings.studyReminderHour, now: now)
+        if settings.studyDailyReminderEnabled {
+            messages.recordStudy(works: settings.moodleDeadlineRemindersEnabled ? upcoming.items : [],
+                exams: settings.examRemindersEnabled ? exams.items : [], days: settings.moodleReminderLead.rawValue / 24,
+                hour: settings.studyReminderHour, now: now,
+                allowEmptySummary: settings.moodleDeadlineRemindersEnabled && upcoming.status == .current)
+        }
         messages.recordReservations(campusSync.reservations, now: now)
     }
     func openMessage(_ message: CampusMessage) {
@@ -190,10 +193,10 @@ final class AppModel: ObservableObject {
         #if GTIIT_REGRESSION
         canRequest = false
         #endif
-        StudyDailyReminders.shared.update(works: settings.moodleDeadlineRemindersEnabled ? upcoming.items : [],
+        StudyDailyReminders.shared.update(enabled: settings.studyDailyReminderEnabled, works: settings.moodleDeadlineRemindersEnabled ? upcoming.items : [],
             exams: settings.examRemindersEnabled ? exams.items : [], days: settings.moodleReminderLead.rawValue / 24, hour: settings.studyReminderHour, allowPermissionRequest: canRequest, allowEmptySummary: settings.moodleDeadlineRemindersEnabled && upcoming.status == .current)
         MoodleDeadlineReminders.shared.update(items: upcoming.items, updatedAt: upcoming.updatedAt,
-            partial: upcoming.partial, enabled: false, allowPermissionRequest: canRequest, lead: settings.moodleReminderLead)
+            partial: upcoming.partial, enabled: false, allowPermissionRequest: false, lead: settings.moodleReminderLead)
     }
 
     func restoreStudyCaches() {

@@ -73,6 +73,7 @@ struct RootTabView: View {
                 VStack(spacing: 0) {
                     ForEach(AppTab.allCases) { tab in
                         Button {
+                            Haptics.selection()
                             if app.selectedTab == tab { app.reselect(tab: tab) }
                             else { app.select(tab: tab) }
                         } label: {
@@ -94,7 +95,7 @@ struct RootTabView: View {
     }
 
     private func tabs(sidebar: Bool) -> some View {
-        TabView(selection: $app.selectedTab) {
+        TabView(selection: $app.selectedTab.withSelectionFeedback()) {
             ForEach(AppTab.allCases) { tab in
                 tabContent(for: tab)
                     .toolbar(sidebar ? .hidden : .visible, for: .tabBar)
@@ -353,12 +354,10 @@ private struct RootLifecycle: ViewModifier {
         .accessibilityHidden(app.lock.isLocked)
         .allowsHitTesting(!app.lock.isLocked && !app.isClearingData)
         .onChange(of: app.selectedTab) { _, newValue in
-            Haptics.selection()
             app.markVisited(newValue)
             app.downloads.dismissCompletedPresentation()
         }
         .onChange(of: app.bookingSegment) { _, _ in
-            Haptics.selection()
             app.downloads.dismissCompletedPresentation()
         }
         .overlay {
@@ -439,6 +438,7 @@ private struct RootLifecycle: ViewModifier {
         }
         .task(id: scenePhase) {
             guard scenePhase == .active else { return }
+            CourseLiveActivityController.shared.sync(snapshot: app.timetable.snapshot, enabled: courseAutoActivity)
             app.syncMoodleDeadlineReminders()
             if settings.hasSeenWelcome && !app.showWelcome { app.refreshMoodleSummary(onOpen: true); app.exams.refresh(force: true, allowed: { !app.lock.isLocked && app.lock.isActive && !app.isClearingData }); app.refreshRoomCacheIfAllowed() }
             while !Task.isCancelled {
@@ -462,6 +462,7 @@ private struct RootLifecycle: ViewModifier {
             }
         }
         .onChange(of: settings.moodleUpcomingRange) { _, _ in app.upcoming.invalidate(); app.syncMoodleDeadlineReminders(); app.refreshMoodleSummary(force: true) }
+        .onChange(of: settings.studyDailyReminderEnabled) { _, _ in app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.studyReminderHour) { _, _ in app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.examRemindersEnabled) { _, _ in app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.moodleReminderLead) { _, _ in app.syncMoodleDeadlineReminders() }
@@ -475,7 +476,6 @@ private struct RootLifecycle: ViewModifier {
         }
         .onChange(of: app.lock.isLocked) { _, locked in
             if !locked {
-                Haptics.success()
                 app.restoreStudyCaches()
                 app.prepareLaunchIfAllowed()
                 app.refreshMoodleSummary(onOpen: true)

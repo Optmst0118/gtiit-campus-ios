@@ -43,11 +43,7 @@ struct DocumentPreviewView: View {
             .sheet(isPresented: $showFileLocation) {
                 if let url = session.savedURL { PDFSavedLocationPicker(url: url) }
             }
-            .onChange(of: session.error) { _, error in if error != nil { Haptics.error() } }
-            .onChange(of: session.state) { _, state in
-                if state == .saved { Haptics.success() }
-                else if state == .failed { Haptics.error() }
-            }
+
     }
 }
 private struct PDFDownloadPressStyle: ButtonStyle {

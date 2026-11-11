@@ -96,7 +96,6 @@ private struct NativeWebPageContent: View {
         }
     }
     private func goBack() {
-        Haptics.light()
         if let entry, model.webView.backForwardList.backList.contains(where: { $0 === entry }), model.canGoBack {
             model.goBack()
         } else { dismiss() }

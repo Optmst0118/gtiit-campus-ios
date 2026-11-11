@@ -31,11 +31,6 @@ import SwiftUI
         guard accept() else { return }
         soft.impactOccurred(intensity: 0.95); soft.prepare()
     }
-    static func navigationCompleted() {
-        // A destination reached after an explicit tactile action must not buzz twice.
-        guard ProcessInfo.processInfo.systemUptime - lastEvent >= 0.6 else { return }
-        light()
-    }
     static func success() { guard accept() else { return }; notification.notificationOccurred(.success); notification.prepare() }
     static func warning() { guard accept() else { return }; notification.notificationOccurred(.warning); notification.prepare() }
     static func error() { guard accept() else { return }; notification.notificationOccurred(.error); notification.prepare() }

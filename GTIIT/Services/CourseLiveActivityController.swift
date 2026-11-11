@@ -43,7 +43,9 @@ struct CourseActivityPlan: Equatable {
             let desired = enabled ? CourseActivityPlan.upcoming(snapshot, now: now) : []
             let language = L10n.language.rawValue
             var issued = Set(UserDefaults.standard.stringArray(forKey: "course.activity.issued") ?? [])
+            issued.formIntersection(desired.map { $0.id + "|" + language })
             for activity in Activity<CourseActivityAttributes>.activities {
+                guard !Task.isCancelled, token == generation else { return }
                 let valid = desired.contains {
                     $0.id == activity.attributes.occurrenceID && activity.attributes.language == language &&
                     $0.title == activity.attributes.title && $0.room == activity.attributes.room && $0.building == activity.attributes.building &&
@@ -69,7 +71,10 @@ struct CourseActivityPlan: Equatable {
             for plan in desired where plan.start > now {
                 if #unavailable(iOS 26.0) { if plan.activate > now { continue } }
                 let key = plan.id + "|" + language
-                if issued.contains(key) || Activity<CourseActivityAttributes>.activities.contains(where: { $0.attributes.occurrenceID == plan.id }) { continue }
+                if Activity<CourseActivityAttributes>.activities.contains(where: { $0.attributes.occurrenceID == plan.id }) { continue }
+                // A vanished future request can be rebooked. Once its alert time
+                // passes, respect a prior delivery or user dismissal.
+                if plan.activate <= now, issued.contains(key) { continue }
                 do {
                     _ = try Self.request(plan: plan, language: language, now: now)
                     issued.insert(key)
@@ -115,8 +120,11 @@ struct CourseActivityPlan: Equatable {
         let attributes = CourseActivityAttributes(occurrenceID: plan.id, title: plan.title, room: plan.room, building: plan.building, language: language)
         let content = ActivityContent(state: CourseActivityAttributes.ContentState(start: plan.start, end: plan.end), staleDate: plan.start)
         if #available(iOS 26.0, *), plan.activate > now {
+            let title: LocalizedStringResource = language == "en" ? "Class Reminder" : "课前提醒"
+            let body: LocalizedStringResource = language == "en"
+                ? "Next class in 15 minutes: \(plan.title)" : "15 分钟后上课：\(plan.title)"
             return try Activity.request(attributes: attributes, content: content, pushType: nil, style: .standard,
-                alertConfiguration: AlertConfiguration(title: "课前提醒", body: "课程将在 15 分钟后开始", sound: .default), start: plan.activate)
+                alertConfiguration: AlertConfiguration(title: title, body: body, sound: .default), start: plan.activate)
         }
         return try Activity.request(attributes: attributes, content: content, pushType: nil)
     }

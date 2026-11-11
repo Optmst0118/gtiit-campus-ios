@@ -381,6 +381,7 @@ struct MyEntrySettingsView: View {
 }
 
 struct MoodleReminderSettingsView: View {
+    @ObservedObject private var daily = StudyDailyReminders.shared
     @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var app: AppModel
     @Environment(\.scenePhase) private var scenePhase
@@ -394,25 +395,28 @@ struct MoodleReminderSettingsView: View {
                 }
             }
             Section {
-                Picker(L10n.isEnglish ? "Reminder time" : "每日提醒时间", selection: $settings.studyReminderHour.withSelectionFeedback()) {
-                    ForEach(0..<24) { hour in Text(String(format: "%02d:00", hour)).tag(hour) }
-                }
-                Toggle(L10n.isEnglish ? "Exam reminders" : "考试提醒", isOn: $settings.examRemindersEnabled.withSelectionFeedback())
-                Toggle(L10n.tr("未提交作业提醒"), isOn: $settings.moodleDeadlineRemindersEnabled.withSelectionFeedback())
-                Picker(L10n.isEnglish ? "Days in advance" : "提前天数", selection: $settings.moodleReminderLead.withSelectionFeedback()) {
-                    ForEach(MoodleReminderLead.allCases) { lead in Text(lead.title).tag(lead) }
-                }.disabled(!settings.moodleDeadlineRemindersEnabled)
-                if reminders.authorizationStatus == .notDetermined {
-                    Button(L10n.tr("允许通知")) {
-                        Task { await reminders.requestPermission(); app.syncMoodleDeadlineReminders() }
+                Toggle(L10n.tr("每日截止提醒"), isOn: $settings.studyDailyReminderEnabled.withSelectionFeedback())
+                if settings.studyDailyReminderEnabled {
+                    Picker(L10n.isEnglish ? "Reminder time" : "每日提醒时间", selection: $settings.studyReminderHour.withSelectionFeedback()) {
+                        ForEach(0..<24) { hour in Text(String(format: "%02d:00", hour)).tag(hour) }
                     }
-                } else if reminders.authorizationStatus == .denied {
-                    Button(L10n.tr("前往系统设置")) {
-                        if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                    Toggle(L10n.isEnglish ? "Exam reminders" : "考试提醒", isOn: $settings.examRemindersEnabled.withSelectionFeedback())
+                    Toggle(L10n.tr("未提交作业提醒"), isOn: $settings.moodleDeadlineRemindersEnabled.withSelectionFeedback())
+                    Picker(L10n.isEnglish ? "Days in advance" : "提前天数", selection: $settings.moodleReminderLead.withSelectionFeedback()) {
+                        ForEach(MoodleReminderLead.allCases) { lead in Text(lead.title).tag(lead) }
+                    }.disabled(!settings.moodleDeadlineRemindersEnabled)
+                    if reminders.authorizationStatus == .notDetermined {
+                        Button(L10n.tr("允许通知")) {
+                            Task { await reminders.requestPermission(); app.syncMoodleDeadlineReminders() }
+                        }
+                    } else if reminders.authorizationStatus == .denied {
+                        Button(L10n.tr("前往系统设置")) {
+                            if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                        }
                     }
-                }
-                if reminders.failed {
-                    Button(L10n.tr("重试")) { app.syncMoodleDeadlineReminders() }
+                    if daily.failed {
+                        Button(L10n.tr("重试")) { app.syncMoodleDeadlineReminders() }
+                    }
                 }
             }
         }

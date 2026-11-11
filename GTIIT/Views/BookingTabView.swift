@@ -92,6 +92,7 @@ private struct BookingSiteMenu: View {
     var body: some View {
         Menu {
             Picker(L10n.tr("预约场所"), selection: Binding(get: { app.bookingSegment }, set: { value in
+                if value != app.bookingSegment { Haptics.selection() }
                 app.bookingSegment = value
                 app.reselect(tab: .booking)
             })) {
