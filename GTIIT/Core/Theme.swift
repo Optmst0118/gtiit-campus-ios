@@ -95,7 +95,7 @@ struct SiteBadge: View {
     }
 }
 
-/// Keep the native button action and observe completed taps for card feedback.
+/// Use the native press state so card feedback cannot intercept activation.
 struct CardPressStyle: ButtonStyle {
     var feedback: Haptics.CardWeight = .standard
     @Environment(\.isEnabled) private var isEnabled
@@ -105,7 +105,9 @@ struct CardPressStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.975 : 1)
             .opacity(configuration.isPressed ? 0.92 : 1)
             .animation(reduceMotion ? nil : .smooth(duration: 0.18), value: configuration.isPressed)
-            .simultaneousGesture(TapGesture().onEnded { if isEnabled { Haptics.card(feedback) } })
+            .onChange(of: configuration.isPressed) { _, pressed in
+                if pressed && isEnabled { Haptics.card(feedback) }
+            }
     }
 }
 
