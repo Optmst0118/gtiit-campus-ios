@@ -44,7 +44,6 @@ final class AppModel: ObservableObject {
     private var launchSubscription: AnyCancellable?
     private var campusSubscription: AnyCancellable?
     private var didScheduleSummaryWarmup = false
-    private var moodleAutoLoginStarted = false
     private var refreshAfterMoodleLogin = false
     private var backgroundMoodleToken: UUID?
     private let summaryRouter = BackgroundMoodleRouter()
@@ -112,6 +111,10 @@ final class AppModel: ObservableObject {
         #endif
         if url.host == "calendar", let raw = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "date" })?.value, CampusDate.parse(raw) != nil {
             openNativeDetail(.calendarDay(raw)); return
+        }
+        if url.host == "moodle" { openSite(.moodle); return }
+        if url.host == "timetable", let day = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "date" })?.value, CampusDate.parse(day) != nil {
+            openNativeDetail(.timetableDay(day)); return
         }
         if ["study", "assignments", "timetable", "exams"].contains(url.host ?? "") {
             let destination: CampusDetail = url.host == "timetable" ? .timetable : url.host == "exams" ? .exams : .assignments
@@ -304,6 +307,7 @@ final class AppModel: ObservableObject {
     func prepareLaunchIfAllowed() {
         guard settings.hasSeenWelcome, !showWelcome, !lock.isLocked, lock.isActive else { return }
         refreshCampusSessions()
+        if browsers[.moodle] != nil { prepareMoodleAutoLogin() }
         guard settings.preloadSitesOnLaunch else { launch.skip(); return }
         guard !launch.hasStarted, !launch.didFinish else { return }
         prepareMoodleAutoLogin()
@@ -317,9 +321,8 @@ final class AppModel: ObservableObject {
     }
 
     func prepareMoodleAutoLogin() {
-        guard !moodleAutoLoginStarted else { return }
-        moodleAutoLoginStarted = true
-        moodleAutoLogin.start(browser: browser(for: .moodle)) { [weak self] in
+        guard let browser = browsers[.moodle] else { return }
+        moodleAutoLogin.inspect(browser: browser) { [weak self] in
             guard let self else { return false }
             return !self.lock.isLocked && self.lock.isActive && !self.isClearingData
         }
@@ -345,6 +348,13 @@ final class AppModel: ObservableObject {
     func browser(for site: SiteID) -> BrowserModel {
         if let existing = browsers[site] { return existing }
         let model = BrowserModel(site: site, router: self)
+        if site == .moodle {
+            model.didFinishUnrememberedMoodleNavigation = { [weak self, weak model] url in
+                guard let self, let model, !self.isClearingData else { return }
+                if MoodleAutoLogin.isMoodleLogin(url) { self.prepareMoodleAutoLogin() }
+                self.campusSync.observe(model.webView, site: .moodle)
+            }
+        }
         browsers[site] = model
         return model
     }
@@ -441,7 +451,7 @@ final class AppModel: ObservableObject {
         guard !isClearingData else { return }
         isClearingData = true
         defer { isClearingData = false }
-        if site == .moodle { upcoming.cancel(clear: true); moodleAutoLogin.reset(); moodleAutoLoginStarted = false; pendingWebRoute = nil; settings.followedMoodleCourseIDs = [] }
+        if site == .moodle { upcoming.cancel(clear: true); moodleAutoLogin.reset(); pendingWebRoute = nil; settings.followedMoodleCourseIDs = [] }
         if site == .portal { exams.cancel(clear: true) }
         downloads.invalidateSession(for: site)
         if let browser = browsers[site], !(await browser.prepareForDataClear()) {
@@ -468,7 +478,7 @@ final class AppModel: ObservableObject {
         messages.clear()
         campusSync.clear()
         upcoming.cancel(clear: true)
-        moodleAutoLogin.reset(); moodleAutoLoginStarted = false; pendingWebRoute = nil; settings.followedMoodleCourseIDs = []
+        moodleAutoLogin.reset(); pendingWebRoute = nil; settings.followedMoodleCourseIDs = []
         exams.cancel(clear: true)
         var prepared: [BrowserModel] = []
         for site in SiteID.allCases {
@@ -534,11 +544,13 @@ extension AppModel: BrowserRouter {
     var browserMayRecoverDocument: Bool { !lock.isLocked && lock.isActive && !isClearingData }
     func browserWillLogout(site: SiteID) {
         if site == .moodle {
+            moodleAutoLogin.stopForLogout()
             upcoming.cancel(clear: true); settings.followedMoodleCourseIDs = []
             refreshAfterMoodleLogin = true
         }
     }
     func browserDidFinish(url: URL, site: SiteID) {
+        if site == .moodle, MoodleAutoLogin.isMoodleLogin(url) { prepareMoodleAutoLogin() }
         if let browser = browsers[site], !isClearingData { campusSync.observe(browser.webView, site: site) }
         if site == .rooms, url.host == site.host, ["/Web/reservation.php", "/Web/my-calendar.php"].contains(url.path) {
             refreshRoomCacheIfAllowed(force: true)

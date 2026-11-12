@@ -4,7 +4,7 @@ import SwiftUI
 /// the AppModel-owned store, regardless of which shortcut/card opened it.
 enum CampusDetail: Hashable {
     case timetable, assignments, exams, downloads, academicCalendar, inbox, settings
-    case calendarDay(String)
+    case calendarDay(String), timetableDay(String)
     case web(CampusWebRoute)
 }
 
@@ -18,6 +18,7 @@ struct CampusDetailPage: View {
         case .calendarDay(let date): AcademicCalendarView(selectedDate: CampusDate.parse(date))
         case .inbox: CampusInboxView(store: app.messages)
         case .timetable: LocalTimetableView(store: app.timetable)
+        case .timetableDay(let day): LocalTimetableView(store: app.timetable, initialDay: day)
         case .assignments: MoodleUpcomingView(store: app.upcoming)
         case .exams: StudentExamsView(store: app.exams)
         case .downloads: DownloadsView(center: app.downloads)

@@ -17,6 +17,8 @@
 ## 本地学习数据
 
 - `TimetableExtractor` 从门户识别课表，用户核对保存后交给 `LocalTimetable`。`StudentExamStore` 读取个人考试；`MoodleUpcomingStore` 在现有登录上下文运行 `Resources/CampusData/moodle-activity.js` 与 `moodle-upcoming.js` 获取作业和状态。缓存由 `ProtectedCampusCache` 管理；失败和部分结果需保留已有可信内容。`AcademicCalendar` 合并校历和个人考试；`CampusCalendarExport` 使用 EventKit 分别导出课表、假期与考试。
+- 临近课程组件从 App Group 读取按周课时及校历调课/假期例外；保存、恢复或清除本地课表时发布，语言变化刷新。组件按校园零点及下课时间更新，日期链接选中本地课表当天，无额外学校请求。
+- Moodle Office 365 恢复只在主浏览器完成官方登录页后尝试；每次失效只导航一次，确认登录后恢复资格，主动退出不自动重登，后台摘要页不触发 SSO。
 - `StudyDailyReminders` 基于已缓存的未提交作业和个人考试按校园日期生成每日系统通知，默认开启、09:00 投递，设置可改小时和提前天数。该提醒与课表的课前 15 分钟 ActivityKit 提醒独立开关与调度。iOS 的权限、通知容量和后台调度限制仍适用。`MoodleDeadlineReminders` 为旧提醒迁移/清理路径，核对当前调用再修改。`CampusMessageStore` 持久保存应用内消息事件，`CampusInboxView` 只渲染消息快照。业务采集与通知页打开无关。
 - 系统后台刷新在允许时使用独立只读 WebKit 内核和既有 Moodle 会话，复用摘要及小组件更新路径；设备受保护数据不可用或启用应用锁时跳过。系统决定运行时机，超时及回到前台会取消该次读取。
 - `CourseLiveActivityController` 按时间尝试预排未来课程；iOS 26+ 课前 15 分钟启动，系统可用容量限制实际预排数量。旧系统和后台补排受系统运行时限制。`ActivityLifecycleCleanup` 清理过期活动，不保证被系统挂起后准点结束。

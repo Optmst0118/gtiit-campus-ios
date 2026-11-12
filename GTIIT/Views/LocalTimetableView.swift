@@ -63,7 +63,11 @@ struct TodayTimetableCard: View {
 struct LocalTimetableView: View {
     @Environment(\.locale) private var nativeLocale
     @ObservedObject var store: LocalTimetableStore
-    @State private var selectedDay: String? = CampusDate.key(Date())
+    @State private var selectedDay: String?
+    init(store: LocalTimetableStore, initialDay: String? = nil) {
+        self.store = store
+        _selectedDay = State(initialValue: initialDay ?? CampusDate.key(.now))
+    }
     @State private var pagerHeight: CGFloat = 520
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme

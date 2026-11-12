@@ -27,7 +27,7 @@ struct MoodleUpcomingEntry: View {
                 }
                 if store.partial { Label(L10n.tr("部分更新，仍有课程未能核对"), systemImage: "exclamationmark.circle").font(.caption).foregroundStyle(Theme.orange) }
             }.padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
-        }.buttonStyle(CardPressStyle())
+        }.buttonStyle(CardPressStyle(feedback: .large))
         .task {
             while !Task.isCancelled {
                 refresh()

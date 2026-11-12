@@ -1061,3 +1061,7 @@
 "校历与日历同步" = "Calendar and sync";
 "考试日期、地点与倒计时" = "Exam dates, locations and countdowns";
 "+%@ 场" = "+%@ exams";
+"临近课程" = "Upcoming Classes";
+"按日期查看接下来的课程" = "Your next classes, grouped by day";
+"打开 App 导入课表" = "Import your timetable in the app";
+"未来三天暂无课程" = "No classes in the next three days";

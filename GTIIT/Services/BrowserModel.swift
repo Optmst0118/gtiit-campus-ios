@@ -19,6 +19,7 @@ final class BrowserModel: NSObject, ObservableObject {
     @Published private(set) var currentHost: String
     @Published private(set) var currentURLString: String
     @Published private(set) var progress: Double = 0
+    var didFinishUnrememberedMoodleNavigation: ((URL) -> Void)?
     @Published private(set) var isLoading = false
     @Published private(set) var canGoBack = false
     @Published private(set) var canGoForward = false
@@ -405,8 +406,9 @@ extension BrowserModel: WKNavigationDelegate {
             guard let self, self.navigationGeneration == generation else { return }
             if case .success(let value) = result { self.canRecoverReadOnlyDocument = value as? Bool == true && !self.documentEdited }
         }
-        if webView === self.webView, mayRememberLocation, let url = webView.url {
-            router?.browserDidFinish(url: url, site: site)
+        if webView === self.webView, let url = webView.url {
+            if mayRememberLocation { router?.browserDidFinish(url: url, site: site) }
+            else if site == .moodle, url.scheme == "https", url.host == site.host { didFinishUnrememberedMoodleNavigation?(url) }
         }
         webView.scrollView.refreshControl?.endRefreshing()
     }

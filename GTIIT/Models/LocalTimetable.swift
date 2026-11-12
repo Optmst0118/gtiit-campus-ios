@@ -1,4 +1,5 @@
 import Foundation
+import WidgetKit
 
 struct LocalCourse: Codable, Identifiable, Equatable {
     var id = UUID()
@@ -54,6 +55,36 @@ struct TimetableSnapshot: Codable {
     }
 }
 
+extension TimetableSnapshot {
+    func widgetSnapshot(events: [AcademicEvent] = AcademicCalendarStore.events) -> CourseWidgetSnapshot {
+        func slots(_ courses: [LocalCourse]) -> [CourseWidgetSnapshot.Slot] {
+            var seen = Set<String>()
+            return courses.sorted { $0.start == $1.start ? $0.name < $1.name : $0.start < $1.start }.compactMap { course in
+                let id = [course.code, course.name, course.group, course.start, course.end].joined(separator: "|")
+                guard course.valid, seen.insert(id).inserted, let start = LocalCourse.minutes(course.start),
+                      let end = LocalCourse.minutes(course.end) else { return nil }
+                return .init(id: id, title: course.name, location: course.location, startMinute: start, endMinute: end)
+            }
+        }
+        let weekly = Dictionary(grouping: courses, by: \.weekday).mapValues(slots)
+        var overrides: [String: [CourseWidgetSnapshot.Slot]] = [:]
+        if let from = CampusDate.parse(validFrom), let until = CampusDate.parse(validUntil) {
+            for event in events where event.verified && ["holiday", "adjustment"].contains(event.kind) {
+                guard let start = event.startDate, let end = event.endDate else { continue }
+                var day = max(start, from)
+                let last = min(end, until)
+                while day <= last {
+                    let key = CampusDate.key(day)
+                    if overrides[key] == nil { overrides[key] = slots(courses(on: day, events: events)) }
+                    guard let next = CampusDate.calendar.date(byAdding: .day, value: 1, to: day) else { break }
+                    day = next
+                }
+            }
+        }
+        return .init(validFrom: validFrom, validUntil: validUntil, weekly: weekly, overrides: overrides)
+    }
+}
+
 @MainActor final class LocalTimetableStore: ObservableObject {
     @Published private(set) var snapshot: TimetableSnapshot?
     @Published private(set) var loadError: String?
@@ -71,6 +102,7 @@ struct TimetableSnapshot: Codable {
                 guard candidate.version == 1, !candidate.courses.isEmpty, candidate.courses.allSatisfy(\.valid), CampusDate.parse(candidate.validFrom) != nil,
                       CampusDate.parse(candidate.validUntil) != nil, candidate.validFrom <= candidate.validUntil else { throw CocoaError(.fileReadCorruptFile) }
                 snapshot = candidate
+                publishWidget()
             } catch { loadError = L10n.tr("本地课表无法读取，请重新提取。") }
         }
     }
@@ -83,9 +115,23 @@ struct TimetableSnapshot: Codable {
         try protected.setResourceValues(flags)
         try JSONEncoder().encode(value).write(to: file, options: [.atomic, .completeFileProtection])
         snapshot = value; loadError = nil
+        publishWidget()
     }
     func clear() throws {
         if FileManager.default.fileExists(atPath: file.path) { try FileManager.default.removeItem(at: file) }
         snapshot = nil; loadError = nil
+        publishWidget()
     }
+    private func publishWidget() {
+        #if !GTIIT_REGRESSION
+        guard AppGroup.isAvailable else { return }
+        if let snapshot, let data = try? JSONEncoder().encode(snapshot.widgetSnapshot()) {
+            AppGroup.defaults.set(data, forKey: CourseWidgetSnapshot.key)
+        } else {
+            AppGroup.defaults.removeObject(forKey: CourseWidgetSnapshot.key)
+        }
+        WidgetCenter.shared.reloadTimelines(ofKind: "CourseHomeWidget")
+        #endif
+    }
+
 }

@@ -17,16 +17,16 @@ struct StudentExamsEntry: View {
                 VStack(alignment: .leading, spacing: 10) {
                     NavigationLink { CampusDetailPage(destination: .exams) } label: {
                         HStack { Text(kind.title).font(.headline); Spacer(); Image(systemName: "chevron.right").font(.caption).foregroundStyle(.secondary) }
-                    }.buttonStyle(.plain)
+                    }.buttonStyle(CardPressStyle(feedback: .large))
                     if let exam = exams.first {
-                        NavigationLink { AcademicCalendarView(selectedDate: exam.start) } label: { StudentExamRow(exam: exam) }.buttonStyle(.plain)
+                        NavigationLink { AcademicCalendarView(selectedDate: exam.start) } label: { StudentExamRow(exam: exam) }.buttonStyle(CardPressStyle(feedback: .compact))
                     } else {
                         Text(L10n.tr(store.loginRequired ? "登录 Student 后查看考试" : "暂无即将举行的考试")).font(.subheadline).foregroundStyle(.secondary)
                     }
                     if exams.count > 1 {
                         NavigationLink { CampusDetailPage(destination: .exams) } label: {
                             Text(L10n.format("另有 %@ 场考试", String(exams.count - 1))).font(.caption).foregroundStyle(.secondary)
-                        }.buttonStyle(.plain)
+                        }.buttonStyle(CardPressStyle(feedback: .compact))
                     }
                 }.padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
             }

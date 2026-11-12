@@ -88,6 +88,31 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "course_widget_three_days_respect_holiday_and_include_running_class"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "course_widget_class_disappears_at_end"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "course_widget_updates_after_a_week_without_reopening_app"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "course_widget_day_link_targets_campus_date"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "course_widget_timeline_updates_at_end_and_midnight"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "class_activity_fifteen_minute_lead"
     },
     {
@@ -463,6 +488,41 @@
     {
       "detail" : "",
       "passed" : true,
+      "test" : "moodle_sso_auto_attempt_enabled_initially"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_sso_failed_handoff_does_not_loop"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_sso_confirmed_login_rearms_next_expiry"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "moodle_sso_only_accepts_official_login_page"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_sso_preserves_school_link"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_sso_rejects_other_origin"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
+      "test" : "preload_sso_rejects_cleartext_or_action"
+    },
+    {
+      "detail" : "",
+      "passed" : true,
       "test" : "exam_widget_stays_during_exam"
     },
     {
@@ -651,7 +711,7 @@
       "test" : "third_level_pop_returns_to_settings_not_home"
     },
     {
-      "detail" : "200 persisted messages; seconds=0.11752498149871826",
+      "detail" : "200 persisted messages; seconds=0.2612340450286865",
       "passed" : true,
       "test" : "inbox_actual_screen_first_render_bounded"
     },
@@ -987,8 +1047,8 @@
     }
   ],
   "completed" : true,
-  "date" : "2026-11-11T15:17:09Z",
+  "date" : "2026-11-12T04:05:19Z",
   "focus" : "study",
   "passed" : true,
-  "runID" : "1b8accd5-bfa8-4017-b9d5-289d72005a49"
+  "runID" : "61a60df7-5d35-469a-9454-70851b50d51d"
 }

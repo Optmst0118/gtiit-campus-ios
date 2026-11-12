@@ -95,15 +95,17 @@ struct SiteBadge: View {
     }
 }
 
-/// Press feedback for tappable cards; a ButtonStyle preserves tap cancellation,
-/// scrolling, context menus and accessibility without adding a competing gesture.
+/// Keep the native button action and observe completed taps for card feedback.
 struct CardPressStyle: ButtonStyle {
+    var feedback: Haptics.CardWeight = .standard
+    @Environment(\.isEnabled) private var isEnabled
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.975 : 1)
             .opacity(configuration.isPressed ? 0.92 : 1)
             .animation(reduceMotion ? nil : .smooth(duration: 0.18), value: configuration.isPressed)
+            .simultaneousGesture(TapGesture().onEnded { if isEnabled { Haptics.card(feedback) } })
     }
 }
 

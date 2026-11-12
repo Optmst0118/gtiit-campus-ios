@@ -16,6 +16,7 @@
 		C6A7532AF546D60FF716A0A3 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD780EC62FAABB90FC5238B /* AppGroup.swift */; };
 		DF2B3A006FC9A6A9F9FE00E6 /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C95E8CB19F9D2825DAB78323 /* AppInfo.swift */; };
 		95E32EB3B5B55C0B22A3DB50 /* CampusColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6235E650AEC722AB8C7CA06E /* CampusColors.swift */; };
+		379C83D0EE17B6E714E1BD3B /* CourseWidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70960787ABAA9D725871D392 /* CourseWidgetSnapshot.swift */; };
 		B1ACC8E949F7E20DCA073BE1 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76670DB76A93C90530DB395D /* Haptics.swift */; };
 		9C16A2E0FB12C4ACC2BAEA9B /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01B5EDC8361742DD96337C4 /* Localization.swift */; };
 		898D8CF1BD8D0C5B29FDE170 /* StudyPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 618F983742DAF74EBDAAEF19 /* StudyPresentation.swift */; };
@@ -126,6 +127,7 @@
 		8BD780EC62FAABB90FC5238B /* AppGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroup.swift; sourceTree = "<group>"; };
 		C95E8CB19F9D2825DAB78323 /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
 		6235E650AEC722AB8C7CA06E /* CampusColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampusColors.swift; sourceTree = "<group>"; };
+		70960787ABAA9D725871D392 /* CourseWidgetSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseWidgetSnapshot.swift; sourceTree = "<group>"; };
 		76670DB76A93C90530DB395D /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 		B01B5EDC8361742DD96337C4 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		618F983742DAF74EBDAAEF19 /* StudyPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyPresentation.swift; sourceTree = "<group>"; };
@@ -305,6 +307,7 @@
 				8BD780EC62FAABB90FC5238B /* AppGroup.swift */,
 				C95E8CB19F9D2825DAB78323 /* AppInfo.swift */,
 				6235E650AEC722AB8C7CA06E /* CampusColors.swift */,
+				70960787ABAA9D725871D392 /* CourseWidgetSnapshot.swift */,
 				76670DB76A93C90530DB395D /* Haptics.swift */,
 				B01B5EDC8361742DD96337C4 /* Localization.swift */,
 				618F983742DAF74EBDAAEF19 /* StudyPresentation.swift */,
@@ -518,6 +521,7 @@
 				C6A7532AF546D60FF716A0A3 /* in Sources */,
 				DF2B3A006FC9A6A9F9FE00E6 /* in Sources */,
 				95E32EB3B5B55C0B22A3DB50 /* in Sources */,
+				379C83D0EE17B6E714E1BD3B /* in Sources */,
 				B1ACC8E949F7E20DCA073BE1 /* in Sources */,
 				9C16A2E0FB12C4ACC2BAEA9B /* in Sources */,
 				898D8CF1BD8D0C5B29FDE170 /* in Sources */,
@@ -707,7 +711,7 @@
 				CODE_SIGN_ENTITLEMENTS = GTIIT/GTIIT.entitlements;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 111;
+				CURRENT_PROJECT_VERSION = 112;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -716,8 +720,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.5.0;
-				GTIIT_RELEASE_LABEL = "2.5.0-beta.1";
+				MARKETING_VERSION = 2.6.0;
+				GTIIT_RELEASE_LABEL = "2.6.0-beta.1";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -734,7 +738,7 @@
 				CODE_SIGN_ENTITLEMENTS = GTIIT/GTIIT.entitlements;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 111;
+				CURRENT_PROJECT_VERSION = 112;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GTIIT/Info.plist;
@@ -743,8 +747,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.5.0;
-				GTIIT_RELEASE_LABEL = "2.5.0-beta.1";
+				MARKETING_VERSION = 2.6.0;
+				GTIIT_RELEASE_LABEL = "2.6.0-beta.1";
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.optmst0118.gtiit.beta";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -775,6 +779,16 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+		A766FC3BC82155F0B8739161 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = CourseHomeWidget.swift;
+			sourceTree = "<group>";
+		};
+		CA58116CD2CDA5631EDB6483 = {
+			isa = PBXBuildFile;
+			fileRef = A766FC3BC82155F0B8739161;
+		};
 		5D12849FCF94D04B44C3B5FF = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.swift;
@@ -853,6 +867,10 @@
 			isa = PBXBuildFile;
 			fileRef = 618F983742DAF74EBDAAEF19;
 		};
+		6C87958F1D240C34375B61D1 = {
+			isa = PBXBuildFile;
+			fileRef = 70960787ABAA9D725871D392;
+		};
 		7BF63A6F4891121BBF4D5A7F = {
 			isa = PBXBuildFile;
 			fileRef = CD63D0564F297C6A9B551A61;
@@ -888,6 +906,7 @@
 		EC21069A65F2CA977FE14A64 = {
 			isa = PBXGroup;
 			children = (
+				A766FC3BC82155F0B8739161,
 				5D12849FCF94D04B44C3B5FF,
 				C5923EE9864850A4F34802D9,
 				05177471098ED7E6839E0FFC,
@@ -937,6 +956,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA58116CD2CDA5631EDB6483,
 				62355224D8C9118C68624481,
 				A86D786483C2A24C5D44F5D3,
 				E75ECA58EA5864141479CF75,
@@ -946,6 +966,7 @@
 				6B6634C95966205A9EF62E21,
 				8F7DD500BC2A4CE8DC1CC790,
 				60B90A49E049E9A4DC3A3841,
+				6C87958F1D240C34375B61D1,
 				7BF63A6F4891121BBF4D5A7F,
 				EB947A3B30333E96509A1EF5,
 				3B8C8F71D5A4AB1292C8D809,
@@ -988,9 +1009,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "111";
-				MARKETING_VERSION = "2.5.0";
-				GTIIT_RELEASE_LABEL = "2.5.0-beta.1";
+				CURRENT_PROJECT_VERSION = "112";
+				MARKETING_VERSION = "2.6.0";
+				GTIIT_RELEASE_LABEL = "2.6.0-beta.1";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";
@@ -1010,9 +1031,9 @@
 				SWIFT_VERSION = "5.0";
 				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				CURRENT_PROJECT_VERSION = "111";
-				MARKETING_VERSION = "2.5.0";
-				GTIIT_RELEASE_LABEL = "2.5.0-beta.1";
+				CURRENT_PROJECT_VERSION = "112";
+				MARKETING_VERSION = "2.6.0";
+				GTIIT_RELEASE_LABEL = "2.6.0-beta.1";
 				CODE_SIGN_STYLE = "Automatic";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				DEVELOPMENT_TEAM = "H8M27P5YTH";

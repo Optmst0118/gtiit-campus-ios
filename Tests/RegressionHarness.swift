@@ -622,6 +622,17 @@ private final class RetiredViewReference {
         check("personal_break_no_b_keeps_school_calendar", !AcademicCalendarStore.holidays(year: "2026-2027", exams: [onlyA]).contains { $0.id == "break-2026-2027-Winter" })
         let classNow = CampusDate.parse("2026-10-28")!.addingTimeInterval(7*3600)
         let activitySnapshot = TimetableSnapshot(semester: "Test", validFrom: "2026-10-28", validUntil: "2026-11-18", courses: [LocalCourse(name: "Test Class", code: "ACT", group: "L1", weekday: 3, start: "09:00", end: "11:00", room: "E205", building: "SC")])
+        let monday = CampusDate.parse("2026-11-09")!
+        let firstClass = LocalCourse(name: "Robotics", code: "R", group: "", weekday: 1, start: "09:00", end: "10:00", room: "205", building: "SC")
+        let later = LocalCourse(name: "Physics", code: "P", group: "", weekday: 2, start: "14:00", end: "15:00", room: "", building: "")
+        let widgetHoliday = AcademicEvent(id: "fixture", year: "2026-2027", start: "2026-11-10", end: "2026-11-10", kind: "holiday", zh: "", en: "", raw: "", verified: true, source: "")
+        let widgetSchedule = TimetableSnapshot(semester: "Winter", validFrom: "2026-11-09", validUntil: "2026-12-01", courses: [firstClass, later]).widgetSnapshot(events: [widgetHoliday])
+        let days = widgetSchedule.days(from: monday.addingTimeInterval(9.5 * 3600))
+        check("course_widget_three_days_respect_holiday_and_include_running_class", days.count == 3 && days[0].slots.first?.title == "Robotics" && days[1].slots.isEmpty && days[2].slots.isEmpty)
+        check("course_widget_class_disappears_at_end", widgetSchedule.days(from: monday.addingTimeInterval(10 * 3600))[0].slots.isEmpty)
+        check("course_widget_updates_after_a_week_without_reopening_app", widgetSchedule.days(from: monday.addingTimeInterval(7 * 86400))[1].slots.first?.title == "Physics")
+        check("course_widget_day_link_targets_campus_date", days[1].url.absoluteString == "gtiit-beta://timetable?date=2026-11-10")
+        check("course_widget_timeline_updates_at_end_and_midnight", widgetSchedule.timelineDates(from: monday).contains(monday.addingTimeInterval(10 * 3600)) && widgetSchedule.timelineDates(from: monday).contains(monday.addingTimeInterval(86400)))
         let classPlans = CourseActivityPlan.upcoming(activitySnapshot, now: classNow)
         check("class_activity_fifteen_minute_lead", classPlans.first?.start.timeIntervalSince(classPlans.first!.activate) == 900)
         check("class_activity_all_upcoming_planned_in_order", classPlans.count >= 3 && classPlans.map(\.start) == classPlans.map(\.start).sorted() && classPlans[0].room == "E205" && classPlans[0].building == "SC")
@@ -706,6 +717,16 @@ private final class RetiredViewReference {
         check("daily_master_off_removes_only_daily_requests", Set(dailyDelivery.requests.keys) == [unrelated.identifier])
         testSharedSummaryInfrastructure()
         testMoodleCacheAndRange()
+        var sso = MoodleSSOAttempt()
+        check("moodle_sso_auto_attempt_enabled_initially", sso.canAttempt)
+        sso.finish()
+        check("moodle_sso_failed_handoff_does_not_loop", !sso.canAttempt)
+        sso.authenticated()
+        check("moodle_sso_confirmed_login_rearms_next_expiry", sso.canAttempt)
+        check("moodle_sso_only_accepts_official_login_page", MoodleAutoLogin.isMoodleLogin(URL(string: "https://moodle.gtiit.edu.cn/moodle/login/index.php?test=1")!) && !MoodleAutoLogin.isMoodleLogin(URL(string: "https://moodle.gtiit.edu.cn:444/moodle/login/index.php")!))
+        check("preload_sso_preserves_school_link", LaunchPreparation.allowedMoodleSSO("https://moodle.gtiit.edu.cn/moodle/auth/saml2/login.php?wants&idp=fixture")?.query?.contains("idp=fixture") == true)
+        check("preload_sso_rejects_other_origin", LaunchPreparation.allowedMoodleSSO("https://moodle.gtiit.edu.cn.example.com/moodle/auth/saml2/login.php") == nil)
+        check("preload_sso_rejects_cleartext_or_action", LaunchPreparation.allowedMoodleSSO("http://moodle.gtiit.edu.cn/moodle/auth/saml2/login.php") == nil && LaunchPreparation.allowedMoodleSSO("https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php") == nil)
         if ProcessInfo.processInfo.environment["REGRESSION_FOCUS"] == "moodle" {
             await verifyUpcomingReader(); finish(); return
         }
@@ -1543,9 +1564,7 @@ private final class RetiredViewReference {
         disabled.prepareLaunchIfAllowed()
         check("preload_setting_skips_network", disabled.launch.didFinish && disabled.launch.models.isEmpty)
         check("preload_setting_persists", !AppSettings(defaults: defaults).preloadSitesOnLaunch)
-        check("preload_sso_preserves_school_link", LaunchPreparation.allowedMoodleSSO("https://moodle.gtiit.edu.cn/moodle/auth/saml2/login.php?wants&idp=fixture")?.query?.contains("idp=fixture") == true)
-        check("preload_sso_rejects_other_origin", LaunchPreparation.allowedMoodleSSO("https://moodle.gtiit.edu.cn.example.com/moodle/auth/saml2/login.php") == nil)
-        check("preload_sso_rejects_cleartext_or_action", LaunchPreparation.allowedMoodleSSO("http://moodle.gtiit.edu.cn/moodle/auth/saml2/login.php") == nil && LaunchPreparation.allowedMoodleSSO("https://moodle.gtiit.edu.cn/moodle/mod/assign/view.php") == nil)
+
 
         let router = TestRouter()
         let models = SiteID.onboardingSites.map { BrowserModel(site: $0, router: router) }

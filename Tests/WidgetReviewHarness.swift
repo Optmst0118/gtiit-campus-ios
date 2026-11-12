@@ -37,10 +37,40 @@ import WidgetKit
         }
         return ExamHomeView(familyOverride: family, entry: .init(date: now, snapshot: .init(items: items, updatedAt: now), english: english))
     }
+    static func course(_ family: WidgetFamily, english: Bool = false) -> some View {
+        let date = CourseWidgetSnapshot.calendar.startOfDay(for: now)
+        let next = date.addingTimeInterval(2 * 86400)
+        let courses = ["Introduction to Robotics", "Thermodynamics 1", "Engineering Graphics", "Physics 2"]
+        let slots = courses.enumerated().map { index, course in
+            CourseWidgetSnapshot.Slot(id: String(index), title: course, location: "SC · L-110", startMinute: 510 + index * 130, endMinute: 600 + index * 130)
+        }
+        let dates = (0..<3).map { CourseWidgetSnapshot.key(for: date.addingTimeInterval(Double($0) * 86400)) }
+        let snapshot = CourseWidgetSnapshot(validFrom: dates[0], validUntil: CourseWidgetSnapshot.key(for: next),
+                                            weekly: [:], overrides: [dates[0]: slots, dates[1]: [], dates[2]: Array(slots.prefix(3))])
+        return CourseHomeView(familyOverride: family, entry: .init(date: date, snapshot: snapshot, english: english))
+    }
     static func render() {
         let root = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let warmup = ImageRenderer(content: study(.systemSmall).frame(width: 170, height: 170))
         _ = warmup.uiImage
+        if ProcessInfo.processInfo.environment["WIDGET_COURSE_REVIEW"] == "1" {
+            var sizes: [(WidgetFamily, String, CGFloat, CGFloat)] = [(.systemSmall, "small", 158, 158),
+                (.systemMedium, "medium", 338, 158), (.systemLarge, "large", 338, 354)]
+            if #available(iOS 27.0, *) { sizes.append((.systemExtraLargePortrait, "extra-large", 338, 530)) }
+            for (family, label, width, height) in sizes {
+                for dark in [false, true] {
+                    let view = course(family, english: dark).padding(16).frame(width: width, height: height)
+                        .background(WidgetStyle.background).environment(\.colorScheme, dark ? .dark : .light)
+                    let renderer = ImageRenderer(content: view)
+                    renderer.scale = 2
+                    try? renderer.uiImage?.pngData()?.write(to: root.appendingPathComponent("course-\(label)-\(dark ? "en-dark" : "zh-light").png"))
+                }
+            }
+            if let id = ProcessInfo.processInfo.environment["WIDGET_REVIEW_RUN_ID"] {
+                try? id.write(to: root.appendingPathComponent("render-complete.txt"), atomically: true, encoding: .utf8)
+            }
+            return
+        }
         for dark in [false, true] {
             for family in [WidgetFamily.systemSmall, .systemMedium, .systemLarge] {
                 let label = family == .systemSmall ? "small" : family == .systemMedium ? "medium" : "large"

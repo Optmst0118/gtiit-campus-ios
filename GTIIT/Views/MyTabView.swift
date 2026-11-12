@@ -123,7 +123,7 @@ private struct MyUtilitiesSection: View {
             NavigationLink { CampusDetailPage(destination: .downloads) } label: { MyUtilityRow(title: L10n.tr("下载管理"), symbol: "arrow.down.circle") }
 
 
-        }.buttonStyle(CardPressStyle()).cardBackground().padding(.top, 8)
+        }.buttonStyle(CardPressStyle(feedback: .compact)).cardBackground().padding(.top, 8)
     }
 }
 
@@ -139,7 +139,7 @@ private struct LocalTimetableEntry: View {
                     TodayTimetableCard(store: store)
                         .padding(18).frame(maxWidth: .infinity, alignment: .leading).cardBackground()
                 }
-                    .buttonStyle(CardPressStyle())
+                    .buttonStyle(CardPressStyle(feedback: .large))
             } else {
                 VStack(alignment: .leading, spacing: 14) {
                     TodayTimetableCard(store: store)
@@ -289,7 +289,7 @@ private final class ShortcutGridController: UICollectionViewController, UICollec
     }
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard !owner.editing, items.indices.contains(indexPath.item) else { return }
-        Haptics.light(); owner.activate(items[indexPath.item])
+        Haptics.card(owner.accessible ? .standard : .compact); owner.activate(items[indexPath.item])
     }
     private func moveAccessible(_ id: String, offset: Int) -> Bool {
         guard let source = items.firstIndex(where: { $0.id == id }), items.indices.contains(source + offset) else { return false }

@@ -18,6 +18,14 @@ import SwiftUI
         lastEvent = now
         return true
     }
+    enum CardWeight { case compact, standard, large }
+    static func card(_ weight: CardWeight) {
+        switch weight {
+        case .compact: light(intensity: 0.55)
+        case .standard: medium(intensity: 0.7)
+        case .large: medium()
+        }
+    }
     static func prepare() { guard isEnabled else { return }; crisp.prepare(); firm.prepare(); soft.prepare(); notification.prepare() }
     static func light(intensity: CGFloat = 0.9) {
         guard accept() else { return }

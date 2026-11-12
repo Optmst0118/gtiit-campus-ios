@@ -469,7 +469,7 @@ private struct RootLifecycle: ViewModifier {
         .onChange(of: settings.moodleDeadlineRemindersEnabled) { _, _ in app.syncMoodleDeadlineReminders() }
         .onChange(of: settings.shuttleTeachingWeek) { _, _ in syncShuttleSystemState() }
         .onChange(of: settings.favoriteShuttleDirection) { _, _ in syncShuttleSystemState() }
-        .onChange(of: settings.language) { _, _ in syncShuttleSystemState(); app.syncMoodleDeadlineReminders() }
+        .onChange(of: settings.language) { _, _ in syncShuttleSystemState(); app.syncMoodleDeadlineReminders(); WidgetCenter.shared.reloadTimelines(ofKind: "CourseHomeWidget") }
         .onChange(of: settings.privateShuttleReminders) { _, _ in syncShuttleSystemState() }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.protectedDataDidBecomeAvailableNotification)) { _ in
             app.restoreStudyCaches()
